@@ -1,28 +1,37 @@
-# Selected Zero-Cost Portfolio v2
+# Practical Automation Lab
 
-## Decision
-Scale two clusters only:
+Free browser-local calculators for automation economics and e-commerce unit economics.
 
-1. **Automation Economics**
-   - Automation ROI Calculator (core winner)
-   - Manual Task Cost Calculator (duplicate / upstream intent)
-   - Automation Payback Calculator (duplicate / downstream intent)
+**Live site:** https://practical-automation-lab.onrender.com/
 
-2. **E-commerce Unit Economics**
-   - Break-even ROAS Calculator (core winner)
-   - E-commerce Profit Margin Calculator (duplicate)
-   - Maximum CPA Calculator (duplicate)
-   - Discount Profit Impact Calculator (duplicate)
+## Tools
 
-## Killed / frozen
-- AI Automation Readiness Assessment: killed as a standalone acquisition experiment. Too subjective and weakly monetizable versus the selected calculators.
-- Inventory Reorder Point Calculator: frozen, not deleted. Useful but lower priority until the selected clusters produce evidence of traffic.
+### Automation economics
+- [Automation ROI Calculator](https://practical-automation-lab.onrender.com/automation-roi.html)
+- [Manual Task Cost Calculator](https://practical-automation-lab.onrender.com/manual-task-cost.html)
+- [Automation Payback Calculator](https://practical-automation-lab.onrender.com/automation-payback.html)
 
-## Operating rule
-Do not add more unrelated tools. Duplicate only around pages that produce evidence: impressions, clicks, ranking progress, affiliate clicks, or ad revenue. After enough exposure, freeze/delete pages that produce no measurable signal while adjacent pages do.
+### E-commerce unit economics
+- [Break-even ROAS Calculator](https://practical-automation-lab.onrender.com/breakeven-roas.html)
+- [E-commerce Profit Margin Calculator](https://practical-automation-lab.onrender.com/ecommerce-profit-margin.html)
+- [Maximum CPA Calculator](https://practical-automation-lab.onrender.com/max-cpa.html)
+- [Discount Profit Impact Calculator](https://practical-automation-lab.onrender.com/discount-profit-impact.html)
 
-## Cost
-Pre-revenue cash cost: $0.
+## Principles
 
-## Public deployment target
-One website/app, many routes. Avoid creating an account per tool.
+- Free to use
+- No account required
+- Calculations run in the browser
+- Inputs and formulas remain transparent
+- Built around practical business decisions rather than black-box scores
+
+## Methodology
+
+The formulas and important limitations are documented at:
+https://practical-automation-lab.onrender.com/methodology.html
+
+## Operating model
+
+This repository is an experiment portfolio. New tools are added only when they extend a validated problem cluster. Real usage, search/distribution signals, conversion behavior and eventual revenue determine which experiments are expanded, frozen or retired.
+
+Pre-revenue cash cost target: **$0**.
