@@ -1,10 +1,18 @@
 # Practical Automation Lab
 
-Free browser-local calculators for automation economics and e-commerce unit economics.
+Browser-local business tools for product-feed health, automation economics, and e-commerce unit economics.
 
 **Live site:** https://practical-automation-lab.onrender.com/
 
-## Tools
+## Priority experiment — Product Feed Preflight Auditor
+
+**[Shopify & Google Merchant Product Feed Preflight Auditor](https://practical-automation-lab.onrender.com/product-feed-preflight.html)**
+
+Drop a Shopify export or product-feed CSV and catch structural errors, identifier gaps, image risks, and variant inconsistencies before import or feed review. The audit runs locally in the browser, includes a downloadable remediation report, and does not upload merchant catalog contents to Practical Automation Lab.
+
+The current validation path is deliberately lightweight: free audit first, then measure interest in batch/large-catalog audits, recurring feed-health monitoring, and commercial/white-label use before adding checkout or paid infrastructure.
+
+## Other tools
 
 ### Automation economics
 - [Automation ROI Calculator](https://practical-automation-lab.onrender.com/automation-roi.html)
@@ -19,19 +27,20 @@ Free browser-local calculators for automation economics and e-commerce unit econ
 
 ## Principles
 
-- Free to use
-- No account required
-- Calculations run in the browser
-- Inputs and formulas remain transparent
-- Built around practical business decisions rather than black-box scores
+- Free core utility before monetization friction
+- Browser-local processing where practical
+- Transparent assumptions and limitations
+- No merchant feed-content telemetry from the feed auditor
+- Build, distribute, measure, then expand only on evidence
 
-## Methodology
+## Methodology and privacy
 
-The formulas and important limitations are documented at:
-https://practical-automation-lab.onrender.com/methodology.html
+- [Methodology](https://practical-automation-lab.onrender.com/methodology.html)
+- [Privacy](https://practical-automation-lab.onrender.com/privacy.html)
+- [Affiliate disclosure](https://practical-automation-lab.onrender.com/affiliate-disclosure.html)
 
 ## Operating model
 
-This repository is an experiment portfolio. New tools are added only when they extend a validated problem cluster. Real usage, search/distribution signals, conversion behavior and eventual revenue determine which experiments are expanded, frozen or retired.
+This repository is an experiment portfolio. Real usage, distribution signals, commercial-intent behavior, and eventual revenue determine which assets are expanded, duplicated, frozen, or retired.
 
 Pre-revenue cash cost target: **$0**.
