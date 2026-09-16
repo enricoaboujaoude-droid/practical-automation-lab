@@ -1,0 +1,1 @@
+Practical Automation Lab aggregate event endpoint: commercial_cta_viewed. No feed contents are accepted or stored by this static file.

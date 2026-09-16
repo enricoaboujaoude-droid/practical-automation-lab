@@ -1,0 +1,1 @@
+Practical Automation Lab aggregate event endpoint: audit_started. No feed contents are accepted or stored by this static file.

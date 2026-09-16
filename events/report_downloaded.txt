@@ -1,0 +1,1 @@
+Practical Automation Lab aggregate event endpoint: report_downloaded. No feed contents are accepted or stored by this static file.
