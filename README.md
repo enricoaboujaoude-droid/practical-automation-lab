@@ -12,6 +12,8 @@ Drop a Shopify export or product-feed CSV and catch structural errors, identifie
 
 The current validation path is deliberately lightweight: free audit first, then measure interest in batch/large-catalog audits, recurring feed-health monitoring, and commercial/white-label use before adding checkout or paid infrastructure.
 
+**Public beta feedback:** [Try the auditor and report false positives, missed issues, or commercial-use needs in GitHub Issue #4](https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4).
+
 ## Other tools
 
 ### Automation economics
