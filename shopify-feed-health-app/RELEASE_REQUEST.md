@@ -14,4 +14,4 @@ Release intent:
 - reject any placeholder `example.com` application URL before release
 - do not add paid functionality or unrelated changes
 
-Requested: 2026-09-18 — explicit production config redeploy
+Requested: 2026-09-18 — explicit production config redeploy, retry after adding required app name
