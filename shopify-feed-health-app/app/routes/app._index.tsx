@@ -23,6 +23,7 @@ export default function FeedHealthDashboard() {
   const fetcher = useFetcher<typeof action>();
   const data = fetcher.data || initial;
   const report = data.report;
+  const issueCounts = report.issueCounts || {};
   const loading = fetcher.state !== "idle";
 
   return (
@@ -52,6 +53,26 @@ export default function FeedHealthDashboard() {
             This MVP loaded the first 2,500 products. The production-scale path will use Shopify bulk operations.
           </s-banner>
         ) : null}
+      </s-section>
+
+      <s-section heading="Priority readiness signals">
+        <s-stack direction="inline" gap="base">
+          <s-badge tone={issueCounts.IMAGE_BELOW_500 ? "warning" : "success"}>
+            {issueCounts.IMAGE_BELOW_500 || 0} images below 500px
+          </s-badge>
+          <s-badge tone={issueCounts.MISSING_IMAGE ? "critical" : "success"}>
+            {issueCounts.MISSING_IMAGE || 0} products missing images
+          </s-badge>
+          <s-badge tone={issueCounts.IDENTIFIER_GAP ? "warning" : "success"}>
+            {issueCounts.IDENTIFIER_GAP || 0} identifier gaps
+          </s-badge>
+          <s-badge tone={issueCounts.MISSING_BRAND ? "warning" : "success"}>
+            {issueCounts.MISSING_BRAND || 0} missing brands
+          </s-badge>
+        </s-stack>
+        <s-paragraph>
+          The image-readiness count highlights assets below the 500×500 target associated with Google's January 31, 2027 minimum-image enforcement. Treat this as a preflight signal and verify final diagnostics in Merchant Center.
+        </s-paragraph>
       </s-section>
 
       <s-section heading="Issues to fix">
