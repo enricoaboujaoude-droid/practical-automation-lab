@@ -81,6 +81,12 @@ export function auditCatalog(products = []) {
   const errors = issues.filter((entry) => entry.level === ISSUE_LEVEL.ERROR).length;
   const warnings = issues.filter((entry) => entry.level === ISSUE_LEVEL.WARNING).length;
   const score = Math.max(0, 100 - Math.min(70, errors * 8) - Math.min(30, warnings * 2));
+  const issueCounts = Object.fromEntries(
+    issues.reduce((counts, entry) => {
+      counts.set(entry.code, (counts.get(entry.code) || 0) + 1);
+      return counts;
+    }, new Map()),
+  );
 
   return {
     generatedAt: new Date().toISOString(),
@@ -91,6 +97,7 @@ export function auditCatalog(products = []) {
     errors,
     warnings,
     score,
+    issueCounts,
     issues,
   };
 }
