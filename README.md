@@ -1,24 +1,30 @@
 # Practical Automation Lab
 
-Browser-local business tools for product-feed health, automation economics, and e-commerce unit economics.
+Owned, evidence-driven business software experiments for product/catalog health, automation economics, and e-commerce operations.
 
 **Live site:** https://practical-automation-lab.onrender.com/
 
-## Priority experiment — Product Feed Preflight Auditor
+## Core product candidate — PAL Catalog Check for Shopify
+
+**[PAL Catalog Check public beta page](https://practical-automation-lab.onrender.com/shopify-catalog-check.html)**
+
+PAL Catalog Check is a read-only Shopify catalog-readiness scanner. It reviews product and variant data for issues that can create product-feed problems and gives merchants remediation guidance without editing the store.
+
+The technical development gate is passed. Verified development-store evidence includes install/authentication, a real 17-product catalog scan, stable repeat scanning, persistent Shopify sessions across Render redeploys, privacy-conscious request logging, and mandatory privacy-compliance webhook handling. The current stage is **public-launch readiness + external demand validation**.
+
+Public Shopify App Store installation is not open yet. The product/beta page measures privacy-safe aggregate beta-interest clicks while the App Store submission package is prepared. App Store publication and any registration fee remain explicitly gated; pre-revenue cash-spend target remains $0.
+
+See `shopify-feed-health-app/` and [GitHub Issue #5](https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/5) for the durable build record.
+
+## Validation/acquisition probe — Product Feed Preflight Auditor
 
 **[Shopify & Google Merchant Product Feed Preflight Auditor](https://practical-automation-lab.onrender.com/product-feed-preflight.html)**
 
 Drop a Shopify export or product-feed CSV and catch structural errors, identifier gaps, image risks, and variant inconsistencies before import or feed review. The audit runs locally in the browser, includes a downloadable remediation report, and does not upload merchant catalog contents to Practical Automation Lab.
 
-The current validation path is deliberately lightweight: free audit first, then measure interest in batch/large-catalog audits, recurring feed-health monitoring, and commercial/white-label use before adding checkout or paid infrastructure.
+The standalone auditor remains a free acquisition/evidence surface rather than the strategic destination.
 
-**[Public beta / feedback thread](https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4)** — merchants and agencies can report false positives, missed feed problems, and interest in recurring monitoring or commercial use.
-
-## Core product build — Shopify Feed Health
-
-The next high-ceiling product is the Shopify-native **Feed Health & Merchant Center Compliance** app. Its account-independent React Router/GraphQL implementation is now security-audited, tested, typechecked, and production-build verified. The next gate is development-store installation and real-catalog validation; App Store publication and any fee remain gated on evidence.
-
-See `shopify-feed-health-app/` and GitHub Issue #5 for the current build record.
+**[Public beta / feedback thread](https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4)** — merchants and agencies can report false positives, missed feed problems, and interest in the native Shopify product.
 
 ## Other tools
 
@@ -36,20 +42,23 @@ See `shopify-feed-health-app/` and GitHub Issue #5 for the current build record.
 ## Principles
 
 - Free core utility before monetization friction
+- Read-only / least-privilege access where possible
 - Browser-local processing where practical
 - Transparent assumptions and limitations
-- No merchant feed-content telemetry from the feed auditor
+- No merchant feed-content telemetry from the standalone feed auditor
 - Build, distribute, measure, then expand only on evidence
-- Judge every asset by both time-to-revenue and its realistic maximum ceiling
+- Judge every asset by both time-to-revenue and realistic maximum ceiling
 
-## Methodology and privacy
+## Methodology, support and privacy
 
+- [PAL Catalog Check privacy](https://practical-automation-lab.onrender.com/shopify-feed-health-privacy.html)
+- [PAL Catalog Check support](https://practical-automation-lab.onrender.com/shopify-feed-health-support.html)
 - [Methodology](https://practical-automation-lab.onrender.com/methodology.html)
-- [Privacy](https://practical-automation-lab.onrender.com/privacy.html)
+- [PAL privacy](https://practical-automation-lab.onrender.com/privacy.html)
 - [Affiliate disclosure](https://practical-automation-lab.onrender.com/affiliate-disclosure.html)
 
 ## Operating model
 
-This repository is an experiment portfolio. Real usage, distribution signals, commercial-intent behavior, eventual revenue, and strategic ceiling determine which assets are expanded, duplicated, frozen, or retired.
+This repository is an experiment portfolio. Genuine usage, distribution signals, commercial-intent behavior, eventual revenue, and strategic ceiling determine which assets are expanded, duplicated, frozen, or retired.
 
 Pre-revenue cash cost target: **$0**.
