@@ -2,6 +2,9 @@ name: Shopify App Deploy
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "shopify-feed-health-app/RELEASE_REQUEST.md"
 
 permissions:
   contents: read
