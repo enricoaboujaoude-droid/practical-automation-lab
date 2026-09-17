@@ -9,7 +9,7 @@
     "start": "prisma generate && prisma db push && node server.mjs",
     "setup": "prisma generate && prisma db push",
     "typecheck": "react-router typegen && tsc --noEmit",
-    "test": "node --test app/lib/catalog-health.test.mjs server-logging.test.mjs"
+    "test": "node --test app/lib/catalog-health.test.mjs app/lib/compliance-webhooks.test.mjs server-logging.test.mjs"
   },
   "type": "module",
   "engines": {
@@ -21,7 +21,6 @@
     "@react-router/express": "7.18.2",
     "@react-router/fs-routes": "7.18.2",
     "@react-router/node": "7.18.2",
-    "@react-router/serve": "7.18.2",
     "@shopify/app-bridge-react": "^4.2.4",
     "@shopify/shopify-app-react-router": "^1.1.0",
     "@shopify/shopify-app-session-storage-prisma": "^9.0.0",
