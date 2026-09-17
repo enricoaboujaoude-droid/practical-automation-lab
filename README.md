@@ -12,7 +12,13 @@ Drop a Shopify export or product-feed CSV and catch structural errors, identifie
 
 The current validation path is deliberately lightweight: free audit first, then measure interest in batch/large-catalog audits, recurring feed-health monitoring, and commercial/white-label use before adding checkout or paid infrastructure.
 
-**Public beta feedback:** [Try the auditor and report false positives, missed issues, or commercial-use needs in GitHub Issue #4](https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4).
+**[Public beta / feedback thread](https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4)** — merchants and agencies can report false positives, missed feed problems, and interest in recurring monitoring or commercial use.
+
+## Core product build — Shopify Feed Health
+
+The next high-ceiling product is the Shopify-native **Feed Health & Merchant Center Compliance** app. Its account-independent React Router/GraphQL implementation is now security-audited, tested, typechecked, and production-build verified. The next gate is development-store installation and real-catalog validation; App Store publication and any fee remain gated on evidence.
+
+See `shopify-feed-health-app/` and GitHub Issue #5 for the current build record.
 
 ## Other tools
 
@@ -34,6 +40,7 @@ The current validation path is deliberately lightweight: free audit first, then 
 - Transparent assumptions and limitations
 - No merchant feed-content telemetry from the feed auditor
 - Build, distribute, measure, then expand only on evidence
+- Judge every asset by both time-to-revenue and its realistic maximum ceiling
 
 ## Methodology and privacy
 
@@ -43,6 +50,6 @@ The current validation path is deliberately lightweight: free audit first, then 
 
 ## Operating model
 
-This repository is an experiment portfolio. Real usage, distribution signals, commercial-intent behavior, and eventual revenue determine which assets are expanded, duplicated, frozen, or retired.
+This repository is an experiment portfolio. Real usage, distribution signals, commercial-intent behavior, eventual revenue, and strategic ceiling determine which assets are expanded, duplicated, frozen, or retired.
 
 Pre-revenue cash cost target: **$0**.
