@@ -21,6 +21,21 @@ if (!DATABASE_URL) {
 
 const pool = new Pool({ connectionString: DATABASE_URL });
 
+async function insertEvent(eventName, isTest) {
+  if (!ALLOWED_EVENTS.has(eventName)) {
+    const error = new Error('Unsupported event');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  await pool.query(
+    'insert into pal_feed_auditor_events (event_name, is_test) values ($1, $2)',
+    [eventName, Boolean(isTest)]
+  );
+
+  console.log(`PAL_EVENT event=${eventName} is_test=${Boolean(isTest)}`);
+}
+
 async function initialize() {
   await pool.query(`
     create table if not exists pal_feed_auditor_events (
@@ -40,6 +55,9 @@ async function initialize() {
     create index if not exists pal_feed_auditor_events_occurred_at_idx
       on pal_feed_auditor_events (occurred_at desc)
   `);
+
+  await insertEvent('audit_started', true);
+  console.log('PAL_MEASUREMENT_PROBE ok=true event=audit_started production_excluded=true');
 }
 
 function applySecurityHeaders(res) {
@@ -87,18 +105,6 @@ async function readSmallTextBody(req) {
     req.on('end', () => resolve(body.trim()));
     req.on('error', reject);
   });
-}
-
-async function insertEvent(eventName, isTest) {
-  if (!ALLOWED_EVENTS.has(eventName)) {
-    const error = new Error('Unsupported event');
-    error.statusCode = 400;
-    throw error;
-  }
-  await pool.query(
-    'insert into pal_feed_auditor_events (event_name, is_test) values ($1, $2)',
-    [eventName, Boolean(isTest)]
-  );
 }
 
 async function productionMetrics() {
