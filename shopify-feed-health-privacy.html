@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Privacy — PAL Catalog Check</title>
+  <meta name="description" content="Privacy information for the Practical Automation Lab Shopify catalog-readiness app.">
+  <link rel="canonical" href="https://practical-automation-lab.onrender.com/shopify-feed-health-privacy.html">
+  <style>
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:780px;margin:42px auto;padding:0 18px;line-height:1.65;color:#18181b}
+    a{color:inherit}h1,h2{line-height:1.2}.muted{opacity:.72}code{background:#f4f4f5;padding:.1rem .3rem;border-radius:.25rem}
+  </style>
+</head>
+<body>
+  <p><a href="index.html">← Practical Automation Lab</a></p>
+  <h1>PAL Catalog Check privacy policy</h1>
+  <p>This policy describes how the Practical Automation Lab Shopify catalog-readiness app handles data when installed on a Shopify store.</p>
+
+  <h2>Shopify access</h2>
+  <p>The app requests the Shopify <code>read_products</code> scope. It uses Shopify's GraphQL Admin API to read product, variant, image, price, identifier, vendor, and publication fields needed to generate a catalog-readiness scan. The app does not request customer or order access and does not use Shopify's legacy REST Admin API for its core catalog scan.</p>
+
+  <h2>Catalog data</h2>
+  <p>Catalog data is processed by the app runtime to generate the current scan. The app does not persist a separate database copy of product, variant, image, price, identifier, or scan-finding records. Scan results are returned to the embedded Shopify app for the merchant to review.</p>
+
+  <h2>Installation and authentication data</h2>
+  <p>To remain installed and authenticate requests, the app stores Shopify session data in a dedicated persistent database. This can include the shop domain, granted scopes, access-token and refresh-token material supplied through Shopify's authentication flow, and token-expiration metadata. Access to that database is restricted to the app runtime and authorized infrastructure.</p>
+
+  <h2>Operational logs</h2>
+  <p>The app records limited operational events such as app opens, scan starts, scan completions, product counts, readiness scores, and compliance-webhook topic names. Application access logs are configured to record request paths without Shopify's signed query string. Infrastructure providers can also process standard technical metadata such as IP addresses, timing information, and server diagnostics as part of hosting and security.</p>
+
+  <h2>Customer and order data</h2>
+  <p>The app does not request Shopify customer or order scopes. It therefore does not intentionally collect or maintain customer or order records as part of its catalog-readiness functionality.</p>
+
+  <h2>Privacy requests and deletion</h2>
+  <p>The app implements Shopify's mandatory privacy-compliance webhooks for <code>customers/data_request</code>, <code>customers/redact</code>, and <code>shop/redact</code>. Customer privacy requests are acknowledged even though the app does not maintain customer or order records. On a Shopify shop-redaction request, persisted Shopify session data for that shop is deleted. The app also removes stored installation sessions when an uninstall webhook is processed.</p>
+
+  <h2>Advertising and sale of data</h2>
+  <p>The Shopify app does not use merchant catalog data for advertising and does not sell merchant catalog data or Shopify authentication data.</p>
+
+  <h2>Service providers</h2>
+  <p>The app currently relies on infrastructure providers for application hosting, operational logging, and persistent database storage. Those providers process technical data only as needed to operate those services under their own terms and privacy commitments.</p>
+
+  <h2>Support and contact</h2>
+  <p>For support or privacy questions, use the Shopify app's support channel or visit the <a href="shopify-feed-health-support.html">PAL Catalog Check support page</a>. Do not send store passwords, Shopify access tokens, recovery codes, or customer data in a support request.</p>
+
+  <p class="muted">Last updated: September 17, 2026.</p>
+</body>
+</html>

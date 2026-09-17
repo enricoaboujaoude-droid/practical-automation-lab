@@ -71,7 +71,7 @@ export function auditCatalog(products = []) {
     }
 
     if (product.variants?.pageInfo?.hasNextPage) {
-      issues.push(issue(ISSUE_LEVEL.WARNING, "VARIANT_SCAN_TRUNCATED", productId, title, "This product has more variants than the MVP scan loaded.", "Use the future bulk-scan path before treating this product as fully checked."));
+      issues.push(issue(ISSUE_LEVEL.WARNING, "VARIANT_SCAN_TRUNCATED", productId, title, "This product has more than 100 variants, so this scan checked only the first 100 variants returned by Shopify.", "Review the remaining variants separately before treating this product as fully checked."));
     }
 
     const newIssues = issues.slice(before);

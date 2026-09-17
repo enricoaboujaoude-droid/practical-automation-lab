@@ -18,7 +18,7 @@ async function runScan(request: Request) {
 export const loader = async ({ request }: LoaderFunctionArgs) => runScan(request);
 export const action = async ({ request }: ActionFunctionArgs) => runScan(request);
 
-export default function FeedHealthDashboard() {
+export default function CatalogCheckDashboard() {
   const initial = useLoaderData<typeof loader>();
   const fetcher = useFetcher<typeof action>();
   const data = fetcher.data || initial;
@@ -26,7 +26,7 @@ export default function FeedHealthDashboard() {
   const loading = fetcher.state !== "idle";
 
   return (
-    <s-page heading="Feed Health & Merchant Center Readiness">
+    <s-page heading="Catalog readiness check">
       <s-button
         slot="primary-action"
         onClick={() => fetcher.submit({}, { method: "post" })}
@@ -48,16 +48,16 @@ export default function FeedHealthDashboard() {
           </s-text>
         </s-stack>
         {data.productPaginationCapped ? (
-          <s-banner tone="warning" heading="Large catalog scan capped">
-            This MVP loaded the first 2,500 products. The production-scale path will use Shopify bulk operations.
+          <s-banner tone="warning" heading="Catalog scan limit reached">
+            This scan checks up to 2,500 products. Results shown here cover the first 2,500 products returned in Shopify product-ID order.
           </s-banner>
         ) : null}
       </s-section>
 
-      <s-section heading="Issues to fix">
+      <s-section heading="Issues to review">
         {report.issues.length === 0 ? (
           <s-banner tone="success" heading="No issues found by this scan">
-            This is a readiness preflight, not a guarantee of Merchant Center approval.
+            This is a catalog-readiness check, not a guarantee of approval by Google Merchant Center or any other sales channel.
           </s-banner>
         ) : (
           report.issues.slice(0, 100).map((entry: any, index: number) => (
@@ -81,17 +81,18 @@ export default function FeedHealthDashboard() {
           ))
         )}
         {report.issues.length > 100 ? (
-          <s-text tone="neutral">
-            Showing the first 100 issues. Full export is a planned Pro/Agency capability.
-          </s-text>
+          <s-text tone="neutral">Showing the first 100 findings from this scan.</s-text>
         ) : null}
       </s-section>
 
-      <s-section heading="Why recurring monitoring matters">
+      <s-section heading="Checks included">
         <s-paragraph>
-          Catalog quality changes as products, variants, prices, images, and identifiers change. The planned Pro tier turns this scan into recurring feed-health monitoring and remediation guidance.
+          The scan reviews product titles, vendor/brand presence, Online Store URLs, product images, image dimensions when Shopify provides them, variant identifiers, prices, and duplicate option combinations.
         </s-paragraph>
-        <s-link href="/app/pricing">View planned tiers</s-link>
+        <s-paragraph>
+          The app requests read-only product access and does not edit products or variants.
+        </s-paragraph>
+        <s-link href="/app/support">Support and data handling</s-link>
       </s-section>
     </s-page>
   );
