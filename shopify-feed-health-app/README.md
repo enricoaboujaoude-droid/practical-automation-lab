@@ -4,7 +4,18 @@ High-ceiling Shopify-native successor to the standalone Product Feed Preflight A
 
 ## Current stage
 
-Account-independent implementation scaffold. No Shopify App Store fee or production billing is authorized yet.
+Account-independent implementation is complete and CI-verified. No Shopify App Store fee or production billing is authorized yet. The next stage is linking this code to a Shopify Dev Dashboard app and installing it on a development store for real-catalog validation.
+
+## Verified account-independent gate
+
+The Shopify build has passed all of the following on GitHub Actions using Node 22.22.0:
+
+- production dependency audit at high severity,
+- catalog-health unit tests,
+- React Router / TypeScript typecheck,
+- production build.
+
+A temporary npm override pins `deepmerge-ts` to the patched 8.x line because the current Prisma dependency chain otherwise resolves to a vulnerable 7.x release. Remove the override once Prisma's dependency chain incorporates the patched major version directly.
 
 ## Architecture
 
@@ -31,6 +42,7 @@ Account-independent implementation scaffold. No Shopify App Store fee or product
 
 ```bash
 npm install
+npm audit --omit=dev --audit-level=high
 npm test
 npm run typecheck
 npm run build
