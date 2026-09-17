@@ -1,6 +1,6 @@
 # PAL Catalog Check — submission state
 
-Current stage: **PARTNER APP MIGRATION VERIFIED + PRE-REVIEW URL REMEDIATION**
+Current stage: **CLEAN PRODUCTION ENDPOINT VERIFIED + APP STORE PRE-SUBMISSION**
 
 Issue: #5 — Approved build brief: PAL Catalog Check for Shopify
 
@@ -11,34 +11,38 @@ Issue: #5 — Approved build brief: PAL Catalog Check for Shopify
 - distribution: **Public distribution selected**
 - canonical Partner-owned Shopify app: PAL Catalog Check
 - development store: **PAL Feed Health Dev** (`pal-feed-health-dev.myshopify.com`)
-- the development-store name/domain are legacy internal test identifiers and are not the public app brand
+- development-store naming is a legacy internal test identifier, not the public app brand
 
-The earlier merchant-organization app identities are not canonical and must not be used for credentials, release, or submission.
+Earlier merchant-organization app identities are not canonical and must not be used for credentials, release, or submission.
 
-## Current verified product state
+## Current verified production state
 
-- Partner-owned app credentials active in GitHub Actions and Render
-- Shopify production config released successfully as `pal-catalog-check-4`
+- released Shopify version: **`pal-catalog-check-5`**
+- production application URL: **https://pal-catalog-check-app.onrender.com**
+- production OAuth redirect: **https://pal-catalog-check-app.onrender.com/auth/callback**
 - embedded application mode enabled
-- Shopify access scope: `read_products` only
-- production OAuth redirect configured
+- Shopify access scope: **`read_products` only**
 - mandatory privacy-compliance subscriptions declared
-- clean uninstall/reinstall passed on the development store
-- fresh offline Shopify session created and persisted in dedicated Neon Postgres
-- real catalog scan passed after migration: 17 products, readiness score 62
+- clean endpoint is live on Render Free in Frankfurt
+- Node runtime pinned and verified at **22.22.0**
+- same dedicated Neon `pal_shopify_sessions` database retained
+- fresh offline Shopify session created on the clean endpoint and persisted in Neon
+- fresh session scope verified as `read_products`
+- real catalog scan repeatedly passed after cutover: **17 products, readiness score 62**
+- two controlled post-cutover rescans both returned HTTP 200 and the same 17/62 result
 - embedded `/app` returned HTTP 200
-- repeated scan behavior was previously validated at the same 17/62 result
-- request logging hardened to avoid signed Shopify query parameters
-- review surface limited to implemented free/read-only functionality
-- public privacy/support resources live and branded PAL Catalog Check
-- factual App Store listing brief present
+- legacy Render endpoint received no traffic during the controlled post-cutover verification window
+- request logging remains hardened against signed Shopify query parameters
+- review surface remains limited to implemented free/read-only functionality
+- public privacy/support resources remain live and branded PAL Catalog Check
 - 1200×1200 text-free app icon prepared
-- public PAL Catalog Check acquisition page live
-- latest Shopify CI passed production dependency audit, database schema check, tests, TypeScript typecheck, and production build
+- latest Shopify CI passed dependency audit, DB check, tests, TypeScript typecheck, and production build
 
 ## Webhook verification
 
-During the credential/app-identity transition, `app/scopes_update` and `app/uninstalled` deliveries initially returned HTTP 500. A subsequent Shopify retry of `app/uninstalled` returned HTTP 200 after the migration settled. Do not treat the transition-time 500s as an unresolved uninstall-handler failure. Re-check lifecycle/compliance webhook status again before submission.
+The earlier credential/app-identity transition produced temporary lifecycle webhook failures, followed by successful Shopify retries on the stabilized app. After the clean endpoint cutover, no new lifecycle event has yet been intentionally triggered on the new endpoint. The released configuration still declares `app/uninstalled`, `app/scopes_update`, and the three mandatory privacy-compliance topics.
+
+Before submission, verify Shopify's automated checks recognize these released subscriptions and resolve any failed webhook/compliance check.
 
 ## Current commercial state
 
@@ -54,37 +58,19 @@ The owner authorizes the current one-time Shopify App Store registration fee up 
 
 No other pre-revenue spend is authorized. Recovery is a target, not a guarantee.
 
-## Current blocker — fix before App Store submission
+## Remaining launch gates
 
-Shopify's current App Store submission guidance says application domains must not contain the word `Shopify` or `Example`.
-
-The existing Render runtime uses the legacy hostname:
-
-`https://pal-shopify-feed-health.onrender.com`
-
-This hostname is functionally healthy but should not be submitted for App Store review. The existing Render service must be **renamed in place** to a neutral PAL Catalog Check name; do not create a new workspace or service.
-
-After the Render rename, update and verify:
-
-1. Render runtime app URL environment value
-2. `shopify.app.toml` application URL and OAuth redirect URL
-3. Shopify released app configuration
-4. development-store reinstall/authentication
-5. durable Neon session persistence
-6. real catalog scan
-7. lifecycle/compliance webhook responses
-
-## Remaining launch gates after URL remediation
-
-1. confirm required Partner/App Store contact fields
-2. upload/confirm the 1200×1200 icon
-3. capture real embedded-app screenshots
-4. record the real review screencast
-5. run Shopify automated pre-submission checks and resolve every failure
-6. use the conditionally authorized one-time registration fee only if it is then the final meaningful blocker
-7. submit for App Store review
-8. keep Issue #5 open until genuine external/public launch
-9. after publication, measure installs, first scans, repeat scans, commercial intent, retention, and eventual paid revenue
+1. remove the obsolete **PAL Feed Health** legacy installation from the development store only after confirming PAL Catalog Check remains healthy
+2. keep the old Render service as temporary rollback infrastructure until final pre-submission validation is complete; do not delete it prematurely
+3. confirm required Partner/App Store contact fields
+4. upload/confirm the 1200×1200 icon
+5. capture real embedded-app screenshots
+6. record the real review screencast
+7. run Shopify automated pre-submission checks and resolve every failure
+8. use the conditionally authorized one-time registration fee only if it is then the final meaningful blocker
+9. submit for App Store review
+10. keep Issue #5 open until genuine external/public launch
+11. after publication, measure installs, first scans, repeat scans, commercial intent, retention, and eventual paid revenue
 
 ## Parallel operating rule
 
