@@ -1,9 +1,16 @@
-# Practical Automation Lab — Shopify Feed Health
-# Link this configuration to a Shopify Dev Dashboard app with `shopify app config link`.
+# Practical Automation Lab — PAL Catalog Check
+# Production configuration for the Partner-owned public Shopify app.
 client_id = ""
+application_url = "https://pal-shopify-feed-health.onrender.com"
+embedded = true
 
 [access_scopes]
 scopes = "read_products"
+
+[auth]
+redirect_urls = [
+  "https://pal-shopify-feed-health.onrender.com/auth/callback"
+]
 
 [webhooks]
 api_version = "2026-07"
