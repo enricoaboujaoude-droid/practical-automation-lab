@@ -14,6 +14,27 @@ Reasoning:
 
 Re-check name uniqueness in the Shopify App Store immediately before submission. Do not reserve or release the name until the rest of the submission package is ready.
 
+## Distribution decision — do not lock this accidentally
+
+The intended production path is **Public distribution through the Shopify App Store**, because the product is designed for unrelated merchants and may later use Shopify App Pricing.
+
+Important control:
+- Shopify says the app's distribution method cannot be changed after selection.
+- **Public distribution** supports installation by multiple unrelated merchants and requires App Store approval.
+- **Custom distribution** is for a single store or stores in the same Plus organization and cannot use Shopify's app billing system.
+- App Store listing visibility is a separate setting: a public app can later use limited or full visibility, and visibility can be changed after publication.
+
+Do not select Custom distribution as a shortcut for beta if the long-term intent remains a public multi-merchant app.
+
+## Current App Store registration fee — explicit spend gate
+
+As of September 17, 2026, Shopify documents a **one-time $19 USD App Store registration fee per Partner account**. Registration requires a payment method.
+
+Project rule:
+- this fee is **not authorized yet**
+- do not add a payment method or register/pay without explicit owner approval
+- the fee should only be considered after the submission package is otherwise ready or a commercial signal justifies changing the $0-before-revenue rule
+
 ## App card subtitle
 
 **Find catalog issues before they become product-feed problems**
@@ -45,6 +66,8 @@ Current scan boundaries are explicit in the UI: up to 2,500 products, up to 100 
 **Free**
 
 Do not advertise Pro, Growth, Agency, subscriptions, trials, or paid features until those capabilities and Shopify billing are actually implemented and review-ready.
+
+For a future paid release, Shopify App Pricing is the default/recommended billing path for new public apps and can be configured in the Partner Dashboard. Development-store billing tests can be performed without real charges.
 
 ## Primary category
 
@@ -82,6 +105,9 @@ Do **not** claim a direct Google Merchant Center integration. The app provides r
 
 ## Merchant-facing resource URLs
 
+Product / beta page:
+https://practical-automation-lab.onrender.com/shopify-catalog-check.html
+
 Privacy policy:
 https://practical-automation-lab.onrender.com/shopify-feed-health-privacy.html
 
@@ -105,7 +131,7 @@ Expected behavior on an empty or clean test catalog: the app can return no findi
 
 ## Demo screencast checklist
 
-The review screencast should show, in order:
+Shopify currently requires a demo screencast for App Store review. The review screencast should show, in order:
 
 1. opening the app from Shopify Admin
 2. embedded dashboard loading successfully
@@ -119,12 +145,20 @@ Do not include passwords, access tokens, Shopify signed query parameters, privat
 
 ## Listing image checklist
 
-- 1200×1200 app icon
+Prepared icon asset:
+`shopify-feed-health-app/listing-assets/pal-catalog-check-icon-1200.png`
+
+Current Shopify guidance:
+- app icon: exactly 1200×1200 PNG or JPEG
 - no text inside the icon
 - no Shopify trademark inside the icon
-- screenshots must show actual app UI, not browser chrome or desktop background
-- each screenshot should show a different useful state or feature
-- avoid statistics, guarantees, testimonials, ratings, or unsupported performance claims in images
+- desktop screenshots: 1600×900 (16:9) is the current recommended format
+- include 3–6 useful desktop screenshots when preparing the listing
+- screenshots must primarily show the actual app UI, not desktop backgrounds or browser chrome
+- each screenshot should show a different useful feature, view, or state
+- avoid pricing, statistics, guarantees, testimonials, ratings, or unsupported performance claims in images
+
+Actual app screenshots and the review screencast must be captured from the real embedded Shopify app. Do not fabricate them with generated/mock UI.
 
 ## Privacy-compliance checklist
 
@@ -138,19 +172,30 @@ All three use `/webhooks/compliance` and are authenticated with Shopify's webhoo
 
 Important: committing `shopify.app.toml` is not enough. The configuration must be included in a released/deployed Shopify app version before App Store automated checks can see the subscriptions.
 
+## Contact and account prerequisites
+
+Before submission, confirm all required Partner/App Store contact fields are valid:
+- API contact email
+- merchant support email
+- emergency developer contact in the Partner account
+
+Do not expose credentials or private project data in any public contact field, screencast, listing asset, or review note.
+
 ## Remaining account-level submission actions
 
-These require the Shopify Dev Dashboard and should be done only after the code and public resource pages are live:
+These require the Shopify Dev/Partner Dashboard and should be done only after the code and public resource pages are live:
 
 1. Create/release a new app version containing the mandatory compliance webhook subscriptions.
 2. Change the public/admin app name to the final unique name if `PAL Catalog Check` remains available.
-3. Confirm the app distribution path intended for a public multi-merchant app.
-4. Add a valid support email in the App Store listing contact fields.
-5. Upload the app icon and required screenshots.
-6. Upload the demo screencast.
-7. Run Shopify's automated pre-submission checks.
-8. Do not authorize any registration fee or paid service without explicit owner approval.
+3. Select **Public distribution** only when ready to intentionally lock the irreversible distribution choice.
+4. Add/confirm the API contact email, support email, and emergency developer contact.
+5. Upload the prepared 1200×1200 app icon.
+6. Capture and upload real app screenshots.
+7. Record and upload the real demo screencast.
+8. Complete Shopify's automated pre-submission checks.
+9. Register for the Shopify App Store and pay the current one-time $19 USD fee **only after explicit owner approval**.
+10. Submit for review only after every automated requirement is green.
 
 ## Commercial boundary
 
-Initial public launch is free. Paid-plan validation can continue outside the review surface. Shopify App Pricing or Billing should be added only when a paid capability is actually implemented and the owner authorizes the monetization/publication step.
+Initial public launch is free. Paid-plan validation can continue outside the review surface. Shopify App Pricing should be added only when a paid capability is actually implemented and the owner authorizes the monetization/publication step.
