@@ -3,8 +3,6 @@ export const APP_EVENTS = [
   "scan_started",
   "scan_completed",
   "remediation_viewed",
-  "pricing_viewed",
-  "plan_intent",
 ] as const;
 
 export type AppEvent = (typeof APP_EVENTS)[number];
@@ -12,7 +10,6 @@ export type AppEvent = (typeof APP_EVENTS)[number];
 type EventDetails = {
   count?: number;
   score?: number;
-  tier?: number;
 };
 
 export function trackAppEvent(event: AppEvent, details: EventDetails = {}) {
