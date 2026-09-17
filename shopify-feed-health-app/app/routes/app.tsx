@@ -16,8 +16,8 @@ export default function AppLayout() {
   return (
     <AppProvider embedded apiKey={apiKey}>
       <nav style={{ display: "flex", gap: 16, padding: "12px 16px", borderBottom: "1px solid #d8d8d8" }}>
-        <Link to="/app">Feed health</Link>
-        <Link to="/app/pricing">Plans</Link>
+        <Link to="/app">Catalog check</Link>
+        <Link to="/app/support">Support</Link>
       </nav>
       <Outlet />
     </AppProvider>
