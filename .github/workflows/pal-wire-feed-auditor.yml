@@ -1,0 +1,55 @@
+name: Wire Feed Auditor Measurement
+
+on:
+  push:
+    paths:
+      - .github/workflows/pal-wire-feed-auditor.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply bounded measurement patch
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          auditor = Path('product-feed-preflight.html')
+          text = auditor.read_text(encoding='utf-8')
+          old = """const EVENT_PATHS={audit_started:'events/audit_started.txt',audit_completed:'events/audit_completed.txt',report_downloaded:'events/report_downloaded.txt',commercial_cta_viewed:'events/commercial_cta_viewed.txt',commercial_cta_clicked:'events/commercial_cta_clicked.txt'};
+          function track(name){try{localStorage.setItem('pal_event_'+name,String((+localStorage.getItem('pal_event_'+name)||0)+1))}catch{};let p=EVENT_PATHS[name];if(p)fetch(p,{method:'GET',cache:'no-store',credentials:'omit'}).catch(()=>{})}"""
+          new = """const EVENT_ENDPOINT='https://pal-feed-auditor-events.onrender.com/event';
+          function track(name){try{localStorage.setItem('pal_event_'+name,String((+localStorage.getItem('pal_event_'+name)||0)+1))}catch{};fetch(EVENT_ENDPOINT,{method:'POST',mode:'cors',cache:'no-store',credentials:'omit',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:name,keepalive:true}).catch(()=>{})}"""
+          if old not in text:
+              raise SystemExit('Expected auditor tracking block not found; refusing broad edit.')
+          auditor.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          privacy = Path('privacy.html')
+          ptext = privacy.read_text(encoding='utf-8')
+          oldp = '<p>The Product Feed Preflight Auditor sends limited same-site event requests such as <em>audit started</em>, <em>audit completed</em>, <em>report downloaded</em>, and <em>commercial-interest clicked</em>. These requests are used to understand aggregate product activation and do not include CSV contents, filenames, product identifiers, row values, audit findings, or other merchant catalog data.</p>'
+          newp = '<p>The Product Feed Preflight Auditor sends only five privacy-safe activation event names to a Practical Automation Lab event collector: <em>audit started</em>, <em>audit completed</em>, <em>report downloaded</em>, <em>commercial CTA viewed</em>, and <em>commercial CTA clicked</em>. The collector stores only the event name, whether the record is a synthetic measurement test, and the server timestamp. It does not receive or store CSV contents, filenames, product identifiers, row values, audit findings, or other merchant catalog data.</p>'
+          if oldp not in ptext:
+              raise SystemExit('Expected privacy paragraph not found; refusing broad edit.')
+          ptext = ptext.replace(oldp, newp, 1).replace('Last updated: September 16, 2026.', 'Last updated: September 17, 2026.', 1)
+          privacy.write_text(ptext, encoding='utf-8')
+
+          Path('.github/workflows/pal-wire-feed-auditor.yml').unlink()
+          PY
+
+      - name: Commit bounded patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add product-feed-preflight.html privacy.html .github/workflows/pal-wire-feed-auditor.yml
+          git commit -m "feat: route feed auditor events to observable collector"
+          git push
