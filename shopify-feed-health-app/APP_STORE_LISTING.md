@@ -1,39 +1,38 @@
-# Shopify App Store submission brief
+# Shopify App Store submission brief — PAL Catalog Check
 
-Status: pre-submission working draft. Keep claims limited to functionality that is live and tested.
+Status: **pre-submission working draft**. Keep every claim limited to functionality that is live and tested.
 
-## Working public name
+## Canonical app identity
+
+- Partner organization: **Practical Automation Lab**
+- public/admin app name: **PAL Catalog Check**
+- distribution: **Public distribution selected**
+- current Partner-owned released version baseline: `pal-catalog-check-4`
+- development store: **PAL Feed Health Dev** (`pal-feed-health-dev.myshopify.com`)
+
+Earlier merchant-organization app identities are not canonical and must not be used for credentials or submission.
+
+## App name
 
 **PAL Catalog Check**
 
-Reasoning:
-- leads with the Practical Automation Lab brand identifier (`PAL`)
-- stays under Shopify's recommended 20-character admin-navigation length
-- avoids the already-live `FeedHealth` and `Feed Sentinel` naming space
-- accurately describes the current read-only product instead of promising future monitoring or feed publishing
+The name accurately describes the current read-only product and avoids promising future monitoring/feed publishing. Re-check exact App Store name availability immediately before submission.
 
-Re-check name uniqueness in the Shopify App Store immediately before submission. Do not reserve or release the name until the rest of the submission package is ready.
+## Current pre-review URL blocker
 
-## Distribution decision — do not lock this accidentally
+Shopify's current submission guidance says application domains must not contain the word `Shopify` or `Example`.
 
-The intended production path is **Public distribution through the Shopify App Store**, because the product is designed for unrelated merchants and may later use Shopify App Pricing.
+The existing working Render application URL is the legacy hostname:
 
-Important control:
-- Shopify says the app's distribution method cannot be changed after selection.
-- **Public distribution** supports installation by multiple unrelated merchants and requires App Store approval.
-- **Custom distribution** is for a single store or stores in the same Plus organization and cannot use Shopify's app billing system.
-- App Store listing visibility is a separate setting: a public app can later use limited or full visibility, and visibility can be changed after publication.
+`https://pal-shopify-feed-health.onrender.com`
 
-Do not select Custom distribution as a shortcut for beta if the long-term intent remains a public multi-merchant app.
+Do **not** submit that hostname for review. Rename the existing Render service in place to a neutral PAL Catalog Check name; do not create a new workspace or service. Then update the runtime app URL, `shopify.app.toml` application URL/OAuth redirect, release a new Shopify configuration version, reinstall, and retest before continuing with submission.
 
-## Current App Store registration fee — explicit spend gate
+## Owner App Store registration authorization
 
-As of September 17, 2026, Shopify documents a **one-time $19 USD App Store registration fee per Partner account**. Registration requires a payment method.
+Shopify currently documents a **one-time $19 USD App Store registration fee per Partner account**. The owner has conditionally authorized this fee **up to $19 USD one time**, but only when all autonomous/no-cost preparation is complete and the fee is the final meaningful blocker to review submission.
 
-Project rule:
-- this fee is **not authorized yet**
-- do not add a payment method or register/pay without explicit owner approval
-- the fee should only be considered after the submission package is otherwise ready or a commercial signal justifies changing the $0-before-revenue rule
+This authorization does not permit any other pre-revenue spend. Fee recovery is a target, not a guarantee.
 
 ## App card subtitle
 
@@ -65,15 +64,13 @@ Current scan boundaries are explicit in the UI: up to 2,500 products, up to 100 
 
 **Free**
 
-Do not advertise Pro, Growth, Agency, subscriptions, trials, or paid features until those capabilities and Shopify billing are actually implemented and review-ready.
-
-For a future paid release, Shopify App Pricing is the default/recommended billing path for new public apps and can be configured in the Partner Dashboard. Development-store billing tests can be performed without real charges.
+Do not advertise Pro, Growth, Agency, subscriptions, trials, or paid capabilities until those capabilities and Shopify App Pricing are implemented and review-ready.
 
 ## Primary category
 
 Candidate: **Product feeds**
 
-Confirm category availability and fit in the submission form immediately before submission.
+Confirm current category availability/fit in the submission form immediately before submission.
 
 ## Search terms
 
@@ -98,7 +95,7 @@ Do **not** claim a direct Google Merchant Center integration. The app provides r
 ## Shopify API access
 
 - `read_products`
-- GraphQL Admin API only for the catalog scan
+- GraphQL Admin API for the catalog scan
 - no customer scopes
 - no order scopes
 - no product write scopes
@@ -117,23 +114,41 @@ https://practical-automation-lab.onrender.com/shopify-feed-health-support.html
 Developer website:
 https://practical-automation-lab.onrender.com/
 
-## Review instructions
+The legacy words in the privacy/support **file paths** are not the app brand; the page titles and content are branded **PAL Catalog Check**. The application runtime domain itself must be neutral before submission.
 
-1. Install the released app version on the review store.
+## Verified runtime behavior baseline
+
+Before the application-domain rename, the Partner-owned app passed:
+
+- clean install/reinstall on the development store
+- embedded app authentication
+- fresh offline access-token/session creation
+- durable session persistence in dedicated Neon Postgres
+- `read_products` scope
+- real catalog scan: 17 products, readiness score 62
+- embedded `/app` HTTP 200
+- CI: dependency audit, DB check, tests, TypeScript typecheck, production build
+- lifecycle webhook recovery: a post-migration `app/uninstalled` Shopify retry returned HTTP 200
+
+Repeat these critical checks after the application-domain rename.
+
+## Review instructions draft
+
+1. Install the released PAL Catalog Check app on the review store.
 2. Open the app from Shopify Admin.
 3. The embedded dashboard authenticates through Shopify and runs a read-only catalog scan.
 4. Review the readiness score, critical findings, warnings, and remediation notes.
 5. Use **Rescan catalog** to verify repeat scanning.
 6. Open **Support** to review scan boundaries and data-handling links.
-7. The app does not require external account credentials, Merchant Center credentials, or payment information to test the current free functionality.
+7. The current free app does not require external account credentials, Merchant Center credentials, or payment information.
 
 Expected behavior on an empty or clean test catalog: the app can return no findings. This is valid and should not be treated as an error.
 
 ## Demo screencast checklist
 
-Shopify currently requires a demo screencast for App Store review. The review screencast should show, in order:
+The review screencast should show:
 
-1. opening the app from Shopify Admin
+1. opening PAL Catalog Check from Shopify Admin
 2. embedded dashboard loading successfully
 3. the scan result summary
 4. one or more finding/remediation rows if the test catalog contains them
@@ -141,61 +156,58 @@ Shopify currently requires a demo screencast for App Store review. The review sc
 6. opening **Support**
 7. showing that the app never edits a product
 
-Do not include passwords, access tokens, Shopify signed query parameters, private API credentials, or unrelated projects in the recording.
+Do not include passwords, access tokens, Shopify signed query parameters, private API credentials, or unrelated projects.
 
 ## Listing image checklist
 
 Prepared icon asset:
 `shopify-feed-health-app/listing-assets/pal-catalog-check-icon-1200.png`
 
-Current Shopify guidance:
-- app icon: exactly 1200×1200 PNG or JPEG
+Submission controls:
+- app icon: 1200×1200 PNG or JPEG
 - no text inside the icon
 - no Shopify trademark inside the icon
-- desktop screenshots: 1600×900 (16:9) is the current recommended format
-- include 3–6 useful desktop screenshots when preparing the listing
-- screenshots must primarily show the actual app UI, not desktop backgrounds or browser chrome
-- each screenshot should show a different useful feature, view, or state
-- avoid pricing, statistics, guarantees, testimonials, ratings, or unsupported performance claims in images
-
-Actual app screenshots and the review screencast must be captured from the real embedded Shopify app. Do not fabricate them with generated/mock UI.
+- use real screenshots of the actual embedded app UI
+- each screenshot should show a different useful feature/view/state
+- do not include fabricated UI, testimonials, unsupported statistics, guarantees, or pricing claims in screenshots
 
 ## Privacy-compliance checklist
 
-The source configuration declares:
+The released configuration declares:
 
 - `customers/data_request`
 - `customers/redact`
 - `shop/redact`
 
-All three use `/webhooks/compliance` and are authenticated with Shopify's webhook authentication path. `shop/redact` deletes persisted Shopify sessions for the affected shop.
+All three use `/webhooks/compliance`. The app also declares lifecycle subscriptions for `app/uninstalled` and `app/scopes_update`.
 
-Important: committing `shopify.app.toml` is not enough. The configuration must be included in a released/deployed Shopify app version before App Store automated checks can see the subscriptions.
+Before submission, re-run lifecycle/compliance verification after the application-domain migration and confirm Shopify's automated checks recognize the released subscriptions.
 
-## Contact and account prerequisites
+## Contact prerequisites
 
 Before submission, confirm all required Partner/App Store contact fields are valid:
+
 - API contact email
 - merchant support email
-- emergency developer contact in the Partner account
+- emergency developer contact
+- app submission/review contact email
 
-Do not expose credentials or private project data in any public contact field, screencast, listing asset, or review note.
+Do not expose credentials or private project data in any public field, screencast, listing asset, or review note.
 
 ## Remaining account-level submission actions
 
-These require the Shopify Dev/Partner Dashboard and should be done only after the code and public resource pages are live:
+After the application-domain rename/retest:
 
-1. Create/release a new app version containing the mandatory compliance webhook subscriptions.
-2. Change the public/admin app name to the final unique name if `PAL Catalog Check` remains available.
-3. Select **Public distribution** only when ready to intentionally lock the irreversible distribution choice.
-4. Add/confirm the API contact email, support email, and emergency developer contact.
-5. Upload the prepared 1200×1200 app icon.
-6. Capture and upload real app screenshots.
-7. Record and upload the real demo screencast.
-8. Complete Shopify's automated pre-submission checks.
-9. Register for the Shopify App Store and pay the current one-time $19 USD fee **only after explicit owner approval**.
-10. Submit for review only after every automated requirement is green.
+1. confirm final required contact fields
+2. upload/confirm the prepared app icon
+3. capture/upload real embedded-app screenshots
+4. record/upload the real demo screencast
+5. run Shopify's automated pre-submission checks and resolve every failure
+6. register/pay the conditionally authorized one-time App Store fee only if it is the final meaningful blocker
+7. submit for review
+
+Issue #5 stays open until genuine external/public launch.
 
 ## Commercial boundary
 
-Initial public launch is free. Paid-plan validation can continue outside the review surface. Shopify App Pricing should be added only when a paid capability is actually implemented and the owner authorizes the monetization/publication step.
+Initial public launch is free. Paid-plan validation can continue outside the review surface. Add Shopify App Pricing only when paid functionality is actually implemented and authorized.
