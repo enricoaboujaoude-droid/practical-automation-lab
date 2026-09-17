@@ -47,7 +47,7 @@ jobs:
           const clientId = process.env.SHOPIFY_APP_CLIENT_ID;
           let config = fs.readFileSync(path, 'utf8');
           config = config.replace(/^client_id\s*=\s*"[^"]*"$/m, `client_id = "${clientId}"`);
-          const expectedUrl = 'application_url = "https://pal-shopify-feed-health.onrender.com"';
+          const expectedUrl = 'application_url = "https://pal-catalog-check-app.onrender.com"';
           if (!config.includes(expectedUrl)) {
             throw new Error('Production application_url is missing or incorrect.');
           }
