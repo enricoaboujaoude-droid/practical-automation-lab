@@ -1,0 +1,16 @@
+{
+  "name": "pal-feed-auditor-event-collector",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Privacy-safe first-party activation measurement for the Practical Automation Lab feed auditor.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "pg": "^8.16.3"
+  }
+}
