@@ -5,8 +5,8 @@
     "build": "react-router build",
     "dev": "shopify app dev",
     "deploy": "shopify app deploy",
-    "start": "react-router-serve ./build/server/index.js",
-    "setup": "prisma generate && prisma migrate deploy",
+    "start": "prisma generate && prisma db push && react-router-serve ./build/server/index.js",
+    "setup": "prisma generate && prisma db push",
     "typecheck": "react-router typegen && tsc --noEmit",
     "test": "node --test app/lib/catalog-health.test.mjs"
   },
