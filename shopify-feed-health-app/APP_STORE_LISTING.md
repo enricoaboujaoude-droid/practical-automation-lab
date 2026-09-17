@@ -7,32 +7,24 @@ Status: **pre-submission working draft**. Keep every claim limited to functional
 - Partner organization: **Practical Automation Lab**
 - public/admin app name: **PAL Catalog Check**
 - distribution: **Public distribution selected**
-- current Partner-owned released version baseline: `pal-catalog-check-4`
+- current Partner-owned released version baseline: **`pal-catalog-check-5`**
+- production application URL: **https://pal-catalog-check-app.onrender.com**
+- production OAuth redirect: **https://pal-catalog-check-app.onrender.com/auth/callback**
 - development store: **PAL Feed Health Dev** (`pal-feed-health-dev.myshopify.com`)
 
 Earlier merchant-organization app identities are not canonical and must not be used for credentials or submission.
+
+## Owner App Store registration authorization
+
+The owner has conditionally authorized the current one-time Shopify App Store registration fee up to **$19 USD one time**, but only when all autonomous/no-cost preparation is complete and the fee is the final meaningful blocker to review submission.
+
+This authorization does not permit any other pre-revenue spend. Fee recovery is a target, not a guarantee.
 
 ## App name
 
 **PAL Catalog Check**
 
 The name accurately describes the current read-only product and avoids promising future monitoring/feed publishing. Re-check exact App Store name availability immediately before submission.
-
-## Current pre-review URL blocker
-
-Shopify's current submission guidance says application domains must not contain the word `Shopify` or `Example`.
-
-The existing working Render application URL is the legacy hostname:
-
-`https://pal-shopify-feed-health.onrender.com`
-
-Do **not** submit that hostname for review. Rename the existing Render service in place to a neutral PAL Catalog Check name; do not create a new workspace or service. Then update the runtime app URL, `shopify.app.toml` application URL/OAuth redirect, release a new Shopify configuration version, reinstall, and retest before continuing with submission.
-
-## Owner App Store registration authorization
-
-Shopify currently documents a **one-time $19 USD App Store registration fee per Partner account**. The owner has conditionally authorized this fee **up to $19 USD one time**, but only when all autonomous/no-cost preparation is complete and the fee is the final meaningful blocker to review submission.
-
-This authorization does not permit any other pre-revenue spend. Fee recovery is a target, not a guarantee.
 
 ## App card subtitle
 
@@ -114,23 +106,23 @@ https://practical-automation-lab.onrender.com/shopify-feed-health-support.html
 Developer website:
 https://practical-automation-lab.onrender.com/
 
-The legacy words in the privacy/support **file paths** are not the app brand; the page titles and content are branded **PAL Catalog Check**. The application runtime domain itself must be neutral before submission.
+The legacy words in the privacy/support file paths are not the app brand; the page titles and content are branded **PAL Catalog Check**.
 
 ## Verified runtime behavior baseline
 
-Before the application-domain rename, the Partner-owned app passed:
+The Partner-owned app has now passed on the clean production endpoint:
 
-- clean install/reinstall on the development store
+- production URL cutover to `https://pal-catalog-check-app.onrender.com`
+- Shopify release `pal-catalog-check-5`
 - embedded app authentication
 - fresh offline access-token/session creation
 - durable session persistence in dedicated Neon Postgres
-- `read_products` scope
+- `read_products` scope only
 - real catalog scan: 17 products, readiness score 62
+- two controlled post-cutover rescans with HTTP 200 and the same 17/62 result
 - embedded `/app` HTTP 200
+- no legacy Render traffic during the controlled post-cutover verification window
 - CI: dependency audit, DB check, tests, TypeScript typecheck, production build
-- lifecycle webhook recovery: a post-migration `app/uninstalled` Shopify retry returned HTTP 200
-
-Repeat these critical checks after the application-domain rename.
 
 ## Review instructions draft
 
@@ -181,7 +173,7 @@ The released configuration declares:
 
 All three use `/webhooks/compliance`. The app also declares lifecycle subscriptions for `app/uninstalled` and `app/scopes_update`.
 
-Before submission, re-run lifecycle/compliance verification after the application-domain migration and confirm Shopify's automated checks recognize the released subscriptions.
+Before submission, run Shopify's automated checks and confirm the released subscriptions are recognized on the clean endpoint. Resolve any failed lifecycle/privacy webhook requirement before review submission.
 
 ## Contact prerequisites
 
@@ -196,15 +188,15 @@ Do not expose credentials or private project data in any public field, screencas
 
 ## Remaining account-level submission actions
 
-After the application-domain rename/retest:
-
-1. confirm final required contact fields
-2. upload/confirm the prepared app icon
-3. capture/upload real embedded-app screenshots
-4. record/upload the real demo screencast
-5. run Shopify's automated pre-submission checks and resolve every failure
-6. register/pay the conditionally authorized one-time App Store fee only if it is the final meaningful blocker
-7. submit for review
+1. remove the obsolete PAL Feed Health legacy installation from the development store
+2. confirm PAL Catalog Check remains healthy afterward
+3. confirm final required contact fields
+4. upload/confirm the prepared app icon
+5. capture/upload real embedded-app screenshots
+6. record/upload the real demo screencast
+7. run Shopify's automated pre-submission checks and resolve every failure
+8. register/pay the conditionally authorized one-time App Store fee only if it is the final meaningful blocker
+9. submit for review
 
 Issue #5 stays open until genuine external/public launch.
 
