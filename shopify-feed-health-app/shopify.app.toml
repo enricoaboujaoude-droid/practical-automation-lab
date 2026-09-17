@@ -1,6 +1,7 @@
 # Practical Automation Lab — PAL Catalog Check
 # Production configuration for the Partner-owned public Shopify app.
 client_id = ""
+name = "PAL Catalog Check"
 application_url = "https://pal-shopify-feed-health.onrender.com"
 embedded = true
 
