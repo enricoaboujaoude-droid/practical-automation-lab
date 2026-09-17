@@ -2,7 +2,7 @@
 # Production configuration for the Partner-owned public Shopify app.
 client_id = ""
 name = "PAL Catalog Check"
-application_url = "https://pal-shopify-feed-health.onrender.com"
+application_url = "https://pal-catalog-check-app.onrender.com"
 embedded = true
 
 [access_scopes]
@@ -10,7 +10,7 @@ scopes = "read_products"
 
 [auth]
 redirect_urls = [
-  "https://pal-shopify-feed-health.onrender.com/auth/callback"
+  "https://pal-catalog-check-app.onrender.com/auth/callback"
 ]
 
 [webhooks]
