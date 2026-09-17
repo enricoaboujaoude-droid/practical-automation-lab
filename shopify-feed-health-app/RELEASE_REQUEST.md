@@ -7,5 +7,6 @@ Release intent:
 - include mandatory privacy-compliance webhook subscriptions
 - preserve the current free, read-only review surface
 - do not add paid functionality or unrelated changes
+- target the new Partner-owned PAL Catalog Check app selected for Public distribution
 
-Requested: 2026-09-17
+Requested: 2026-09-18
