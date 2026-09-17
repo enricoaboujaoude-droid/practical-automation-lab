@@ -36,13 +36,34 @@ jobs:
           : "${SHOPIFY_APP_AUTOMATION_TOKEN:?Missing SHOPIFY_APP_AUTOMATION_TOKEN repository secret}"
           : "${SHOPIFY_APP_CLIENT_ID:?Missing SHOPIFY_APP_CLIENT_ID repository secret}"
 
+      - name: Prepare explicit production configuration
+        env:
+          SHOPIFY_APP_CLIENT_ID: ${{ secrets.SHOPIFY_APP_CLIENT_ID }}
+        run: |
+          cp shopify.app.toml shopify.app.production.toml
+          node <<'NODE'
+          const fs = require('node:fs');
+          const path = 'shopify.app.production.toml';
+          const clientId = process.env.SHOPIFY_APP_CLIENT_ID;
+          let config = fs.readFileSync(path, 'utf8');
+          config = config.replace(/^client_id\s*=\s*"[^"]*"$/m, `client_id = "${clientId}"`);
+          const expectedUrl = 'application_url = "https://pal-shopify-feed-health.onrender.com"';
+          if (!config.includes(expectedUrl)) {
+            throw new Error('Production application_url is missing or incorrect.');
+          }
+          if (config.includes('https://example.com')) {
+            throw new Error('Refusing to deploy placeholder example.com URL.');
+          }
+          fs.writeFileSync(path, config);
+          console.log('Prepared explicit production Shopify configuration.');
+          NODE
+
       - name: Deploy and release Shopify app configuration
         env:
           SHOPIFY_APP_AUTOMATION_TOKEN: ${{ secrets.SHOPIFY_APP_AUTOMATION_TOKEN }}
-          SHOPIFY_APP_CLIENT_ID: ${{ secrets.SHOPIFY_APP_CLIENT_ID }}
           COMMIT_URL: ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
         run: >-
           shopify app deploy
-          --client-id "$SHOPIFY_APP_CLIENT_ID"
+          --config production
           --allow-updates
           --source-control-url "$COMMIT_URL"
