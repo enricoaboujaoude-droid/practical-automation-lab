@@ -13,6 +13,7 @@ const ALLOWED_EVENTS = new Set([
   'report_downloaded',
   'commercial_cta_viewed',
   'commercial_cta_clicked',
+  'shopify_beta_interest',
 ]);
 
 if (!DATABASE_URL) {
@@ -40,16 +41,27 @@ async function initialize() {
   await pool.query(`
     create table if not exists pal_feed_auditor_events (
       id bigserial primary key,
-      event_name text not null check (event_name in (
+      event_name text not null,
+      is_test boolean not null default false,
+      occurred_at timestamptz not null default now()
+    )
+  `);
+
+  await pool.query(`
+    alter table pal_feed_auditor_events
+      drop constraint if exists pal_feed_auditor_events_event_name_check
+  `);
+  await pool.query(`
+    alter table pal_feed_auditor_events
+      add constraint pal_feed_auditor_events_event_name_check
+      check (event_name in (
         'audit_started',
         'audit_completed',
         'report_downloaded',
         'commercial_cta_viewed',
-        'commercial_cta_clicked'
-      )),
-      is_test boolean not null default false,
-      occurred_at timestamptz not null default now()
-    )
+        'commercial_cta_clicked',
+        'shopify_beta_interest'
+      ))
   `);
   await pool.query(`
     create index if not exists pal_feed_auditor_events_occurred_at_idx
