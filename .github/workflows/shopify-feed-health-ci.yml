@@ -12,6 +12,8 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://ci_user:ci_password@localhost:5432/pal_shopify_ci
     defaults:
       run:
         working-directory: shopify-feed-health-app
@@ -22,6 +24,7 @@ jobs:
           node-version: "22.22.0"
       - run: npm install
       - run: npm audit --omit=dev --audit-level=high
+      - run: npm run db:check
       - run: npm test
       - run: npm run typecheck
       - run: npm run build
