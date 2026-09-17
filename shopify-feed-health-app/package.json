@@ -2,7 +2,8 @@
   "name": "pal-shopify-feed-health",
   "private": true,
   "scripts": {
-    "build": "react-router build",
+    "build": "prisma generate && react-router build",
+    "db:check": "prisma validate",
     "dev": "shopify app dev",
     "deploy": "shopify app deploy",
     "start": "prisma generate && prisma db push && react-router-serve ./build/server/index.js",
