@@ -8,55 +8,106 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 export default function Support() {
   return (
-    <s-page heading="Support">
+    <s-page heading="Support & data handling">
+      <div className="pal-intro">
+        <div>
+          <div className="pal-eyebrow">Trust & support</div>
+          <p className="pal-subtitle">
+            PAL Catalog Check is intentionally read-only. This page explains
+            scan boundaries, stored Pro data, privacy behavior, and how to get
+            help without exposing sensitive store information.
+          </p>
+        </div>
+        <div className="pal-status-row">
+          <s-badge tone="success">Read-only access</s-badge>
+          <s-badge tone="success">No customer data</s-badge>
+          <s-badge tone="success">No order data</s-badge>
+        </div>
+      </div>
+
       <s-section heading="What the app does">
         <s-paragraph>
-          PAL Catalog Check performs a read-only catalog-readiness check using Shopify product data. It flags missing or risky product-feed fields and explains the finding without editing products or variants.
+          PAL Catalog Check reviews Shopify product data for catalog-readiness
+          risks and explains each finding. It does not edit products, variants,
+          images, prices, or publication settings.
         </s-paragraph>
       </s-section>
 
       <s-section heading="Free and Pro data handling">
         <s-paragraph>
-          Free scans process product and variant data to generate the current result and do not create a saved catalog-history record. Pro monitoring stores bounded scan-result snapshots, monitoring preferences, health alerts, and scheduled report summaries so history, change detection, recurring scans, and report exports can work.
+          Free scans process catalog data to generate the current result and do
+          not create saved PAL scan history. Pro monitoring stores bounded
+          scan-result snapshots, monitoring preferences, alerts, and scheduled
+          report summaries so history, change detection, recurring scans, and
+          report exports can work.
         </s-paragraph>
         <s-paragraph>
-          The app also stores the Shopify authentication session needed to remain installed and logs limited aggregate operational events such as app opens and scan completion. Stored PAL Catalog Check shop data is deleted when the app processes an uninstall or Shopify shop-redaction event.
-        </s-paragraph>
-        <s-paragraph>
-          The app requests read-only product access. It does not request customer or order access.
+          PAL also stores the Shopify authentication session required to remain
+          installed and records limited aggregate operational events such as app
+          opens and scan completion. Stored PAL shop data is deleted when the
+          app processes an uninstall or Shopify shop-redaction event.
         </s-paragraph>
         <s-link href="https://practical-automation-lab.onrender.com/shopify-feed-health-privacy.html">
-          Read the Shopify app privacy policy
+          Read the privacy policy
         </s-link>
       </s-section>
 
       <s-section heading="Scan boundaries">
+        <div className="pal-metric-grid">
+          <div className="pal-metric-card">
+            <div className="pal-metric-label">Free products</div>
+            <div className="pal-metric-value">2,500</div>
+            <div className="pal-metric-note">Per catalog scan</div>
+          </div>
+          <div className="pal-metric-card">
+            <div className="pal-metric-label">Pro products</div>
+            <div className="pal-metric-value">10,000</div>
+            <div className="pal-metric-note">Per bounded Pro scan</div>
+          </div>
+          <div className="pal-metric-card">
+            <div className="pal-metric-label">Pro variants</div>
+            <div className="pal-metric-value">250</div>
+            <div className="pal-metric-note">Per product</div>
+          </div>
+          <div className="pal-metric-card">
+            <div className="pal-metric-label">Pro images</div>
+            <div className="pal-metric-value">100</div>
+            <div className="pal-metric-note">Per product</div>
+          </div>
+        </div>
         <s-paragraph>
-          Free scans check up to 2,500 products, up to 100 variants per product, and up to 20 images per product.
-        </s-paragraph>
-        <s-paragraph>
-          The current Pro bounded scan design supports up to 10,000 products, up to 250 variants per product, and up to 100 images per product. The dashboard warns when a boundary is reached.
+          Free scans support up to 100 variants and 20 images per product. PAL
+          warns when a configured boundary is reached so a partial scan is not
+          mistaken for a complete one.
         </s-paragraph>
       </s-section>
 
       <s-section heading="Pro monitoring">
         <s-paragraph>
-          Pro capability includes recurring scans, saved scan history, change detection, readiness-drop alerts, January 31, 2027 image-readiness monitoring, CSV exports, larger scan limits, and scheduled report snapshots. Billing remains separate from these capabilities and is activated only through Shopify App Pricing.
+          Pro adds recurring scans, saved history, change detection, readiness
+          alerts, January 31, 2027 image-readiness monitoring, CSV exports,
+          larger scan limits, and scheduled report snapshots. Merchant billing
+          is handled separately through Shopify App Pricing.
         </s-paragraph>
       </s-section>
 
       <s-section heading="Get help">
         <s-paragraph>
-          During the public-beta phase, report reproducible issues or product feedback in the Practical Automation Lab beta thread. Do not post store credentials, access tokens, customer information, or confidential catalog data.
+          During public beta, report reproducible issues or product feedback in
+          the Practical Automation Lab support thread. Never include store
+          passwords, Shopify access tokens, recovery codes, customer
+          information, or confidential catalog exports.
         </s-paragraph>
         <s-link href="https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4">
-          Open the beta support and feedback thread
+          Open beta support & feedback
         </s-link>
       </s-section>
 
       <s-section heading="Merchant Center note">
         <s-paragraph>
-          Findings are readiness guidance based on catalog fields available through Shopify. The app is not affiliated with Google and does not guarantee Google Merchant Center approval.
+          PAL provides readiness guidance based on fields available through
+          Shopify. PAL is not affiliated with Google and does not guarantee
+          Google Merchant Center approval.
         </s-paragraph>
       </s-section>
     </s-page>

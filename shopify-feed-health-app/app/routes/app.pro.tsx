@@ -117,7 +117,22 @@ export default function ProMonitoringDashboard() {
   const openAlerts = alerts.filter((alert) => !alert.acknowledgedAt);
 
   return (
-    <s-page heading="Pro monitoring & reports">
+    <s-page heading="Monitoring & reports">
+      <div className="pal-intro">
+        <div>
+          <div className="pal-eyebrow">Pro workspace</div>
+          <p className="pal-subtitle">
+            Automate catalog checks, keep a saved history, track changes, and
+            export scheduled readiness reports without editing Shopify data.
+          </p>
+        </div>
+        <div className="pal-status-row">
+          <s-badge tone="success">Pro active</s-badge>
+          <s-badge tone={preferences.enabled ? "success" : "info"}>
+            {preferences.enabled ? "Monitoring on" : "Monitoring paused"}
+          </s-badge>
+        </div>
+      </div>
       {actionData?.message ? (
         <s-banner tone={actionData.ok ? "success" : "warning"} heading={actionData.ok ? "Updated" : "Not changed"}>
           {actionData.message}
@@ -127,37 +142,58 @@ export default function ProMonitoringDashboard() {
       <s-section heading="Automatic monitoring">
         <Form method="post">
           <input type="hidden" name="intent" value="monitoring" />
-          <label style={{ display: "block", marginBottom: 12 }}>
-            <input
-              type="checkbox"
-              name="enabled"
-              defaultChecked={preferences.enabled}
-            />{" "}
-            Enable recurring catalog scans
-          </label>
-          <label style={{ display: "block", marginBottom: 12 }}>
-            Scan interval{" "}
-            <select name="intervalHours" defaultValue={String(preferences.intervalHours)}>
-              <option value="6">Every 6 hours</option>
-              <option value="12">Every 12 hours</option>
-              <option value="24">Daily</option>
-              <option value="48">Every 2 days</option>
-              <option value="168">Weekly</option>
-            </select>
-          </label>
-          <label style={{ display: "block", marginBottom: 12 }}>
-            Scheduled report cadence{" "}
-            <select name="reportCadence" defaultValue={preferences.reportCadence}>
-              <option value="daily">Daily</option>
-              <option value="weekly">Weekly</option>
-              <option value="monthly">Monthly</option>
-            </select>
-          </label>
-          <button type="submit">Save monitoring schedule</button>
+          <div className="pal-form-grid">
+            <div className="pal-field">
+              <span className="pal-field-label">Recurring scans</span>
+              <label className="pal-checkline">
+                <input
+                  type="checkbox"
+                  name="enabled"
+                  defaultChecked={preferences.enabled}
+                />
+                Enable monitoring
+              </label>
+            </div>
+
+            <label className="pal-field">
+              <span className="pal-field-label">Scan interval</span>
+              <select
+                className="pal-control"
+                name="intervalHours"
+                defaultValue={String(preferences.intervalHours)}
+              >
+                <option value="6">Every 6 hours</option>
+                <option value="12">Every 12 hours</option>
+                <option value="24">Daily</option>
+                <option value="48">Every 2 days</option>
+                <option value="168">Weekly</option>
+              </select>
+            </label>
+
+            <label className="pal-field">
+              <span className="pal-field-label">Report cadence</span>
+              <select
+                className="pal-control"
+                name="reportCadence"
+                defaultValue={preferences.reportCadence}
+              >
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+              </select>
+            </label>
+
+            <button className="pal-button pal-button-primary" type="submit">
+              Save schedule
+            </button>
+          </div>
         </Form>
-        <p>
-          Last saved scan: {formatDate(preferences.lastScanAt)} · Next automatic scan: {formatDate(preferences.nextScanAt)} · Next report: {formatDate(preferences.nextReportAt)}
-        </p>
+
+        <div className="pal-meta-strip">
+          Last saved scan: {formatDate(preferences.lastScanAt)} · Next automatic
+          scan: {formatDate(preferences.nextScanAt)} · Next report:{" "}
+          {formatDate(preferences.nextReportAt)}
+        </div>
       </s-section>
 
       <s-section heading="Health alerts">
@@ -167,22 +203,14 @@ export default function ProMonitoringDashboard() {
           </s-banner>
         ) : (
           openAlerts.map((alert) => (
-            <div
-              key={alert.id}
-              style={{
-                border: "1px solid #ddd",
-                borderRadius: 10,
-                padding: 14,
-                marginBottom: 10,
-              }}
-            >
+            <div key={alert.id} className="pal-issue-card">
               <strong>{alert.title}</strong>
               <p>{alert.message}</p>
               <small>{formatDate(alert.createdAt)}</small>
               <Form method="post">
                 <input type="hidden" name="intent" value="acknowledge" />
                 <input type="hidden" name="alertId" value={alert.id} />
-                <button type="submit">Acknowledge</button>
+                <button className="pal-button" type="submit">Acknowledge</button>
               </Form>
             </div>
           ))
@@ -190,14 +218,21 @@ export default function ProMonitoringDashboard() {
       </s-section>
 
       <s-section heading="Saved scan history">
-        <p>
-          <a href="/app/export?type=history" target="_top" rel="noopener">Download history CSV</a>
-        </p>
+        <div className="pal-actions-row" style={{ marginBottom: 12 }}>
+          <a
+            className="pal-link-button"
+            href="/app/export?type=history"
+            target="_top"
+            rel="noopener"
+          >
+            Download history CSV
+          </a>
+        </div>
         {history.length === 0 ? (
-          <p>No saved Pro scans yet.</p>
+          <div className="pal-empty">No saved Pro scans yet.</div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div className="pal-table-wrap">
+            <table className="pal-table">
               <thead>
                 <tr>
                   <th align="left">Time</th>
@@ -238,32 +273,27 @@ export default function ProMonitoringDashboard() {
       <s-section heading="Scheduled reports">
         <Form method="post">
           <input type="hidden" name="intent" value="generate-report" />
-          <button type="submit">Generate report now</button>
+          <button className="pal-button" type="submit">Generate report now</button>
         </Form>
         {reports.length === 0 ? (
-          <p>No scheduled report snapshots yet.</p>
+          <div className="pal-empty" style={{ marginTop: 12 }}>
+            No scheduled report snapshots yet.
+          </div>
         ) : (
           <div>
             {reports.map((report) => {
               const summary = reportSummary(report.summaryJson);
               return (
-                <details
-                  key={report.id}
-                  style={{
-                    border: "1px solid #ddd",
-                    borderRadius: 10,
-                    padding: 12,
-                    marginTop: 12,
-                  }}
-                >
-                  <summary style={{ cursor: "pointer", fontWeight: 600 }}>
+                <details key={report.id} className="pal-report-card">
+                  <summary>
                     {formatDate(report.generatedAt)} · View report
                   </summary>
-                  <div style={{ marginTop: 12, overflowX: "auto" }}>
-                    <p>
+                  <div className="pal-report-body">
+                    <p className="pal-subtitle">
                       Coverage: {formatDate(report.rangeStart)} → {formatDate(report.rangeEnd)}
                     </p>
-                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <div className="pal-table-wrap">
+                    <table className="pal-table">
                       <tbody>
                         {[
                           ["Cadence", displayMetric(summary.cadence)],
@@ -301,13 +331,14 @@ export default function ProMonitoringDashboard() {
                         ))}
                       </tbody>
                     </table>
+                    </div>
                     <p style={{ marginTop: 12 }}>
                       <a
                         href={`/app/export?type=scheduled&reportId=${encodeURIComponent(report.id)}`}
                         target="_top"
                         rel="noopener"
                       >
-                        Download CSV
+                        <span className="pal-link-button">Download CSV</span>
                       </a>
                     </p>
                   </div>
