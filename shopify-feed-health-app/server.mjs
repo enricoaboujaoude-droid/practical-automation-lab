@@ -15,6 +15,17 @@ app.disable("x-powered-by");
 app.set("trust proxy", true);
 app.use(compression());
 
+app.get("/healthz", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.status(200).json({ ok: true, service: "pal-catalog-check" });
+});
+
+app.head("/healthz", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.sendStatus(200);
+});
+
+
 app.use(
   "/assets",
   express.static("build/client/assets", {
