@@ -98,10 +98,10 @@ Product page:
 https://practical-automation-lab.onrender.com/shopify-catalog-check.html
 
 Privacy policy:
-https://practical-automation-lab.onrender.com/shopify-feed-health-privacy.html
+https://practical-automation-lab.onrender.com/pal-catalog-check-privacy.html
 
 Support:
-https://practical-automation-lab.onrender.com/shopify-feed-health-support.html
+https://practical-automation-lab.onrender.com/pal-catalog-check-support.html
 
 Developer website:
 https://practical-automation-lab.onrender.com/
