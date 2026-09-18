@@ -26,6 +26,10 @@ const ALLOWED_EVENTS = new Set([
   'eudr_preflight_completed',
   'eudr_preflight_report_downloaded',
   'eudr_preflight_commercial_cta_clicked',
+  'battery_passport_preflight_started',
+  'battery_passport_preflight_completed',
+  'battery_passport_report_downloaded',
+  'battery_passport_commercial_cta_clicked',
 ]);
 
 if (!DATABASE_URL) {
@@ -84,7 +88,11 @@ async function initialize() {
         'eudr_preflight_started',
         'eudr_preflight_completed',
         'eudr_preflight_report_downloaded',
-        'eudr_preflight_commercial_cta_clicked'
+        'eudr_preflight_commercial_cta_clicked',
+        'battery_passport_preflight_started',
+        'battery_passport_preflight_completed',
+        'battery_passport_report_downloaded',
+        'battery_passport_commercial_cta_clicked'
       ))
   `);
   await pool.query(`
@@ -234,6 +242,20 @@ const server = http.createServer(async (req, res) => {
         'eudr_preflight_completed',
         'eudr_preflight_report_downloaded',
         'eudr_preflight_commercial_cta_clicked',
+      ];
+      return sendJson(req, res, 200, {
+        ok: true,
+        scope: 'production_only',
+        events: await productionMetrics(names),
+      });
+    }
+
+    if (req.method === 'GET' && url.pathname === '/metrics/battery-passport') {
+      const names = [
+        'battery_passport_preflight_started',
+        'battery_passport_preflight_completed',
+        'battery_passport_report_downloaded',
+        'battery_passport_commercial_cta_clicked',
       ];
       return sendJson(req, res, 200, {
         ok: true,
