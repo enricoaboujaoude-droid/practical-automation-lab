@@ -21,15 +21,18 @@ export async function runDueProMonitoring(args: {
   const due = await prisma.monitoringPreference.findMany({
     where: {
       enabled: true,
-      nextScanAt: { lte: now },
+      OR: [
+        { nextScanAt: { lte: now } },
+        { nextReportAt: { lte: now } },
+      ],
     },
-    orderBy: { nextScanAt: "asc" },
+    orderBy: { updatedAt: "asc" },
     take: limit,
   });
 
   const results: Array<{
     shop: string;
-    status: "scanned" | "skipped" | "failed";
+    status: "scanned" | "reported" | "scanned_and_reported" | "skipped" | "failed";
     score?: number;
     error?: string;
   }> = [];
@@ -38,6 +41,7 @@ export async function runDueProMonitoring(args: {
     try {
       const { admin } = await unauthenticated.admin(preference.shop);
       const entitlement = await getEntitlementForShop(preference.shop, admin);
+
       if (entitlement.plan !== "pro") {
         await prisma.monitoringPreference.update({
           where: { shop: preference.shop },
@@ -51,34 +55,45 @@ export async function runDueProMonitoring(args: {
         continue;
       }
 
-      await prisma.monitoringPreference.update({
-        where: { shop: preference.shop },
-        data: {
-          nextScanAt: addHours(now, preference.intervalHours),
-        },
-      });
+      const scanDue =
+        Boolean(preference.nextScanAt) &&
+        preference.nextScanAt!.getTime() <= now.getTime();
+      const reportDue =
+        Boolean(preference.nextReportAt) &&
+        preference.nextReportAt!.getTime() <= now.getTime();
 
-      const result = await scanCatalog(admin, PRO_SCAN_LIMITS);
-      await persistProScan({
-        shop: preference.shop,
-        source: "scheduled",
-        result,
-      });
+      let score: number | undefined;
 
-      const refreshed = await prisma.monitoringPreference.findUnique({
-        where: { shop: preference.shop },
-      });
-      if (
-        refreshed?.nextReportAt &&
-        refreshed.nextReportAt.getTime() <= now.getTime()
-      ) {
+      if (scanDue) {
+        await prisma.monitoringPreference.update({
+          where: { shop: preference.shop },
+          data: {
+            nextScanAt: addHours(now, preference.intervalHours),
+          },
+        });
+
+        const result = await scanCatalog(admin, PRO_SCAN_LIMITS);
+        await persistProScan({
+          shop: preference.shop,
+          source: "scheduled",
+          result,
+        });
+        score = result.report.score;
+      }
+
+      if (reportDue) {
         await generateScheduledReport(preference.shop, now);
       }
 
       results.push({
         shop: preference.shop,
-        status: "scanned",
-        score: result.report.score,
+        status:
+          scanDue && reportDue
+            ? "scanned_and_reported"
+            : scanDue
+              ? "scanned"
+              : "reported",
+        ...(score == null ? {} : { score }),
       });
     } catch (error) {
       results.push({
