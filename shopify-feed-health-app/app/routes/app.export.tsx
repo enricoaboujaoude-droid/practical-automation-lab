@@ -2,6 +2,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import prisma from "../db.server";
 import { authenticate } from "../shopify.server";
 import { getEntitlementForShop } from "../lib/entitlements.server";
+import { trackAppEvent } from "../lib/events.server";
 import {
   historyCsv,
   scanIssuesCsv,
@@ -72,6 +73,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         imageRisks: true,
       },
     });
+    trackAppEvent("pro_export_downloaded", { count: history.length });
     return download(historyCsv(history), "pal-catalog-check-history.csv");
   }
 
@@ -83,6 +85,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     });
 
     if (!scan) return new Response("Scan not found.", { status: 404 });
+    trackAppEvent("pro_export_downloaded");
     return download(
       scanIssuesCsv(scan.reportJson as any),
       `pal-catalog-check-findings-${scan.generatedAt.toISOString().slice(0, 10)}.csv`,
@@ -96,6 +99,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     });
 
     if (!report) return new Response("Report not found.", { status: 404 });
+    trackAppEvent("pro_export_downloaded");
     return download(
       scheduledReportCsv(report),
       `pal-catalog-check-report-${report.generatedAt.toISOString().slice(0, 10)}.csv`,
