@@ -34,7 +34,7 @@ code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px}a{color:inherit}.
 <ol>
 <li><strong>Removed database/schema work from runtime startup.</strong> Startup no longer runs <code>prisma generate</code> or <code>prisma db push</code>. Those build/setup concerns are kept out of the request-serving path.</li>
 <li><strong>Added a lightweight health route:</strong> <a href="https://pal-catalog-check-app.onrender.com/healthz" target="_blank" rel="noopener"><code>/healthz</code></a> returns HTTP 200 without Shopify authentication.</li>
-<li><strong>Added continuous availability traffic during review:</strong> a GitHub Actions availability job requests <code>/healthz</code> every 10 minutes, preventing the 15-minute idle spin-down window while the app remains on free compute.</li>
+<li><strong>Added continuous availability traffic during review:</strong> a GitHub Actions availability job requests <code>/healthz</code> every 5 minutes, preventing the 15-minute idle spin-down window while the app remains on free compute.</li>
 <li><strong>Preserved the existing embedded merchant workflow.</strong> No new Shopify scopes, customer data, order data, product mutations, or merchant-data telemetry were introduced by this fix.</li>
 </ol>
 </section>
