@@ -5,6 +5,7 @@ import { scanCatalog } from "../lib/catalog-scan.server";
 import { getEntitlementForShop } from "../lib/entitlements.server";
 import { persistProScan } from "../lib/pro-monitoring.server";
 import { trackAppEvent } from "../lib/events.server";
+import { getPlanSelectionUrl } from "../lib/billing-links.server";
 
 async function runScan(request: Request) {
   const { admin, session } = await authenticate.admin(request);
@@ -29,6 +30,7 @@ async function runScan(request: Request) {
   return {
     ...result,
     entitlement,
+    planSelectionUrl: getPlanSelectionUrl(session.shop),
     changeSummary: saved
       ? {
           scoreDelta: saved.diff.scoreDelta,
@@ -150,9 +152,19 @@ export default function CatalogCheckDashboard() {
         {pro ? (
           <s-link href="/app/pro">Open Pro monitoring, history and reports</s-link>
         ) : (
-          <s-text tone="neutral">
-            Free scans use the current standard limits. Pro capabilities are implemented behind the subscription entitlement boundary and are not charged until Shopify App Pricing is configured.
-          </s-text>
+          <>
+            <s-text tone="neutral">
+              Free scans use the current standard limits. Pro capabilities are implemented behind the subscription entitlement boundary.
+            </s-text>
+            {data.planSelectionUrl ? (
+              <>
+                <br />
+                <a href={data.planSelectionUrl} target="_top">
+                  View Free and Pro plans in Shopify
+                </a>
+              </>
+            ) : null}
+          </>
         )}
         <br />
         <s-link href="/app/support">Support and data handling</s-link>
