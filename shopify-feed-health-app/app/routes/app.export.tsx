@@ -35,12 +35,14 @@ function scheduledReportCsv(report: {
 }
 
 function download(body: string, filename: string) {
-  return new Response(body, {
+  const csv = "\uFEFF" + body;
+  return new Response(csv, {
     status: 200,
     headers: {
       "content-type": "text/csv; charset=utf-8",
       "content-disposition": `attachment; filename="${filename}"`,
       "cache-control": "no-store",
+      "x-content-type-options": "nosniff",
     },
   });
 }
