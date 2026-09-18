@@ -59,7 +59,9 @@ export default function CatalogCheckDashboard() {
     <s-page heading="Catalog readiness check">
       <s-button
         slot="primary-action"
-        onClick={() => fetcher.submit({}, { method: "post" })}
+        onClick={() =>
+          fetcher.submit({}, { method: "post", defaultShouldRevalidate: false })
+        }
         disabled={loading}
       >
         {loading ? "Scanning…" : "Rescan catalog"}
