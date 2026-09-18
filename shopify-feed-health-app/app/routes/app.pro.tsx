@@ -180,7 +180,7 @@ export default function ProMonitoringDashboard() {
 
       <s-section heading="Saved scan history">
         <p>
-          <a href="/app/export?type=history">Download history CSV</a>
+          <a href="/app/export?type=history" target="_top" rel="noopener">Download history CSV</a>
         </p>
         {history.length === 0 ? (
           <p>No saved Pro scans yet.</p>
@@ -208,7 +208,11 @@ export default function ProMonitoringDashboard() {
                     <td align="right">{scan.warnings}</td>
                     <td align="right">{scan.imageRisks}</td>
                     <td>
-                      <a href={`/app/export?type=issues&scanId=${encodeURIComponent(scan.id)}`}>
+                      <a
+                        href={`/app/export?type=issues&scanId=${encodeURIComponent(scan.id)}`}
+                        target="_top"
+                        rel="noopener"
+                      >
                         Findings CSV
                       </a>
                     </td>
@@ -232,8 +236,15 @@ export default function ProMonitoringDashboard() {
             {reports.map((report) => (
               <li key={report.id}>
                 {formatDate(report.generatedAt)} ·{" "}
-                <a href={`/app/export?type=scheduled&reportId=${encodeURIComponent(report.id)}`}>
-                  Download report CSV
+                <a href={`/app/report/${encodeURIComponent(report.id)}`}>
+                  View report
+                </a>{" · "}
+                <a
+                  href={`/app/export?type=scheduled&reportId=${encodeURIComponent(report.id)}`}
+                  target="_top"
+                  rel="noopener"
+                >
+                  Download CSV
                 </a>
               </li>
             ))}
