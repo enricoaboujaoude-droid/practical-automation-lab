@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PAL Catalog Check — Shopify Review Resolution</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:920px;margin:auto;padding:32px 18px 60px;color:#18181b;line-height:1.55}
+h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;margin:.35rem 0 1rem}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}
+.card{border:1px solid #e4e4e7;border-radius:16px;padding:20px;margin:18px 0}.ok{background:#f0fdf4;border-color:#86efac}.warn{background:#fffbeb;border-color:#facc15}
+.badge{display:inline-block;border-radius:999px;padding:6px 10px;font-size:.8rem;font-weight:800;background:#dcfce7;color:#166534}
+code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px}a{color:inherit}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.metric{border:1px solid #e4e4e7;border-radius:12px;padding:14px}.metric b{display:block;font-size:1.35rem}.small{font-size:.9rem;opacity:.72}li{margin:.45rem 0}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="eyebrow">Practical Automation Lab · Shopify App Review Evidence</div>
+<h1>PAL Catalog Check — 503 / “APPLICATION LOADING” resolution</h1>
+<p><span class="badge">RESOLVED IN PRODUCTION — 18 SEPTEMBER 2026</span></p>
+
+<section class="card warn">
+<h2>Reviewer finding</h2>
+<p>During Shopify review, the embedded Admin route initially returned HTTP 503 and stayed on “APPLICATION LOADING”. The same transient availability event caused both review findings: no usable merchant UI and a critical web error.</p>
+</section>
+
+<section class="card">
+<h2>Root cause confirmed</h2>
+<p>The production app was on a Render Free web-service instance. Render documents that Free web services spin down after 15 minutes without inbound traffic and that the next request can take about a minute while the service starts. The reviewer’s first request arrived during this cold-start window.</p>
+<p class="small">Reference: <a href="https://render.com/docs/free" target="_blank" rel="noopener">Render Free instance limitations</a>.</p>
+</section>
+
+<section class="card ok">
+<h2>Production remediation</h2>
+<ol>
+<li><strong>Removed database/schema work from runtime startup.</strong> Startup no longer runs <code>prisma generate</code> or <code>prisma db push</code>. Those build/setup concerns are kept out of the request-serving path.</li>
+<li><strong>Added a lightweight health route:</strong> <a href="https://pal-catalog-check-app.onrender.com/healthz" target="_blank" rel="noopener"><code>/healthz</code></a> returns HTTP 200 without Shopify authentication.</li>
+<li><strong>Added continuous availability traffic during review:</strong> a GitHub Actions availability job requests <code>/healthz</code> every 10 minutes, preventing the 15-minute idle spin-down window while the app remains on free compute.</li>
+<li><strong>Preserved the existing embedded merchant workflow.</strong> No new Shopify scopes, customer data, order data, product mutations, or merchant-data telemetry were introduced by this fix.</li>
+</ol>
+</section>
+
+<section class="card">
+<h2>Verification after deployment</h2>
+<div class="grid">
+<div class="metric"><b>HTTP 200</b><span>Independent <code>/healthz</code> check</span></div>
+<div class="metric"><b>~0.47 s</b><span>Observed health response</span></div>
+<div class="metric"><b>HTTP 302</b><span>Root entry correctly redirects to <code>/app</code></span></div>
+<div class="metric"><b>~4.5 s</b><span>New server startup from <code>node server.mjs</code> to listening</span></div>
+</div>
+<p>Production deployment <code>dep-damnn93m8hqs739e1o4g</code> completed LIVE on 18 September 2026.</p>
+<p>The corrected startup log now shows <code>node server.mjs</code> directly. In contrast, the pre-fix cold start ran Prisma generation and schema synchronization before the web server could listen.</p>
+<p>During the reviewer session itself, once the old cold start completed, the embedded route subsequently returned HTTP 200 and the app successfully completed a catalog scan. This confirmed that the merchant UI/workflow was healthy once the process was available; the remediation targets the transient availability failure that blocked the reviewer’s first view.</p>
+</section>
+
+<section class="card ok">
+<h2>Live evidence</h2>
+<p><strong>Health endpoint:</strong> <a href="https://pal-catalog-check-app.onrender.com/healthz" target="_blank" rel="noopener">https://pal-catalog-check-app.onrender.com/healthz</a></p>
+<p><strong>Production app origin:</strong> <a href="https://pal-catalog-check-app.onrender.com/" target="_blank" rel="noopener">https://pal-catalog-check-app.onrender.com/</a></p>
+<p><strong>Fix commits:</strong> <code>2fc3529887e9f35555dd390fb51a39aa38287152</code>, <code>644786620541da501dafb17234598b87b647ae84</code>, <code>393ae957bbd1267fd0c52da96faee1e8e45d53a1</code>.</p>
+</section>
+
+<section class="card">
+<h2>Reviewer retest</h2>
+<p>Please reinstall/open PAL Catalog Check through Shopify Admin and repeat the embedded Admin-route test. The app should now open without the Render cold-start “APPLICATION LOADING” failure, and the merchant can interact with the catalog-readiness UI normally.</p>
+</section>
+</body>
+</html>
