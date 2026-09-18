@@ -14,6 +14,10 @@ const ALLOWED_EVENTS = new Set([
   'commercial_cta_viewed',
   'commercial_cta_clicked',
   'shopify_beta_interest',
+  'merchant_migration_started',
+  'merchant_migration_completed',
+  'merchant_migration_report_downloaded',
+  'merchant_migration_commercial_cta_clicked',
 ]);
 
 if (!DATABASE_URL) {
@@ -60,7 +64,11 @@ async function initialize() {
         'report_downloaded',
         'commercial_cta_viewed',
         'commercial_cta_clicked',
-        'shopify_beta_interest'
+        'shopify_beta_interest',
+        'merchant_migration_started',
+        'merchant_migration_completed',
+        'merchant_migration_report_downloaded',
+        'merchant_migration_commercial_cta_clicked'
       ))
   `);
   await pool.query(`
@@ -119,7 +127,7 @@ async function readSmallTextBody(req) {
   });
 }
 
-async function productionMetrics() {
+async function productionMetrics(eventNames = [...ALLOWED_EVENTS]) {
   const { rows } = await pool.query(`
     select
       event_name,
@@ -134,7 +142,7 @@ async function productionMetrics() {
   `);
 
   const metrics = Object.fromEntries(
-    [...ALLOWED_EVENTS].map(name => [name, {
+    eventNames.map(name => [name, {
       total: 0,
       last_24h: 0,
       first_seen: null,
@@ -143,6 +151,7 @@ async function productionMetrics() {
   );
 
   for (const row of rows) {
+    if (!metrics[row.event_name]) continue;
     metrics[row.event_name] = {
       total: Number(row.total),
       last_24h: Number(row.last_24h),
@@ -172,6 +181,20 @@ const server = http.createServer(async (req, res) => {
         ok: true,
         scope: 'production_only',
         events: await productionMetrics(),
+      });
+    }
+
+    if (req.method === 'GET' && url.pathname === '/metrics/merchant-migration') {
+      const names = [
+        'merchant_migration_started',
+        'merchant_migration_completed',
+        'merchant_migration_report_downloaded',
+        'merchant_migration_commercial_cta_clicked',
+      ];
+      return sendJson(req, res, 200, {
+        ok: true,
+        scope: 'production_only',
+        events: await productionMetrics(names),
       });
     }
 

@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google Content API → Merchant API Migration Preflight — Practical Automation Lab</title>
+<meta name="description" content="Free browser-local scanner for Google Content API for Shopping v2.1 migration risks, Merchant API v1beta usage, customBatch, legacy Price objects and developer-registration gaps.">
+<link rel="canonical" href="https://practical-automation-lab.onrender.com/google-merchant-api-migration-preflight.html">
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:1080px;margin:auto;padding:32px 18px 60px;color:#18181b;line-height:1.5}a{color:inherit}.hero{max-width:860px}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1.03;margin:.45rem 0 1rem}.lead{font-size:1.08rem;opacity:.75}.notice{border:1px solid #f59e0b;background:#fffbeb;border-radius:14px;padding:14px 16px;margin:20px 0}.panel{border:1px solid #e4e4e7;border-radius:18px;padding:22px;margin:22px 0}.drop{border:2px dashed #a1a1aa;border-radius:16px;padding:26px;text-align:center;background:#fafafa}.drop.drag{background:#f4f4f5;border-color:#18181b}.or{display:flex;align-items:center;gap:12px;margin:16px 0;color:#71717a}.or:before,.or:after{content:"";height:1px;background:#e4e4e7;flex:1}.editor{width:100%;min-height:180px;box-sizing:border-box;border:1px solid #d4d4d8;border-radius:12px;padding:12px;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;resize:vertical}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.button,button{border:0;border-radius:10px;padding:11px 15px;background:#18181b;color:white;font-weight:750;cursor:pointer;text-decoration:none;display:inline-block}.secondary{background:white;color:#18181b;border:1px solid #d4d4d8}.muted{opacity:.68}.small{font-size:.88rem}.hidden{display:none}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.metric{border:1px solid #e4e4e7;border-radius:14px;padding:15px}.metric b{display:block;font-size:1.55rem}.finding{border:1px solid #e4e4e7;border-radius:13px;padding:15px;margin:10px 0}.critical{border-left:5px solid #b91c1c}.warning{border-left:5px solid #a16207}.info{border-left:5px solid #0369a1}.tag{font-size:.75rem;text-transform:uppercase;font-weight:800}.good{border:1px solid #86efac;background:#f0fdf4;border-radius:14px;padding:16px}.commercial{background:#fafafa}.links{display:grid;gap:8px}.filelist{font-size:.9rem;text-align:left;max-width:700px;margin:12px auto 0}.privacy{font-size:.9rem;margin-top:12px}.pill{display:inline-block;border:1px solid #d4d4d8;border-radius:999px;padding:5px 9px;font-size:.82rem;margin:3px}.progress{height:8px;background:#e4e4e7;border-radius:999px;overflow:hidden}.progress>span{display:block;height:100%;background:#18181b}.checklist li{margin:6px 0}@media(max-width:720px){.summary{grid-template-columns:repeat(2,1fr)}} 
+</style>
+</head>
+<body>
+<a href="index.html">← Practical Automation Lab</a>
+<header class="hero">
+<div class="eyebrow">Practical Automation Lab · API migration</div>
+<h1>Find Content API → Merchant API migration blockers before they become production outages.</h1>
+<p class="lead">Scan selected source/config files or paste snippets. Analysis runs entirely in your browser. The tool looks for deprecated Content API v2.1 usage, Merchant API v1beta, customBatch, legacy Price objects, identifier assumptions and developer-registration gaps.</p>
+</header>
+
+<div class="notice"><strong>Why this is urgent:</strong> Google sunset the Content API for Shopping on August 18, 2026. Starting September 1, 2026, integrations without an active extension can receive intermittent HTTP 410 Gone responses. Full decommissioning is planned for early 2027.</div>
+
+<main>
+<section class="panel">
+<h2>Run a browser-local preflight</h2>
+<div id="drop" class="drop">
+<p><strong>Drop source/config files here</strong><br><span class="muted">or choose multiple text-based files</span></p>
+<input id="files" type="file" multiple accept=".js,.mjs,.cjs,.ts,.tsx,.jsx,.py,.php,.rb,.go,.java,.kt,.cs,.json,.yaml,.yml,.xml,.txt,.sh,.env.example,.md">
+<div id="fileList" class="filelist muted"></div>
+</div>
+<div class="or">or</div>
+<label for="paste"><strong>Paste a code/config excerpt</strong></label>
+<textarea id="paste" class="editor" placeholder="Paste selected integration code, request URLs, config, or dependency snippets. Do not paste secrets."></textarea>
+<p class="privacy">Privacy: file contents, filenames, repository identifiers, merchant IDs, Google Cloud project IDs and source code never leave your browser. Only privacy-safe aggregate activation events are sent when you run the preflight, download a report, or click the commercial-interest link.</p>
+<div class="row">
+<button id="run">Run migration preflight</button>
+<button id="reset" class="secondary" type="button">Clear</button>
+</div>
+</section>
+
+<section id="results" class="panel hidden">
+<div class="row"><h2 style="margin-right:auto">Migration preflight result</h2><button id="download">Download remediation report</button></div>
+<div class="summary">
+<div class="metric"><b id="score">—</b><span>Readiness score</span></div>
+<div class="metric"><b id="criticalCount">0</b><span>Critical blockers</span></div>
+<div class="metric"><b id="warningCount">0</b><span>Warnings</span></div>
+<div class="metric"><b id="filesCount">0</b><span>Inputs checked</span></div>
+</div>
+<div id="surfacePills"></div>
+<div id="findings"></div>
+<div class="panel" style="margin:18px 0 0">
+<h3>Recommended migration order</h3>
+<ol id="migrationOrder" class="checklist"></ol>
+</div>
+</section>
+
+<section class="panel">
+<h2>What the scanner checks</h2>
+<ul class="checklist">
+<li>Content API v2.1 endpoints, client-library names and common Products / Accounts / Datafeeds / Reports surfaces.</li>
+<li><code>customBatch</code> usage, which has no direct Merchant API equivalent.</li>
+<li>Legacy product identifier handling that should move toward Merchant API resource <code>name</code> / <code>parent</code> patterns.</li>
+<li>Legacy Price objects using <code>value</code> + <code>currency</code> instead of <code>amountMicros</code> + <code>currencyCode</code>.</li>
+<li>Merchant API <code>v1beta</code> references that should already be migrated to <code>v1</code> or an appropriate supported <code>v1alpha</code> surface.</li>
+<li>Merchant API usage without an obvious <code>developerRegistration:registerGcp</code> / <code>registerGcp</code> step in the scanned material.</li>
+</ul>
+<p class="small muted">Static analysis can produce false positives and cannot prove a migration is complete. Always test against Google's current Merchant API documentation and a development environment before production rollout.</p>
+</section>
+
+<section class="panel commercial">
+<h2>Need a detailed migration pack or recurring compatibility monitoring?</h2>
+<p>We are validating a commercial package for integration teams and agencies: detailed endpoint mapping, migration sequencing, compatibility reports and recurring checks for deprecated API/version usage.</p>
+<a id="commercial" class="button" href="https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/28" target="_blank" rel="noopener">Signal commercial interest / follow the build</a>
+<p class="small muted">No checkout is active. The free browser-local preflight remains available without an account.</p>
+</section>
+
+<section class="panel">
+<h2>Official migration references</h2>
+<div class="links">
+<a href="https://developers.google.com/shopping-content/guides/deprecation-and-sunset" target="_blank" rel="noopener">Google: Content API deprecation and sunset</a>
+<a href="https://developers.google.com/merchant/api/guides/compatibility/overview" target="_blank" rel="noopener">Google: Migrate from Content API for Shopping to Merchant API</a>
+<a href="https://developers.google.com/merchant/api/guides/compatibility/migrate-v1beta-v1" target="_blank" rel="noopener">Google: Merchant API v1beta → v1</a>
+<a href="https://developers.google.com/merchant/api/guides/compatibility/products" target="_blank" rel="noopener">Google: Products migration guidance</a>
+</div>
+</section>
+</main>
+<footer style="margin-top:42px;border-top:1px solid #e4e4e7;padding-top:18px"><a href="index.html">← All tools</a> · <a href="privacy.html">Privacy</a> · <a href="methodology.html">Methodology</a></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const EVENT_ENDPOINT='https://pal-feed-auditor-events.onrender.com/event';
+const MAX_FILES=30, MAX_BYTES=2*1024*1024;
+let selectedFiles=[], lastReport=null;
+
+function track(name){
+  fetch(EVENT_ENDPOINT,{method:'POST',mode:'cors',cache:'no-store',credentials:'omit',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:name,keepalive:true}).catch(()=>{});
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function lineOf(text,index){return text.slice(0,index).split('\n').length}
+function addFinding(list,severity,code,title,detail,remediation,inputIndex,line){
+  if(list.some(x=>x.code===code&&x.inputIndex===inputIndex&&x.line===line)) return;
+  list.push({severity,code,title,detail,remediation,inputIndex,line});
+}
+function scanInput(text,inputIndex){
+  const f=[], surfaces=new Set(), lower=text.toLowerCase();
+  const matches=(re,cb)=>{let m;re.lastIndex=0;while((m=re.exec(text))){cb(m);if(!re.global)break}};
+  matches(/shoppingcontent\.googleapis\.com\/content\/v2\.1|\/content\/v2\.1\b|content\s*[,.:=]\s*["']?v2\.1/gi,m=>{
+    surfaces.add('Content API v2.1');
+    addFinding(f,'critical','CONTENT_V21','Deprecated Content API v2.1 detected','The scanned material references the sunset Content API for Shopping v2.1.','Replace calls with the corresponding Merchant API v1 sub-API/resource and test before production rollout.',inputIndex,lineOf(text,m.index));
+  });
+  matches(/googleapis\.com\/auth\/content|google\.shopping\.content|@googleapis\/content|google-api-services-content|shoppingContent\s*\(/gi,m=>{
+    surfaces.add('Legacy client/auth');
+    addFinding(f,'warning','LEGACY_CLIENT','Legacy Content API client/auth pattern detected','A Content API library, service name, or OAuth scope pattern was found.','Inventory the client-library/auth path and move request code to the current Merchant API client libraries and endpoints.',inputIndex,lineOf(text,m.index));
+  });
+  matches(/custombatch|customBatch/gi,m=>{
+    surfaces.add('Batching');
+    addFinding(f,'critical','CUSTOM_BATCH','customBatch migration blocker','Merchant API does not provide a direct customBatch equivalent.','Refactor this path to asynchronous requests, supported HTTP batching, or concurrency patterns recommended by Google.',inputIndex,lineOf(text,m.index));
+  });
+  matches(/\bdatafeeds?\b|\/datafeeds\b/gi,m=>{
+    surfaces.add('Data sources');
+    addFinding(f,'warning','DATAFEEDS','Legacy Datafeeds surface detected','Merchant API reorganizes feed/data-source management.','Map Datafeeds operations to the Merchant API Data Sources sub-API and verify ownership / primary data-source behavior.',inputIndex,lineOf(text,m.index));
+  });
+  matches(/\bproducts\.(insert|update|delete|get|list)\b|\/products\/(insert|update|delete|get|list)\b/gi,m=>{
+    surfaces.add('Products');
+    addFinding(f,'warning','PRODUCTS_SURFACE','Legacy Products operation pattern detected','Product operations need Merchant API resource-name and sub-API migration review.','Map product methods to Merchant API Products v1 and review new resource names, parent relationships and data-source behavior.',inputIndex,lineOf(text,m.index));
+  });
+  matches(/\baccounts\.(authinfo|claimwebsite|custombatch|get|insert|list|update)\b|\/accounts\/(authinfo|claimwebsite|custombatch|get|insert|list|update)\b/gi,m=>{
+    surfaces.add('Accounts');
+    addFinding(f,'warning','ACCOUNTS_SURFACE','Legacy Accounts operation pattern detected','Account management changed under Merchant API sub-APIs.','Map each Accounts operation to the appropriate Merchant API Accounts resource/service and verify required parent names.',inputIndex,lineOf(text,m.index));
+  });
+  matches(/\breports?\.(search|query)\b|\/reports\/search\b/gi,m=>{
+    surfaces.add('Reports');
+    addFinding(f,'warning','REPORTS_SURFACE','Reports/query surface requires migration review','Reporting request shapes and resources differ in Merchant API.','Review the Merchant API Reports sub-API and migrate query construction/resource naming deliberately.',inputIndex,lineOf(text,m.index));
+  });
+  matches(/merchantapi\.googleapis\.com[^\n"']*\/v1beta\b|\bmerchant\s*api\s*v1beta\b|\/v1beta\/accounts\//gi,m=>{
+    surfaces.add('Merchant API v1beta');
+    addFinding(f,'critical','MERCHANT_V1BETA','Merchant API v1beta detected','Merchant API v1beta is discontinued and should not remain in production integrations.','Move this surface to Merchant API v1, or to a currently supported v1alpha service only where Google explicitly requires it.',inputIndex,lineOf(text,m.index));
+  });
+  matches(/merchantapi\.googleapis\.com|\bmerchant\s*api\b/gi,m=>surfaces.add('Merchant API'));
+  matches(/["']value["']\s*:\s*["']?\d+(?:\.\d+)?["']?[^\n{}]{0,160}["']currency["']\s*:/gi,m=>{
+    surfaces.add('Price');
+    addFinding(f,'warning','LEGACY_PRICE','Legacy Price representation detected','A value + currency Price object pattern was found. Merchant API uses amountMicros + currencyCode.','Convert decimal amounts to integer micros and rename currency to currencyCode, with tests for rounding and zero-decimal currencies.',inputIndex,lineOf(text,m.index));
+  });
+  matches(/\bproductId\b|\bproduct_id\b|online:[a-z]{2,3}:[A-Z]{2}:/g,m=>{
+    surfaces.add('Identifiers');
+    addFinding(f,'info','PRODUCT_IDENTIFIER','Legacy product identifier assumption found','Merchant API identifies resources by REST resource name rather than relying on the old id field alone.','Review construction/parsing of product identifiers and migrate call sites to Merchant API resource name / parent patterns.',inputIndex,lineOf(text,m.index));
+  });
+  if(lower.includes('merchantapi.googleapis.com') && !/developerregistration:registergcp|registergcp\s*\(/i.test(text)){
+    surfaces.add('Developer registration');
+    addFinding(f,'warning','REGISTER_GCP','No Merchant API developer-registration step found','Merchant API v1 requires one-time developer registration for each Google Cloud project used for authentication.','Confirm developerRegistration:registerGcp is completed once per Google Cloud project before relying on v1 calls.',inputIndex,1);
+  }
+  return {findings:f,surfaces:[...surfaces]};
+}
+async function collectInputs(){
+  const inputs=[];
+  for(let i=0;i<Math.min(selectedFiles.length,MAX_FILES);i++){
+    const file=selectedFiles[i];
+    if(file.size>MAX_BYTES) throw new Error('One or more files exceeds the 2 MB per-file safety limit.');
+    inputs.push({label:'File '+(i+1),text:await file.text()});
+  }
+  const pasted=$('paste').value.trim();
+  if(pasted) inputs.push({label:'Pasted excerpt',text:pasted});
+  return inputs;
+}
+function riskScore(findings){
+  const penalty=findings.reduce((n,x)=>n+(x.severity==='critical'?24:x.severity==='warning'?10:4),0);
+  return Math.max(0,100-Math.min(100,penalty));
+}
+function migrationOrder(surfaces,findings){
+  const order=[];
+  const add=x=>{if(!order.includes(x))order.push(x)};
+  if(findings.some(x=>x.code==='CONTENT_V21'||x.code==='MERCHANT_V1BETA')) add('Freeze new legacy API work and inventory every affected call path.');
+  if(findings.some(x=>x.code==='REGISTER_GCP')) add('Complete Merchant API developer registration for each Google Cloud project used for authentication.');
+  if(surfaces.has('Accounts')) add('Migrate account/service relationships first so child resources have valid parent names.');
+  if(surfaces.has('Data sources')) add('Migrate data-source ownership and primary-source logic before moving product writes.');
+  if(surfaces.has('Products')||surfaces.has('Identifiers')||surfaces.has('Price')) add('Migrate product resources, identifiers, Price objects and write/read paths to Merchant API v1.');
+  if(surfaces.has('Batching')) add('Replace customBatch with supported asynchronous / HTTP batching or concurrency patterns.');
+  if(surfaces.has('Reports')) add('Migrate reporting/query surfaces and validate result compatibility.');
+  add('Run dual-path integration tests in a development environment, then remove legacy Content API dependencies only after successful verification.');
+  return order;
+}
+async function run(){
+  let inputs;
+  try{inputs=await collectInputs()}catch(e){alert(e.message);return}
+  if(!inputs.length){alert('Choose at least one text-based file or paste an excerpt.');return}
+  track('merchant_migration_started');
+  const findings=[],surfaces=new Set();
+  inputs.forEach((input,i)=>{
+    const r=scanInput(input.text,i);
+    r.findings.forEach(x=>findings.push(x));
+    r.surfaces.forEach(x=>surfaces.add(x));
+  });
+  findings.sort((a,b)=>({critical:0,warning:1,info:2}[a.severity]-({critical:0,warning:1,info:2}[b.severity])||a.inputIndex-b.inputIndex||a.line-b.line);
+  const score=riskScore(findings), critical=findings.filter(x=>x.severity==='critical').length, warnings=findings.filter(x=>x.severity==='warning').length;
+  const order=migrationOrder(surfaces,findings);
+  lastReport={generatedAt:new Date().toISOString(),inputs:inputs.length,score,critical,warnings,surfaces:[...surfaces],findings,order};
+  $('score').textContent=score+'%';$('criticalCount').textContent=critical;$('warningCount').textContent=warnings;$('filesCount').textContent=inputs.length;
+  $('surfacePills').innerHTML=[...surfaces].map(x=>'<span class="pill">'+escapeHtml(x)+'</span>').join('')||'<span class="pill">No known legacy surfaces detected</span>';
+  if(!findings.length){
+    $('findings').innerHTML='<div class="good"><strong>No targeted migration-risk patterns found.</strong><br><span class="muted">This does not prove the integration is migration-complete. Review current Google documentation and test real API flows.</span></div>';
+  }else{
+    $('findings').innerHTML=findings.map(x=>'<div class="finding '+x.severity+'"><div class="tag">'+escapeHtml(x.severity)+' · '+escapeHtml(x.code)+'</div><h3>'+escapeHtml(x.title)+'</h3><p>'+escapeHtml(x.detail)+'</p><p><strong>Recommended action:</strong> '+escapeHtml(x.remediation)+'</p><p class="small muted">Input '+(x.inputIndex+1)+' · line '+x.line+'</p></div>').join('');
+  }
+  $('migrationOrder').innerHTML=order.map(x=>'<li>'+escapeHtml(x)+'</li>').join('');
+  $('results').classList.remove('hidden');
+  $('results').scrollIntoView({behavior:'smooth',block:'start'});
+  track('merchant_migration_completed');
+}
+function download(){
+  if(!lastReport)return;
+  const lines=[
+    '# Google Content API → Merchant API Migration Preflight',
+    '',
+    'Generated: '+lastReport.generatedAt,
+    'Inputs checked: '+lastReport.inputs,
+    'Readiness score: '+lastReport.score+'%',
+    'Critical blockers: '+lastReport.critical,
+    'Warnings: '+lastReport.warnings,
+    '',
+    '## Detected surfaces',
+    ...(lastReport.surfaces.length?lastReport.surfaces.map(x=>'- '+x):['- None of the targeted patterns detected']),
+    '',
+    '## Findings',
+    ...(lastReport.findings.length?lastReport.findings.flatMap((x,i)=>[
+      (i+1)+'. **'+x.severity.toUpperCase()+' · '+x.code+' — '+x.title+'**',
+      '   - Location: Input '+(x.inputIndex+1)+', line '+x.line,
+      '   - '+x.detail,
+      '   - Recommended action: '+x.remediation
+    ]):['No targeted findings. This does not prove migration completeness.']),
+    '',
+    '## Recommended migration order',
+    ...lastReport.order.map((x,i)=>(i+1)+'. '+x),
+    '',
+    '## Privacy and limitation',
+    'This report was generated locally in your browser. It intentionally excludes source code, filenames, repository identifiers, merchant IDs, Google Cloud project IDs and secrets.',
+    'Static analysis can produce false positives. Verify all changes against current Google Merchant API documentation and test in a development environment.'
+  ];
+  const blob=new Blob([lines.join('\n')],{type:'text/markdown;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='merchant-api-migration-preflight.md';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  track('merchant_migration_report_downloaded');
+}
+function renderFiles(){
+  $('fileList').innerHTML=selectedFiles.length?selectedFiles.slice(0,MAX_FILES).map((f,i)=>'<div>Input '+(i+1)+' · '+Math.round(f.size/1024)+' KB</div>').join(''):'';
+}
+$('files').addEventListener('change',e=>{selectedFiles=[...e.target.files].slice(0,MAX_FILES);renderFiles()});
+$('run').addEventListener('click',run);
+$('download').addEventListener('click',download);
+$('reset').addEventListener('click',()=>{selectedFiles=[];$('files').value='';$('paste').value='';$('results').classList.add('hidden');lastReport=null;renderFiles()});
+$('commercial').addEventListener('click',()=>track('merchant_migration_commercial_cta_clicked'));
+const drop=$('drop');
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')}));
+drop.addEventListener('drop',e=>{selectedFiles=[...e.dataTransfer.files].slice(0,MAX_FILES);renderFiles()});
+</script>
+</body>
+</html>
