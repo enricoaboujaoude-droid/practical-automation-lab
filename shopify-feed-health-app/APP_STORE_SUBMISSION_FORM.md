@@ -12,7 +12,7 @@ Prepared for the canonical Partner-owned public app.
 - OAuth redirect URL: https://pal-catalog-check-app.onrender.com/auth/callback
 - Development store: PAL Feed Health Dev (`pal-feed-health-dev.myshopify.com`)
 - Access scope: `read_products` only
-- Initial pricing: Free
+- Planned launch pricing: Free + Pro after Pro production validation
 
 ## App card subtitle
 
@@ -66,9 +66,31 @@ PAL Catalog Check provides catalog-readiness guidance only and does not connect 
 
 ## Pricing
 
-Free.
+Planned public launch ladder after the Pro branch passes production validation:
 
-Do not advertise or configure Pro, Growth, Agency, subscriptions, trials, or paid capabilities until those capabilities are implemented and authorized.
+### Free — $0
+
+- manual catalog-readiness scan
+- readiness score, critical issues, and warnings
+- product / variant / image checks
+- practical remediation guidance
+- manual rescan
+- current bounded Free limits: 2,500 products, 100 variants per product, 20 images per product
+
+### Pro — target $19.99 / month or $199 / year
+
+- automatic recurring catalog scans
+- saved scan history
+- change detection between saved scans
+- health-drop and critical-issue alerts inside the app
+- January 31, 2027 image-readiness monitoring
+- current bounded Pro limits: 10,000 products, 250 variants per product, 100 images per product
+- downloadable scan-history and findings CSV reports
+- scheduled report snapshots
+
+The $19.99 / $199 launch target is a competitive starting point, not a hard-coded application constant. Shopify App Pricing owns the actual public plan price. Confirm the final value in the Partner Dashboard only after the Pro build is deployed and tested on the development store.
+
+Do not advertise Agency/Commercial, multi-store, white-label, direct Merchant Center integration, catalog editing, email alerts, or other capabilities that are not implemented.
 
 ## Merchant-facing URLs
 
@@ -158,8 +180,9 @@ Recommended flow:
 4. Review the readiness score, critical findings, warnings, and remediation guidance.
 5. Click Rescan catalog to verify repeat scanning.
 6. Open Support to review scan boundaries and data-handling information.
-7. No external account credentials, Merchant Center credentials, or payment information are required.
-8. An empty or clean catalog can legitimately return no findings.
+7. Free functionality does not require external account credentials, Merchant Center credentials, or payment information.
+8. If Pro is enabled for review, use Shopify's own App Pricing test flow on the development/review store; do not provide external payment credentials.
+9. An empty or clean catalog can legitimately return no findings.
 
 ## Current verified production evidence
 
@@ -184,6 +207,9 @@ Development-store results are test evidence only and must not be represented as 
 - Listing fields are saved using the factual copy above.
 - Three genuine desktop screenshots are uploaded.
 - Genuine review screencast is uploaded.
+- Pro production feature validation is complete before any Pro capability is advertised.
+- Shopify App Pricing is configured with Free + Pro only after Pro validation; plan handles and welcome link are checked.
+- Partner API client with Manage apps permission is configured so paid entitlement can be verified server-side.
 - Shopify automated pre-submission checks all pass.
 - Any requested review/test credentials field states that no external credentials are required.
 - One-time App Store registration fee is paid only if it becomes the final meaningful blocker and remains within the owner's authorized maximum of $19 USD.
