@@ -11,13 +11,16 @@ export default function Support() {
     <s-page heading="Support">
       <s-section heading="What the app does">
         <s-paragraph>
-          This app performs a read-only catalog-readiness check using Shopify product data. It flags missing or risky product-feed fields and explains the finding without editing your products or variants.
+          PAL Catalog Check performs a read-only catalog-readiness check using Shopify product data. It flags missing or risky product-feed fields and explains the finding without editing products or variants.
         </s-paragraph>
       </s-section>
 
-      <s-section heading="Data handling">
+      <s-section heading="Free and Pro data handling">
         <s-paragraph>
-          Product and variant data is processed to generate the current scan and is not persisted as a merchant catalog database. The app stores the Shopify authentication session needed to remain installed and logs aggregate operational events such as app opens and scan completion.
+          Free scans process product and variant data to generate the current result and do not create a saved catalog-history record. Pro monitoring stores bounded scan-result snapshots, monitoring preferences, health alerts, and scheduled report summaries so history, change detection, recurring scans, and report exports can work.
+        </s-paragraph>
+        <s-paragraph>
+          The app also stores the Shopify authentication session needed to remain installed and logs limited aggregate operational events such as app opens and scan completion. Stored PAL Catalog Check shop data is deleted when the app processes an uninstall or Shopify shop-redaction event.
         </s-paragraph>
         <s-paragraph>
           The app requests read-only product access. It does not request customer or order access.
@@ -27,9 +30,18 @@ export default function Support() {
         </s-link>
       </s-section>
 
-      <s-section heading="Current scan boundaries">
+      <s-section heading="Scan boundaries">
         <s-paragraph>
-          A scan checks up to 2,500 products, up to 100 variants per product, and up to 20 images per product. The dashboard explicitly warns when a product has additional variants outside the checked set.
+          Free scans check up to 2,500 products, up to 100 variants per product, and up to 20 images per product.
+        </s-paragraph>
+        <s-paragraph>
+          The current Pro bounded scan design supports up to 10,000 products, up to 250 variants per product, and up to 100 images per product. The dashboard warns when a boundary is reached.
+        </s-paragraph>
+      </s-section>
+
+      <s-section heading="Pro monitoring">
+        <s-paragraph>
+          Pro capability includes recurring scans, saved scan history, change detection, readiness-drop alerts, January 31, 2027 image-readiness monitoring, CSV exports, larger scan limits, and scheduled report snapshots. Billing remains separate from these capabilities and is activated only through Shopify App Pricing.
         </s-paragraph>
       </s-section>
 
