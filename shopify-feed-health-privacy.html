@@ -17,10 +17,13 @@
   <p>This policy describes how the Practical Automation Lab Shopify catalog-readiness app handles data when installed on a Shopify store.</p>
 
   <h2>Shopify access</h2>
-  <p>The app requests the Shopify <code>read_products</code> scope. It uses Shopify's GraphQL Admin API to read product, variant, image, price, identifier, vendor, and publication fields needed to generate a catalog-readiness scan. The app does not request customer or order access and does not use Shopify's legacy REST Admin API for its core catalog scan.</p>
+  <p>The app requests the Shopify <code>read_products</code> scope. It uses Shopify's GraphQL Admin API to read product, variant, image, price, identifier, vendor, and publication fields needed to generate catalog-readiness scans. The app does not request customer or order access and does not use Shopify's legacy REST Admin API for its core catalog scan.</p>
 
-  <h2>Catalog data</h2>
-  <p>Catalog data is processed by the app runtime to generate the current scan. The app does not persist a separate database copy of product, variant, image, price, identifier, or scan-finding records. Scan results are returned to the embedded Shopify app for the merchant to review.</p>
+  <h2>Free scan data</h2>
+  <p>Free catalog data is processed by the app runtime to generate the current scan. Free scans do not create a saved catalog-history record in the PAL Catalog Check application database.</p>
+
+  <h2>Pro monitoring data</h2>
+  <p>When Pro monitoring is enabled, the app stores bounded scan-result snapshots, scan scores and issue summaries, monitoring preferences, health alerts, and scheduled report summaries. This storage is required to provide saved history, change detection, recurring scans, image-readiness monitoring, and downloadable reports. Pro storage is scoped to the installed shop and is not used to build an advertising profile or a separate merchant-data marketplace.</p>
 
   <h2>Installation and authentication data</h2>
   <p>To remain installed and authenticate requests, the app stores Shopify session data in a dedicated persistent database. This can include the shop domain, granted scopes, access-token and refresh-token material supplied through Shopify's authentication flow, and token-expiration metadata. Access to that database is restricted to the app runtime and authorized infrastructure.</p>
@@ -32,17 +35,17 @@
   <p>The app does not request Shopify customer or order scopes. It therefore does not intentionally collect or maintain customer or order records as part of its catalog-readiness functionality.</p>
 
   <h2>Privacy requests and deletion</h2>
-  <p>The app implements Shopify's mandatory privacy-compliance webhooks for <code>customers/data_request</code>, <code>customers/redact</code>, and <code>shop/redact</code>. Customer privacy requests are acknowledged even though the app does not maintain customer or order records. On a Shopify shop-redaction request, persisted Shopify session data for that shop is deleted. The app also removes stored installation sessions when an uninstall webhook is processed.</p>
+  <p>The app implements Shopify's mandatory privacy-compliance webhooks for <code>customers/data_request</code>, <code>customers/redact</code>, and <code>shop/redact</code>. Customer privacy requests are acknowledged even though the app does not maintain customer or order records. On uninstall and Shopify shop-redaction processing, PAL deletes stored installation sessions together with saved Pro scan history, monitoring preferences, alerts, and scheduled report summaries for that shop.</p>
 
   <h2>Advertising and sale of data</h2>
-  <p>The Shopify app does not use merchant catalog data for advertising and does not sell merchant catalog data or Shopify authentication data.</p>
+  <p>The Shopify app does not use merchant catalog data for advertising and does not sell merchant catalog data, saved scan results, reports, or Shopify authentication data.</p>
 
   <h2>Service providers</h2>
   <p>The app currently relies on infrastructure providers for application hosting, operational logging, and persistent database storage. Those providers process technical data only as needed to operate those services under their own terms and privacy commitments.</p>
 
   <h2>Support and contact</h2>
-  <p>For support or privacy questions, use the Shopify app's support channel or visit the <a href="shopify-feed-health-support.html">PAL Catalog Check support page</a>. Do not send store passwords, Shopify access tokens, recovery codes, or customer data in a support request.</p>
+  <p>For support or privacy questions, use the Shopify app's support channel or visit the <a href="shopify-feed-health-support.html">PAL Catalog Check support page</a>. Do not send store passwords, Shopify access tokens, recovery codes, customer data, or confidential catalog exports in a support request.</p>
 
-  <p class="muted">Last updated: September 17, 2026.</p>
+  <p class="muted">Last updated: September 18, 2026.</p>
 </body>
 </html>
