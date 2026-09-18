@@ -2,6 +2,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Form, useActionData, useLoaderData } from "react-router";
 import { authenticate } from "../shopify.server";
 import { getEntitlementForShop } from "../lib/entitlements.server";
+import { trackAppEvent } from "../lib/events.server";
 import {
   acknowledgeAlert,
   generateScheduledReport,
@@ -48,6 +49,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       intervalHours,
       reportCadence,
     });
+    trackAppEvent(enabled ? "pro_monitoring_enabled" : "pro_monitoring_disabled", {
+      intervalHours,
+    });
 
     return {
       ok: true,
@@ -65,6 +69,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   if (intent === "generate-report") {
     await generateScheduledReport(session.shop);
+    trackAppEvent("pro_report_generated");
     return { ok: true, message: "A report snapshot was generated." };
   }
 
