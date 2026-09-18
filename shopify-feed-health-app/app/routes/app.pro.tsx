@@ -3,6 +3,7 @@ import { Form, useActionData, useLoaderData } from "react-router";
 import { authenticate } from "../shopify.server";
 import { getEntitlementForShop } from "../lib/entitlements.server";
 import { trackAppEvent } from "../lib/events.server";
+import { getPlanSelectionUrl } from "../lib/billing-links.server";
 import {
   acknowledgeAlert,
   generateScheduledReport,
@@ -16,6 +17,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return {
     entitlement,
+    planSelectionUrl: getPlanSelectionUrl(session.shop),
     dashboard:
       entitlement.plan === "pro"
         ? await getProDashboard(session.shop)
