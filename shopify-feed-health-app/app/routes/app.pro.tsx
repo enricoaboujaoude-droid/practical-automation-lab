@@ -106,20 +106,8 @@ export default function ProMonitoringDashboard() {
         </s-banner>
         <s-section heading="Pro capabilities">
           <s-paragraph>
-            Automatic recurring scans, saved history, change detection, health-drop alerts, 2027 image-readiness monitoring, higher scan limits, exportable remediation reports, and scheduled reports are available with the Pro plan.
+            Automatic recurring scans, saved history, change detection, health-drop alerts, 2027 image-readiness monitoring, higher scan limits, exportable remediation reports, and scheduled reports are implemented behind the Pro entitlement boundary.
           </s-paragraph>
-          {data.planSelectionUrl ? (
-            <p style={{ marginTop: 12 }}>
-              <a
-                className="pal-link-button"
-                href={data.planSelectionUrl}
-                target="_top"
-                rel="noopener"
-              >
-                View Free and Pro plans in Shopify
-              </a>
-            </p>
-          ) : null}
         </s-section>
       </s-page>
     );
