@@ -46,8 +46,8 @@ function download(body: string, filename: string) {
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const entitlement = await getEntitlementForShop(session.shop);
+  const { admin, session } = await authenticate.admin(request);
+  const entitlement = await getEntitlementForShop(session.shop, admin);
 
   if (entitlement.plan !== "pro") {
     return new Response("Pro entitlement required.", { status: 403 });
