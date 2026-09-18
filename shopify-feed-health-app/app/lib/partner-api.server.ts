@@ -21,6 +21,8 @@ export type ActiveSubscription = {
 } | null;
 
 const PARTNER_API_VERSION = "2026-07";
+const CONFIRMED_PRO_CACHE_MS = 5 * 60 * 1000;
+const confirmedProUntil = new Map<string, number>();
 
 function configuration() {
   return {
@@ -133,12 +135,23 @@ export function subscriptionIsPro(subscription: ActiveSubscription) {
 export async function hasPaidProSubscription(admin: AdminClient) {
   if (!partnerSubscriptionConfigured()) return false;
 
+  const shopId = await getShopGid(admin);
+  const cachedUntil = confirmedProUntil.get(shopId) || 0;
+  if (cachedUntil > Date.now()) return true;
+
   try {
-    const shopId = await getShopGid(admin);
     const subscription = await fetchActiveSubscription(shopId);
-    return subscriptionIsPro(subscription);
-  } catch {
+    const isPro = subscriptionIsPro(subscription);
+
+    if (isPro) {
+      confirmedProUntil.set(shopId, Date.now() + CONFIRMED_PRO_CACHE_MS);
+    } else {
+      confirmedProUntil.delete(shopId);
+    }
+
+    return isPro;
+  } catch (error) {
     console.error("[pal-pro] subscription_lookup_failed");
-    return false;
+    throw error;
   }
 }
