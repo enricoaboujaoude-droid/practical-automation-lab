@@ -1,4 +1,10 @@
 import prisma from "../db.server";
+import {
+  diffReports,
+  historyCsv,
+  imageRiskCount,
+  scanIssuesCsv,
+} from "./pro-insights.mjs";
 
 type IssueLike = {
   level?: string;
@@ -35,56 +41,6 @@ type ScanResultLike = {
 
 const ALLOWED_INTERVALS = new Set([6, 12, 24, 48, 168]);
 const ALLOWED_CADENCES = new Set(["daily", "weekly", "monthly"]);
-
-function imageRiskCount(report: ReportLike | null | undefined) {
-  return Number(report?.imageReadiness?.productsMissingImages || 0)
-    + Number(report?.imageReadiness?.imagesBelow500 || 0);
-}
-
-function issueFingerprint(entry: IssueLike) {
-  return [
-    entry.level || "",
-    entry.code || "",
-    entry.productId || "",
-    entry.message || "",
-  ].join("|");
-}
-
-export function diffReports(
-  previous: ReportLike | null | undefined,
-  current: ReportLike,
-) {
-  if (!previous) {
-    return {
-      scoreDelta: 0,
-      errorDelta: 0,
-      warningDelta: 0,
-      imageRiskDelta: 0,
-      newIssues: current.issues,
-      resolvedIssues: [],
-    };
-  }
-
-  const previousMap = new Map(
-    (previous.issues || []).map((entry) => [issueFingerprint(entry), entry]),
-  );
-  const currentMap = new Map(
-    (current.issues || []).map((entry) => [issueFingerprint(entry), entry]),
-  );
-
-  return {
-    scoreDelta: current.score - previous.score,
-    errorDelta: current.errors - previous.errors,
-    warningDelta: current.warnings - previous.warnings,
-    imageRiskDelta: imageRiskCount(current) - imageRiskCount(previous),
-    newIssues: (current.issues || []).filter(
-      (entry) => !previousMap.has(issueFingerprint(entry)),
-    ),
-    resolvedIssues: (previous.issues || []).filter(
-      (entry) => !currentMap.has(issueFingerprint(entry)),
-    ),
-  };
-}
 
 function alertsForDiff(scanId: string, diff: ReturnType<typeof diffReports>) {
   const alerts: Array<{
@@ -315,8 +271,7 @@ export async function generateScheduledReport(
     scanCount: scans.length,
     firstScore: first?.score ?? null,
     latestScore: latest?.score ?? null,
-    scoreChange:
-      first && latest ? latest.score - first.score : null,
+    scoreChange: first && latest ? latest.score - first.score : null,
     bestScore: scans.length ? Math.max(...scans.map((scan) => scan.score)) : null,
     worstScore: scans.length ? Math.min(...scans.map((scan) => scan.score)) : null,
     averageScore: scans.length
@@ -352,71 +307,4 @@ export async function generateScheduledReport(
   return report;
 }
 
-function csvCell(value: unknown) {
-  const text = String(value ?? "");
-  return `"${text.replaceAll('"', '""')}"`;
-}
-
-export function scanIssuesCsv(report: ReportLike) {
-  const header = [
-    "level",
-    "code",
-    "product_id",
-    "title",
-    "message",
-    "remediation",
-  ];
-  const rows = (report.issues || []).map((entry) => [
-    entry.level,
-    entry.code,
-    entry.productId,
-    entry.title,
-    entry.message,
-    entry.remediation,
-  ]);
-
-  return [header, ...rows]
-    .map((row) => row.map(csvCell).join(","))
-    .join("\n");
-}
-
-export function historyCsv(
-  history: Array<{
-    generatedAt: Date;
-    source: string;
-    score: number;
-    errors: number;
-    warnings: number;
-    productsChecked: number;
-    variantsChecked: number;
-    imagesChecked: number;
-    imageRisks: number;
-  }>,
-) {
-  const header = [
-    "generated_at",
-    "source",
-    "score",
-    "errors",
-    "warnings",
-    "products_checked",
-    "variants_checked",
-    "images_checked",
-    "image_risks",
-  ];
-  const rows = history.map((scan) => [
-    scan.generatedAt.toISOString(),
-    scan.source,
-    scan.score,
-    scan.errors,
-    scan.warnings,
-    scan.productsChecked,
-    scan.variantsChecked,
-    scan.imagesChecked,
-    scan.imageRisks,
-  ]);
-
-  return [header, ...rows]
-    .map((row) => row.map(csvCell).join(","))
-    .join("\n");
-}
+export { diffReports, historyCsv, scanIssuesCsv };
