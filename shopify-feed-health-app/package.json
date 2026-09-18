@@ -6,7 +6,7 @@
     "db:check": "prisma validate",
     "dev": "shopify app dev",
     "deploy": "shopify app deploy",
-    "start": "prisma generate && prisma db push && node server.mjs",
+    "start": "node server.mjs",
     "setup": "prisma generate && prisma db push",
     "typecheck": "react-router typegen && tsc --noEmit",
     "test": "node --test app/lib/catalog-health.test.mjs app/lib/pro-insights.test.mjs app/lib/compliance-webhooks.test.mjs server-logging.test.mjs"
