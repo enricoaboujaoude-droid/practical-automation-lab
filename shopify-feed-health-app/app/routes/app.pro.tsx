@@ -83,6 +83,17 @@ function formatDate(value: string | Date | null | undefined) {
   return new Date(value).toLocaleString();
 }
 
+function reportSummary(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+function displayMetric(value: unknown, suffix = "") {
+  if (value == null || value === "") return "—";
+  return `${String(value)}${suffix}`;
+}
+
 export default function ProMonitoringDashboard() {
   const data = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
@@ -232,23 +243,78 @@ export default function ProMonitoringDashboard() {
         {reports.length === 0 ? (
           <p>No scheduled report snapshots yet.</p>
         ) : (
-          <ul>
-            {reports.map((report) => (
-              <li key={report.id}>
-                {formatDate(report.generatedAt)} ·{" "}
-                <a href={`/app/report/${encodeURIComponent(report.id)}`}>
-                  View report
-                </a>{" · "}
-                <a
-                  href={`/app/export?type=scheduled&reportId=${encodeURIComponent(report.id)}`}
-                  target="_top"
-                  rel="noopener"
+          <div>
+            {reports.map((report) => {
+              const summary = reportSummary(report.summaryJson);
+              return (
+                <details
+                  key={report.id}
+                  style={{
+                    border: "1px solid #ddd",
+                    borderRadius: 10,
+                    padding: 12,
+                    marginTop: 12,
+                  }}
                 >
-                  Download CSV
-                </a>
-              </li>
-            ))}
-          </ul>
+                  <summary style={{ cursor: "pointer", fontWeight: 600 }}>
+                    {formatDate(report.generatedAt)} · View report
+                  </summary>
+                  <div style={{ marginTop: 12, overflowX: "auto" }}>
+                    <p>
+                      Coverage: {formatDate(report.rangeStart)} → {formatDate(report.rangeEnd)}
+                    </p>
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <tbody>
+                        {[
+                          ["Cadence", displayMetric(summary.cadence)],
+                          ["Scans in report", displayMetric(summary.scanCount)],
+                          ["First score", displayMetric(summary.firstScore, "%")],
+                          ["Latest score", displayMetric(summary.latestScore, "%")],
+                          ["Score change", displayMetric(summary.scoreChange)],
+                          ["Best score", displayMetric(summary.bestScore, "%")],
+                          ["Worst score", displayMetric(summary.worstScore, "%")],
+                          ["Average score", displayMetric(summary.averageScore, "%")],
+                          ["Latest critical issues", displayMetric(summary.latestErrors)],
+                          ["Latest warnings", displayMetric(summary.latestWarnings)],
+                          ["Latest image risks", displayMetric(summary.latestImageRisks)],
+                          ["Alerts in period", displayMetric(summary.alertCount)],
+                        ].map(([label, metric]) => (
+                          <tr key={label}>
+                            <th
+                              align="left"
+                              style={{
+                                padding: "8px 12px 8px 0",
+                                borderBottom: "1px solid #eee",
+                              }}
+                            >
+                              {label}
+                            </th>
+                            <td
+                              style={{
+                                padding: "8px 0",
+                                borderBottom: "1px solid #eee",
+                              }}
+                            >
+                              {metric}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <p style={{ marginTop: 12 }}>
+                      <a
+                        href={`/app/export?type=scheduled&reportId=${encodeURIComponent(report.id)}`}
+                        target="_top"
+                        rel="noopener"
+                      >
+                        Download CSV
+                      </a>
+                    </p>
+                  </div>
+                </details>
+              );
+            })}
+          </div>
         )}
       </s-section>
 
