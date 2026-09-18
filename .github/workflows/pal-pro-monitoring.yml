@@ -1,0 +1,45 @@
+name: PAL Pro Monitoring
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: pal-pro-monitoring
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Invoke PAL Pro monitoring
+        env:
+          PAL_PRO_APP_URL: https://pal-catalog-check-app.onrender.com
+          PAL_PRO_OIDC_AUDIENCE: pal-catalog-check-pro-monitor
+        run: |
+          TOKEN="$(node -e '
+            const base = process.env.ACTIONS_ID_TOKEN_REQUEST_URL;
+            const auth = process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN;
+            const aud = process.env.PAL_PRO_OIDC_AUDIENCE;
+            if (!base || !auth || !aud) throw new Error("GitHub OIDC environment is unavailable.");
+            const url = base + (base.includes("?") ? "&" : "?") + "audience=" + encodeURIComponent(aud);
+            fetch(url, { headers: { authorization: "bearer " + auth } })
+              .then(async (response) => {
+                if (!response.ok) throw new Error("OIDC token request failed: " + response.status);
+                return response.json();
+              })
+              .then((body) => {
+                if (!body.value) throw new Error("OIDC token response did not contain a token.");
+                process.stdout.write(body.value);
+              });
+          ')"
+
+          test -n "$TOKEN"
+
+          curl             --fail             --silent             --show-error             --max-time 300             --retry 2             --retry-delay 5             -X POST             "$PAL_PRO_APP_URL/internal/pro-run"             -H "Authorization: Bearer $TOKEN"             -H "Content-Type: application/json"
