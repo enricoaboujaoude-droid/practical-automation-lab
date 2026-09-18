@@ -7,14 +7,14 @@ import { persistProScan } from "../lib/pro-monitoring.server";
 import { trackAppEvent } from "../lib/events.server";
 import { getPlanSelectionUrl } from "../lib/billing-links.server";
 
-async function runScan(request: Request) {
+async function runScan(request: Request, persistHistory: boolean) {
   const { admin, session } = await authenticate.admin(request);
   const entitlement = await getEntitlementForShop(session.shop, admin);
 
   trackAppEvent("scan_started");
   const result = await scanCatalog(admin, entitlement.limits);
   const saved =
-    entitlement.plan === "pro"
+    entitlement.plan === "pro" && persistHistory
       ? await persistProScan({
           shop: session.shop,
           source: "manual",
@@ -44,8 +44,10 @@ async function runScan(request: Request) {
   };
 }
 
-export const loader = async ({ request }: LoaderFunctionArgs) => runScan(request);
-export const action = async ({ request }: ActionFunctionArgs) => runScan(request);
+export const loader = async ({ request }: LoaderFunctionArgs) =>
+  runScan(request, false);
+export const action = async ({ request }: ActionFunctionArgs) =>
+  runScan(request, true);
 
 export default function CatalogCheckDashboard() {
   const initial = useLoaderData<typeof loader>();
