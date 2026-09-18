@@ -3,12 +3,17 @@ import {
   PRO_SCAN_LIMITS,
   type ScanLimits,
 } from "./catalog-scan.server";
+import { hasPaidProSubscription } from "./partner-api.server";
+
+type AdminClient = {
+  graphql: (query: string, options?: Record<string, unknown>) => Promise<Response>;
+};
 
 export type PlanKey = "free" | "pro";
 
 export type ShopEntitlement = {
   plan: PlanKey;
-  source: "free-default" | "preview";
+  source: "free-default" | "preview" | "shopify-app-pricing";
   limits: ScanLimits;
   features: {
     savedHistory: boolean;
@@ -50,24 +55,37 @@ function previewShops() {
   );
 }
 
-export async function getEntitlementForShop(
-  shop: string,
-): Promise<ShopEntitlement> {
-  const normalized = String(shop || "").trim().toLowerCase();
+function proEntitlement(source: ShopEntitlement["source"]): ShopEntitlement {
+  return {
+    plan: "pro",
+    source,
+    limits: PRO_SCAN_LIMITS,
+    features: PRO_FEATURES,
+  };
+}
 
-  if (normalized && previewShops().has(normalized)) {
-    return {
-      plan: "pro",
-      source: "preview",
-      limits: PRO_SCAN_LIMITS,
-      features: PRO_FEATURES,
-    };
-  }
-
+function freeEntitlement(): ShopEntitlement {
   return {
     plan: "free",
     source: "free-default",
     limits: FREE_SCAN_LIMITS,
     features: FREE_FEATURES,
   };
+}
+
+export async function getEntitlementForShop(
+  shop: string,
+  admin?: AdminClient,
+): Promise<ShopEntitlement> {
+  const normalized = String(shop || "").trim().toLowerCase();
+
+  if (normalized && previewShops().has(normalized)) {
+    return proEntitlement("preview");
+  }
+
+  if (admin && (await hasPaidProSubscription(admin))) {
+    return proEntitlement("shopify-app-pricing");
+  }
+
+  return freeEntitlement();
 }
