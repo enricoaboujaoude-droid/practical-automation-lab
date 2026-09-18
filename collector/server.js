@@ -22,6 +22,10 @@ const ALLOWED_EVENTS = new Set([
   'hubspot_migration_completed',
   'hubspot_migration_report_downloaded',
   'hubspot_migration_commercial_cta_clicked',
+  'eudr_preflight_started',
+  'eudr_preflight_completed',
+  'eudr_preflight_report_downloaded',
+  'eudr_preflight_commercial_cta_clicked',
 ]);
 
 if (!DATABASE_URL) {
@@ -76,7 +80,11 @@ async function initialize() {
         'hubspot_migration_started',
         'hubspot_migration_completed',
         'hubspot_migration_report_downloaded',
-        'hubspot_migration_commercial_cta_clicked'
+        'hubspot_migration_commercial_cta_clicked',
+        'eudr_preflight_started',
+        'eudr_preflight_completed',
+        'eudr_preflight_report_downloaded',
+        'eudr_preflight_commercial_cta_clicked'
       ))
   `);
   await pool.query(`
@@ -212,6 +220,20 @@ const server = http.createServer(async (req, res) => {
         'hubspot_migration_completed',
         'hubspot_migration_report_downloaded',
         'hubspot_migration_commercial_cta_clicked',
+      ];
+      return sendJson(req, res, 200, {
+        ok: true,
+        scope: 'production_only',
+        events: await productionMetrics(names),
+      });
+    }
+
+    if (req.method === 'GET' && url.pathname === '/metrics/eudr-preflight') {
+      const names = [
+        'eudr_preflight_started',
+        'eudr_preflight_completed',
+        'eudr_preflight_report_downloaded',
+        'eudr_preflight_commercial_cta_clicked',
       ];
       return sendJson(req, res, 200, {
         ok: true,
