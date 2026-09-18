@@ -11,8 +11,8 @@ import {
 } from "../lib/pro-monitoring.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const entitlement = await getEntitlementForShop(session.shop);
+  const { admin, session } = await authenticate.admin(request);
+  const entitlement = await getEntitlementForShop(session.shop, admin);
 
   return {
     entitlement,
@@ -24,8 +24,8 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { session } = await authenticate.admin(request);
-  const entitlement = await getEntitlementForShop(session.shop);
+  const { admin, session } = await authenticate.admin(request);
+  const entitlement = await getEntitlementForShop(session.shop, admin);
 
   if (entitlement.plan !== "pro") {
     return {
