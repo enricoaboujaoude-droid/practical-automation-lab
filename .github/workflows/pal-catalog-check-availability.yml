@@ -1,0 +1,30 @@
+name: PAL Catalog Check Availability
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pal-catalog-check-availability
+  cancel-in-progress: true
+
+jobs:
+  keep-warm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Keep PAL Catalog Check responsive
+        run: |
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --max-time 45 \
+            --retry 3 \
+            --retry-delay 5 \
+            --retry-all-errors \
+            https://pal-catalog-check-app.onrender.com/healthz
