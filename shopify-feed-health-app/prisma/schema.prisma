@@ -26,3 +26,60 @@ model Session {
   refreshToken        String?
   refreshTokenExpires DateTime?
 }
+
+model CatalogScan {
+  id                      String   @id @default(cuid())
+  shop                    String
+  source                  String   @default("manual")
+  plan                    String   @default("free")
+  generatedAt             DateTime
+  score                   Int
+  errors                  Int
+  warnings                Int
+  productsChecked         Int
+  variantsChecked         Int
+  imagesChecked           Int
+  imageRisks              Int      @default(0)
+  productPaginationCapped Boolean  @default(false)
+  reportJson              Json
+  createdAt               DateTime @default(now())
+
+  @@index([shop, createdAt])
+}
+
+model MonitoringPreference {
+  shop          String   @id
+  enabled       Boolean  @default(false)
+  intervalHours Int      @default(24)
+  reportCadence String   @default("weekly")
+  nextScanAt    DateTime?
+  lastScanAt    DateTime?
+  nextReportAt  DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CatalogAlert {
+  id             String    @id @default(cuid())
+  shop           String
+  scanId         String?
+  kind           String
+  severity       String
+  title          String
+  message        String
+  createdAt      DateTime  @default(now())
+  acknowledgedAt DateTime?
+
+  @@index([shop, createdAt])
+}
+
+model ScheduledReport {
+  id          String   @id @default(cuid())
+  shop        String
+  rangeStart  DateTime
+  rangeEnd    DateTime
+  summaryJson Json
+  generatedAt DateTime @default(now())
+
+  @@index([shop, generatedAt])
+}

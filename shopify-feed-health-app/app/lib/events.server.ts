@@ -3,6 +3,10 @@ export const APP_EVENTS = [
   "scan_started",
   "scan_completed",
   "remediation_viewed",
+  "pro_monitoring_enabled",
+  "pro_monitoring_disabled",
+  "pro_report_generated",
+  "pro_export_downloaded",
 ] as const;
 
 export type AppEvent = (typeof APP_EVENTS)[number];
@@ -10,6 +14,7 @@ export type AppEvent = (typeof APP_EVENTS)[number];
 type EventDetails = {
   count?: number;
   score?: number;
+  intervalHours?: number;
 };
 
 export function trackAppEvent(event: AppEvent, details: EventDetails = {}) {

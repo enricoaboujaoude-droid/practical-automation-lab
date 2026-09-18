@@ -12,7 +12,7 @@ Prepared for the canonical Partner-owned public app.
 - OAuth redirect URL: https://pal-catalog-check-app.onrender.com/auth/callback
 - Development store: PAL Feed Health Dev (`pal-feed-health-dev.myshopify.com`)
 - Access scope: `read_products` only
-- Initial pricing: Free
+- Planned launch pricing: Free + Pro after Pro production validation
 
 ## App card subtitle
 
@@ -66,9 +66,31 @@ PAL Catalog Check provides catalog-readiness guidance only and does not connect 
 
 ## Pricing
 
-Free.
+Planned public launch ladder after the Pro branch passes production validation:
 
-Do not advertise or configure Pro, Growth, Agency, subscriptions, trials, or paid capabilities until those capabilities are implemented and authorized.
+### Free — $0
+
+- manual catalog-readiness scan
+- readiness score, critical issues, and warnings
+- product / variant / image checks
+- practical remediation guidance
+- manual rescan
+- current bounded Free limits: 2,500 products, 100 variants per product, 20 images per product
+
+### Pro — target $19.99 / month or $199 / year
+
+- automatic recurring catalog scans
+- saved scan history
+- change detection between saved scans
+- health-drop and critical-issue alerts inside the app
+- January 31, 2027 image-readiness monitoring
+- current bounded Pro limits: 10,000 products, 250 variants per product, 100 images per product
+- downloadable scan-history and findings CSV reports
+- scheduled report snapshots
+
+The $19.99 / $199 launch target is a competitive starting point, not a hard-coded application constant. Shopify App Pricing owns the actual public plan price. Confirm the final value in the Partner Dashboard only after the Pro build is deployed and tested on the development store.
+
+Do not advertise Agency/Commercial, multi-store, white-label, direct Merchant Center integration, catalog editing, email alerts, or other capabilities that are not implemented.
 
 ## Merchant-facing URLs
 
@@ -96,7 +118,7 @@ Do not replace with generated review evidence. Preserve the current text-free PA
 
 ## Required real screenshots
 
-Capture 3 desktop screenshots at 1600 × 900, without browser chrome, desktop background, PII, credentials, pricing claims, reviews, or outcome guarantees.
+Capture 4 desktop screenshots at 1600 × 900, without browser chrome, desktop background, PII, credentials, unsupported pricing claims, reviews, or outcome guarantees. Capture the Pro screenshot only after the Pro preview/test entitlement is genuinely working on the development store.
 
 ### Screenshot 1 — Readiness overview
 
@@ -120,17 +142,29 @@ Scroll to a clearly different section/state showing:
 Recommended alt text:
 PAL Catalog Check findings with read-only catalog remediation guidance.
 
-### Screenshot 3 — Support and scan boundaries
+### Screenshot 3 — Pro monitoring and history
+
+Using the genuine development-store Pro preview/test entitlement, show a distinct Pro screen containing:
+- recurring monitoring controls
+- saved scan history
+- health alerts or the no-open-alerts state
+- scheduled reports / export controls
+- no fabricated history or alerts
+
+Recommended alt text:
+PAL Catalog Check Pro monitoring dashboard with scan history and scheduled reports.
+
+### Screenshot 4 — Support and scan boundaries
 
 Open Support and show:
 - read-only positioning
-- scan limits/boundaries
+- Free and Pro scan limits/boundaries
 - support or data-handling information
 
 Recommended alt text:
-PAL Catalog Check support page with scan boundaries and read-only guidance.
+PAL Catalog Check support page with Free and Pro scan boundaries and read-only guidance.
 
-Do not use three near-identical captures of the same summary screen.
+Do not use near-identical captures of the same summary screen.
 
 ## Review screencast script
 
@@ -145,10 +179,12 @@ Recommended flow:
 5. Show at least one real finding and its remediation.
 6. Click Rescan catalog.
 7. Wait for the real rescan to complete.
-8. Open Support.
-9. Show the scan boundaries and data-handling/read-only information.
-10. State or visibly demonstrate that the app does not edit products or variants.
-11. End without exposing any secret, token, signed Shopify query parameter, unrelated project, or private account information.
+8. If Pro is configured for review, select/test the Pro plan through Shopify App Pricing at no charge on the Partner development store.
+9. Open Monitoring & reports and show the genuine recurring-monitoring controls, saved history, alerts state, and report/export controls.
+10. Open Support.
+11. Show the Free/Pro scan boundaries and data-handling/read-only information.
+12. State or visibly demonstrate that the app does not edit products or variants.
+13. End without exposing any secret, Partner API token, Shopify access token, signed query parameter, unrelated project, or private account information.
 
 ## Reviewer testing instructions
 
@@ -158,8 +194,9 @@ Recommended flow:
 4. Review the readiness score, critical findings, warnings, and remediation guidance.
 5. Click Rescan catalog to verify repeat scanning.
 6. Open Support to review scan boundaries and data-handling information.
-7. No external account credentials, Merchant Center credentials, or payment information are required.
-8. An empty or clean catalog can legitimately return no findings.
+7. Free functionality does not require external account credentials, Merchant Center credentials, or payment information.
+8. If Pro is enabled for review, use Shopify's own App Pricing test flow on the development/review store; do not provide external payment credentials.
+9. An empty or clean catalog can legitimately return no findings.
 
 ## Current verified production evidence
 
@@ -184,6 +221,9 @@ Development-store results are test evidence only and must not be represented as 
 - Listing fields are saved using the factual copy above.
 - Three genuine desktop screenshots are uploaded.
 - Genuine review screencast is uploaded.
+- Pro production feature validation is complete before any Pro capability is advertised.
+- Shopify App Pricing is configured with Free + Pro only after Pro validation; plan handles and welcome link are checked.
+- Partner API client with Manage apps permission is configured so paid entitlement can be verified server-side.
 - Shopify automated pre-submission checks all pass.
 - Any requested review/test credentials field states that no external credentials are required.
 - One-time App Store registration fee is paid only if it becomes the final meaningful blocker and remains within the owner's authorized maximum of $19 USD.

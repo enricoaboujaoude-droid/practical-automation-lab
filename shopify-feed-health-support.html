@@ -19,11 +19,18 @@
   <h2>What the scan checks</h2>
   <p>The current scan reviews product titles, vendor/brand presence, Online Store URLs, images, image dimensions when Shopify provides them, variant identifiers, variant prices, and duplicate variant-option combinations.</p>
 
-  <h2>Scan boundaries</h2>
-  <p>A scan checks up to 2,500 products, up to 100 variants per product, and up to 20 images per product. The embedded app shows a warning when the product or variant boundary is reached so merchants do not mistake a partial scan for a complete one.</p>
+  <h2>Free and Pro scan boundaries</h2>
+  <p>Free scans check up to 2,500 products, up to 100 variants per product, and up to 20 images per product.</p>
+  <p>The current Pro bounded-scan design supports up to 10,000 products, up to 250 variants per product, and up to 100 images per product. The embedded app warns when a boundary is reached so merchants do not mistake a partial scan for a complete one.</p>
+
+  <h2>Pro monitoring capabilities</h2>
+  <p>Pro capability is designed to add automatic recurring scans, saved history, change detection, readiness-drop alerts, January 31, 2027 image-readiness monitoring, larger scan limits, remediation/history CSV exports, and scheduled report snapshots. Shopify App Pricing is used for merchant billing when paid plans are activated.</p>
 
   <h2>Permissions</h2>
-  <p>The app requests only Shopify's <code>read_products</code> scope for its core catalog scan. It does not request customer or order data and it does not write to products or variants.</p>
+  <p>The app requests only Shopify's <code>read_products</code> scope for its catalog-readiness and monitoring features. It does not request customer or order data and it does not write to products or variants.</p>
+
+  <h2>Saved monitoring data</h2>
+  <p>Free scans are not added to a saved scan-history database. When Pro monitoring is active, PAL stores bounded scan-result snapshots, monitoring preferences, alerts, and report summaries so recurring monitoring and history can work. That saved shop data is removed when uninstall or Shopify shop-redaction processing is completed.</p>
 
   <h2>If the app does not load</h2>
   <p>First reopen the app from Shopify Admin → Apps. If the embedded app still shows an application error, record the approximate time and the visible error message. Do not include access tokens, passwords, recovery codes, or customer information.</p>
@@ -36,11 +43,11 @@
   <p><a href="https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4">Product Feed / Shopify beta support thread</a></p>
 
   <h2>Privacy</h2>
-  <p>See the dedicated <a href="shopify-feed-health-privacy.html">PAL Catalog Check privacy policy</a> for Shopify data-access, session-storage, logging, and deletion details.</p>
+  <p>See the dedicated <a href="shopify-feed-health-privacy.html">PAL Catalog Check privacy policy</a> for Shopify data-access, session-storage, monitoring-storage, logging, and deletion details.</p>
 
   <h2>Uninstalling</h2>
-  <p>You can remove the app from Shopify Admin through the store's app settings. Shopify sends uninstall and later shop-redaction events; the app uses those events to remove persisted installation-session data for that shop.</p>
+  <p>You can remove the app from Shopify Admin through the store's app settings. PAL processes uninstall and Shopify shop-redaction events to remove persisted installation sessions and saved Pro monitoring data for that shop.</p>
 
-  <p class="muted">Last updated: September 17, 2026.</p>
+  <p class="muted">Last updated: September 18, 2026.</p>
 </body>
 </html>
