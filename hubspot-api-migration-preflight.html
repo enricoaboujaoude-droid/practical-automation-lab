@@ -1,1 +1,119 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HubSpot API Migration Preflight — Practical Automation Lab</title><meta name="description" content="Free browser-local preflight checklist for HubSpot integration migration risks: legacy credentials, webhooks, API versions and CRM write validation."><link rel="canonical" href="https://practical-automation-lab.onrender.com/hubspot-api-migration-preflight.html"><style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:860px;margin:auto;padding:32px 18px 56px;line-height:1.55;color:#18181b}a{color:inherit}h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.05}.lead{font-size:1.08rem;opacity:.75}.box{border:1px solid #ddd;border-radius:16px;padding:20px;margin:18px 0}.row{display:block;padding:10px 0}.row input{margin-right:10px}button{border:0;border-radius:10px;padding:12px 16px;font-weight:700;cursor:pointer}.result{margin-top:16px;padding:16px;border-radius:12px;background:#f4f4f5}.muted{opacity:.68;font-size:.92rem}.cta{display:inline-block;margin-top:12px;padding:11px 14px;border:1px solid #18181b;border-radius:10px;text-decoration:none;font-weight:700}</style></head><body><a href="index.html">← Practical Automation Lab</a><h1>HubSpot API Migration Preflight</h1><p class="lead">A free, browser-local checklist for teams reviewing custom HubSpot integrations during the 2026 developer-platform transition. No HubSpot login, token or CRM data is required.</p><div class="box"><h2>Check your integration</h2><label class="row"><input id="legacy" type="checkbox">Uses a legacy private-app credential pattern for new deployments</label><label class="row"><input id="webhooks" type="checkbox">Depends on webhooks</label><label class="row"><input id="writes" type="checkbox">Creates or updates CRM records through the API</label><label class="row"><input id="oldapi" type="checkbox">Uses an old/unreviewed API version or deprecated endpoint</label><label class="row"><input id="rules" type="checkbox">CRM admins use required fields, conditional validation, or association permissions</label><button onclick="runCheck()">Run preflight</button><div id="out" class="result" hidden></div></div><div class="box"><h2>What this checks</h2><p>It highlights migration questions worth validating before changing production integrations: credential model, webhook architecture, API-version exposure, and whether CRM write operations can conflict with admin-configured validation.</p><p class="muted">This is a planning aid, not a guarantee that an integration will pass every HubSpot requirement. Always verify the current HubSpot developer documentation before production changes.</p></div><div class="box"><h2>Need a deeper migration report?</h2><p>Practical Automation Lab is testing demand for a commercial integration-health report and recurring API-change monitoring for agencies and RevOps teams.</p><a class="cta" href="https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/27">View the public build brief / signal interest</a></div><script>function runCheck(){const ids=['legacy','webhooks','writes','oldapi','rules'];const n=ids.filter(id=>document.getElementById(id).checked).length;const items=[];if(legacy.checked)items.push('Review the credential path for new deployments and the current replacement model.');if(webhooks.checked)items.push('Confirm the chosen app/project model supports your webhook requirements.');if(writes.checked||rules.checked)items.push('Regression-test CRM writes against current admin validation and association rules.');if(oldapi.checked)items.push('Inventory endpoint/API versions and migrate deprecated surfaces before their retirement dates.');if(!items.length)items.push('No obvious risk flags selected. Still verify current developer documentation before deployment.');out.hidden=false;out.innerHTML='<strong>'+n+' risk flag'+(n===1?'':'s')+'</strong><ul>'+items.map(x=>'<li>'+x+'</li>').join('')+'</ul><p class="muted">Nothing entered here leaves your browser.</p>'}</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HubSpot API Migration Preflight — Practical Automation Lab</title>
+<meta name="description" content="Free browser-local source/config scanner for HubSpot v4, Pipelines API v1, date-based API migration, legacy private-app provisioning and CRM write-validation risks.">
+<link rel="canonical" href="https://practical-automation-lab.onrender.com/hubspot-api-migration-preflight.html">
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:1060px;margin:auto;padding:32px 18px 60px;color:#18181b;line-height:1.5}a{color:inherit}.hero{max-width:850px}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.03;margin:.45rem 0 1rem}.lead{font-size:1.08rem;opacity:.75}.notice{border:1px solid #fb923c;background:#fff7ed;border-radius:14px;padding:14px 16px;margin:20px 0}.panel{border:1px solid #e4e4e7;border-radius:18px;padding:22px;margin:22px 0}.drop{border:2px dashed #a1a1aa;border-radius:16px;padding:26px;text-align:center;background:#fafafa}.drop.drag{background:#f4f4f5;border-color:#18181b}.or{display:flex;align-items:center;gap:12px;margin:16px 0;color:#71717a}.or:before,.or:after{content:"";height:1px;background:#e4e4e7;flex:1}.editor{width:100%;min-height:170px;box-sizing:border-box;border:1px solid #d4d4d8;border-radius:12px;padding:12px;font:13px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;resize:vertical}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.button,button{border:0;border-radius:10px;padding:11px 15px;background:#18181b;color:#fff;font-weight:750;cursor:pointer;text-decoration:none;display:inline-block}.secondary{background:#fff;color:#18181b;border:1px solid #d4d4d8}.muted{opacity:.68}.small{font-size:.88rem}.hidden{display:none}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.metric{border:1px solid #e4e4e7;border-radius:14px;padding:15px}.metric b{display:block;font-size:1.55rem}.finding{border:1px solid #e4e4e7;border-radius:13px;padding:15px;margin:10px 0}.critical{border-left:5px solid #b91c1c}.warning{border-left:5px solid #a16207}.info{border-left:5px solid #0369a1}.tag{font-size:.75rem;text-transform:uppercase;font-weight:800}.good{border:1px solid #86efac;background:#f0fdf4;border-radius:14px;padding:16px}.commercial{background:#fafafa}.links{display:grid;gap:8px}.filelist{font-size:.9rem;text-align:left;max-width:700px;margin:12px auto 0}.privacy{font-size:.9rem;margin-top:12px}.pill{display:inline-block;border:1px solid #d4d4d8;border-radius:999px;padding:5px 9px;font-size:.82rem;margin:3px}.checklist li{margin:6px 0}@media(max-width:720px){.summary{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<a href="index.html">← Practical Automation Lab</a>
+<header class="hero">
+<div class="eyebrow">Practical Automation Lab · HubSpot integration health</div>
+<h1>Find HubSpot API migration risks before a version deadline or validation change breaks production.</h1>
+<p class="lead">Drop selected source/config files or paste sanitized integration excerpts. The scan stays in your browser and checks for legacy semantic API versions, Pipelines API v1, legacy private-app provisioning assumptions, and CRM write paths that need 2026-09 validation testing.</p>
+</header>
+
+<div class="notice"><strong>Current deadlines:</strong> HubSpot v4 APIs become unsupported on March 30, 2027. Pipelines API v1 stops working on December 4, 2026. New legacy private-app creation begins shutting off in late September/October 2026 in favor of Project-based Service Keys for new in-account integrations.</div>
+
+<main>
+<section class="panel">
+<h2>Run a browser-local preflight</h2>
+<div id="drop" class="drop">
+<p><strong>Drop source/config files here</strong><br><span class="muted">or choose multiple text-based files</span></p>
+<input id="files" type="file" multiple accept=".js,.mjs,.cjs,.ts,.tsx,.jsx,.py,.php,.rb,.go,.java,.kt,.cs,.json,.yaml,.yml,.xml,.txt,.sh,.md">
+<div id="fileList" class="filelist muted"></div>
+</div>
+<div class="or">or</div>
+<label for="paste"><strong>Paste a sanitized code/config excerpt</strong></label>
+<textarea id="paste" class="editor" placeholder="Example: https://api.hubapi.com/crm/v4/objects/..."></textarea>
+<p class="privacy">Privacy: source code, filenames, CRM data, portal IDs, tokens, repository identifiers and secrets never leave your browser. Only aggregate events such as preflight started/completed, report download and commercial-interest click are sent.</p>
+<div class="row"><button id="run">Run HubSpot migration preflight</button><button id="reset" class="secondary" type="button">Clear</button></div>
+</section>
+
+<section id="results" class="panel hidden">
+<div class="row"><h2 style="margin-right:auto">Migration preflight result</h2><button id="download">Download remediation report</button></div>
+<div class="summary">
+<div class="metric"><b id="score">—</b><span>Readiness score</span></div>
+<div class="metric"><b id="criticalCount">0</b><span>Critical blockers</span></div>
+<div class="metric"><b id="warningCount">0</b><span>Warnings</span></div>
+<div class="metric"><b id="filesCount">0</b><span>Inputs checked</span></div>
+</div>
+<div id="surfacePills"></div>
+<div id="findings"></div>
+<div class="panel" style="margin:18px 0 0"><h3>Recommended migration order</h3><ol id="migrationOrder" class="checklist"></ol></div>
+</section>
+
+<section class="panel">
+<h2>What this checks</h2>
+<ul class="checklist">
+<li><code>/crm/v4/</code> paths that should be migrated to supported date-based versions before March 30, 2027.</li>
+<li>Pipelines API v1 references such as <code>/crm-pipelines/v1/</code>, which stop working after December 4, 2026.</li>
+<li>Legacy semantic-version CRM paths (<code>/crm/v1/</code>, <code>/crm/v2/</code>, <code>/crm/v3/</code>) that deserve an explicit version-support review even where HubSpot has not announced a universal retirement date.</li>
+<li><code>/2026-09/</code> CRM write paths that need testing against conditional required properties, Create Record requirements, and association permissions.</li>
+<li>Legacy private-app provisioning assumptions for new deployments, where Project-based Service Keys are the current path for new in-account system-to-system integrations.</li>
+<li>Date-based API adoption signals such as <code>/2026-03/</code> and <code>/2026-09/</code>.</li>
+</ul>
+<p class="small muted">This is static analysis, not a guarantee of compatibility. It intentionally does not connect to your HubSpot CRM or inspect customer records.</p>
+</section>
+
+<section class="panel commercial">
+<h2>Need a detailed migration pack or recurring API-change monitoring?</h2>
+<p>We are validating a commercial report for agencies, RevOps teams and integration owners: endpoint inventory, deadline mapping, compatibility checks, remediation sequencing and recurring version-health monitoring.</p>
+<a id="commercial" class="button" href="https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/27" target="_blank" rel="noopener">Signal commercial interest / follow the build</a>
+<p class="small muted">No checkout is active. The free preflight remains browser-local and account-free.</p>
+</section>
+
+<section class="panel">
+<h2>Official references</h2>
+<div class="links">
+<a href="https://developers.hubspot.com/changelog/deprecating-support-for-hubspot-v4-apis" target="_blank" rel="noopener">HubSpot: v4 APIs unsupported March 30, 2027</a>
+<a href="https://developers.hubspot.com/changelog/pipelines-api-v1-sunset" target="_blank" rel="noopener">HubSpot: Pipelines API v1 sunset December 4, 2026</a>
+<a href="https://developers.hubspot.com/changelog/introducing-date-based-api-versioning" target="_blank" rel="noopener">HubSpot: date-based API versioning</a>
+<a href="https://developers.hubspot.com/changelog/crm-api-write-validation-enforcement" target="_blank" rel="noopener">HubSpot: 2026-09 CRM API write validation enforcement</a>
+<a href="https://developers.hubspot.com/changelog/legacy-private-app-creation-sunset" target="_blank" rel="noopener">HubSpot: legacy private-app creation being disabled</a>
+</div>
+</section>
+</main>
+<footer style="margin-top:42px;border-top:1px solid #e4e4e7;padding-top:18px"><a href="index.html">← All tools</a> · <a href="privacy.html">Privacy</a> · <a href="methodology.html">Methodology</a></footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const EVENT_ENDPOINT='https://pal-feed-auditor-events.onrender.com/event';
+const MAX_FILES=30,MAX_BYTES=2*1024*1024;
+let selectedFiles=[],lastReport=null;
+function track(name){fetch(EVENT_ENDPOINT,{method:'POST',mode:'cors',cache:'no-store',credentials:'omit',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:name,keepalive:true}).catch(()=>{})}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function lineOf(text,index){return text.slice(0,index).split('\n').length}
+function add(list,severity,code,title,detail,remediation,inputIndex,line){if(list.some(x=>x.code===code&&x.inputIndex===inputIndex&&x.line===line))return;list.push({severity,code,title,detail,remediation,inputIndex,line})}
+function scan(text,inputIndex){
+  const f=[],surfaces=new Set(),lower=text.toLowerCase();
+  const matches=(re,cb)=>{let m;re.lastIndex=0;while((m=re.exec(text))){cb(m);if(!re.global)break}};
+  matches(/\/crm\/v4\//gi,m=>{surfaces.add('CRM v4');add(f,'critical','CRM_V4','HubSpot CRM v4 path detected','HubSpot v4 APIs move to unsupported status on March 30, 2027.','Map this endpoint to the corresponding supported date-based API version and run regression tests before cutover.',inputIndex,lineOf(text,m.index))});
+  matches(/crm-pipelines\/v1\/|\/pipelines\/v1\//gi,m=>{surfaces.add('Pipelines API v1');add(f,'critical','PIPELINES_V1','Pipelines API v1 detected','HubSpot says Pipelines API v1 stops working after December 4, 2026.','Migrate to the current date-based Pipelines API before the deadline and validate request/response shape changes.',inputIndex,lineOf(text,m.index))});
+  matches(/\/crm\/(v1|v2|v3)\//gi,m=>{surfaces.add('Legacy semantic CRM API');add(f,'warning','SEMANTIC_API','Legacy semantic-version CRM path detected','HubSpot is standardizing public APIs on date-based versions. v1-v3 do not all share one announced universal retirement date, so treat this as an inventory flag rather than a guaranteed outage.','Check the endpoint-specific support timeline and map eligible calls to an explicit supported date-based version.',inputIndex,lineOf(text,m.index))});
+  matches(/\/(2026-03|2026-09)\//g,m=>surfaces.add('Date-based API '+m[1]));
+  matches(/(?:POST|PATCH|PUT)[^\n]{0,140}\/crm\/[^\n]{0,180}\/2026-09\//gi,m=>{surfaces.add('CRM writes');add(f,'warning','WRITE_VALIDATION','2026-09 CRM write path detected','HubSpot 2026-09 enforces admin-configured validation rules on CRM API writes.','Regression-test creates/updates against conditional required properties, Create Record requirements, and association permissions; handle actionable 400 validation errors.',inputIndex,lineOf(text,m.index))});
+  matches(/\/crm\/objects\/2026-09\//gi,m=>surfaces.add('CRM objects 2026-09'));
+  matches(/private[-_ ]app|privateapp|private_app/gi,m=>{surfaces.add('Private app provisioning');add(f,'info','PRIVATE_APP','Private-app provisioning reference detected','Existing legacy private apps continue to work, but HubSpot is removing creation of new legacy non-Project private apps in late September/October 2026.','For new in-account integrations, review Project-based Service Keys and avoid designs that depend on creating new legacy private apps.',inputIndex,lineOf(text,m.index))});
+  matches(/hapikey|hapikey=/gi,m=>{surfaces.add('Legacy auth');add(f,'critical','HAPIKEY','Legacy hapikey authentication reference detected','API key style authentication is legacy and should not be part of a current deployment path.','Replace legacy API-key authentication with the supported OAuth, private-app token, or Project/Service Key model appropriate to the integration.',inputIndex,lineOf(text,m.index))});
+  matches(/service[-_ ]key|servicekey/gi,m=>surfaces.add('Service Keys'));
+  matches(/webhook|subscriptiontype|eventtype/gi,m=>surfaces.add('Webhooks'));
+  if(/\/2026-09\//.test(text)&&/(delete|DELETE)[^\n]{0,120}(pipeline|stage)/.test(text)){add(f,'warning','PIPELINE_DELETE_VALIDATION','2026-09 pipeline/stage delete path may hit reference validation','Starting with 2026-09, pipeline and stage deletes validate references by default and can be blocked when still in use.','Handle reference-validation failures explicitly and verify usage before destructive delete operations.',inputIndex,1)}
+  if(lower.includes('/crm/')&&!/\/20\d{2}-\d{2}\//.test(text)){surfaces.add('No date-based version found');add(f,'info','NO_DBV','No date-based HubSpot API version found in this input','This input contains CRM API usage but no /YYYY-MM/ version pattern.','Inventory whether these endpoints have a supported date-based equivalent and pin an explicit supported version where available.',inputIndex,1)}
+  return {findings:f,surfaces:[...surfaces]};
+}
+async function collect(){const inputs=[];for(let i=0;i<Math.min(selectedFiles.length,MAX_FILES);i++){const file=selectedFiles[i];if(file.size>MAX_BYTES)throw new Error('One or more files exceeds the 2 MB per-file safety limit.');inputs.push({text:await file.text()})}const pasted=$('paste').value.trim();if(pasted)inputs.push({text:pasted});return inputs}
+function score(findings){const p=findings.reduce((n,x)=>n+(x.severity==='critical'?25:x.severity==='warning'?10:4),0);return Math.max(0,100-Math.min(100,p))}
+function order(surfaces,findings){const a=[],add=x=>{if(!a.includes(x))a.push(x)};if(findings.some(x=>x.code==='PIPELINES_V1'||x.code==='CRM_V4'||x.code==='HAPIKEY'))add('Prioritize hard-deadline and legacy-auth findings first; inventory every affected call and owner.');if(surfaces.has('Private app provisioning'))add('Separate existing private-app runtime support from new-integration provisioning; plan Project/Service Key paths for new deployments.');if(surfaces.has('CRM writes'))add('Regression-test 2026-09 CRM writes against portal validation rules and association permissions.');if(surfaces.has('Webhooks'))add('Validate webhook subscriptions and app/project architecture independently from credential migration.');add('Move eligible endpoints to a supported date-based version in stages, with contract tests and production rollback points.');return a}
+async function run(){let inputs;try{inputs=await collect()}catch(e){alert(e.message);return}if(!inputs.length){alert('Choose at least one text-based file or paste an excerpt.');return}track('hubspot_migration_started');const findings=[],surfaces=new Set();inputs.forEach((input,i)=>{const r=scan(input.text,i);r.findings.forEach(x=>findings.push(x));r.surfaces.forEach(x=>surfaces.add(x))});const rank={critical:0,warning:1,info:2};findings.sort((a,b)=>rank[a.severity]-rank[b.severity]||a.inputIndex-b.inputIndex||a.line-b.line);const readiness=score(findings),critical=findings.filter(x=>x.severity==='critical').length,warnings=findings.filter(x=>x.severity==='warning').length,migrationOrder=order(surfaces,findings);lastReport={generatedAt:new Date().toISOString(),inputs:inputs.length,score:readiness,critical,warnings,surfaces:[...surfaces],findings,order:migrationOrder};$('score').textContent=readiness+'%';$('criticalCount').textContent=critical;$('warningCount').textContent=warnings;$('filesCount').textContent=inputs.length;$('surfacePills').innerHTML=[...surfaces].map(x=>'<span class="pill">'+esc(x)+'</span>').join('')||'<span class="pill">No targeted HubSpot migration pattern detected</span>';$('findings').innerHTML=findings.length?findings.map(x=>'<div class="finding '+x.severity+'"><div class="tag">'+esc(x.severity)+' · '+esc(x.code)+'</div><h3>'+esc(x.title)+'</h3><p>'+esc(x.detail)+'</p><p><strong>Recommended action:</strong> '+esc(x.remediation)+'</p><p class="small muted">Input '+(x.inputIndex+1)+' · line '+x.line+'</p></div>').join(''):'<div class="good"><strong>No targeted migration-risk patterns found.</strong><br><span class="muted">This does not prove compatibility; verify supported versions and live behavior before production changes.</span></div>';$('migrationOrder').innerHTML=migrationOrder.map(x=>'<li>'+esc(x)+'</li>').join('');$('results').classList.remove('hidden');$('results').scrollIntoView({behavior:'smooth',block:'start'});track('hubspot_migration_completed')}
+function download(){if(!lastReport)return;const lines=['# HubSpot API Migration Preflight','','Generated: '+lastReport.generatedAt,'Inputs checked: '+lastReport.inputs,'Readiness score: '+lastReport.score+'%','Critical blockers: '+lastReport.critical,'Warnings: '+lastReport.warnings,'','## Detected surfaces',...(lastReport.surfaces.length?lastReport.surfaces.map(x=>'- '+x):['- None of the targeted patterns detected']),'','## Findings',...(lastReport.findings.length?lastReport.findings.flatMap((x,i)=>[(i+1)+'. **'+x.severity.toUpperCase()+' · '+x.code+' — '+x.title+'**','   - Location: Input '+(x.inputIndex+1)+', line '+x.line,'   - '+x.detail,'   - Recommended action: '+x.remediation]):['No targeted findings. This does not prove migration completeness.']),'','## Recommended migration order',...lastReport.order.map((x,i)=>(i+1)+'. '+x),'','## Privacy and limitation','Generated locally in your browser. The report excludes source code, filenames, portal IDs, CRM records, tokens, repository identifiers and secrets.','Static analysis can produce false positives. Verify all migrations against current HubSpot developer documentation and test against non-production data.'];const blob=new Blob([lines.join('\n')],{type:'text/markdown;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hubspot-api-migration-preflight.md';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);track('hubspot_migration_report_downloaded')}
+function renderFiles(){$('fileList').innerHTML=selectedFiles.length?selectedFiles.slice(0,MAX_FILES).map((f,i)=>'<div>Input '+(i+1)+' · '+Math.round(f.size/1024)+' KB</div>').join(''):''}
+$('files').addEventListener('change',e=>{selectedFiles=[...e.target.files].slice(0,MAX_FILES);renderFiles()});$('run').addEventListener('click',run);$('download').addEventListener('click',download);$('reset').addEventListener('click',()=>{selectedFiles=[];$('files').value='';$('paste').value='';$('results').classList.add('hidden');lastReport=null;renderFiles()});$('commercial').addEventListener('click',()=>track('hubspot_migration_commercial_cta_clicked'));const drop=$('drop');['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag')}));['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag')}));drop.addEventListener('drop',e=>{selectedFiles=[...e.dataTransfer.files].slice(0,MAX_FILES);renderFiles()});
+</script>
+</body>
+</html>

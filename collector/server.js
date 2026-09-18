@@ -18,6 +18,10 @@ const ALLOWED_EVENTS = new Set([
   'merchant_migration_completed',
   'merchant_migration_report_downloaded',
   'merchant_migration_commercial_cta_clicked',
+  'hubspot_migration_started',
+  'hubspot_migration_completed',
+  'hubspot_migration_report_downloaded',
+  'hubspot_migration_commercial_cta_clicked',
 ]);
 
 if (!DATABASE_URL) {
@@ -68,7 +72,11 @@ async function initialize() {
         'merchant_migration_started',
         'merchant_migration_completed',
         'merchant_migration_report_downloaded',
-        'merchant_migration_commercial_cta_clicked'
+        'merchant_migration_commercial_cta_clicked',
+        'hubspot_migration_started',
+        'hubspot_migration_completed',
+        'hubspot_migration_report_downloaded',
+        'hubspot_migration_commercial_cta_clicked'
       ))
   `);
   await pool.query(`
@@ -190,6 +198,20 @@ const server = http.createServer(async (req, res) => {
         'merchant_migration_completed',
         'merchant_migration_report_downloaded',
         'merchant_migration_commercial_cta_clicked',
+      ];
+      return sendJson(req, res, 200, {
+        ok: true,
+        scope: 'production_only',
+        events: await productionMetrics(names),
+      });
+    }
+
+    if (req.method === 'GET' && url.pathname === '/metrics/hubspot-migration') {
+      const names = [
+        'hubspot_migration_started',
+        'hubspot_migration_completed',
+        'hubspot_migration_report_downloaded',
+        'hubspot_migration_commercial_cta_clicked',
       ];
       return sendJson(req, res, 200, {
         ok: true,
