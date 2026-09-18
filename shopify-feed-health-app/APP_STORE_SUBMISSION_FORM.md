@@ -118,7 +118,7 @@ Do not replace with generated review evidence. Preserve the current text-free PA
 
 ## Required real screenshots
 
-Capture 3 desktop screenshots at 1600 × 900, without browser chrome, desktop background, PII, credentials, pricing claims, reviews, or outcome guarantees.
+Capture 4 desktop screenshots at 1600 × 900, without browser chrome, desktop background, PII, credentials, unsupported pricing claims, reviews, or outcome guarantees. Capture the Pro screenshot only after the Pro preview/test entitlement is genuinely working on the development store.
 
 ### Screenshot 1 — Readiness overview
 
@@ -142,17 +142,29 @@ Scroll to a clearly different section/state showing:
 Recommended alt text:
 PAL Catalog Check findings with read-only catalog remediation guidance.
 
-### Screenshot 3 — Support and scan boundaries
+### Screenshot 3 — Pro monitoring and history
+
+Using the genuine development-store Pro preview/test entitlement, show a distinct Pro screen containing:
+- recurring monitoring controls
+- saved scan history
+- health alerts or the no-open-alerts state
+- scheduled reports / export controls
+- no fabricated history or alerts
+
+Recommended alt text:
+PAL Catalog Check Pro monitoring dashboard with scan history and scheduled reports.
+
+### Screenshot 4 — Support and scan boundaries
 
 Open Support and show:
 - read-only positioning
-- scan limits/boundaries
+- Free and Pro scan limits/boundaries
 - support or data-handling information
 
 Recommended alt text:
-PAL Catalog Check support page with scan boundaries and read-only guidance.
+PAL Catalog Check support page with Free and Pro scan boundaries and read-only guidance.
 
-Do not use three near-identical captures of the same summary screen.
+Do not use near-identical captures of the same summary screen.
 
 ## Review screencast script
 
@@ -167,10 +179,12 @@ Recommended flow:
 5. Show at least one real finding and its remediation.
 6. Click Rescan catalog.
 7. Wait for the real rescan to complete.
-8. Open Support.
-9. Show the scan boundaries and data-handling/read-only information.
-10. State or visibly demonstrate that the app does not edit products or variants.
-11. End without exposing any secret, token, signed Shopify query parameter, unrelated project, or private account information.
+8. If Pro is configured for review, select/test the Pro plan through Shopify App Pricing at no charge on the Partner development store.
+9. Open Monitoring & reports and show the genuine recurring-monitoring controls, saved history, alerts state, and report/export controls.
+10. Open Support.
+11. Show the Free/Pro scan boundaries and data-handling/read-only information.
+12. State or visibly demonstrate that the app does not edit products or variants.
+13. End without exposing any secret, Partner API token, Shopify access token, signed query parameter, unrelated project, or private account information.
 
 ## Reviewer testing instructions
 
