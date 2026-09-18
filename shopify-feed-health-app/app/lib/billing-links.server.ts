@@ -1,5 +1,5 @@
 export function getPlanSelectionUrl(shop: string) {
-  const appHandle = String(process.env.PAL_SHOPIFY_APP_HANDLE || "")
+  const appHandle = String(process.env.SHOPIFY_APP_HANDLE || "")
     .trim()
     .replace(/^\/+|\/+$/g, "");
   const normalizedShop = String(shop || "").trim().toLowerCase();
