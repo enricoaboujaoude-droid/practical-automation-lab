@@ -36,8 +36,13 @@ export async function runDueProMonitoring(args: {
 
   for (const preference of due) {
     try {
-      const entitlement = await getEntitlementForShop(preference.shop);
+      const { admin } = await unauthenticated.admin(preference.shop);
+      const entitlement = await getEntitlementForShop(preference.shop, admin);
       if (entitlement.plan !== "pro") {
+        await prisma.monitoringPreference.update({
+          where: { shop: preference.shop },
+          data: { enabled: false, nextScanAt: null, nextReportAt: null },
+        });
         results.push({
           shop: preference.shop,
           status: "skipped",
@@ -53,7 +58,6 @@ export async function runDueProMonitoring(args: {
         },
       });
 
-      const { admin } = await unauthenticated.admin(preference.shop);
       const result = await scanCatalog(admin, PRO_SCAN_LIMITS);
       await persistProScan({
         shop: preference.shop,
