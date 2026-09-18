@@ -41,6 +41,10 @@ type ScanResultLike = {
 
 const ALLOWED_INTERVALS = new Set([6, 12, 24, 48, 168]);
 const ALLOWED_CADENCES = new Set(["daily", "weekly", "monthly"]);
+const MAX_SAVED_SCANS_PER_SHOP = 200;
+const MAX_SAVED_ALERTS_PER_SHOP = 500;
+const MAX_SAVED_REPORTS_PER_SHOP = 60;
+const MAX_SAVED_ISSUES_PER_SCAN = 5_000;
 
 function alertsForDiff(scanId: string, diff: ReturnType<typeof diffReports>) {
   const alerts: Array<{
@@ -94,6 +98,14 @@ export async function persistProScan(args: {
     orderBy: { createdAt: "desc" },
   });
 
+  const persistedReport = {
+    ...args.result.report,
+    issues: (args.result.report.issues || []).slice(0, MAX_SAVED_ISSUES_PER_SCAN),
+    totalIssues: (args.result.report.issues || []).length,
+    issuesTruncated:
+      (args.result.report.issues || []).length > MAX_SAVED_ISSUES_PER_SCAN,
+  };
+
   const scan = await prisma.catalogScan.create({
     data: {
       shop: args.shop,
@@ -108,7 +120,7 @@ export async function persistProScan(args: {
       imagesChecked: args.result.report.imagesChecked,
       imageRisks: imageRiskCount(args.result.report),
       productPaginationCapped: args.result.productPaginationCapped,
-      reportJson: args.result.report as any,
+      reportJson: persistedReport as any,
     },
   });
 
@@ -133,6 +145,30 @@ export async function persistProScan(args: {
       lastScanAt: scan.generatedAt,
     },
   });
+
+  const staleScans = await prisma.catalogScan.findMany({
+    where: { shop: args.shop },
+    orderBy: { createdAt: "desc" },
+    skip: MAX_SAVED_SCANS_PER_SHOP,
+    select: { id: true },
+  });
+  if (staleScans.length) {
+    await prisma.catalogScan.deleteMany({
+      where: { id: { in: staleScans.map((entry) => entry.id) } },
+    });
+  }
+
+  const staleAlerts = await prisma.catalogAlert.findMany({
+    where: { shop: args.shop },
+    orderBy: { createdAt: "desc" },
+    skip: MAX_SAVED_ALERTS_PER_SHOP,
+    select: { id: true },
+  });
+  if (staleAlerts.length) {
+    await prisma.catalogAlert.deleteMany({
+      where: { id: { in: staleAlerts.map((entry) => entry.id) } },
+    });
+  }
 
   return { scan, diff, alerts };
 }
@@ -303,6 +339,18 @@ export async function generateScheduledReport(
       nextReportAt: nextReportAt(cadence, generatedAt),
     },
   });
+
+  const staleReports = await prisma.scheduledReport.findMany({
+    where: { shop },
+    orderBy: { generatedAt: "desc" },
+    skip: MAX_SAVED_REPORTS_PER_SHOP,
+    select: { id: true },
+  });
+  if (staleReports.length) {
+    await prisma.scheduledReport.deleteMany({
+      where: { id: { in: staleReports.map((entry) => entry.id) } },
+    });
+  }
 
   return report;
 }
