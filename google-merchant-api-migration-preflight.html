@@ -190,7 +190,8 @@ async function run(){
     r.findings.forEach(x=>findings.push(x));
     r.surfaces.forEach(x=>surfaces.add(x));
   });
-  findings.sort((a,b)=>({critical:0,warning:1,info:2}[a.severity]-({critical:0,warning:1,info:2}[b.severity])||a.inputIndex-b.inputIndex||a.line-b.line);
+  const severityRank={critical:0,warning:1,info:2};
+  findings.sort((a,b)=>severityRank[a.severity]-severityRank[b.severity]||a.inputIndex-b.inputIndex||a.line-b.line);
   const score=riskScore(findings), critical=findings.filter(x=>x.severity==='critical').length, warnings=findings.filter(x=>x.severity==='warning').length;
   const order=migrationOrder(surfaces,findings);
   lastReport={generatedAt:new Date().toISOString(),inputs:inputs.length,score,critical,warnings,surfaces:[...surfaces],findings,order};
