@@ -8,7 +8,7 @@ import { trackAppEvent } from "../lib/events.server";
 
 async function runScan(request: Request) {
   const { admin, session } = await authenticate.admin(request);
-  const entitlement = await getEntitlementForShop(session.shop);
+  const entitlement = await getEntitlementForShop(session.shop, admin);
 
   trackAppEvent("scan_started");
   const result = await scanCatalog(admin, entitlement.limits);
