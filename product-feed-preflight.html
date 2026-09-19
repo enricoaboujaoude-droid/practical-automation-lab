@@ -59,22 +59,22 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:10
 </div>
 
 <div class="commercial" id="commercial">
-<h2>Need recurring monitoring, implementation help, or team use?</h2>
-<p>PAL Pro is now available at <b>$19/month</b> or <b>$199/year</b> for paid browser-local batch auditing and structured remediation export. The native PAL Catalog Check Shopify app remains under App Store review for recurring merchant monitoring.</p>
-<div class="pro-note"><b>Paid access is live:</b> use PAL Pro above for batch feed work, or send a commercial request for team licensing, implementation, or monitoring needs.</div>
+<h2>Need batch auditing or a team software license?</h2>
+<p>PAL Pro is available at <b>$19/month</b> or <b>$199/year</b> as a self-serve software subscription for browser-local batch auditing and structured remediation export. The native PAL Catalog Check Shopify software remains under App Store review.</p>
+<div class="pro-note"><b>Software subscription:</b> use PAL Pro above for batch feed work. For software-license questions, use the software access form.</div>
 <p><b>Which paid capability would matter most?</b></p>
 <div class="intent-grid">
 <button class="intent" data-interest="batch">Batch / large-catalog audits<br><span class="small muted">Check many feeds or larger catalogs faster.</span></button>
-<button class="intent" data-interest="monitoring">Recurring feed-health monitoring<br><span class="small muted">Track issues over time instead of one-off checks.</span></button>
-<button class="intent" data-interest="white-label">Commercial / white-label use<br><span class="small muted">Use reports for clients, teams or another product.</span></button>
+<button class="intent" data-interest="monitoring">Recurring software monitoring interest<br><span class="small muted">Interest in a future software-only monitoring feature.</span></button>
+<button class="intent" data-interest="team">Team software license<br><span class="small muted">Use PAL Pro software across a team.</span></button>
 </div>
 <div id="inquiry" class="inquiry hidden">
 <label for="inquiryText"><b>Commercial-interest template</b></label>
-<p class="small muted">Use the commercial request link below to ask about paid access, recurring monitoring, or team/agency use. Selecting an option above is also counted as an aggregate commercial-intent signal.</p>
+<p class="small muted">Use the software access link below to ask about a PAL software subscription or team software license. Selecting an option above is also counted as an aggregate commercial-intent signal.</p>
 <textarea id="inquiryText" readonly></textarea>
 <div class="row" style="margin-top:10px"><button id="copyInquiry">Copy inquiry template</button><span id="copyStatus" class="status"></span></div>
 </div>
-<p><a class="button" href="commercial-interest.html?product=feed-auditor">Request paid / team access</a></p><p class="small muted">The current free audit and remediation report remain available without an account or payment.</p>
+<p><a class="button" href="commercial-interest.html?product=feed-auditor">Software access questions</a></p><p class="small muted">The current free audit and remediation report remain available without an account or payment.</p>
 </div>
 </section>
 <section id="shopify-beta" class="commercial">
@@ -102,8 +102,8 @@ function issue(level,code,where,message,fix){return{level,code,where,message,fix
 function render(rep){state.report=rep;state.interest=null;let es=rep.issues.filter(x=>x.level==='error').length,ws=rep.issues.filter(x=>x.level==='warning').length,score=Math.max(0,100-Math.min(70,es*12)-Math.min(30,ws*3));$('results').classList.remove('hidden');$('meta').textContent=`${rep.name} · ${rep.schema||'Unknown schema'} · processed locally`;$('score').textContent=score+'%';$('errors').textContent=es;$('warnings').textContent=ws;$('rows').textContent=rep.rows;$('issues').innerHTML=rep.issues.length?rep.issues.map(x=>`<div class="issue ${x.level}"><span class="tag">${x.level} · ${x.code}</span><b style="display:block">${esc(x.where)} — ${esc(x.message)}</b><span class="muted">Fix: ${esc(x.fix)}</span></div>`).join(''):'<div class="good"><b>No issues found by this preflight.</b><br>That is not a guarantee of acceptance; verify the feed in Shopify and Merchant Center.</div>';try{localStorage.setItem('pal_feed_audits',String((+localStorage.getItem('pal_feed_audits')||0)+1))}catch{};track('audit_completed');track('commercial_cta_viewed');$('inquiry').classList.add('hidden');document.querySelectorAll('.intent').forEach(b=>b.classList.remove('active'));$('results').scrollIntoView({behavior:'smooth'})}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]))}
 function load(f){if(!f||!f.name.toLowerCase().endsWith('.csv'))return alert('Choose a CSV file.');track('audit_started');let r=new FileReader;r.onload=()=>render(audit(f.name,String(r.result||'')));r.readAsText(f)}
-function interestLabel(k){return({batch:'batch / large-catalog audits',monitoring:'recurring feed-health monitoring',white_label:'commercial / white-label use','white-label':'commercial / white-label use'})[k]||k}
-function buildInquiry(k){let r=state.report||{rows:0,issues:[]},es=r.issues.filter(x=>x.level==='error').length,ws=r.issues.filter(x=>x.level==='warning').length;return `I'm interested in a paid Feed Auditor Pro option for ${interestLabel(k)}.\n\nMy latest browser-local preflight checked ${r.rows} rows and returned ${es} errors and ${ws} warnings. No feed contents or product identifiers are included in this message.\n\nPlease let me know when a paid/private beta for this capability is available.`}
+function interestLabel(k){return({batch:'batch / large-catalog audits',monitoring:'recurring software monitoring',team:'team software license'})[k]||k}
+function buildInquiry(k){let r=state.report||{rows:0,issues:[]},es=r.issues.filter(x=>x.level==='error').length,ws=r.issues.filter(x=>x.level==='warning').length;return `I'm interested in PAL Pro software for ${interestLabel(k)}.\n\nMy latest browser-local preflight checked ${r.rows} rows and returned ${es} errors and ${ws} warnings. No feed contents or product identifiers are included in this message.\n\nPlease let me know when a paid/private beta for this capability is available.`}
 
 function csvCell(value){let s=String(value??'');return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
 function reportScore(rep){let es=rep.issues.filter(x=>x.level==='error').length,ws=rep.issues.filter(x=>x.level==='warning').length;return Math.max(0,100-Math.min(70,es*12)-Math.min(30,ws*3))}
