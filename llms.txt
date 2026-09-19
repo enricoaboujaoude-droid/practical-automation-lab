@@ -1,0 +1,40 @@
+# Practical Automation Lab
+
+Practical Automation Lab publishes privacy-conscious business software and browser-local preflight tools.
+
+## Primary products
+
+- PAL Catalog Check for Shopify
+  https://practical-automation-lab.onrender.com/shopify-catalog-check.html
+  Read-only Shopify catalog-readiness scanning for product, image, identifier, price and variant issues.
+
+- Product Feed Preflight Auditor
+  https://practical-automation-lab.onrender.com/product-feed-preflight.html
+  Browser-local Shopify and Google Merchant CSV preflight for structural errors, identifier gaps, image risks and variant inconsistencies.
+
+- Google Merchant API Migration Preflight
+  https://practical-automation-lab.onrender.com/google-merchant-api-migration-preflight.html
+  Browser-local migration scanner for legacy Content API usage, deprecated surfaces, customBatch and Merchant API compatibility.
+
+- HubSpot API Migration Preflight
+  https://practical-automation-lab.onrender.com/hubspot-api-migration-preflight.html
+  Browser-local API migration readiness checks for versioning, pipelines, CRM writes and private-app changes.
+
+- EUDR DDS V3 Technical Preflight
+  https://practical-automation-lab.onrender.com/eudr-dds-v3-preflight.html
+  Technical validation for EUDR DDS V3 payload preparation, supplier-data structure and GeoJSON readiness.
+
+- EU Battery Passport Readiness Preflight
+  https://practical-automation-lab.onrender.com/eu-battery-passport-preflight.html
+  Browser-local completeness checks against European Commission battery-passport guidance.
+
+## Commercial access
+
+For paid access, team licensing, batch validation, recurring monitoring or implementation:
+https://practical-automation-lab.onrender.com/commercial-interest.html
+
+## Privacy
+
+Public preflight tools are designed to process uploaded or pasted business data in the browser where stated. Do not submit passwords, tokens, payment-card data, customer records or other sensitive data through public forms.
+
+https://practical-automation-lab.onrender.com/privacy.html
