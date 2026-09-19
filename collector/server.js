@@ -716,7 +716,7 @@ async function parseFastSpringApiResponse(response) {
   return data;
 }
 
-async function createFastSpringCheckoutSession({ claimId, plan, source }) {
+async function createFastSpringCheckoutSession({ claimId, plan, source, live }) {
   const productPath = plan === 'monthly'
     ? 'pal-pro-monthly'
     : plan === 'annual'
@@ -736,7 +736,7 @@ async function createFastSpringCheckoutSession({ claimId, plan, source }) {
     method: 'POST',
     headers,
     body: JSON.stringify({
-      live: FASTSPRING_CHECKOUT_LIVE,
+      live: Boolean(live),
       orderTags: {
         pal_claim_id: claimId,
         pal_plan: plan,
@@ -791,7 +791,7 @@ async function createFastSpringCheckoutSession({ claimId, plan, source }) {
   }
 
   console.log(
-    'PAL_FASTSPRING_SESSION created=true live=' + FASTSPRING_CHECKOUT_LIVE +
+    'PAL_FASTSPRING_SESSION created=true live=' + Boolean(live) +
     ' plan=' + plan +
     ' source=' + source +
     ' session_id=' + sessionId
@@ -799,7 +799,7 @@ async function createFastSpringCheckoutSession({ claimId, plan, source }) {
 
   return {
     checkout_url: checkoutUrl,
-    live: FASTSPRING_CHECKOUT_LIVE,
+    live: Boolean(live),
     session_id: sessionId,
   };
 }
@@ -1184,7 +1184,7 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    if (req.method === 'POST' && url.pathname === '/fastspring/checkout-session') {
+    if (req.method === 'POST' && url.pathname === '/fastspring/test-checkout-session') {
       if (req.headers.origin !== SITE_ORIGIN) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
@@ -1206,6 +1206,46 @@ const server = http.createServer(async (req, res) => {
         claimId,
         plan,
         source,
+        live: false,
+      });
+
+      return sendJson(req, res, 201, {
+        ok: true,
+        provider: 'fastspring',
+        ...session,
+      });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/fastspring/checkout-session') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+
+      const body = await readJsonBody(req, 4096);
+      const claimId = cleanText(body.claim_id, 128);
+      const plan = cleanText(body.plan, 32).toLowerCase();
+      const rawSource = cleanText(body.source, 64);
+      const source = /^[a-zA-Z0-9_-]{1,64}$/.test(rawSource) ? rawSource : 'direct';
+
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+      if (!['monthly', 'annual'].includes(plan)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid plan' });
+      }
+
+      if (!FASTSPRING_CHECKOUT_LIVE) {
+        return sendJson(req, res, 503, {
+          ok: false,
+          error: 'Live FastSpring checkout is awaiting activation',
+        });
+      }
+
+      const session = await createFastSpringCheckoutSession({
+        claimId,
+        plan,
+        source,
+        live: true,
       });
 
       return sendJson(req, res, 201, {
