@@ -14,7 +14,7 @@ a{color:inherit}.small{font-size:.92rem;opacity:.72}.status{border:1px solid #e4
 <body>
 <div class="box">
 <h1>Thank you.</h1>
-<p>Your Paddle checkout completed successfully.</p>
+<p>Your PAL Pro checkout completed successfully.</p>
 <div id="access-status" class="status" role="status" aria-live="polite">Confirming your PAL Pro access…</div>
 <p id="next-step">Keep this page open for a few seconds while PAL confirms the signed payment event.</p>
 <p class="small">Do not send payment-card details, passwords, or API keys through PAL forms.</p>
@@ -23,7 +23,7 @@ a{color:inherit}.small{font-size:.92rem;opacity:.72}.status{border:1px solid #e4
 <script>
 const collector='https://pal-feed-auditor-events.onrender.com';
 const params=new URLSearchParams(location.search);
-const claim=params.get('claim')||sessionStorage.getItem('pal_paddle_claim_id')||'';
+const claim=params.get('claim')||sessionStorage.getItem('pal_pro_checkout_claim_id')||sessionStorage.getItem('pal_paddle_claim_id')||'';
 const statusEl=document.getElementById('access-status');
 const nextStep=document.getElementById('next-step');
 
@@ -38,7 +38,7 @@ async function checkEntitlement(){
 
   for(let attempt=0;attempt<12;attempt++){
     try{
-      const response=await fetch(collector+'/paddle/entitlement?claim='+encodeURIComponent(claim),{
+      const response=await fetch(collector+'/entitlement?claim='+encodeURIComponent(claim),{
         method:'GET',
         headers:{'Accept':'application/json'}
       });
@@ -57,7 +57,7 @@ async function checkEntitlement(){
   }
 
   statusEl.textContent='Payment is still being confirmed.';
-  nextStep.innerHTML='Paddle can take a short time to deliver the signed payment event. Keep this page open a little longer, or use the <a href="commercial-interest.html">commercial access form</a> with the same business email used at checkout if confirmation does not complete.';
+  nextStep.innerHTML='The payment provider can take a short time to deliver the signed payment event. Keep this page open a little longer, or use the <a href="commercial-interest.html">commercial access form</a> with the same business email used at checkout if confirmation does not complete.';
 }
 
 checkEntitlement();
