@@ -448,7 +448,6 @@ const ALLOWED_LEAD_INTENTS = new Set([
   'team-license',
   'batch-validation',
   'monitoring',
-  'implementation',
   'other',
 ]);
 
