@@ -1,64 +1,60 @@
 # Practical Automation Lab
 
-Owned, evidence-driven business software experiments for product/catalog health, automation economics, and e-commerce operations.
+Practical Automation Lab builds privacy-conscious tools for product data, commerce operations, integration readiness, compliance-data preparation, and business economics.
 
-**Live site:** https://practical-automation-lab.onrender.com/
+**Live products:** https://practical-automation-lab.onrender.com/
 
-## Core product candidate — PAL Catalog Check for Shopify
+## PAL Catalog Check for Shopify
 
-**[PAL Catalog Check public beta page](https://practical-automation-lab.onrender.com/shopify-catalog-check.html)**
+PAL Catalog Check is a read-only Shopify catalog-readiness scanner. It reviews product and variant data for issues that can create product-feed problems and provides remediation guidance without editing the store.
 
-PAL Catalog Check is a read-only Shopify catalog-readiness scanner. It reviews product and variant data for issues that can create product-feed problems and gives merchants remediation guidance without editing the store.
+- Shopify scope: `read_products`
+- no customer or order access
+- no product write access
+- embedded Shopify interface
+- Free and Pro plans
 
-The technical development gate is passed. Verified development-store evidence includes install/authentication, a real 17-product catalog scan, stable repeat scanning, persistent Shopify sessions across Render redeploys, privacy-conscious request logging, and mandatory privacy-compliance webhook handling. The current stage is **public-launch readiness + external demand validation**.
+Product information:
+https://practical-automation-lab.onrender.com/shopify-catalog-check.html
 
-Public Shopify App Store installation is not open yet. The product/beta page measures privacy-safe aggregate beta-interest clicks while the App Store submission package is prepared. App Store publication and any registration fee remain explicitly gated; pre-revenue cash-spend target remains $0.
+Support:
+https://practical-automation-lab.onrender.com/pal-catalog-check-support.html
 
-See `shopify-feed-health-app/` and [GitHub Issue #5](https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/5) for the durable build record.
+Privacy:
+https://practical-automation-lab.onrender.com/pal-catalog-check-privacy.html
 
-## Validation/acquisition probe — Product Feed Preflight Auditor
+## Product Feed Preflight Auditor
 
-**[Shopify & Google Merchant Product Feed Preflight Auditor](https://practical-automation-lab.onrender.com/product-feed-preflight.html)**
+Browser-local Shopify and Google Merchant product-feed preflight checks for structural errors, identifier gaps, image risks, and variant inconsistencies.
 
-Drop a Shopify export or product-feed CSV and catch structural errors, identifier gaps, image risks, and variant inconsistencies before import or feed review. The audit runs locally in the browser, includes a downloadable remediation report, and does not upload merchant catalog contents to Practical Automation Lab.
+https://practical-automation-lab.onrender.com/product-feed-preflight.html
 
-The standalone auditor remains a free acquisition/evidence surface rather than the strategic destination.
+## Integration readiness tools
 
-**[Public beta / feedback thread](https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4)** — merchants and agencies can report false positives, missed feed problems, and interest in the native Shopify product.
+- Google Content API → Merchant API Migration Preflight  
+  https://practical-automation-lab.onrender.com/google-merchant-api-migration-preflight.html
+- HubSpot API Migration Preflight  
+  https://practical-automation-lab.onrender.com/hubspot-api-migration-preflight.html
 
-## Other tools
+## Compliance-data readiness tools
 
-### Automation economics
-- [Automation ROI Calculator](https://practical-automation-lab.onrender.com/automation-roi.html)
-- [Manual Task Cost Calculator](https://practical-automation-lab.onrender.com/manual-task-cost.html)
-- [Automation Payback Calculator](https://practical-automation-lab.onrender.com/automation-payback.html)
+- EUDR DDS V3 Technical Preflight  
+  https://practical-automation-lab.onrender.com/eudr-dds-v3-preflight.html
+- EU Battery Passport Readiness Preflight  
+  https://practical-automation-lab.onrender.com/eu-battery-passport-preflight.html
 
-### E-commerce unit economics
-- [Break-even ROAS Calculator](https://practical-automation-lab.onrender.com/breakeven-roas.html)
-- [E-commerce Profit Margin Calculator](https://practical-automation-lab.onrender.com/ecommerce-profit-margin.html)
-- [Maximum CPA Calculator](https://practical-automation-lab.onrender.com/max-cpa.html)
-- [Discount Profit Impact Calculator](https://practical-automation-lab.onrender.com/discount-profit-impact.html)
+## Business calculators
 
-## Principles
+- Automation ROI Calculator
+- Manual Task Cost Calculator
+- Automation Payback Calculator
+- Break-even ROAS Calculator
+- E-commerce Profit Margin Calculator
+- Maximum CPA Calculator
+- Discount Profit Impact Calculator
 
-- Free core utility before monetization friction
-- Read-only / least-privilege access where possible
-- Browser-local processing where practical
-- Transparent assumptions and limitations
-- No merchant feed-content telemetry from the standalone feed auditor
-- Build, distribute, measure, then expand only on evidence
-- Judge every asset by both time-to-revenue and realistic maximum ceiling
+All public browser-local tools are designed to keep uploaded or pasted business data in the browser unless a page explicitly states otherwise.
 
-## Methodology, support and privacy
+## Important
 
-- [PAL Catalog Check privacy](https://practical-automation-lab.onrender.com/shopify-feed-health-privacy.html)
-- [PAL Catalog Check support](https://practical-automation-lab.onrender.com/shopify-feed-health-support.html)
-- [Methodology](https://practical-automation-lab.onrender.com/methodology.html)
-- [PAL privacy](https://practical-automation-lab.onrender.com/privacy.html)
-- [Affiliate disclosure](https://practical-automation-lab.onrender.com/affiliate-disclosure.html)
-
-## Operating model
-
-This repository is an experiment portfolio. Genuine usage, distribution signals, commercial-intent behavior, eventual revenue, and strategic ceiling determine which assets are expanded, duplicated, frozen, or retired.
-
-Pre-revenue cash cost target: **$0**.
+Never commit secrets, access tokens, customer data, merchant catalog contents, or private credentials to this repository.
