@@ -164,6 +164,13 @@ async function initialize() {
       where claim_id is not null
   `);
 
+  await pool.query(`
+    update pal_paddle_webhook_events
+       set is_simulation = true
+     where event_id like 'ntfsimevt_%'
+       and is_simulation = false
+  `);
+
   await insertEvent('audit_started', true);
   console.log('PAL_MEASUREMENT_PROBE ok=true event=audit_started production_excluded=true');
 }
