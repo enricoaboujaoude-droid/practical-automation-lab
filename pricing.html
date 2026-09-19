@@ -18,7 +18,6 @@ ul{padding-left:20px}.button{display:block;width:100%;box-sizing:border-box;bord
 footer{border-top:1px solid #e4e4e7;margin-top:42px;padding-top:20px;display:flex;gap:14px;flex-wrap:wrap;font-size:.92rem}
 @media(max-width:700px){.grid{grid-template-columns:1fr}}
 </style>
-<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
 </head>
 <body>
 <p><a href="index.html">← Practical Automation Lab</a></p>
@@ -29,7 +28,7 @@ footer{border-top:1px solid #e4e4e7;margin-top:42px;padding-top:20px;display:fle
 <div class="grid">
 <section class="card">
 <h2>Monthly</h2>
-<div id="monthly-price" class="price">$19</div>
+<div class="price">$19</div>
 <div class="period">per month</div>
 <ul>
 <li>PAL Pro software access</li>
@@ -43,7 +42,7 @@ footer{border-top:1px solid #e4e4e7;margin-top:42px;padding-top:20px;display:fle
 <section class="card featured">
 <span class="badge">Best annual value</span>
 <h2>Annual</h2>
-<div id="annual-price" class="price">$199</div>
+<div class="price">$199</div>
 <div class="period">per year</div>
 <div class="saving">Equivalent to about $16.58/month.</div>
 <ul>
@@ -57,8 +56,8 @@ footer{border-top:1px solid #e4e4e7;margin-top:42px;padding-top:20px;display:fle
 </div>
 
 <div class="notice">
-<strong>Secure checkout by Paddle.</strong>
-<div class="small">Taxes and the final localized amount are calculated by Paddle at checkout. By purchasing, you agree to the <a href="terms.html">Terms of Service</a>, <a href="privacy.html">Privacy Notice</a>, and <a href="refund-policy.html">Refund Policy</a>.</div>
+<strong>Secure checkout by FastSpring.</strong>
+<div class="small">FastSpring calculates taxes and the final localized amount at checkout. Live checkout opens after FastSpring activates the store. By purchasing, you agree to the <a href="terms.html">Terms of Service</a>, <a href="privacy.html">Privacy Notice</a>, and <a href="refund-policy.html">Refund Policy</a>.</div>
 </div>
 
 <p id="checkout-status" class="small" role="status" aria-live="polite"></p>
@@ -71,9 +70,7 @@ footer{border-top:1px solid #e4e4e7;margin-top:42px;padding-top:20px;display:fle
 </footer>
 
 <script>
-const clientToken='live_e667879a647ec508b1af0cd7534';
-const monthlyPriceId='pri_01m2we6qbg2qcmvcnkh4e1ek3p';
-const annualPriceId='pri_01m2we8qxfk9gxbz5w3fs7va5v';
+const collector='https://pal-feed-auditor-events.onrender.com';
 const statusEl=document.getElementById('checkout-status');
 const sourceParam=new URLSearchParams(location.search).get('source')||'direct';
 const checkoutSource=/^[a-zA-Z0-9_-]{1,64}$/.test(sourceParam)?sourceParam:'direct';
@@ -89,62 +86,56 @@ function createClaimId(){
   return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-try{
-  Paddle.Initialize({
-    token:clientToken,
-    eventCallback:function(event){
-      if(event&&event.name==='checkout.completed'){
-        setStatus('Payment completed. Finalizing access…');
-      }
-    }
-  });
+async function openCheckout(plan){
+  const monthly=document.getElementById('buy-monthly');
+  const annual=document.getElementById('buy-annual');
+  monthly.disabled=true;
+  annual.disabled=true;
+  setStatus('Opening secure checkout…');
 
-  Paddle.PricePreview({
-    items:[
-      {priceId:monthlyPriceId,quantity:1},
-      {priceId:annualPriceId,quantity:1}
-    ]
-  }).then(function(response){
-    const items=response?.data?.details?.lineItems;
-    if(!items)return;
-    for(const item of items){
-      if(item.price?.id===monthlyPriceId&&item.formattedTotals){
-        document.getElementById('monthly-price').textContent=item.formattedTotals.total;
-      }
-      if(item.price?.id===annualPriceId&&item.formattedTotals){
-        document.getElementById('annual-price').textContent=item.formattedTotals.total;
-      }
-    }
-  }).catch(function(){});
-}catch(e){
-  setStatus('Checkout is temporarily unavailable. Please try again shortly.');
-}
-
-function openCheckout(priceId,plan){
-  setStatus('');
   try{
     const claimId=createClaimId();
-    sessionStorage.setItem('pal_paddle_claim_id',claimId);
-    Paddle.Checkout.open({
-      items:[{priceId:priceId,quantity:1}],
-      customData:{
-        pal_claim_id:claimId,
-        pal_plan:plan,
-        pal_source:checkoutSource
+    sessionStorage.setItem('pal_pro_checkout_claim_id',claimId);
+
+    const response=await fetch(collector+'/fastspring/checkout-session',{
+      method:'POST',
+      mode:'cors',
+      cache:'no-store',
+      credentials:'omit',
+      headers:{
+        'Accept':'application/json',
+        'Content-Type':'application/json'
       },
-      settings:{
-        displayMode:'overlay',
-        theme:'light',
-        successUrl:'https://practical-automation-lab.onrender.com/checkout-success.html?claim='+encodeURIComponent(claimId)
-      }
+      body:JSON.stringify({
+        claim_id:claimId,
+        plan,
+        source:checkoutSource
+      })
     });
+
+    let data={};
+    try{data=await response.json()}catch{}
+
+    if(response.ok&&data.checkout_url){
+      window.location.assign(data.checkout_url);
+      return;
+    }
+
+    if(response.status===503){
+      setStatus('Live PAL Pro checkout is awaiting FastSpring activation. Please check back shortly.');
+    }else{
+      setStatus('Checkout could not open. Please try again shortly.');
+    }
   }catch(e){
     setStatus('Checkout could not open. Please try again shortly.');
+  }finally{
+    monthly.disabled=false;
+    annual.disabled=false;
   }
 }
 
-document.getElementById('buy-monthly').addEventListener('click',()=>openCheckout(monthlyPriceId,'monthly'));
-document.getElementById('buy-annual').addEventListener('click',()=>openCheckout(annualPriceId,'annual'));
+document.getElementById('buy-monthly').addEventListener('click',()=>openCheckout('monthly'));
+document.getElementById('buy-annual').addEventListener('click',()=>openCheckout('annual'));
 </script>
 </body>
 </html>
