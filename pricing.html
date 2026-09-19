@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PAL Pro Pricing — Practical Automation Lab</title>
+<meta name="description" content="Choose monthly or annual PAL Pro access for Practical Automation Lab tools.">
+<link rel="canonical" href="https://practical-automation-lab.onrender.com/pricing.html">
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:900px;margin:0 auto;padding:36px 18px 60px;line-height:1.55;color:#18181b}
+a{color:inherit}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}
+h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.05;margin:.5rem 0 1rem}.lead{font-size:1.08rem;opacity:.75;max-width:720px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:28px 0}.card{border:1px solid #e4e4e7;border-radius:18px;padding:24px}.card.featured{border:2px solid #18181b}
+.badge{display:inline-block;background:#18181b;color:#fff;border-radius:999px;padding:4px 8px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.price{font-size:2.2rem;font-weight:850;margin:16px 0 4px}.period{font-size:.95rem;opacity:.65}.saving{font-size:.9rem;font-weight:750;margin-top:8px}
+ul{padding-left:20px}.button{display:block;width:100%;box-sizing:border-box;border:0;border-radius:10px;padding:13px 16px;background:#18181b;color:#fff;font:inherit;font-weight:800;cursor:pointer;margin-top:18px}.button:disabled{opacity:.55;cursor:not-allowed}
+.notice{border:1px solid #e4e4e7;border-radius:12px;padding:14px 16px;margin-top:22px;background:#fafafa}.small{font-size:.9rem;opacity:.72}
+footer{border-top:1px solid #e4e4e7;margin-top:42px;padding-top:20px;display:flex;gap:14px;flex-wrap:wrap;font-size:.92rem}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+</head>
+<body>
+<p><a href="index.html">← Practical Automation Lab</a></p>
+<div class="eyebrow">PAL Pro</div>
+<h1>Upgrade when PAL becomes part of your workflow.</h1>
+<p class="lead">PAL Pro is the paid access layer for Practical Automation Lab web tools, including larger-volume workflows, recurring monitoring, reporting, and premium capabilities as they become available.</p>
+
+<div class="grid">
+<section class="card">
+<h2>Monthly</h2>
+<div id="monthly-price" class="price">$19</div>
+<div class="period">per month</div>
+<ul>
+<li>PAL Pro web-tool access</li>
+<li>Recurring and larger-volume workflows</li>
+<li>Monitoring and reporting capabilities where available</li>
+<li>Cancel before the next renewal to stop future charges</li>
+</ul>
+<button id="buy-monthly" class="button" type="button">Choose monthly</button>
+</section>
+
+<section class="card featured">
+<span class="badge">Best annual value</span>
+<h2>Annual</h2>
+<div id="annual-price" class="price">$199</div>
+<div class="period">per year</div>
+<div class="saving">Equivalent to about $16.58/month.</div>
+<ul>
+<li>Everything in monthly PAL Pro</li>
+<li>One annual renewal instead of monthly billing</li>
+<li>Save $29 versus twelve monthly payments at the base USD price</li>
+<li>Cancel before renewal to stop future charges</li>
+</ul>
+<button id="buy-annual" class="button" type="button">Choose annual</button>
+</section>
+</div>
+
+<div class="notice">
+<strong>Secure checkout by Paddle.</strong>
+<div class="small">Taxes and the final localized amount are calculated by Paddle at checkout. By purchasing, you agree to the <a href="terms.html">Terms of Service</a>, <a href="privacy.html">Privacy Notice</a>, and <a href="refund-policy.html">Refund Policy</a>.</div>
+</div>
+
+<p id="checkout-status" class="small" role="status" aria-live="polite"></p>
+
+<footer>
+<a href="terms.html">Terms</a>
+<a href="privacy.html">Privacy</a>
+<a href="refund-policy.html">Refund policy</a>
+<a href="commercial-interest.html">Commercial access</a>
+</footer>
+
+<script>
+const PAL_PADDLE_TOKEN='live_e667879a647ec508b1af0cd7534e1ek3p'.replace('pri_01m2we6qbg2qcmvcnkh4e1ek3p','');
+</script>
+<script>
+const clientToken='live_e667879a647ec508b1af0cd7534e1ek3p'.replace('pri_01m2we6qbg2qcmvcnkh4e1ek3p','');
+const monthlyPriceId='pri_01m2we6qbg2qcmvcnkh4e1ek3p';
+const annualPriceId='pri_01m2we8qxfk9gxbz5w3fs7va5v';
+const actualClientToken='live_e667879a647ec508b1af0cd7534';
+const statusEl=document.getElementById('checkout-status');
+
+function setStatus(message){statusEl.textContent=message||''}
+
+try{
+  Paddle.Initialize({
+    token: actualClientToken,
+    eventCallback: function(event){
+      if(event && event.name==='checkout.completed'){
+        setStatus('Payment completed. Finalizing access…');
+      }
+    }
+  });
+
+  Paddle.PricePreview({
+    items:[
+      {priceId:monthlyPriceId,quantity:1},
+      {priceId:annualPriceId,quantity:1}
+    ]
+  }).then(function(response){
+    const items=response && response.data && response.data.details && response.data.details.lineItems;
+    if(!items)return;
+    for(const item of items){
+      if(item.price && item.price.id===monthlyPriceId && item.formattedTotals){
+        document.getElementById('monthly-price').textContent=item.formattedTotals.total;
+      }
+      if(item.price && item.price.id===annualPriceId && item.formattedTotals){
+        document.getElementById('annual-price').textContent=item.formattedTotals.total;
+      }
+    }
+  }).catch(function(){});
+}catch(e){
+  setStatus('Checkout is temporarily unavailable. Please try again shortly.');
+}
+
+function openCheckout(priceId){
+  setStatus('');
+  try{
+    Paddle.Checkout.open({
+      items:[{priceId:priceId,quantity:1}],
+      settings:{
+        displayMode:'overlay',
+        theme:'light',
+        successUrl:'https://practical-automation-lab.onrender.com/checkout-success.html'
+      }
+    });
+  }catch(e){
+    setStatus('Checkout could not open. Please try again shortly.');
+  }
+}
+
+document.getElementById('buy-monthly').addEventListener('click',()=>openCheckout(monthlyPriceId));
+document.getElementById('buy-annual').addEventListener('click',()=>openCheckout(annualPriceId));
+</script>
+</body>
+</html>
