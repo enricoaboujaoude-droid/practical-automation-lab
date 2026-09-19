@@ -75,6 +75,8 @@ const clientToken='live_e667879a647ec508b1af0cd7534';
 const monthlyPriceId='pri_01m2we6qbg2qcmvcnkh4e1ek3p';
 const annualPriceId='pri_01m2we8qxfk9gxbz5w3fs7va5v';
 const statusEl=document.getElementById('checkout-status');
+const sourceParam=new URLSearchParams(location.search).get('source')||'direct';
+const checkoutSource=/^[a-zA-Z0-9_-]{1,64}$/.test(sourceParam)?sourceParam:'direct';
 
 function setStatus(message){statusEl.textContent=message||''}
 
@@ -128,7 +130,7 @@ function openCheckout(priceId,plan){
       customData:{
         pal_claim_id:claimId,
         pal_plan:plan,
-        pal_source:'pricing'
+        pal_source:checkoutSource
       },
       settings:{
         displayMode:'overlay',
