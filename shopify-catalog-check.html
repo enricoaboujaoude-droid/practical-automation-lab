@@ -16,7 +16,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:10
 <h1>Find catalog risks before they become product-feed problems.</h1>
 <p class="lead">PAL Catalog Check is a read-only Shopify catalog-readiness scanner. It reviews product and variant data, groups findings into critical issues and warnings, and gives merchants clear remediation guidance without editing the store.</p>
 <div class="actions">
-<a id="betaInterest" class="button" href="https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4" target="_blank" rel="noopener">Join the public beta discussion</a>
+<a id="betaInterest" class="button" href="commercial-interest.html?product=pal-catalog-check">Request PAL Catalog Check access</a>
 <a class="button secondary" href="product-feed-preflight.html">Try the free CSV preflight</a>
 </div>
 <div class="trust"><span>Read-only product access</span><span>No customer/order scopes</span><span>No catalog edits</span><span>Free during validation</span></div>
@@ -38,8 +38,8 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:10
 </section>
 <section class="section">
 <h2>Current availability</h2>
-<p>Technical development validation is complete in a Shopify development store, including install, authentication, real catalog scanning, repeat scans, persistent sessions across redeploys, and privacy-compliance webhook support. Public Shopify App Store installation is not open yet; the app is being prepared for external review and merchant beta.</p>
-<p class="small">Clicking the beta button records only one aggregate <code>shopify_beta_interest</code> event before opening the public GitHub beta discussion. It does not include store credentials, catalog data, or personal information.</p>
+<p>Technical development validation is complete in a Shopify development store, including install, authentication, real catalog scanning, repeat scans, persistent sessions across redeploys, and privacy-compliance webhook support. Public Shopify App Store installation is not open yet; the app is currently in Shopify App Store review.</p>
+<p class="small">Clicking the access button records one aggregate <code>shopify_beta_interest</code> event before opening a private commercial-request form. Do not submit store credentials or catalog data.</p>
 <p id="status" class="status" aria-live="polite"></p>
 </section>
 </main>
@@ -49,7 +49,7 @@ const EVENT_ENDPOINT='https://pal-feed-auditor-events.onrender.com/event';
 const button=document.getElementById('betaInterest');
 const status=document.getElementById('status');
 button.addEventListener('click',()=>{
-  status.textContent='Beta interest recorded. Opening the public discussion…';
+  status.textContent='Interest recorded. Opening the access request form…';
   try{localStorage.setItem('pal_event_shopify_beta_interest',String((+localStorage.getItem('pal_event_shopify_beta_interest')||0)+1))}catch{}
   fetch(EVENT_ENDPOINT,{method:'POST',mode:'cors',cache:'no-store',credentials:'omit',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:'shopify_beta_interest',keepalive:true}).catch(()=>{});
 });
