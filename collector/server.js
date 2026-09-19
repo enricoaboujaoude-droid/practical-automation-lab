@@ -1,11 +1,13 @@
 'use strict';
 
 const http = require('node:http');
+const crypto = require('node:crypto');
 const { URL } = require('node:url');
 const { Pool } = require('pg');
 
 const PORT = Number(process.env.PORT || 10000);
 const DATABASE_URL = process.env.DATABASE_URL;
+const PADDLE_NOTIFICATION_WEBHOOK_SECRET = process.env.PADDLE_NOTIFICATION_WEBHOOK_SECRET || '';
 const SITE_ORIGIN = 'https://practical-automation-lab.onrender.com';
 const ALLOWED_EVENTS = new Set([
   'audit_started',
@@ -121,6 +123,25 @@ async function initialize() {
       on pal_commercial_leads (created_at desc)
   `);
 
+  await pool.query(`
+    create table if not exists pal_paddle_webhook_events (
+      event_id text primary key,
+      event_type text not null,
+      occurred_at timestamptz,
+      resource_id text,
+      customer_id text,
+      transaction_id text,
+      subscription_id text,
+      status text,
+      processed_at timestamptz not null default now()
+    )
+  `);
+
+  await pool.query(`
+    create index if not exists pal_paddle_webhook_events_processed_at_idx
+      on pal_paddle_webhook_events (processed_at desc)
+  `);
+
   await insertEvent('audit_started', true);
   console.log('PAL_MEASUREMENT_PROBE ok=true event=audit_started production_excluded=true');
 }
@@ -196,6 +217,132 @@ async function readJsonBody(req, maxBytes = 8192) {
     });
     req.on('error', reject);
   });
+}
+
+async function readRawBody(req, maxBytes = 262144) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let total = 0;
+    req.on('data', chunk => {
+      const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+      total += buffer.length;
+      if (total > maxBytes) {
+        const error = new Error('Payload too large');
+        error.statusCode = 413;
+        reject(error);
+        req.destroy();
+        return;
+      }
+      chunks.push(buffer);
+    });
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    req.on('error', reject);
+  });
+}
+
+function verifyPaddleSignature(rawBody, signatureHeader) {
+  if (!PADDLE_NOTIFICATION_WEBHOOK_SECRET) {
+    const error = new Error('Paddle webhook secret is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  if (!signatureHeader || !rawBody) {
+    const error = new Error('Missing Paddle signature or body');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  let timestamp = null;
+  const signatures = [];
+  for (const part of String(signatureHeader).split(';')) {
+    const index = part.indexOf('=');
+    if (index < 1) continue;
+    const key = part.slice(0, index).trim();
+    const value = part.slice(index + 1).trim();
+    if (key === 'ts') timestamp = value;
+    if (key === 'h1' && value) signatures.push(value);
+  }
+
+  if (!timestamp || signatures.length === 0 || !/^\d+$/.test(timestamp)) {
+    const error = new Error('Invalid Paddle signature header');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const eventTime = Number(timestamp);
+  const now = Math.floor(Date.now() / 1000);
+  if (!Number.isSafeInteger(eventTime) || Math.abs(now - eventTime) > 300) {
+    const error = new Error('Expired Paddle webhook signature');
+    error.statusCode = 408;
+    throw error;
+  }
+
+  const expected = crypto
+    .createHmac('sha256', PADDLE_NOTIFICATION_WEBHOOK_SECRET)
+    .update(`${timestamp}:${rawBody}`, 'utf8')
+    .digest('hex');
+
+  const expectedBuffer = Buffer.from(expected, 'utf8');
+  const valid = signatures.some(candidate => {
+    const candidateBuffer = Buffer.from(candidate, 'utf8');
+    return (
+      candidateBuffer.length === expectedBuffer.length &&
+      crypto.timingSafeEqual(candidateBuffer, expectedBuffer)
+    );
+  });
+
+  if (!valid) {
+    const error = new Error('Invalid Paddle webhook signature');
+    error.statusCode = 401;
+    throw error;
+  }
+}
+
+async function recordPaddleEvent(event) {
+  const eventId = cleanText(event?.event_id, 128);
+  const eventType = cleanText(event?.event_type, 128);
+  const occurredAt = cleanText(event?.occurred_at, 80);
+  const data = event && typeof event.data === 'object' && event.data ? event.data : {};
+
+  if (!eventId || !eventType) {
+    const error = new Error('Invalid Paddle event');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const resourceId = cleanText(data.id, 128);
+  const customerId = cleanText(data.customer_id, 128);
+  const transactionId = cleanText(
+    eventType.startsWith('transaction.') ? data.id : data.transaction_id,
+    128
+  );
+  const subscriptionId = cleanText(
+    eventType.startsWith('subscription.') ? data.id : data.subscription_id,
+    128
+  );
+  const status = cleanText(data.status, 64);
+
+  await pool.query(
+    `insert into pal_paddle_webhook_events
+      (event_id, event_type, occurred_at, resource_id, customer_id, transaction_id, subscription_id, status)
+     values ($1, $2, $3, $4, $5, $6, $7, $8)
+     on conflict (event_id) do nothing`,
+    [
+      eventId,
+      eventType,
+      occurredAt || null,
+      resourceId || null,
+      customerId || null,
+      transactionId || null,
+      subscriptionId || null,
+      status || null,
+    ]
+  );
+
+  console.log(
+    `PAL_PADDLE_WEBHOOK event_id=${eventId} event_type=${eventType} resource_id=${resourceId || '-'}`
+  );
 }
 
 const ALLOWED_LEAD_PRODUCTS = new Set([
@@ -372,6 +519,23 @@ const server = http.createServer(async (req, res) => {
         event: eventName,
         note: 'Synthetic measurement probe; excluded from production metrics.',
       });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/paddle/webhook') {
+      const rawBody = await readRawBody(req);
+      verifyPaddleSignature(rawBody, req.headers['paddle-signature']);
+
+      let event;
+      try {
+        event = JSON.parse(rawBody);
+      } catch {
+        const error = new Error('Invalid JSON');
+        error.statusCode = 400;
+        throw error;
+      }
+
+      await recordPaddleEvent(event);
+      return sendJson(req, res, 200, { received: true });
     }
 
     if (req.method === 'POST' && url.pathname === '/commercial-interest') {
