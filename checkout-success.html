@@ -5,15 +5,62 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Payment received — Practical Automation Lab</title>
 <meta name="robots" content="noindex">
-<style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:680px;margin:60px auto;padding:0 18px;line-height:1.6;color:#18181b}.box{border:1px solid #e4e4e7;border-radius:18px;padding:26px}a{color:inherit}.small{font-size:.92rem;opacity:.72}</style>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:680px;margin:60px auto;padding:0 18px;line-height:1.6;color:#18181b}
+.box{border:1px solid #e4e4e7;border-radius:18px;padding:26px}
+a{color:inherit}.small{font-size:.92rem;opacity:.72}.status{border:1px solid #e4e4e7;border-radius:12px;padding:14px 16px;margin:18px 0;background:#fafafa}.ok{font-weight:800}
+</style>
 </head>
 <body>
 <div class="box">
 <h1>Thank you.</h1>
 <p>Your Paddle checkout completed successfully.</p>
-<p>PAL will use the completed transaction to activate or confirm the paid capability associated with your purchase. If access is not available immediately, use the <a href="commercial-interest.html">commercial access form</a> with the same business email used at checkout.</p>
+<div id="access-status" class="status" role="status" aria-live="polite">Confirming your PAL Pro access…</div>
+<p id="next-step">Keep this page open for a few seconds while PAL confirms the signed payment event.</p>
 <p class="small">Do not send payment-card details, passwords, or API keys through PAL forms.</p>
 <p><a href="index.html">Return to Practical Automation Lab</a></p>
 </div>
+<script>
+const collector='https://pal-feed-auditor-events.onrender.com';
+const params=new URLSearchParams(location.search);
+const claim=params.get('claim')||sessionStorage.getItem('pal_paddle_claim_id')||'';
+const statusEl=document.getElementById('access-status');
+const nextStep=document.getElementById('next-step');
+
+function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+
+async function checkEntitlement(){
+  if(!claim){
+    statusEl.textContent='Payment was received, but this browser is missing its access reference.';
+    nextStep.innerHTML='Use the <a href="commercial-interest.html">commercial access form</a> with the same business email used at checkout so PAL can reconcile the purchase.';
+    return;
+  }
+
+  for(let attempt=0;attempt<12;attempt++){
+    try{
+      const response=await fetch(collector+'/paddle/entitlement?claim='+encodeURIComponent(claim),{
+        method:'GET',
+        headers:{'Accept':'application/json'}
+      });
+      if(response.ok){
+        const data=await response.json();
+        if(data.active){
+          localStorage.setItem('pal_pro_claim_id',claim);
+          statusEl.classList.add('ok');
+          statusEl.textContent='PAL Pro access confirmed.';
+          nextStep.textContent='Your paid access reference is saved in this browser. You can return to PAL and continue using supported Pro capabilities.';
+          return;
+        }
+      }
+    }catch(e){}
+    await sleep(1500);
+  }
+
+  statusEl.textContent='Payment is still being confirmed.';
+  nextStep.innerHTML='Paddle can take a short time to deliver the signed payment event. Keep this page open a little longer, or use the <a href="commercial-interest.html">commercial access form</a> with the same business email used at checkout if confirmation does not complete.';
+}
+
+checkEntitlement();
+</script>
 </body>
 </html>
