@@ -136,6 +136,9 @@ async function initialize() {
       is_simulation boolean not null default false,
       claim_id text,
       plan text,
+      source text,
+      currency_code text,
+      amount_minor bigint,
       processed_at timestamptz not null default now()
     )
   `);
@@ -144,7 +147,10 @@ async function initialize() {
     alter table pal_paddle_webhook_events
       add column if not exists is_simulation boolean not null default false,
       add column if not exists claim_id text,
-      add column if not exists plan text
+      add column if not exists plan text,
+      add column if not exists source text,
+      add column if not exists currency_code text,
+      add column if not exists amount_minor bigint
   `);
 
   await pool.query(`
@@ -344,12 +350,19 @@ async function recordPaddleEvent(event) {
       : {};
   const claimId = cleanText(customData.pal_claim_id, 128);
   const plan = cleanText(customData.pal_plan, 32);
+  const source = cleanText(customData.pal_source, 64);
+  const currencyCode = cleanText(
+    data.currency_code || data?.details?.totals?.currency_code,
+    3
+  ).toUpperCase();
+  const rawAmount = cleanText(data?.details?.totals?.total, 32);
+  const amountMinor = /^\d+$/.test(rawAmount) ? rawAmount : null;
   const isSimulation = eventId.startsWith('ntfsimevt_');
 
   await pool.query(
     `insert into pal_paddle_webhook_events
-      (event_id, event_type, occurred_at, resource_id, customer_id, transaction_id, subscription_id, status, is_simulation, claim_id, plan)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      (event_id, event_type, occurred_at, resource_id, customer_id, transaction_id, subscription_id, status, is_simulation, claim_id, plan, source, currency_code, amount_minor)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
      on conflict (event_id) do nothing`,
     [
       eventId,
@@ -363,6 +376,9 @@ async function recordPaddleEvent(event) {
       isSimulation,
       claimId || null,
       plan || null,
+      source || null,
+      currencyCode || null,
+      amountMinor,
     ]
   );
 
@@ -552,6 +568,85 @@ const server = http.createServer(async (req, res) => {
         ok: true,
         scope: 'production_only',
         events: await productionMetrics(names),
+      });
+    }
+
+    if (req.method === 'GET' && url.pathname === '/metrics/payments') {
+      const { rows: totalsRows } = await pool.query(`
+        select
+          count(*) filter (
+            where event_type = 'transaction.completed'
+              and lower(coalesce(status, '')) = 'completed'
+              and is_simulation = false
+          )::bigint as completed_transactions,
+          min(occurred_at) filter (
+            where event_type = 'transaction.completed'
+              and lower(coalesce(status, '')) = 'completed'
+              and is_simulation = false
+          ) as first_completed_at,
+          max(occurred_at) filter (
+            where event_type = 'transaction.completed'
+              and lower(coalesce(status, '')) = 'completed'
+              and is_simulation = false
+          ) as last_completed_at
+        from pal_paddle_webhook_events
+      `);
+
+      const { rows: revenueRows } = await pool.query(`
+        select currency_code,
+               coalesce(sum(amount_minor), 0)::text as gross_completed_minor
+          from pal_paddle_webhook_events
+         where event_type = 'transaction.completed'
+           and lower(coalesce(status, '')) = 'completed'
+           and is_simulation = false
+           and currency_code is not null
+           and amount_minor is not null
+         group by currency_code
+         order by currency_code
+      `);
+
+      const { rows: sourceRows } = await pool.query(`
+        select coalesce(source, 'unknown') as source,
+               count(*)::bigint as completed_transactions
+          from pal_paddle_webhook_events
+         where event_type = 'transaction.completed'
+           and lower(coalesce(status, '')) = 'completed'
+           and is_simulation = false
+         group by coalesce(source, 'unknown')
+         order by count(*) desc, source
+      `);
+
+      const { rows: activeRows } = await pool.query(`
+        with latest as (
+          select distinct on (subscription_id)
+                 subscription_id,
+                 lower(coalesce(status, '')) as status
+            from pal_paddle_webhook_events
+           where subscription_id is not null
+             and event_type like 'subscription.%'
+             and is_simulation = false
+           order by subscription_id, coalesce(occurred_at, processed_at) desc, processed_at desc
+        )
+        select count(*) filter (where status in ('active', 'trialing'))::bigint as active_subscriptions,
+               count(*) filter (where status = 'canceled')::bigint as canceled_subscriptions
+          from latest
+      `);
+
+      return sendJson(req, res, 200, {
+        ok: true,
+        scope: 'genuine_paddle_events_only',
+        completed_transactions: Number(totalsRows[0].completed_transactions),
+        first_completed_at: totalsRows[0].first_completed_at,
+        last_completed_at: totalsRows[0].last_completed_at,
+        active_subscriptions: Number(activeRows[0].active_subscriptions),
+        canceled_subscriptions: Number(activeRows[0].canceled_subscriptions),
+        gross_completed_by_currency: Object.fromEntries(
+          revenueRows.map(row => [row.currency_code, row.gross_completed_minor])
+        ),
+        completed_by_source: Object.fromEntries(
+          sourceRows.map(row => [row.source, Number(row.completed_transactions)])
+        ),
+        note: 'Gross completed transaction totals are before fees, refunds, chargebacks, and adjustments. Simulator events are excluded.',
       });
     }
 
