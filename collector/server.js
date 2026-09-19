@@ -133,13 +133,29 @@ async function initialize() {
       transaction_id text,
       subscription_id text,
       status text,
+      is_simulation boolean not null default false,
+      claim_id text,
+      plan text,
       processed_at timestamptz not null default now()
     )
   `);
 
   await pool.query(`
+    alter table pal_paddle_webhook_events
+      add column if not exists is_simulation boolean not null default false,
+      add column if not exists claim_id text,
+      add column if not exists plan text
+  `);
+
+  await pool.query(`
     create index if not exists pal_paddle_webhook_events_processed_at_idx
       on pal_paddle_webhook_events (processed_at desc)
+  `);
+
+  await pool.query(`
+    create index if not exists pal_paddle_webhook_events_claim_id_idx
+      on pal_paddle_webhook_events (claim_id, occurred_at desc)
+      where claim_id is not null
   `);
 
   await insertEvent('audit_started', true);
@@ -322,11 +338,18 @@ async function recordPaddleEvent(event) {
     128
   );
   const status = cleanText(data.status, 64);
+  const customData =
+    data && typeof data.custom_data === 'object' && data.custom_data
+      ? data.custom_data
+      : {};
+  const claimId = cleanText(customData.pal_claim_id, 128);
+  const plan = cleanText(customData.pal_plan, 32);
+  const isSimulation = eventId.startsWith('ntfsimevt_');
 
   await pool.query(
     `insert into pal_paddle_webhook_events
-      (event_id, event_type, occurred_at, resource_id, customer_id, transaction_id, subscription_id, status)
-     values ($1, $2, $3, $4, $5, $6, $7, $8)
+      (event_id, event_type, occurred_at, resource_id, customer_id, transaction_id, subscription_id, status, is_simulation, claim_id, plan)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      on conflict (event_id) do nothing`,
     [
       eventId,
@@ -337,12 +360,54 @@ async function recordPaddleEvent(event) {
       transactionId || null,
       subscriptionId || null,
       status || null,
+      isSimulation,
+      claimId || null,
+      plan || null,
     ]
   );
 
   console.log(
-    `PAL_PADDLE_WEBHOOK event_id=${eventId} event_type=${eventType} resource_id=${resourceId || '-'}`
+    `PAL_PADDLE_WEBHOOK event_id=${eventId} event_type=${eventType} simulation=${isSimulation} resource_id=${resourceId || '-'}`
   );
+}
+
+async function getPaddleEntitlement(claimId) {
+  const { rows } = await pool.query(
+    `select event_type, status, occurred_at, processed_at
+       from pal_paddle_webhook_events
+      where claim_id = $1
+        and is_simulation = false
+      order by coalesce(occurred_at, processed_at) desc
+      limit 25`,
+    [claimId]
+  );
+
+  if (rows.length === 0) {
+    return { active: false, state: 'pending' };
+  }
+
+  const subscriptionEvent = rows.find(row => row.event_type.startsWith('subscription.'));
+  if (subscriptionEvent) {
+    const state = String(subscriptionEvent.status || '').toLowerCase();
+    if (['canceled', 'paused', 'past_due'].includes(state)) {
+      return { active: false, state };
+    }
+    if (['active', 'trialing'].includes(state)) {
+      return { active: true, state };
+    }
+  }
+
+  const completedTransaction = rows.find(
+    row =>
+      row.event_type === 'transaction.completed' &&
+      String(row.status || '').toLowerCase() === 'completed'
+  );
+
+  if (completedTransaction) {
+    return { active: true, state: 'paid' };
+  }
+
+  return { active: false, state: 'pending' };
 }
 
 const ALLOWED_LEAD_PRODUCTS = new Set([
@@ -508,6 +573,20 @@ const server = http.createServer(async (req, res) => {
           last_seen: rows[0].last_seen,
         },
       });
+    }
+
+    if (req.method === 'GET' && url.pathname === '/paddle/entitlement') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+
+      const claimId = cleanText(url.searchParams.get('claim'), 128);
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+
+      const entitlement = await getPaddleEntitlement(claimId);
+      return sendJson(req, res, 200, { ok: true, ...entitlement });
     }
 
     if (req.method === 'GET' && url.pathname === '/measurement-probe') {
