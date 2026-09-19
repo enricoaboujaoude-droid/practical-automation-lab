@@ -9,6 +9,10 @@ const PORT = Number(process.env.PORT || 10000);
 const DATABASE_URL = process.env.DATABASE_URL;
 const PADDLE_NOTIFICATION_WEBHOOK_SECRET = process.env.PADDLE_NOTIFICATION_WEBHOOK_SECRET || '';
 const FASTSPRING_WEBHOOK_SECRET = process.env.FASTSPRING_WEBHOOK_SECRET || '';
+const FASTSPRING_API_USERNAME = process.env.FASTSPRING_API_USERNAME || '';
+const FASTSPRING_API_PASSWORD = process.env.FASTSPRING_API_PASSWORD || '';
+const FASTSPRING_CHECKOUT_PATH = process.env.FASTSPRING_CHECKOUT_PATH || '';
+const FASTSPRING_CHECKOUT_LIVE = String(process.env.FASTSPRING_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
 const SITE_ORIGIN = 'https://practical-automation-lab.onrender.com';
 const ALLOWED_EVENTS = new Set([
   'audit_started',
@@ -643,6 +647,163 @@ async function getPaddleEntitlement(claimId) {
   return { active: false, state: 'pending' };
 }
 
+async function getPalEntitlement(claimId) {
+  const fastSpring = await getFastSpringEntitlement(claimId);
+  if (fastSpring.active || fastSpring.state !== 'pending') {
+    return { provider: 'fastspring', ...fastSpring };
+  }
+
+  const paddle = await getPaddleEntitlement(claimId);
+  if (paddle.active || paddle.state !== 'pending') {
+    return { provider: 'paddle', ...paddle };
+  }
+
+  return { provider: null, active: false, state: 'pending' };
+}
+
+function fastSpringApiHeaders() {
+  if (!FASTSPRING_API_USERNAME || !FASTSPRING_API_PASSWORD) {
+    const error = new Error('FastSpring API credentials are not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  return {
+    'Authorization': 'Basic ' + Buffer.from(
+      FASTSPRING_API_USERNAME + ':' + FASTSPRING_API_PASSWORD,
+      'utf8'
+    ).toString('base64'),
+    'User-Agent': 'PracticalAutomationLab/1.0',
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
+}
+
+function fastSpringApiCheckoutBase() {
+  const parts = FASTSPRING_CHECKOUT_PATH.split('/').map(part => part.trim()).filter(Boolean);
+  if (parts.length !== 2) {
+    const error = new Error('FastSpring checkout path is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  return 'https://api.fastspring.com/v2/checkouts/' +
+    parts.map(encodeURIComponent).join('/') +
+    '/sessions';
+}
+
+async function parseFastSpringApiResponse(response) {
+  const text = await response.text();
+  let data = {};
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { raw: text.slice(0, 500) };
+    }
+  }
+
+  if (!response.ok) {
+    console.error(
+      'PAL_FASTSPRING_API_ERROR status=' + response.status +
+      ' body=' + JSON.stringify(data).slice(0, 1000)
+    );
+    const error = new Error('FastSpring checkout service rejected the request');
+    error.statusCode = response.status >= 500 ? 502 : 400;
+    throw error;
+  }
+
+  return data;
+}
+
+async function createFastSpringCheckoutSession({ claimId, plan, source }) {
+  const productPath = plan === 'monthly'
+    ? 'pal-pro-monthly'
+    : plan === 'annual'
+      ? 'pal-pro-annual'
+      : '';
+
+  if (!productPath) {
+    const error = new Error('Invalid plan');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const base = fastSpringApiCheckoutBase();
+  const headers = fastSpringApiHeaders();
+
+  const createResponse = await fetch(base, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      live: FASTSPRING_CHECKOUT_LIVE,
+      orderTags: {
+        pal_claim_id: claimId,
+        pal_plan: plan,
+        pal_source: source,
+      },
+    }),
+  });
+  const session = await parseFastSpringApiResponse(createResponse);
+  const sessionId = cleanText(session?.id, 128);
+
+  if (!sessionId) {
+    const error = new Error('FastSpring did not return a checkout session');
+    error.statusCode = 502;
+    throw error;
+  }
+
+  const addResponse = await fetch(
+    base + '/' + encodeURIComponent(sessionId) + '/cart/items',
+    {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        productPath,
+        quantity: 1,
+      }),
+    }
+  );
+  await parseFastSpringApiResponse(addResponse);
+
+  const refreshResponse = await fetch(
+    base + '/' + encodeURIComponent(sessionId),
+    {
+      method: 'GET',
+      headers: {
+        'Authorization': headers.Authorization,
+        'User-Agent': headers['User-Agent'],
+        'Accept': 'application/json',
+      },
+    }
+  );
+  const refreshed = await parseFastSpringApiResponse(refreshResponse);
+  const checkoutUrl = cleanText(
+    refreshed?.checkoutUrls?.webcheckoutUrl ||
+      session?.checkoutUrls?.webcheckoutUrl,
+    2048
+  );
+
+  if (!/^https:\/\/[^\s]+\.onfastspring\.com\//i.test(checkoutUrl)) {
+    const error = new Error('FastSpring did not return a valid checkout URL');
+    error.statusCode = 502;
+    throw error;
+  }
+
+  console.log(
+    'PAL_FASTSPRING_SESSION created=true live=' + FASTSPRING_CHECKOUT_LIVE +
+    ' plan=' + plan +
+    ' source=' + source +
+    ' session_id=' + sessionId
+  );
+
+  return {
+    checkout_url: checkoutUrl,
+    live: FASTSPRING_CHECKOUT_LIVE,
+    session_id: sessionId,
+  };
+}
+
 const ALLOWED_LEAD_PRODUCTS = new Set([
   'pal-catalog-check',
   'feed-auditor',
@@ -789,50 +950,93 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === 'GET' && url.pathname === '/metrics/payments') {
       const { rows: totalsRows } = await pool.query(`
-        select
-          count(*) filter (
-            where event_type = 'transaction.completed'
-              and lower(coalesce(status, '')) = 'completed'
-              and is_simulation = false
-          )::bigint as completed_transactions,
-          min(occurred_at) filter (
-            where event_type = 'transaction.completed'
-              and lower(coalesce(status, '')) = 'completed'
-              and is_simulation = false
-          ) as first_completed_at,
-          max(occurred_at) filter (
-            where event_type = 'transaction.completed'
-              and lower(coalesce(status, '')) = 'completed'
-              and is_simulation = false
-          ) as last_completed_at
-        from pal_paddle_webhook_events
+        with completed as (
+          select 'paddle'::text as provider,
+                 occurred_at,
+                 currency_code,
+                 amount_minor,
+                 coalesce(source, 'unknown') as source
+            from pal_paddle_webhook_events
+           where event_type = 'transaction.completed'
+             and lower(coalesce(status, '')) = 'completed'
+             and is_simulation = false
+          union all
+          select 'fastspring'::text as provider,
+                 coalesce(occurred_at, processed_at) as occurred_at,
+                 currency_code,
+                 amount_minor,
+                 coalesce(source, 'unknown') as source
+            from pal_fastspring_webhook_events
+           where event_type = 'order.completed'
+             and live = true
+        )
+        select count(*)::bigint as completed_transactions,
+               min(occurred_at) as first_completed_at,
+               max(occurred_at) as last_completed_at
+          from completed
       `);
 
       const { rows: revenueRows } = await pool.query(`
+        with completed as (
+          select currency_code, amount_minor
+            from pal_paddle_webhook_events
+           where event_type = 'transaction.completed'
+             and lower(coalesce(status, '')) = 'completed'
+             and is_simulation = false
+          union all
+          select currency_code, amount_minor
+            from pal_fastspring_webhook_events
+           where event_type = 'order.completed'
+             and live = true
+        )
         select currency_code,
                coalesce(sum(amount_minor), 0)::text as gross_completed_minor
-          from pal_paddle_webhook_events
-         where event_type = 'transaction.completed'
-           and lower(coalesce(status, '')) = 'completed'
-           and is_simulation = false
-           and currency_code is not null
+          from completed
+         where currency_code is not null
            and amount_minor is not null
          group by currency_code
          order by currency_code
       `);
 
       const { rows: sourceRows } = await pool.query(`
-        select coalesce(source, 'unknown') as source,
-               count(*)::bigint as completed_transactions
-          from pal_paddle_webhook_events
-         where event_type = 'transaction.completed'
-           and lower(coalesce(status, '')) = 'completed'
-           and is_simulation = false
-         group by coalesce(source, 'unknown')
+        with completed as (
+          select coalesce(source, 'unknown') as source
+            from pal_paddle_webhook_events
+           where event_type = 'transaction.completed'
+             and lower(coalesce(status, '')) = 'completed'
+             and is_simulation = false
+          union all
+          select coalesce(source, 'unknown') as source
+            from pal_fastspring_webhook_events
+           where event_type = 'order.completed'
+             and live = true
+        )
+        select source, count(*)::bigint as completed_transactions
+          from completed
+         group by source
          order by count(*) desc, source
       `);
 
-      const { rows: activeRows } = await pool.query(`
+      const { rows: providerRows } = await pool.query(`
+        with completed as (
+          select 'paddle'::text as provider
+            from pal_paddle_webhook_events
+           where event_type = 'transaction.completed'
+             and lower(coalesce(status, '')) = 'completed'
+             and is_simulation = false
+          union all
+          select 'fastspring'::text as provider
+            from pal_fastspring_webhook_events
+           where event_type = 'order.completed'
+             and live = true
+        )
+        select provider, count(*)::bigint as completed_transactions
+          from completed
+         group by provider
+         order by provider
+      `);
+
+      const { rows: paddleSubscriptionRows } = await pool.query(`
         with latest as (
           select distinct on (subscription_id)
                  subscription_id,
@@ -848,21 +1052,62 @@ const server = http.createServer(async (req, res) => {
           from latest
       `);
 
+      const { rows: fastSpringSubscriptionRows } = await pool.query(`
+        with latest as (
+          select distinct on (subscription_id)
+                 subscription_id,
+                 event_type,
+                 lower(coalesce(status, '')) as status
+            from pal_fastspring_webhook_events
+           where subscription_id is not null
+             and event_type like 'subscription.%'
+             and live = true
+           order by subscription_id, coalesce(occurred_at, processed_at) desc, processed_at desc
+        )
+        select count(*) filter (
+                 where event_type <> 'subscription.deactivated'
+                   and status <> 'deactivated'
+               )::bigint as active_subscriptions,
+               count(*) filter (
+                 where event_type = 'subscription.canceled'
+                    or status = 'canceled'
+               )::bigint as canceled_subscriptions
+          from latest
+      `);
+
+      const paddleActive = Number(paddleSubscriptionRows[0].active_subscriptions);
+      const paddleCanceled = Number(paddleSubscriptionRows[0].canceled_subscriptions);
+      const fastSpringActive = Number(fastSpringSubscriptionRows[0].active_subscriptions);
+      const fastSpringCanceled = Number(fastSpringSubscriptionRows[0].canceled_subscriptions);
+
       return sendJson(req, res, 200, {
         ok: true,
-        scope: 'genuine_paddle_events_only',
+        scope: 'genuine_payment_events_only',
         completed_transactions: Number(totalsRows[0].completed_transactions),
         first_completed_at: totalsRows[0].first_completed_at,
         last_completed_at: totalsRows[0].last_completed_at,
-        active_subscriptions: Number(activeRows[0].active_subscriptions),
-        canceled_subscriptions: Number(activeRows[0].canceled_subscriptions),
+        active_subscriptions: paddleActive + fastSpringActive,
+        canceled_subscriptions: paddleCanceled + fastSpringCanceled,
         gross_completed_by_currency: Object.fromEntries(
           revenueRows.map(row => [row.currency_code, row.gross_completed_minor])
         ),
         completed_by_source: Object.fromEntries(
           sourceRows.map(row => [row.source, Number(row.completed_transactions)])
         ),
-        note: 'Gross completed transaction totals are before fees, refunds, chargebacks, and adjustments. Simulator events are excluded.',
+        completed_by_provider: Object.fromEntries(
+          providerRows.map(row => [row.provider, Number(row.completed_transactions)])
+        ),
+        subscriptions_by_provider: {
+          paddle: {
+            active: paddleActive,
+            canceled: paddleCanceled,
+          },
+          fastspring: {
+            active: fastSpringActive,
+            canceled: fastSpringCanceled,
+          },
+        },
+        note: 'Gross completed transaction totals are before provider fees, refunds, chargebacks, and adjustments. Paddle simulator events and FastSpring test events are excluded.',
       });
     }
 
@@ -884,6 +1129,20 @@ const server = http.createServer(async (req, res) => {
           last_seen: rows[0].last_seen,
         },
       });
+    }
+
+    if (req.method === 'GET' && url.pathname === '/entitlement') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+
+      const claimId = cleanText(url.searchParams.get('claim'), 128);
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+
+      const entitlement = await getPalEntitlement(claimId);
+      return sendJson(req, res, 200, { ok: true, ...entitlement });
     }
 
     if (req.method === 'GET' && url.pathname === '/fastspring/entitlement') {
@@ -922,6 +1181,37 @@ const server = http.createServer(async (req, res) => {
         test: true,
         event: eventName,
         note: 'Synthetic measurement probe; excluded from production metrics.',
+      });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/fastspring/checkout-session') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+
+      const body = await readJsonBody(req, 4096);
+      const claimId = cleanText(body.claim_id, 128);
+      const plan = cleanText(body.plan, 32).toLowerCase();
+      const rawSource = cleanText(body.source, 64);
+      const source = /^[a-zA-Z0-9_-]{1,64}$/.test(rawSource) ? rawSource : 'direct';
+
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+      if (!['monthly', 'annual'].includes(plan)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid plan' });
+      }
+
+      const session = await createFastSpringCheckoutSession({
+        claimId,
+        plan,
+        source,
+      });
+
+      return sendJson(req, res, 201, {
+        ok: true,
+        provider: 'fastspring',
+        ...session,
       });
     }
 
