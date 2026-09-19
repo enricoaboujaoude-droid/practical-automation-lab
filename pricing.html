@@ -78,6 +78,15 @@ const statusEl=document.getElementById('checkout-status');
 
 function setStatus(message){statusEl.textContent=message||''}
 
+function createClaimId(){
+  if(window.crypto&&typeof window.crypto.randomUUID==='function'){
+    return window.crypto.randomUUID();
+  }
+  const bytes=new Uint8Array(24);
+  window.crypto.getRandomValues(bytes);
+  return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+}
+
 try{
   Paddle.Initialize({
     token:clientToken,
@@ -109,15 +118,22 @@ try{
   setStatus('Checkout is temporarily unavailable. Please try again shortly.');
 }
 
-function openCheckout(priceId){
+function openCheckout(priceId,plan){
   setStatus('');
   try{
+    const claimId=createClaimId();
+    sessionStorage.setItem('pal_paddle_claim_id',claimId);
     Paddle.Checkout.open({
       items:[{priceId:priceId,quantity:1}],
+      customData:{
+        pal_claim_id:claimId,
+        pal_plan:plan,
+        pal_source:'pricing'
+      },
       settings:{
         displayMode:'overlay',
         theme:'light',
-        successUrl:'https://practical-automation-lab.onrender.com/checkout-success.html'
+        successUrl:'https://practical-automation-lab.onrender.com/checkout-success.html?claim='+encodeURIComponent(claimId)
       }
     });
   }catch(e){
@@ -125,8 +141,8 @@ function openCheckout(priceId){
   }
 }
 
-document.getElementById('buy-monthly').addEventListener('click',()=>openCheckout(monthlyPriceId));
-document.getElementById('buy-annual').addEventListener('click',()=>openCheckout(annualPriceId));
+document.getElementById('buy-monthly').addEventListener('click',()=>openCheckout(monthlyPriceId,'monthly'));
+document.getElementById('buy-annual').addEventListener('click',()=>openCheckout(annualPriceId,'annual'));
 </script>
 </body>
 </html>
