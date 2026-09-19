@@ -7,7 +7,8 @@
 <meta name="description" content="Audit a Shopify or product-feed CSV in your browser for import risks, missing identifiers, image issues and Merchant Center readiness. Your catalog stays in your browser.">
 <link rel="canonical" href="https://practical-automation-lab.onrender.com/product-feed-preflight.html">
 <style>
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:1040px;margin:auto;padding:32px 18px 60px;color:#18181b;line-height:1.5}a{color:inherit}.hero{max-width:800px}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.03;margin:.4rem 0 1rem}.lead{font-size:1.08rem;opacity:.74}.drop{margin:28px 0;border:2px dashed #a1a1aa;border-radius:18px;padding:34px;text-align:center;background:#fafafa}.drop.drag{background:#f4f4f5;border-color:#18181b}button,.button{border:0;border-radius:10px;padding:11px 15px;background:#18181b;color:white;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}.secondary{background:white;color:#18181b;border:1px solid #d4d4d8}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}.metric{border:1px solid #e4e4e7;border-radius:14px;padding:15px}.metric b{display:block;font-size:1.55rem}.issue{border:1px solid #e4e4e7;border-radius:12px;padding:14px;margin:9px 0}.error{border-left:5px solid #b91c1c}.warning{border-left:5px solid #a16207}.info{border-left:5px solid #0369a1}.tag{font-size:.75rem;font-weight:800;text-transform:uppercase}.muted{opacity:.67}.privacy{font-size:.9rem;margin-top:12px}.hidden{display:none}.good{padding:18px;border:1px solid #86efac;background:#f0fdf4;border-radius:14px}.commercial{margin-top:34px;border:1px solid #d4d4d8;border-radius:18px;padding:24px;background:#fafafa}.commercial h2{margin-top:0}.intent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.intent{background:white;color:#18181b;border:1px solid #d4d4d8;text-align:left}.intent:hover,.intent.active{border-color:#18181b;background:#f4f4f5}.pro-note{border-left:4px solid #18181b;padding:10px 14px;background:white;border-radius:8px}.inquiry{margin-top:16px;padding:16px;border:1px solid #d4d4d8;border-radius:12px;background:white}.inquiry textarea{width:100%;box-sizing:border-box;min-height:120px;border:1px solid #d4d4d8;border-radius:10px;padding:10px;font:inherit;resize:vertical}.small{font-size:.88rem}.status{font-size:.88rem;font-weight:700;margin-left:8px}@media(max-width:700px){.summary{grid-template-columns:repeat(2,1fr)}.intent-grid{grid-template-columns:1fr}}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:1040px;margin:auto;padding:32px 18px 60px;color:#18181b;line-height:1.5}a{color:inherit}.hero{max-width:800px}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.03;margin:.4rem 0 1rem}.lead{font-size:1.08rem;opacity:.74}.drop{margin:28px 0;border:2px dashed #a1a1aa;border-radius:18px;padding:34px;text-align:center;background:#fafafa}.drop.drag{background:#f4f4f5;border-color:#18181b}button,.button{border:0;border-radius:10px;padding:11px 15px;background:#18181b;color:white;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}.secondary{background:white;color:#18181b;border:1px solid #d4d4d8}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}.metric{border:1px solid #e4e4e7;border-radius:14px;padding:15px}.metric b{display:block;font-size:1.55rem}.issue{border:1px solid #e4e4e7;border-radius:12px;padding:14px;margin:9px 0}.error{border-left:5px solid #b91c1c}.warning{border-left:5px solid #a16207}.info{border-left:5px solid #0369a1}.tag{font-size:.75rem;font-weight:800;text-transform:uppercase}.muted{opacity:.67}.privacy{font-size:.9rem;margin-top:12px}.hidden{display:none}.good{padding:18px;border:1px solid #86efac;background:#f0fdf4;border-radius:14px}.commercial{margin-top:34px;border:1px solid #d4d4d8;border-radius:18px;padding:24px;background:#fafafa}.commercial h2{margin-top:0}.intent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.intent{background:white;color:#18181b;border:1px solid #d4d4d8;text-align:left}.intent:hover,.intent.active{border-color:#18181b;background:#f4f4f5}.pro-note{border-left:4px solid #18181b;padding:10px 14px;background:white;border-radius:8px}.inquiry{margin-top:16px;padding:16px;border:1px solid #d4d4d8;border-radius:12px;background:white}.inquiry textarea{width:100%;box-sizing:border-box;min-height:120px;border:1px solid #d4d4d8;border-radius:10px;padding:10px;font:inherit;resize:vertical}.small{font-size:.88rem}.status{font-size:.88rem;font-weight:700;margin-left:8px}.pro-access{margin-top:28px;border:2px solid #18181b;border-radius:18px;padding:24px;background:#fff}.pro-access h2{margin-top:0}.pro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.pro-card{border:1px solid #e4e4e7;border-radius:12px;padding:14px}.pro-card b{display:block;margin-bottom:5px}.pro-lock{padding:14px;border:1px solid #d4d4d8;border-radius:12px;background:#fafafa}.batch-results{margin-top:14px}.batch-table{width:100%;border-collapse:collapse;font-size:.9rem}.batch-table th,.batch-table td{padding:9px;border-bottom:1px solid #e4e4e7;text-align:left;vertical-align:top}.pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#f4f4f5;font-size:.78rem;font-weight:700}
+@media(max-width:700px){.summary{grid-template-columns:repeat(2,1fr)}.intent-grid,.pro-grid{grid-template-columns:1fr}.batch-table{font-size:.82rem}}
 </style>
 </head>
 <body>
@@ -32,10 +33,35 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:10
 <div class="metric"><b id="rows">0</b><span>Rows checked</span></div>
 </div>
 <div id="issues"></div>
+<div class="pro-access" id="pro-access">
+<h2>PAL Pro — batch catalog auditing</h2>
+<p>Audit multiple CSV feeds in one browser-local batch, compare issue counts across files, and export a consolidated machine-readable remediation CSV. Feed contents stay in your browser.</p>
+<div class="pro-grid">
+  <div class="pro-card"><b>Batch audits</b><span class="small muted">Process up to 20 CSV files in one run.</span></div>
+  <div class="pro-card"><b>Portfolio summary</b><span class="small muted">Compare readiness, errors and warnings across feeds.</span></div>
+  <div class="pro-card"><b>Structured export</b><span class="small muted">Download one consolidated remediation CSV for operational follow-up.</span></div>
+</div>
+<div id="pro-locked" class="pro-lock">
+  <b>PAL Pro required.</b>
+  <p class="small">PAL Pro is $19/month or $199/year. If you already purchased on this browser, use “Check access.”</p>
+  <div class="row"><a class="button" href="pricing.html?source=feed-auditor-pro">View PAL Pro pricing</a><button id="checkPro" class="secondary" type="button">Check access</button><span id="proStatus" class="status"></span></div>
+</div>
+<div id="pro-unlocked" class="hidden">
+  <p><span class="pill">PAL Pro active</span></p>
+  <div class="row">
+    <input id="proFiles" type="file" accept=".csv,text/csv" multiple>
+    <button id="runBatch" type="button">Run batch audit</button>
+    <button id="downloadBatch" class="secondary hidden" type="button">Download consolidated CSV</button>
+  </div>
+  <p class="small muted">Up to 20 files per browser-local batch. Files are not uploaded to PAL.</p>
+  <div id="batchResults" class="batch-results"></div>
+</div>
+</div>
+
 <div class="commercial" id="commercial">
-<h2>Need this across a large catalog or recurring feeds?</h2>
-<p>The free audit stays one-file-at-a-time and browser-local. We are validating paid recurring monitoring for Shopify merchants and agencies that need higher-volume feed-health work.</p>
-<div class="pro-note"><b>Pricing-intent test:</b> would a <b>Pro plan around $19/month</b> be worth considering for recurring monitoring, broader remediation and saved history? A <b>Growth plan around $49/month</b> would target larger catalogs, exports and operational reporting. Agency / multi-store pricing is still being validated.</div>
+<h2>Need recurring monitoring, implementation help, or team use?</h2>
+<p>PAL Pro is now available at <b>$19/month</b> or <b>$199/year</b> for paid browser-local batch auditing and structured remediation export. The native PAL Catalog Check Shopify app remains under App Store review for recurring merchant monitoring.</p>
+<div class="pro-note"><b>Paid access is live:</b> use PAL Pro above for batch feed work, or send a commercial request for team licensing, implementation, or monitoring needs.</div>
 <p><b>Which paid capability would matter most?</b></p>
 <div class="intent-grid">
 <button class="intent" data-interest="batch">Batch / large-catalog audits<br><span class="small muted">Check many feeds or larger catalogs faster.</span></button>
@@ -65,8 +91,9 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:10
 </main>
 <footer style="margin-top:42px;border-top:1px solid #e4e4e7;padding-top:18px"><a href="index.html">← All tools</a> · <a href="privacy.html">Privacy</a> · <a href="methodology.html">Methodology</a></footer>
 <script>
-const $=id=>document.getElementById(id), state={report:null,interest:null};
-const EVENT_ENDPOINT='https://pal-feed-auditor-events.onrender.com/event';
+const $=id=>document.getElementById(id), state={report:null,interest:null,batchReports:[]};
+const COLLECTOR_ORIGIN='https://pal-feed-auditor-events.onrender.com';
+const EVENT_ENDPOINT=COLLECTOR_ORIGIN+'/event';
 function track(name){try{localStorage.setItem('pal_event_'+name,String((+localStorage.getItem('pal_event_'+name)||0)+1))}catch{};fetch(EVENT_ENDPOINT,{method:'POST',mode:'cors',cache:'no-store',credentials:'omit',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:name,keepalive:true}).catch(()=>{})}
 function parseCSV(text){let rows=[],row=[],field='',q=false;for(let i=0;i<text.length;i++){let c=text[i];if(q){if(c==='"'&&text[i+1]==='"'){field+='"';i++}else if(c==='"')q=false;else field+=c}else if(c==='"')q=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field.replace(/\r$/,''));rows.push(row);row=[];field=''}else field+=c}if(q)throw Error('Unclosed quote in CSV');if(field||row.length){row.push(field.replace(/\r$/,''));rows.push(row)}return rows.filter(r=>r.some(x=>x.trim()!==''))}
 const norm=s=>String(s||'').trim(), lower=s=>norm(s).toLowerCase();
@@ -77,11 +104,86 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function load(f){if(!f||!f.name.toLowerCase().endsWith('.csv'))return alert('Choose a CSV file.');track('audit_started');let r=new FileReader;r.onload=()=>render(audit(f.name,String(r.result||'')));r.readAsText(f)}
 function interestLabel(k){return({batch:'batch / large-catalog audits',monitoring:'recurring feed-health monitoring',white_label:'commercial / white-label use','white-label':'commercial / white-label use'})[k]||k}
 function buildInquiry(k){let r=state.report||{rows:0,issues:[]},es=r.issues.filter(x=>x.level==='error').length,ws=r.issues.filter(x=>x.level==='warning').length;return `I'm interested in a paid Feed Auditor Pro option for ${interestLabel(k)}.\n\nMy latest browser-local preflight checked ${r.rows} rows and returned ${es} errors and ${ws} warnings. No feed contents or product identifiers are included in this message.\n\nPlease let me know when a paid/private beta for this capability is available.`}
+
+function csvCell(value){let s=String(value??'');return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+function reportScore(rep){let es=rep.issues.filter(x=>x.level==='error').length,ws=rep.issues.filter(x=>x.level==='warning').length;return Math.max(0,100-Math.min(70,es*12)-Math.min(30,ws*3))}
+async function getProEntitlement(){
+  let claim='';
+  try{claim=localStorage.getItem('pal_pro_claim_id')||''}catch{}
+  if(!claim)return {active:false,state:'missing'};
+  try{
+    const r=await fetch(COLLECTOR_ORIGIN+'/paddle/entitlement?claim='+encodeURIComponent(claim),{method:'GET',mode:'cors',cache:'no-store',credentials:'omit',headers:{'Accept':'application/json'}});
+    if(!r.ok)return {active:false,state:'unavailable'};
+    return await r.json();
+  }catch{return {active:false,state:'unavailable'}}
+}
+async function refreshProAccess(){
+  $('proStatus').textContent='Checking…';
+  const ent=await getProEntitlement();
+  if(ent.active){
+    $('pro-locked').classList.add('hidden');
+    $('pro-unlocked').classList.remove('hidden');
+    $('proStatus').textContent='';
+    return true;
+  }
+  $('pro-locked').classList.remove('hidden');
+  $('pro-unlocked').classList.add('hidden');
+  $('proStatus').textContent=ent.state==='missing'?'No paid access found in this browser.':'Paid access not active yet.';
+  return false;
+}
+async function readFileText(file){return await file.text()}
+async function runBatchAudit(){
+  if(!(await refreshProAccess()))return;
+  const files=[...($('proFiles').files||[])];
+  if(!files.length)return alert('Choose one or more CSV files.');
+  if(files.length>20)return alert('PAL Pro batch audits support up to 20 CSV files per run.');
+  $('batchResults').innerHTML='<p class="muted">Running batch audit locally…</p>';
+  const reports=[];
+  for(const file of files){
+    if(!file.name.toLowerCase().endsWith('.csv'))continue;
+    const text=await readFileText(file);
+    reports.push(audit(file.name,text));
+  }
+  state.batchReports=reports;
+  if(!reports.length){
+    $('batchResults').innerHTML='<p>No CSV files were processed.</p>';
+    $('downloadBatch').classList.add('hidden');
+    return;
+  }
+  const rows=reports.map(rep=>{
+    const es=rep.issues.filter(x=>x.level==='error').length;
+    const ws=rep.issues.filter(x=>x.level==='warning').length;
+    return '<tr><td>'+esc(rep.name)+'</td><td>'+esc(rep.schema||'Unknown')+'</td><td>'+rep.rows+'</td><td>'+reportScore(rep)+'%</td><td>'+es+'</td><td>'+ws+'</td></tr>';
+  }).join('');
+  $('batchResults').innerHTML='<table class="batch-table"><thead><tr><th>Feed</th><th>Schema</th><th>Rows</th><th>Score</th><th>Errors</th><th>Warnings</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  $('downloadBatch').classList.remove('hidden');
+}
+function downloadBatchCsv(){
+  const reports=state.batchReports||[];
+  if(!reports.length)return;
+  const lines=[['feed','schema','rows_checked','readiness_score','level','code','location','message','fix'].map(csvCell).join(',')];
+  for(const rep of reports){
+    if(!rep.issues.length){
+      lines.push([rep.name,rep.schema||'Unknown',rep.rows,reportScore(rep),'info','NO_ISSUES','Feed','No issues found by this preflight.','Verify final feed in Shopify and Merchant Center.'].map(csvCell).join(','));
+      continue;
+    }
+    for(const x of rep.issues){
+      lines.push([rep.name,rep.schema||'Unknown',rep.rows,reportScore(rep),x.level,x.code,x.where,x.message,x.fix].map(csvCell).join(','));
+    }
+  }
+  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pal-pro-batch-remediation.csv';a.click();URL.revokeObjectURL(a.href);
+}
+
 $('file').onchange=e=>load(e.target.files[0]);$('drop').ondragover=e=>{e.preventDefault();$('drop').classList.add('drag')};$('drop').ondragleave=()=>$('drop').classList.remove('drag');$('drop').ondrop=e=>{e.preventDefault();$('drop').classList.remove('drag');load(e.dataTransfer.files[0])};$('reset').onclick=()=>location.reload();
 $('download').onclick=()=>{let r=state.report,lines=['Product Feed Preflight Remediation Report',`File: ${r.name}`,`Rows checked: ${r.rows}`,`Generated: ${new Date().toISOString()}`,'','Issues:',...r.issues.map((x,i)=>`${i+1}. [${x.level.toUpperCase()}] ${x.code} — ${x.where}: ${x.message}\n   Fix: ${x.fix}`),'','This automated preflight is not a guarantee of Shopify import or Google Merchant Center approval.'];let b=new Blob([lines.join('\n')],{type:'text/plain'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='feed-preflight-remediation.txt';a.click();URL.revokeObjectURL(a.href);try{localStorage.setItem('pal_feed_reports',String((+localStorage.getItem('pal_feed_reports')||0)+1))}catch{};track('report_downloaded')};
 document.querySelectorAll('.intent').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.intent').forEach(b=>b.classList.remove('active'));btn.classList.add('active');state.interest=btn.dataset.interest;track('commercial_cta_clicked');$('inquiryText').value=buildInquiry(state.interest);$('inquiry').classList.remove('hidden');$('copyStatus').textContent='';$('inquiry').scrollIntoView({behavior:'smooth',block:'nearest'})});
 $('copyInquiry').onclick=async()=>{let text=$('inquiryText').value;try{await navigator.clipboard.writeText(text);$('copyStatus').textContent='Copied.'}catch{$('inquiryText').focus();$('inquiryText').select();$('copyStatus').textContent='Select and copy the text above.'}};
 $('shopifyBetaInterest').onclick=()=>track('shopify_beta_interest');
+$('checkPro').onclick=refreshProAccess;
+$('runBatch').onclick=runBatchAudit;
+$('downloadBatch').onclick=downloadBatchCsv;
+refreshProAccess();
 </script>
 </body>
 </html>
