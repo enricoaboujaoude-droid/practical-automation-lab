@@ -112,7 +112,7 @@ async function getProEntitlement(){
   try{claim=localStorage.getItem('pal_pro_claim_id')||''}catch{}
   if(!claim)return {active:false,state:'missing'};
   try{
-    const r=await fetch(COLLECTOR_ORIGIN+'/paddle/entitlement?claim='+encodeURIComponent(claim),{method:'GET',mode:'cors',cache:'no-store',credentials:'omit',headers:{'Accept':'application/json'}});
+    const r=await fetch(COLLECTOR_ORIGIN+'/entitlement?claim='+encodeURIComponent(claim),{method:'GET',mode:'cors',cache:'no-store',credentials:'omit',headers:{'Accept':'application/json'}});
     if(!r.ok)return {active:false,state:'unavailable'};
     return await r.json();
   }catch{return {active:false,state:'unavailable'}}
