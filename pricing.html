@@ -71,22 +71,18 @@ footer{border-top:1px solid #e4e4e7;margin-top:42px;padding-top:20px;display:fle
 </footer>
 
 <script>
-const PAL_PADDLE_TOKEN='live_e667879a647ec508b1af0cd7534e1ek3p'.replace('pri_01m2we6qbg2qcmvcnkh4e1ek3p','');
-</script>
-<script>
-const clientToken='live_e667879a647ec508b1af0cd7534e1ek3p'.replace('pri_01m2we6qbg2qcmvcnkh4e1ek3p','');
+const clientToken='live_e667879a647ec508b1af0cd7534';
 const monthlyPriceId='pri_01m2we6qbg2qcmvcnkh4e1ek3p';
 const annualPriceId='pri_01m2we8qxfk9gxbz5w3fs7va5v';
-const actualClientToken='live_e667879a647ec508b1af0cd7534';
 const statusEl=document.getElementById('checkout-status');
 
 function setStatus(message){statusEl.textContent=message||''}
 
 try{
   Paddle.Initialize({
-    token: actualClientToken,
-    eventCallback: function(event){
-      if(event && event.name==='checkout.completed'){
+    token:clientToken,
+    eventCallback:function(event){
+      if(event&&event.name==='checkout.completed'){
         setStatus('Payment completed. Finalizing access…');
       }
     }
@@ -98,13 +94,13 @@ try{
       {priceId:annualPriceId,quantity:1}
     ]
   }).then(function(response){
-    const items=response && response.data && response.data.details && response.data.details.lineItems;
+    const items=response?.data?.details?.lineItems;
     if(!items)return;
     for(const item of items){
-      if(item.price && item.price.id===monthlyPriceId && item.formattedTotals){
+      if(item.price?.id===monthlyPriceId&&item.formattedTotals){
         document.getElementById('monthly-price').textContent=item.formattedTotals.total;
       }
-      if(item.price && item.price.id===annualPriceId && item.formattedTotals){
+      if(item.price?.id===annualPriceId&&item.formattedTotals){
         document.getElementById('annual-price').textContent=item.formattedTotals.total;
       }
     }
