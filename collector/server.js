@@ -8,6 +8,7 @@ const { Pool } = require('pg');
 const PORT = Number(process.env.PORT || 10000);
 const DATABASE_URL = process.env.DATABASE_URL;
 const PADDLE_NOTIFICATION_WEBHOOK_SECRET = process.env.PADDLE_NOTIFICATION_WEBHOOK_SECRET || '';
+const FASTSPRING_WEBHOOK_SECRET = process.env.FASTSPRING_WEBHOOK_SECRET || '';
 const SITE_ORIGIN = 'https://practical-automation-lab.onrender.com';
 const ALLOWED_EVENTS = new Set([
   'audit_started',
@@ -171,6 +172,35 @@ async function initialize() {
        and is_simulation = false
   `);
 
+  await pool.query(`
+    create table if not exists pal_fastspring_webhook_events (
+      event_id text primary key,
+      event_type text not null,
+      live boolean not null default false,
+      occurred_at timestamptz,
+      order_id text,
+      subscription_id text,
+      status text,
+      claim_id text,
+      plan text,
+      source text,
+      currency_code text,
+      amount_minor bigint,
+      processed_at timestamptz not null default now()
+    )
+  `);
+
+  await pool.query(`
+    create index if not exists pal_fastspring_webhook_events_processed_at_idx
+      on pal_fastspring_webhook_events (processed_at desc)
+  `);
+
+  await pool.query(`
+    create index if not exists pal_fastspring_webhook_events_claim_id_idx
+      on pal_fastspring_webhook_events (claim_id, occurred_at desc)
+      where claim_id is not null
+  `);
+
   await insertEvent('audit_started', true);
   console.log('PAL_MEASUREMENT_PROBE ok=true event=audit_started production_excluded=true');
 }
@@ -326,6 +356,186 @@ function verifyPaddleSignature(rawBody, signatureHeader) {
     error.statusCode = 401;
     throw error;
   }
+}
+
+function verifyFastSpringSignature(rawBody, signatureHeader) {
+  if (!FASTSPRING_WEBHOOK_SECRET) {
+    const error = new Error('FastSpring webhook secret is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  if (!signatureHeader || !rawBody) {
+    const error = new Error('Missing FastSpring signature or body');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const expected = crypto
+    .createHmac('sha256', FASTSPRING_WEBHOOK_SECRET)
+    .update(rawBody, 'utf8')
+    .digest('base64');
+
+  const expectedBuffer = Buffer.from(expected, 'utf8');
+  const receivedBuffer = Buffer.from(String(signatureHeader).trim(), 'utf8');
+  const valid =
+    expectedBuffer.length === receivedBuffer.length &&
+    crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+
+  if (!valid) {
+    const error = new Error('Invalid FastSpring webhook signature');
+    error.statusCode = 401;
+    throw error;
+  }
+}
+
+function fastSpringEventDate(event, data) {
+  const candidates = [event?.created, data?.changed, data?.changedValue];
+  for (const value of candidates) {
+    const number = Number(value);
+    if (!Number.isFinite(number) || number <= 0) continue;
+    const milliseconds = number < 100000000000 ? number * 1000 : number;
+    const date = new Date(milliseconds);
+    if (!Number.isNaN(date.getTime())) return date.toISOString();
+  }
+  return null;
+}
+
+function fastSpringTags(data) {
+  const candidates = [
+    data?.tags,
+    data?.order?.tags,
+    data?.subscription?.tags,
+  ];
+  for (const candidate of candidates) {
+    if (candidate && typeof candidate === 'object' && !Array.isArray(candidate)) {
+      return candidate;
+    }
+  }
+  return {};
+}
+
+function fastSpringAmountMinor(data) {
+  const candidates = [data?.total, data?.order?.total];
+  for (const value of candidates) {
+    if (typeof value !== 'number' && typeof value !== 'string') continue;
+    const number = Number(value);
+    if (Number.isFinite(number) && number >= 0) {
+      return String(Math.round(number * 100));
+    }
+  }
+  return null;
+}
+
+async function recordFastSpringEvent(event) {
+  const eventId = cleanText(event?.id, 128);
+  const eventType = cleanText(event?.type, 128);
+  const data = event && typeof event.data === 'object' && event.data ? event.data : {};
+
+  if (!eventId || !eventType) {
+    const error = new Error('Invalid FastSpring event');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const live = event?.live === true || data?.live === true;
+  const occurredAt = fastSpringEventDate(event, data);
+  const tags = fastSpringTags(data);
+  const claimId = cleanText(tags.pal_claim_id, 128);
+  const plan = cleanText(tags.pal_plan, 32);
+  const source = cleanText(tags.pal_source, 64);
+
+  const orderId = cleanText(
+    eventType.startsWith('order.')
+      ? data.id || data.order
+      : data?.order?.id || data?.order?.order || data?.order,
+    128
+  );
+
+  const subscriptionId = cleanText(
+    eventType.startsWith('subscription.')
+      ? data.id || data.subscription
+      : data?.subscription?.id || data?.subscription?.subscription || data?.subscription,
+    128
+  );
+
+  let status = cleanText(data.state || data.status, 64).toLowerCase();
+  if (!status && typeof data.active === 'boolean') {
+    status = data.active ? 'active' : 'inactive';
+  }
+  if (!status && eventType === 'order.completed') status = 'completed';
+  if (!status && eventType === 'subscription.charge.completed') status = 'completed';
+
+  const currencyCode = cleanText(
+    data.currency || data?.order?.currency,
+    3
+  ).toUpperCase();
+  const amountMinor = fastSpringAmountMinor(data);
+
+  await pool.query(
+    `insert into pal_fastspring_webhook_events
+      (event_id, event_type, live, occurred_at, order_id, subscription_id, status, claim_id, plan, source, currency_code, amount_minor)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+     on conflict (event_id) do nothing`,
+    [
+      eventId,
+      eventType,
+      live,
+      occurredAt,
+      orderId || null,
+      subscriptionId || null,
+      status || null,
+      claimId || null,
+      plan || null,
+      source || null,
+      currencyCode || null,
+      amountMinor,
+    ]
+  );
+
+  console.log(
+    `PAL_FASTSPRING_WEBHOOK event_id=${eventId} event_type=${eventType} live=${live} order_id=${orderId || '-'} subscription_id=${subscriptionId || '-'}`
+  );
+}
+
+async function getFastSpringEntitlement(claimId) {
+  const { rows } = await pool.query(
+    `select event_type, status, occurred_at, processed_at
+       from pal_fastspring_webhook_events
+      where claim_id = $1
+        and live = true
+      order by coalesce(occurred_at, processed_at) desc
+      limit 50`,
+    [claimId]
+  );
+
+  if (rows.length === 0) {
+    return { active: false, state: 'pending' };
+  }
+
+  const deactivated = rows.find(row => row.event_type === 'subscription.deactivated');
+  if (deactivated) {
+    const laterActive = rows.find(row =>
+      ['subscription.activated', 'subscription.charge.completed'].includes(row.event_type) &&
+      new Date(row.occurred_at || row.processed_at) >
+        new Date(deactivated.occurred_at || deactivated.processed_at)
+    );
+    if (!laterActive) return { active: false, state: 'deactivated' };
+  }
+
+  const activeSubscription = rows.find(row =>
+    ['subscription.activated', 'subscription.charge.completed'].includes(row.event_type)
+  );
+  if (activeSubscription) {
+    return { active: true, state: 'active' };
+  }
+
+  const completedOrder = rows.find(row => row.event_type === 'order.completed');
+  if (completedOrder) {
+    return { active: true, state: 'paid' };
+  }
+
+  return { active: false, state: 'pending' };
 }
 
 async function recordPaddleEvent(event) {
@@ -676,6 +886,20 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    if (req.method === 'GET' && url.pathname === '/fastspring/entitlement') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+
+      const claimId = cleanText(url.searchParams.get('claim'), 128);
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+
+      const entitlement = await getFastSpringEntitlement(claimId);
+      return sendJson(req, res, 200, { ok: true, provider: 'fastspring', ...entitlement });
+    }
+
     if (req.method === 'GET' && url.pathname === '/paddle/entitlement') {
       if (req.headers.origin !== SITE_ORIGIN) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
@@ -699,6 +923,33 @@ const server = http.createServer(async (req, res) => {
         event: eventName,
         note: 'Synthetic measurement probe; excluded from production metrics.',
       });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/fastspring/webhook') {
+      const rawBody = await readRawBody(req);
+      verifyFastSpringSignature(rawBody, req.headers['x-fs-signature']);
+
+      let payload;
+      try {
+        payload = JSON.parse(rawBody);
+      } catch {
+        const error = new Error('Invalid JSON');
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const events = Array.isArray(payload?.events) ? payload.events : [];
+      if (events.length === 0 || events.length > 100) {
+        const error = new Error('Invalid FastSpring event batch');
+        error.statusCode = 400;
+        throw error;
+      }
+
+      for (const event of events) {
+        await recordFastSpringEvent(event);
+      }
+
+      return sendJson(req, res, 200, { received: true, events: events.length });
     }
 
     if (req.method === 'POST' && url.pathname === '/paddle/webhook') {
