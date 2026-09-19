@@ -30,6 +30,7 @@ const ALLOWED_EVENTS = new Set([
   'battery_passport_preflight_completed',
   'battery_passport_report_downloaded',
   'battery_passport_commercial_cta_clicked',
+  'commercial_lead_submitted',
 ]);
 
 if (!DATABASE_URL) {
@@ -92,12 +93,32 @@ async function initialize() {
         'battery_passport_preflight_started',
         'battery_passport_preflight_completed',
         'battery_passport_report_downloaded',
-        'battery_passport_commercial_cta_clicked'
+        'battery_passport_commercial_cta_clicked',
+        'commercial_lead_submitted'
       ))
   `);
   await pool.query(`
     create index if not exists pal_feed_auditor_events_occurred_at_idx
       on pal_feed_auditor_events (occurred_at desc)
+  `);
+
+  await pool.query(`
+    create table if not exists pal_commercial_leads (
+      id bigserial primary key,
+      email text not null,
+      company text,
+      product text not null,
+      intent text not null,
+      message text,
+      consent boolean not null default false,
+      status text not null default 'new',
+      created_at timestamptz not null default now()
+    )
+  `);
+
+  await pool.query(`
+    create index if not exists pal_commercial_leads_created_at_idx
+      on pal_commercial_leads (created_at desc)
   `);
 
   await insertEvent('audit_started', true);
@@ -149,6 +170,64 @@ async function readSmallTextBody(req) {
     req.on('end', () => resolve(body.trim()));
     req.on('error', reject);
   });
+}
+
+async function readJsonBody(req, maxBytes = 8192) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.setEncoding('utf8');
+    req.on('data', chunk => {
+      body += chunk;
+      if (Buffer.byteLength(body, 'utf8') > maxBytes) {
+        const error = new Error('Payload too large');
+        error.statusCode = 413;
+        reject(error);
+        req.destroy();
+      }
+    });
+    req.on('end', () => {
+      try {
+        resolve(JSON.parse(body || '{}'));
+      } catch {
+        const error = new Error('Invalid JSON');
+        error.statusCode = 400;
+        reject(error);
+      }
+    });
+    req.on('error', reject);
+  });
+}
+
+const ALLOWED_LEAD_PRODUCTS = new Set([
+  'pal-catalog-check',
+  'feed-auditor',
+  'merchant-api',
+  'hubspot-api',
+  'eudr',
+  'battery-passport',
+  'other',
+]);
+
+const ALLOWED_LEAD_INTENTS = new Set([
+  'paid-access',
+  'team-license',
+  'batch-validation',
+  'monitoring',
+  'implementation',
+  'other',
+]);
+
+function cleanText(value, maxLength) {
+  if (typeof value !== 'string') return '';
+  return value.trim().slice(0, maxLength);
+}
+
+function validEmail(value) {
+  return (
+    typeof value === 'string' &&
+    value.length <= 254 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  );
 }
 
 async function productionMetrics(eventNames = [...ALLOWED_EVENTS]) {
@@ -264,6 +343,26 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    if (req.method === 'GET' && url.pathname === '/metrics/commercial') {
+      const { rows } = await pool.query(`
+        select count(*)::bigint as total,
+               count(*) filter (where created_at >= now() - interval '24 hours')::bigint as last_24h,
+               min(created_at) as first_seen,
+               max(created_at) as last_seen
+        from pal_commercial_leads
+      `);
+      return sendJson(req, res, 200, {
+        ok: true,
+        scope: 'production_only',
+        leads: {
+          total: Number(rows[0].total),
+          last_24h: Number(rows[0].last_24h),
+          first_seen: rows[0].first_seen,
+          last_seen: rows[0].last_seen,
+        },
+      });
+    }
+
     if (req.method === 'GET' && url.pathname === '/measurement-probe') {
       const eventName = url.searchParams.get('event') || 'audit_started';
       await insertEvent(eventName, true);
@@ -273,6 +372,48 @@ const server = http.createServer(async (req, res) => {
         event: eventName,
         note: 'Synthetic measurement probe; excluded from production metrics.',
       });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/commercial-interest') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+
+      const body = await readJsonBody(req);
+
+      if (cleanText(body.website, 120)) {
+        return sendEmpty(req, res, 204);
+      }
+
+      const email = cleanText(body.email, 254).toLowerCase();
+      const company = cleanText(body.company, 160);
+      const product = cleanText(body.product, 64);
+      const intent = cleanText(body.intent, 64);
+      const message = cleanText(body.message, 1000);
+      const consent = body.consent === true;
+
+      if (!validEmail(email)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Enter a valid email address.' });
+      }
+      if (!ALLOWED_LEAD_PRODUCTS.has(product)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Choose a valid product.' });
+      }
+      if (!ALLOWED_LEAD_INTENTS.has(intent)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Choose a valid commercial need.' });
+      }
+      if (!consent) {
+        return sendJson(req, res, 400, { ok: false, error: 'Consent is required.' });
+      }
+
+      await pool.query(
+        `insert into pal_commercial_leads
+          (email, company, product, intent, message, consent)
+         values ($1, $2, $3, $4, $5, true)`,
+        [email, company || null, product, intent, message || null]
+      );
+
+      await insertEvent('commercial_lead_submitted', false);
+      return sendJson(req, res, 201, { ok: true });
     }
 
     if (req.method === 'POST' && url.pathname === '/event') {
