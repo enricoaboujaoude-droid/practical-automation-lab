@@ -1,6 +1,6 @@
 import type { ActionFunctionArgs } from "react-router";
-import { authenticate } from "../shopify.server";
 import db from "../db.server";
+import { authenticateWebhookSafely } from "../lib/authenticate-webhook-safe.server";
 
 async function deleteShopData(shop: string) {
   await db.$transaction([
@@ -13,7 +13,14 @@ async function deleteShopData(shop: string) {
 }
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-  const { shop } = await authenticate.webhook(request);
+  const { shop, topic, usedFallback } =
+    await authenticateWebhookSafely(request);
+
   await deleteShopData(shop);
-  return new Response();
+
+  console.log(
+    `PAL_SHOPIFY_EVENT event=app_uninstalled topic=${topic || "unknown"} fallback=${usedFallback}`,
+  );
+
+  return new Response(null, { status: 200 });
 };
