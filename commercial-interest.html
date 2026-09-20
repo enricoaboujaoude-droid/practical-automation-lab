@@ -81,7 +81,10 @@ const endpoint='https://pal-feed-auditor-events.onrender.com/commercial-interest
 const allowedProducts=new Set(['pal-catalog-check','feed-auditor','merchant-api','hubspot-api','eudr','battery-passport','other']);
 const params=new URLSearchParams(location.search);
 const requested=params.get('product');
+const requestedIntent=params.get('intent');
+const allowedIntents=new Set(['paid-access','team-license','batch-validation','monitoring','other']);
 if(requested&&allowedProducts.has(requested))document.getElementById('product').value=requested;
+if(requestedIntent&&allowedIntents.has(requestedIntent))document.getElementById('intent').value=requestedIntent;
 
 document.getElementById('leadForm').addEventListener('submit',async(e)=>{
   e.preventDefault();
@@ -110,6 +113,7 @@ document.getElementById('leadForm').addEventListener('submit',async(e)=>{
     status.textContent='Request received. Thank you.';
     e.target.reset();
     if(requested&&allowedProducts.has(requested))document.getElementById('product').value=requested;
+    if(requestedIntent&&allowedIntents.has(requestedIntent))document.getElementById('intent').value=requestedIntent;
   }catch(err){
     status.className='status bad';
     status.textContent=err.message||'Could not submit the request.';
