@@ -133,7 +133,8 @@ async function initialize() {
   await pool.query(`
     alter table pal_commercial_leads
       add column if not exists claim_id text,
-      add column if not exists plan text
+      add column if not exists plan text,
+      add column if not exists source text
   `);
 
   await pool.query(`
@@ -1910,6 +1911,8 @@ const server = http.createServer(async (req, res) => {
       const message = cleanText(body.message, 1000);
       const claimId = cleanText(body.claim_id, 128);
       const plan = cleanText(body.plan, 32).toLowerCase();
+      const rawLeadSource = cleanText(body.source, 64);
+      const leadSource = /^[a-zA-Z0-9_-]{1,64}$/.test(rawLeadSource) ? rawLeadSource : 'direct';
       const consent = body.consent === true;
 
       if (!validEmail(email)) {
@@ -1936,9 +1939,9 @@ const server = http.createServer(async (req, res) => {
 
       await pool.query(
         `insert into pal_commercial_leads
-          (email, company, product, intent, message, consent, claim_id, plan)
-         values ($1, $2, $3, $4, $5, true, $6, $7)`,
-        [email, company || null, product, intent, message || null, claimId || null, plan || null]
+          (email, company, product, intent, message, consent, claim_id, plan, source)
+         values ($1, $2, $3, $4, $5, true, $6, $7, $8)`,
+        [email, company || null, product, intent, message || null, claimId || null, plan || null, leadSource]
       );
 
       await insertEvent('commercial_lead_submitted', false);
