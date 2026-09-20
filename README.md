@@ -29,12 +29,37 @@ Browser-local Shopify and Google Merchant product-feed preflight checks for stru
 
 https://practical-automation-lab.onrender.com/product-feed-preflight.html
 
-## Integration readiness tools
+## API and integration migration tools
 
-- Google Content API → Merchant API Migration Preflight  
-  https://practical-automation-lab.onrender.com/google-merchant-api-migration-preflight.html
-- HubSpot API Migration Preflight  
-  https://practical-automation-lab.onrender.com/hubspot-api-migration-preflight.html
+### Google Content API → Merchant API Migration Preflight
+
+A browser-local migration-readiness checker for developers and agencies moving Google Shopping integrations from the deprecated Content API for Shopping to Merchant API. It helps identify migration-sensitive patterns without requiring API credentials or sending pasted integration material to PAL servers.
+
+Google officially sunset Content API for Shopping on **18 August 2026**. Google says clients without an active extension began receiving intermittent `HTTP 410 Gone` failures from **1 September 2026**, with full decommissioning planned for early 2027. Existing integrations should migrate to Merchant API.
+
+Run the migration preflight:
+https://practical-automation-lab.onrender.com/google-merchant-api-migration-preflight.html
+
+Official migration references:
+- Google Content API sunset timetable: https://developers.google.com/shopping-content/guides/deprecation-and-sunset
+- Merchant API compatibility guide: https://developers.google.com/merchant/api/guides/compatibility
+
+### HubSpot API Migration Preflight
+
+A browser-local compatibility preflight for developers, integration owners, and agencies reviewing HubSpot API and developer-platform migration risk. It is designed for migration planning without requiring HubSpot credentials or uploading source repositories.
+
+HubSpot is moving its developer ecosystem toward the Projects-based platform and date-based API versions. Current published transition points include the **31 October 2026** sunset of legacy CRM Cards, the **4 December 2026** Pipelines API V1 sunset, and **30 March 2027** end of support for HubSpot v4 APIs. These deadlines can affect existing integrations, app certification, and ongoing compatibility.
+
+Run the migration preflight:
+https://practical-automation-lab.onrender.com/hubspot-api-migration-preflight.html
+
+Official migration references:
+- HubSpot developer changelog: https://developers.hubspot.com/changelog
+- Legacy CRM Cards deprecation: https://developers.hubspot.com/changelog/deprecating-support-for-classic-crm-cards
+- HubSpot v4 API end of support: https://developers.hubspot.com/changelog/deprecating-support-for-hubspot-v4-apis
+- Developer Platform migration guidance: https://developers.hubspot.com/developer-platform-basics
+
+Both tools are technical migration-readiness aids. They do not guarantee that an integration is complete, certified, or free of runtime issues.
 
 ## Compliance-data readiness tools
 
