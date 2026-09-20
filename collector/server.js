@@ -20,6 +20,10 @@ const CREEM_API_KEY = process.env.CREEM_API_KEY || '';
 const CREEM_WEBHOOK_SECRET = process.env.CREEM_WEBHOOK_SECRET || '';
 const CREEM_PRODUCT_ID_MONTHLY = process.env.CREEM_PRODUCT_ID_MONTHLY || '';
 const CREEM_PRODUCT_ID_ANNUAL = process.env.CREEM_PRODUCT_ID_ANNUAL || '';
+const CREEM_TEST_API_KEY = process.env.CREEM_TEST_API_KEY || '';
+const CREEM_TEST_WEBHOOK_SECRET = process.env.CREEM_TEST_WEBHOOK_SECRET || '';
+const CREEM_TEST_PRODUCT_ID_MONTHLY = process.env.CREEM_TEST_PRODUCT_ID_MONTHLY || '';
+const CREEM_TEST_PRODUCT_ID_ANNUAL = process.env.CREEM_TEST_PRODUCT_ID_ANNUAL || '';
 const CREEM_CHECKOUT_LIVE = String(process.env.CREEM_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
 
 const PAYPRO_VALIDATION_KEY = process.env.PAYPRO_VALIDATION_KEY || '';
@@ -239,8 +243,14 @@ async function initialize() {
       source text,
       currency_code text,
       amount_minor bigint,
+      access_until timestamptz,
       processed_at timestamptz not null default now()
     )
+  `);
+
+  await pool.query(`
+    alter table pal_creem_webhook_events
+      add column if not exists access_until timestamptz
   `);
 
   await pool.query(`
@@ -268,8 +278,14 @@ async function initialize() {
       source text,
       currency_code text,
       amount_minor bigint,
+      access_until timestamptz,
       processed_at timestamptz not null default now()
     )
+  `);
+
+  await pool.query(`
+    alter table pal_paypro_webhook_events
+      add column if not exists access_until timestamptz
   `);
 
   await pool.query(`
@@ -893,8 +909,8 @@ async function createFastSpringCheckoutSession({ claimId, plan, source, live }) 
 }
 
 
-function verifyCreemSignature(rawBody, signatureHeader) {
-  if (!CREEM_WEBHOOK_SECRET) {
+function verifyCreemSignature(rawBody, signatureHeader, secret) {
+  if (!secret) {
     const error = new Error('Creem webhook secret is not configured');
     error.statusCode = 503;
     throw error;
@@ -906,7 +922,7 @@ function verifyCreemSignature(rawBody, signatureHeader) {
   }
 
   const expected = crypto
-    .createHmac('sha256', CREEM_WEBHOOK_SECRET)
+    .createHmac('sha256', secret)
     .update(rawBody, 'utf8')
     .digest('hex');
 
@@ -928,19 +944,27 @@ function verifyCreemSignature(rawBody, signatureHeader) {
   }
 }
 
-function creemModeIsLive(object) {
-  const mode = cleanText(
-    object?.mode || object?.order?.mode || object?.product?.mode,
+function creemExplicitMode(object) {
+  return cleanText(
+    object?.mode ||
+      object?.order?.mode ||
+      object?.product?.mode ||
+      object?.subscription?.mode,
     32
   ).toLowerCase();
-  if (mode) return mode === 'prod' || mode === 'production' || mode === 'live';
-  return CREEM_CHECKOUT_LIVE;
+}
+
+function creemModeIsLive(object) {
+  const mode = creemExplicitMode(object);
+  if (!mode) return null;
+  return mode === 'prod' || mode === 'production' || mode === 'live';
 }
 
 function creemAmountMinor(object) {
   const candidates = [
-    object?.order?.amount_paid,
     object?.order?.amount,
+    object?.order?.amount_paid,
+    object?.transaction?.amount,
     object?.product?.price,
   ];
   for (const value of candidates) {
@@ -950,7 +974,19 @@ function creemAmountMinor(object) {
   return null;
 }
 
-async function recordCreemEvent(event) {
+function isoDateOrNull(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+function isFutureIso(value) {
+  if (!value) return false;
+  const time = new Date(value).getTime();
+  return Number.isFinite(time) && time > Date.now();
+}
+
+async function recordCreemEvent(event, forcedLive = null) {
   const eventId = cleanText(event?.id, 128);
   const eventType = cleanText(event?.eventType, 128);
   const object = event && typeof event.object === 'object' && event.object ? event.object : {};
@@ -960,7 +996,14 @@ async function recordCreemEvent(event) {
     throw error;
   }
 
-  const live = creemModeIsLive(object);
+  const detectedLive = creemModeIsLive(object);
+  if (typeof forcedLive === 'boolean' && detectedLive !== null && detectedLive !== forcedLive) {
+    const error = new Error('Creem environment mismatch');
+    error.statusCode = 400;
+    throw error;
+  }
+  const live = typeof forcedLive === 'boolean' ? forcedLive : detectedLive === true;
+
   const occurredAtNumber = Number(event?.created_at);
   const occurredAt = Number.isFinite(occurredAtNumber) && occurredAtNumber > 0
     ? new Date(occurredAtNumber < 100000000000 ? occurredAtNumber * 1000 : occurredAtNumber).toISOString()
@@ -986,20 +1029,49 @@ async function recordCreemEvent(event) {
       : object?.subscription?.id || object?.subscription,
     128
   );
+
+  let claimId = cleanText(metadata.pal_claim_id, 128);
+  let plan = cleanText(metadata.pal_plan, 32);
+  let source = cleanText(metadata.pal_source, 64);
+
+  // Refund/dispute/subscription lifecycle payloads may omit checkout metadata.
+  // Re-link them to the original signed event by subscription/order ID only.
+  if ((!claimId || !plan || !source) && (subscriptionId || orderId)) {
+    const { rows } = await pool.query(
+      `select claim_id, plan, source
+         from pal_creem_webhook_events
+        where live = $1
+          and claim_id is not null
+          and (($2::text is not null and subscription_id = $2)
+            or ($3::text is not null and order_id = $3))
+        order by coalesce(occurred_at, processed_at) desc, processed_at desc
+        limit 1`,
+      [live, subscriptionId || null, orderId || null]
+    );
+    if (rows[0]) {
+      claimId = claimId || cleanText(rows[0].claim_id, 128);
+      plan = plan || cleanText(rows[0].plan, 32);
+      source = source || cleanText(rows[0].source, 64);
+    }
+  }
+
   const status = cleanText(object?.status || object?.order?.status, 64).toLowerCase();
-  const claimId = cleanText(metadata.pal_claim_id, 128);
-  const plan = cleanText(metadata.pal_plan, 32);
-  const source = cleanText(metadata.pal_source, 64);
   const currencyCode = cleanText(
-    object?.order?.currency || object?.product?.currency,
+    object?.order?.currency ||
+      object?.transaction?.currency ||
+      object?.product?.currency,
     3
   ).toUpperCase();
   const amountMinor = creemAmountMinor(object);
+  const accessUntil = isoDateOrNull(
+    object?.current_period_end_date ||
+      object?.subscription?.current_period_end_date
+  );
 
   await pool.query(
     `insert into pal_creem_webhook_events
-      (event_id, event_type, live, occurred_at, order_id, subscription_id, status, claim_id, plan, source, currency_code, amount_minor)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      (event_id, event_type, live, occurred_at, order_id, subscription_id, status, claim_id, plan, source, currency_code, amount_minor, access_until)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
      on conflict (event_id) do nothing`,
     [
       eventId,
@@ -1014,6 +1086,7 @@ async function recordCreemEvent(event) {
       source || null,
       currencyCode || null,
       amountMinor,
+      accessUntil,
     ]
   );
 
@@ -1024,7 +1097,7 @@ async function recordCreemEvent(event) {
 
 async function getCreemEntitlement(claimId) {
   const { rows } = await pool.query(
-    `select event_type, status, occurred_at, processed_at
+    `select event_type, status, access_until, occurred_at, processed_at
        from pal_creem_webhook_events
       where claim_id = $1
         and live = true
@@ -1035,12 +1108,29 @@ async function getCreemEntitlement(claimId) {
   if (rows.length === 0) return { active: false, state: 'pending' };
 
   const latest = rows[0];
-  if (['subscription.canceled', 'subscription.expired', 'subscription.paused'].includes(latest.event_type)) {
+  if (['refund.created', 'dispute.created', 'subscription.paused'].includes(latest.event_type)) {
     return { active: false, state: latest.event_type.split('.')[1] };
   }
+
+  if (latest.event_type === 'subscription.canceled') {
+    if (isFutureIso(latest.access_until)) {
+      return { active: true, state: 'canceled_until_period_end' };
+    }
+    return { active: false, state: 'canceled' };
+  }
+
+  // Creem documents subscription.expired as retryable; do not revoke early
+  // while the already-paid access period is still open.
+  if (latest.event_type === 'subscription.expired') {
+    if (isFutureIso(latest.access_until)) {
+      return { active: true, state: 'payment_retry' };
+    }
+    return { active: false, state: 'expired' };
+  }
+
   if (
     ['checkout.completed', 'subscription.active', 'subscription.paid'].includes(latest.event_type) &&
-    !['canceled', 'expired', 'paused'].includes(String(latest.status || '').toLowerCase())
+    !['canceled', 'paused', 'unpaid'].includes(String(latest.status || '').toLowerCase())
   ) {
     return { active: true, state: latest.event_type === 'checkout.completed' ? 'paid' : 'active' };
   }
@@ -1048,31 +1138,51 @@ async function getCreemEntitlement(claimId) {
   const paid = rows.find(row =>
     ['checkout.completed', 'subscription.active', 'subscription.paid'].includes(row.event_type)
   );
-  return paid ? { active: true, state: 'active' } : { active: false, state: 'pending' };
+  if (!paid) return { active: false, state: 'pending' };
+
+  // Unknown synchronization/update events should not erase a prior paid state.
+  return { active: true, state: 'active' };
 }
 
 function creemConfigured(live = CREEM_CHECKOUT_LIVE) {
+  if (live) {
+    return Boolean(
+      CREEM_API_KEY &&
+      CREEM_WEBHOOK_SECRET &&
+      CREEM_PRODUCT_ID_MONTHLY &&
+      CREEM_PRODUCT_ID_ANNUAL &&
+      CREEM_CHECKOUT_LIVE
+    );
+  }
+
   return Boolean(
-    CREEM_API_KEY &&
-    CREEM_PRODUCT_ID_MONTHLY &&
-    CREEM_PRODUCT_ID_ANNUAL &&
-    (!live || CREEM_CHECKOUT_LIVE)
+    CREEM_TEST_API_KEY &&
+    CREEM_TEST_WEBHOOK_SECRET &&
+    CREEM_TEST_PRODUCT_ID_MONTHLY &&
+    CREEM_TEST_PRODUCT_ID_ANNUAL
   );
 }
 
 async function createCreemCheckoutSession({ claimId, plan, source, live }) {
-  if (!CREEM_API_KEY) {
-    const error = new Error('Creem API key is not configured');
+  const apiKey = live ? CREEM_API_KEY : CREEM_TEST_API_KEY;
+  const productId = plan === 'monthly'
+    ? (live ? CREEM_PRODUCT_ID_MONTHLY : CREEM_TEST_PRODUCT_ID_MONTHLY)
+    : plan === 'annual'
+      ? (live ? CREEM_PRODUCT_ID_ANNUAL : CREEM_TEST_PRODUCT_ID_ANNUAL)
+      : '';
+
+  if (!apiKey) {
+    const error = new Error('Creem API key is not configured for this environment');
     error.statusCode = 503;
     throw error;
   }
-  const productId = plan === 'monthly'
-    ? CREEM_PRODUCT_ID_MONTHLY
-    : plan === 'annual'
-      ? CREEM_PRODUCT_ID_ANNUAL
-      : '';
   if (!productId) {
-    const error = new Error('Creem product is not configured');
+    const error = new Error('Creem product is not configured for this environment');
+    error.statusCode = 503;
+    throw error;
+  }
+  if (live && !CREEM_CHECKOUT_LIVE) {
+    const error = new Error('Creem live checkout is not enabled');
     error.statusCode = 503;
     throw error;
   }
@@ -1081,7 +1191,7 @@ async function createCreemCheckoutSession({ claimId, plan, source, live }) {
   const response = await fetch(apiBase + '/v1/checkouts', {
     method: 'POST',
     headers: {
-      'x-api-key': CREEM_API_KEY,
+      'x-api-key': apiKey,
       'Content-Type': 'application/json',
       'Accept': 'application/json',
       'User-Agent': 'PracticalAutomationLab/1.0',
@@ -1191,16 +1301,52 @@ async function recordPayProEvent(rawBody, params) {
     throw error;
   }
 
-  const eventId = crypto.createHash('sha256').update(rawBody, 'utf8').digest('hex');
+  const subscriptionId = cleanText(params.get('SUBSCRIPTION_ID'), 128);
+  const eventFingerprint = [
+    eventType,
+    orderId,
+    subscriptionId,
+    cleanText(params.get('ORDER_STATUS'), 64),
+    cleanText(params.get('SUBSCRIPTION_STATUS_NAME'), 64),
+    cleanText(params.get('SUBSCRIPTION_NEXT_CHARGE_DATE'), 80),
+    cleanText(params.get('ORDER_TOTAL_AMOUNT'), 64),
+    cleanText(params.get('TEST_MODE'), 8),
+  ].join('|');
+  const eventId = crypto.createHash('sha256').update(eventFingerprint, 'utf8').digest('hex');
+
   const testMode = payProTestMode(params.get('TEST_MODE'));
   const customFields = parsePayProCustomFields(params.get('ORDER_CUSTOM_FIELDS'));
-  const claimId = cleanText(customFields.pal_claim_id, 128);
-  const plan = cleanText(customFields.pal_plan, 32);
-  const source = cleanText(customFields.pal_source, 64);
-  const subscriptionId = cleanText(params.get('SUBSCRIPTION_ID'), 128);
-  const status = cleanText(params.get('ORDER_STATUS'), 64).toLowerCase();
-  const currencyCode = cleanText(params.get('ORDER_CURRENCY_CODE'), 3).toUpperCase();
+  let claimId = cleanText(customFields.pal_claim_id, 128);
+  let plan = cleanText(customFields.pal_plan, 32);
+  let source = cleanText(customFields.pal_source, 64);
+
+  if ((!claimId || !plan || !source) && subscriptionId) {
+    const { rows } = await pool.query(
+      `select claim_id, plan, source
+         from pal_paypro_webhook_events
+        where subscription_id = $1
+          and test_mode = $2
+          and claim_id is not null
+        order by coalesce(occurred_at, processed_at) desc, processed_at desc
+        limit 1`,
+      [subscriptionId, testMode]
+    );
+    if (rows[0]) {
+      claimId = claimId || cleanText(rows[0].claim_id, 128);
+      plan = plan || cleanText(rows[0].plan, 32);
+      source = source || cleanText(rows[0].source, 64);
+    }
+  }
+
+  const subscriptionStatus = cleanText(params.get('SUBSCRIPTION_STATUS_NAME'), 64).toLowerCase();
+  const orderStatus = cleanText(params.get('ORDER_STATUS'), 64).toLowerCase();
+  const status = subscriptionStatus || orderStatus;
+  const currencyCode = cleanText(
+    params.get('ORDER_CURRENCY_CODE') || params.get('SUBSCRIPTION_NEXT_CHARGE_CURRENCY_CODE'),
+    3
+  ).toUpperCase();
   const amountMinor = decimalAmountToMinor(params.get('ORDER_TOTAL_AMOUNT'));
+  const accessUntil = isoDateOrNull(params.get('SUBSCRIPTION_NEXT_CHARGE_DATE'));
 
   let occurredAt = null;
   const placedUtc = cleanText(params.get('ORDER_PLACED_TIME_UTC'), 80);
@@ -1211,8 +1357,8 @@ async function recordPayProEvent(rawBody, params) {
 
   await pool.query(
     `insert into pal_paypro_webhook_events
-      (event_id, event_type, test_mode, occurred_at, order_id, subscription_id, status, claim_id, plan, source, currency_code, amount_minor)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      (event_id, event_type, test_mode, occurred_at, order_id, subscription_id, status, claim_id, plan, source, currency_code, amount_minor, access_until)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
      on conflict (event_id) do nothing`,
     [
       eventId,
@@ -1227,6 +1373,7 @@ async function recordPayProEvent(rawBody, params) {
       source || null,
       currencyCode || null,
       amountMinor,
+      accessUntil,
     ]
   );
 
@@ -1237,7 +1384,7 @@ async function recordPayProEvent(rawBody, params) {
 
 async function getPayProEntitlement(claimId) {
   const { rows } = await pool.query(
-    `select event_type, status, occurred_at, processed_at
+    `select event_type, status, access_until, occurred_at, processed_at
        from pal_paypro_webhook_events
       where claim_id = $1
         and test_mode = false
@@ -1248,21 +1395,59 @@ async function getPayProEntitlement(claimId) {
   if (rows.length === 0) return { active: false, state: 'pending' };
 
   const latest = rows[0];
-  if (['SubscriptionSuspended', 'SubscriptionTerminated', 'SubscriptionFinished', 'OrderRefunded', 'OrderChargedBack'].includes(latest.event_type)) {
+
+  if (['OrderRefunded', 'OrderChargedBack', 'SubscriptionFinished'].includes(latest.event_type)) {
     return { active: false, state: latest.event_type.toLowerCase() };
   }
-  if (['OrderCharged', 'SubscriptionChargeSucceed', 'SubscriptionRenewed', 'OrderChargedBackWon'].includes(latest.event_type)) {
+
+  if (['SubscriptionSuspended', 'SubscriptionTerminated'].includes(latest.event_type)) {
+    if (isFutureIso(latest.access_until)) {
+      return { active: true, state: 'canceled_until_period_end' };
+    }
+    return { active: false, state: latest.event_type.toLowerCase() };
+  }
+
+  if (latest.event_type === 'SubscriptionChargeFailed') {
+    if (latest.status === 'active' && isFutureIso(latest.access_until)) {
+      return { active: true, state: 'payment_retry' };
+    }
+    return { active: false, state: 'payment_failed' };
+  }
+
+  if (['OrderCharged', 'SubscriptionChargeSucceed', 'OrderChargedBackWon'].includes(latest.event_type)) {
     return { active: true, state: latest.event_type === 'OrderCharged' ? 'paid' : 'active' };
   }
 
+  // SubscriptionRenewed is a lifecycle event, not proof of a successful charge.
+  // Keep only already-paid access that has not expired.
   const paid = rows.find(row =>
-    ['OrderCharged', 'SubscriptionChargeSucceed', 'SubscriptionRenewed', 'OrderChargedBackWon'].includes(row.event_type)
+    ['OrderCharged', 'SubscriptionChargeSucceed', 'OrderChargedBackWon'].includes(row.event_type)
   );
-  return paid ? { active: true, state: 'active' } : { active: false, state: 'pending' };
+  if (!paid) return { active: false, state: 'pending' };
+  if (!paid.access_until || isFutureIso(paid.access_until)) {
+    return { active: true, state: 'active' };
+  }
+
+  return { active: false, state: 'expired' };
 }
 
 function payProConfigured() {
-  return Boolean(PAYPRO_PRODUCT_ID_MONTHLY && PAYPRO_PRODUCT_ID_ANNUAL && PAYPRO_CHECKOUT_LIVE);
+  return Boolean(
+    PAYPRO_VALIDATION_KEY &&
+    PAYPRO_PRODUCT_ID_MONTHLY &&
+    PAYPRO_PRODUCT_ID_ANNUAL &&
+    PAYPRO_CHECKOUT_LIVE
+  );
+}
+
+function fastSpringConfigured() {
+  return Boolean(
+    FASTSPRING_WEBHOOK_SECRET &&
+    FASTSPRING_API_USERNAME &&
+    FASTSPRING_API_PASSWORD &&
+    FASTSPRING_CHECKOUT_PATH &&
+    FASTSPRING_CHECKOUT_LIVE
+  );
 }
 
 async function createPayProCheckoutSession({ claimId, plan, source, live }) {
@@ -1278,7 +1463,7 @@ async function createPayProCheckoutSession({ claimId, plan, source, live }) {
   }
 
   const checkout = new URL('https://store.payproglobal.com/checkout');
-  checkout.searchParams.set('products[1][id]', productId);
+  checkout.searchParams.set('products[1][ID]', productId);
   checkout.searchParams.set('x-pal_claim_id', claimId);
   checkout.searchParams.set('x-pal_plan', plan);
   checkout.searchParams.set('x-pal_source', source);
@@ -1293,12 +1478,14 @@ async function createPayProCheckoutSession({ claimId, plan, source, live }) {
 function resolvedCheckoutProvider() {
   const requested = PAL_CHECKOUT_PROVIDER;
   if (requested && requested !== 'auto') {
-    if (['fastspring', 'creem', 'paypro'].includes(requested)) return requested;
+    if (requested === 'creem' && creemConfigured(true)) return 'creem';
+    if (requested === 'paypro' && payProConfigured()) return 'paypro';
+    if (requested === 'fastspring' && fastSpringConfigured()) return 'fastspring';
     return null;
   }
-  if (CREEM_CHECKOUT_LIVE && creemConfigured(true)) return 'creem';
-  if (PAYPRO_CHECKOUT_LIVE && payProConfigured()) return 'paypro';
-  if (FASTSPRING_CHECKOUT_LIVE) return 'fastspring';
+  if (creemConfigured(true)) return 'creem';
+  if (payProConfigured()) return 'paypro';
+  if (fastSpringConfigured()) return 'fastspring';
   return null;
 }
 
@@ -1752,6 +1939,12 @@ const server = http.createServer(async (req, res) => {
         ok: true,
         ready: Boolean(provider),
         provider,
+        candidates: {
+          fastspring: fastSpringConfigured(),
+          creem: creemConfigured(true),
+          paypro: payProConfigured(),
+          creem_test: creemConfigured(false),
+        },
         payment_path_verified: false,
         note: provider
           ? 'A live provider is configured; verify a real buyer checkout opening before setting payment_path_verified=true.'
@@ -1781,9 +1974,34 @@ const server = http.createServer(async (req, res) => {
       return sendJson(req, res, 201, { ok: true, ...session });
     }
 
-    if (req.method === 'POST' && url.pathname === '/creem/webhook') {
+    if (req.method === 'POST' && url.pathname === '/creem/test-checkout-session') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+
+      const body = await readJsonBody(req, 4096);
+      const claimId = cleanText(body.claim_id, 128);
+      const plan = cleanText(body.plan, 32).toLowerCase();
+      const rawSource = cleanText(body.source, 64);
+      const source = /^[a-zA-Z0-9_-]{1,64}$/.test(rawSource) ? rawSource : 'direct';
+
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+      if (!['monthly', 'annual'].includes(plan)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid plan' });
+      }
+      if (!creemConfigured(false)) {
+        return sendJson(req, res, 503, { ok: false, error: 'Creem test environment is not configured' });
+      }
+
+      const session = await createCreemCheckoutSession({ claimId, plan, source, live: false });
+      return sendJson(req, res, 201, { ok: true, provider: 'creem', ...session });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/creem/test-webhook') {
       const rawBody = await readRawBody(req);
-      verifyCreemSignature(rawBody, req.headers['creem-signature']);
+      verifyCreemSignature(rawBody, req.headers['creem-signature'], CREEM_TEST_WEBHOOK_SECRET);
 
       let event;
       try {
@@ -1794,7 +2012,24 @@ const server = http.createServer(async (req, res) => {
         throw error;
       }
 
-      await recordCreemEvent(event);
+      await recordCreemEvent(event, false);
+      return sendJson(req, res, 200, { received: true, test: true });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/creem/webhook') {
+      const rawBody = await readRawBody(req);
+      verifyCreemSignature(rawBody, req.headers['creem-signature'], CREEM_WEBHOOK_SECRET);
+
+      let event;
+      try {
+        event = JSON.parse(rawBody);
+      } catch {
+        const error = new Error('Invalid JSON');
+        error.statusCode = 400;
+        throw error;
+      }
+
+      await recordCreemEvent(event, true);
       return sendJson(req, res, 200, { received: true });
     }
 
