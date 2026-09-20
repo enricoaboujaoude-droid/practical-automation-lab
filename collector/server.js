@@ -131,8 +131,20 @@ async function initialize() {
   `);
 
   await pool.query(`
+    alter table pal_commercial_leads
+      add column if not exists claim_id text,
+      add column if not exists plan text
+  `);
+
+  await pool.query(`
     create index if not exists pal_commercial_leads_created_at_idx
       on pal_commercial_leads (created_at desc)
+  `);
+
+  await pool.query(`
+    create index if not exists pal_commercial_leads_claim_id_idx
+      on pal_commercial_leads (claim_id)
+      where claim_id is not null
   `);
 
   await pool.query(`
@@ -1896,6 +1908,8 @@ const server = http.createServer(async (req, res) => {
       const product = cleanText(body.product, 64);
       const intent = cleanText(body.intent, 64);
       const message = cleanText(body.message, 1000);
+      const claimId = cleanText(body.claim_id, 128);
+      const plan = cleanText(body.plan, 32).toLowerCase();
       const consent = body.consent === true;
 
       if (!validEmail(email)) {
@@ -1910,16 +1924,29 @@ const server = http.createServer(async (req, res) => {
       if (!consent) {
         return sendJson(req, res, 400, { ok: false, error: 'Consent is required.' });
       }
+      if (claimId && !/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid access reference.' });
+      }
+      if (plan && !['monthly', 'annual'].includes(plan)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid plan.' });
+      }
+      if (intent === 'invoice-request' && (!claimId || !plan)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invoice requests require an access reference and plan.' });
+      }
 
       await pool.query(
         `insert into pal_commercial_leads
-          (email, company, product, intent, message, consent)
-         values ($1, $2, $3, $4, $5, true)`,
-        [email, company || null, product, intent, message || null]
+          (email, company, product, intent, message, consent, claim_id, plan)
+         values ($1, $2, $3, $4, $5, true, $6, $7)`,
+        [email, company || null, product, intent, message || null, claimId || null, plan || null]
       );
 
       await insertEvent('commercial_lead_submitted', false);
-      return sendJson(req, res, 201, { ok: true });
+      return sendJson(req, res, 201, {
+        ok: true,
+        claim_id: claimId || null,
+        plan: plan || null,
+      });
     }
 
     if (req.method === 'POST' && url.pathname === '/event') {
