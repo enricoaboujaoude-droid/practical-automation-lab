@@ -272,9 +272,15 @@ async function initialize() {
       currency_code text,
       amount_minor bigint,
       reference text,
+      access_until timestamptz,
       occurred_at timestamptz not null default now(),
       processed_at timestamptz not null default now()
     )
+  `);
+
+  await pool.query(`
+    alter table pal_manual_payment_events
+      add column if not exists access_until timestamptz
   `);
 
   await pool.query(`
@@ -723,7 +729,7 @@ async function getCreemEntitlement(claimId) {
 
 async function getManualEntitlement(claimId) {
   const { rows } = await pool.query(
-    `select action, occurred_at, processed_at
+    `select action, access_until, occurred_at, processed_at
        from pal_manual_payment_events
       where claim_id = $1
       order by coalesce(occurred_at, processed_at) desc
@@ -731,17 +737,55 @@ async function getManualEntitlement(claimId) {
     [claimId]
   );
   if (rows.length === 0) return { active: false, state: 'pending' };
-  return rows[0].action === 'paid'
-    ? { active: true, state: 'paid' }
-    : { active: false, state: 'revoked' };
+  if (rows[0].action !== 'paid') return { active: false, state: 'revoked' };
+
+  const accessUntil = rows[0].access_until ? new Date(rows[0].access_until) : null;
+  if (!accessUntil || Number.isNaN(accessUntil.getTime()) || accessUntil.getTime() <= Date.now()) {
+    return { active: false, state: 'expired' };
+  }
+  return { active: true, state: 'paid', access_until: accessUntil.toISOString() };
+}
+
+function extendManualAccess(baseDate, plan) {
+  const date = new Date(baseDate);
+  if (plan === 'monthly') {
+    date.setUTCMonth(date.getUTCMonth() + 1);
+  } else if (plan === 'annual') {
+    date.setUTCFullYear(date.getUTCFullYear() + 1);
+  } else {
+    return null;
+  }
+  return date.toISOString();
 }
 
 async function recordManualPaymentEvent({ action, claimId, plan, source, currencyCode, amountMinor, reference }) {
   const eventId = 'manual_' + crypto.randomUUID();
+  let accessUntil = null;
+
+  if (action === 'paid') {
+    const { rows } = await pool.query(
+      `select access_until
+         from pal_manual_payment_events
+        where claim_id = $1
+          and action = 'paid'
+          and access_until is not null
+        order by access_until desc
+        limit 1`,
+      [claimId]
+    );
+    const now = new Date();
+    const existing = rows[0]?.access_until ? new Date(rows[0].access_until) : null;
+    const base =
+      existing && !Number.isNaN(existing.getTime()) && existing.getTime() > now.getTime()
+        ? existing
+        : now;
+    accessUntil = extendManualAccess(base, plan);
+  }
+
   await pool.query(
     `insert into pal_manual_payment_events
-      (event_id, action, claim_id, plan, source, currency_code, amount_minor, reference)
-     values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      (event_id, action, claim_id, plan, source, currency_code, amount_minor, reference, access_until)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
     [
       eventId,
       action,
@@ -751,10 +795,13 @@ async function recordManualPaymentEvent({ action, claimId, plan, source, currenc
       currencyCode || null,
       amountMinor,
       reference || null,
+      accessUntil,
     ]
   );
-  console.log(`PAL_MANUAL_PAYMENT event_id=${eventId} action=${action} claim_id=${claimId}`);
-  return eventId;
+  console.log(
+    `PAL_MANUAL_PAYMENT event_id=${eventId} action=${action} claim_id=${claimId} access_until=${accessUntil || '-'}`
+  );
+  return { eventId, accessUntil };
 }
 
 function fastSpringEventDate(event, data) {
@@ -1646,11 +1693,15 @@ const server = http.createServer(async (req, res) => {
 
       const { rows: manualRows } = await pool.query(`
         with latest as (
-          select distinct on (claim_id) claim_id, action
+          select distinct on (claim_id) claim_id, action, access_until
             from pal_manual_payment_events
            order by claim_id, occurred_at desc, processed_at desc
         )
-        select count(*) filter (where action = 'paid')::bigint as active_entitlements
+        select count(*) filter (
+                 where action = 'paid'
+                   and access_until is not null
+                   and access_until > now()
+               )::bigint as active_entitlements
           from latest
       `);
 
@@ -1944,7 +1995,7 @@ const server = http.createServer(async (req, res) => {
         return sendJson(req, res, 400, { ok: false, error: 'Confirmed paid events require currency_code and amount_minor' });
       }
 
-      const eventId = await recordManualPaymentEvent({
+      const recorded = await recordManualPaymentEvent({
         action,
         claimId,
         plan,
@@ -1953,7 +2004,12 @@ const server = http.createServer(async (req, res) => {
         amountMinor: action === 'paid' ? amountMinorText : null,
         reference,
       });
-      return sendJson(req, res, 201, { ok: true, event_id: eventId, action });
+      return sendJson(req, res, 201, {
+        ok: true,
+        event_id: recorded.eventId,
+        action,
+        access_until: recorded.accessUntil,
+      });
     }
 
     if (req.method === 'POST' && url.pathname === '/fastspring/webhook') {
