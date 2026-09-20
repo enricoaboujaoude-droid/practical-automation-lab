@@ -241,8 +241,14 @@ async function initialize() {
       source text,
       currency_code text,
       amount_minor bigint,
+      access_until timestamptz,
       processed_at timestamptz not null default now()
     )
+  `);
+
+  await pool.query(`
+    alter table pal_creem_webhook_events
+      add column if not exists access_until timestamptz
   `);
 
   await pool.query(`
@@ -451,9 +457,12 @@ function verifyFastSpringSignature(rawBody, signatureHeader) {
     .update(rawBody, 'utf8')
     .digest('base64');
 
-  const expectedBuffer = Buffer.from(expected, 'utf8');
-  const receivedBuffer = Buffer.from(String(signatureHeader).trim(), 'utf8');
+  const received = String(signatureHeader).trim();
+  const validFormat = /^[0-9a-f]{64}$/i.test(received);
+  const expectedBuffer = Buffer.from(expected, 'hex');
+  const receivedBuffer = validFormat ? Buffer.from(received, 'hex') : Buffer.alloc(0);
   const valid =
+    validFormat &&
     expectedBuffer.length === receivedBuffer.length &&
     crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
 
@@ -519,42 +528,110 @@ async function recordCreemEvent(event) {
     throw error;
   }
 
-  const mode = cleanText(object.mode, 32).toLowerCase();
-  const live = ['prod', 'production', 'live'].includes(mode);
-  const metadata = object && typeof object.metadata === 'object' && object.metadata ? object.metadata : {};
+  const explicitMode = cleanText(object.mode || event?.mode, 32).toLowerCase();
+  const live = explicitMode
+    ? ['prod', 'production', 'live'].includes(explicitMode)
+    : CREEM_LIVE;
+
+  const objectMetadata =
+    object && typeof object.metadata === 'object' && object.metadata
+      ? object.metadata
+      : {};
+  const nestedSubscription =
+    object && typeof object.subscription === 'object' && object.subscription
+      ? object.subscription
+      : {};
+  const nestedSubscriptionMetadata =
+    nestedSubscription && typeof nestedSubscription.metadata === 'object' && nestedSubscription.metadata
+      ? nestedSubscription.metadata
+      : {};
+  const metadata = { ...nestedSubscriptionMetadata, ...objectMetadata };
+
   const claimId = cleanText(
     object.request_id || metadata.pal_claim_id || metadata.claim_id,
     128
   );
   const plan = cleanText(metadata.pal_plan || metadata.plan, 32).toLowerCase();
   const source = cleanText(metadata.pal_source || metadata.source, 64);
-  const order = object && typeof object.order === 'object' && object.order ? object.order : {};
-  const subscription = object && typeof object.subscription === 'object' && object.subscription ? object.subscription : {};
-  const transaction = object && typeof object.transaction === 'object' && object.transaction ? object.transaction : {};
 
-  const checkoutId = cleanText(object.id, 128);
-  const orderId = cleanText(order.id || object.order, 128);
-  const transactionId = cleanText(transaction.id || order.transaction || object.transaction, 128);
-  const subscriptionId = cleanText(subscription.id || object.subscription, 128);
-  const status = cleanText(
-    subscription.status || order.status || transaction.status || object.status,
+  const order =
+    object && typeof object.order === 'object' && object.order
+      ? object.order
+      : {};
+  const transaction =
+    object && typeof object.transaction === 'object' && object.transaction
+      ? object.transaction
+      : {};
+  const product =
+    object && typeof object.product === 'object' && object.product
+      ? object.product
+      : {};
+
+  const checkoutId = cleanText(
+    eventType === 'checkout.completed' ? object.id : '',
+    128
+  );
+  const orderId = cleanText(order.id || (typeof object.order === 'string' ? object.order : ''), 128);
+  const transactionId = cleanText(
+    eventType === 'subscription.paid'
+      ? object.last_transaction_id
+      : transaction.id || order.transaction || (typeof object.transaction === 'string' ? object.transaction : ''),
+    128
+  );
+  const subscriptionId = cleanText(
+    eventType.startsWith('subscription.')
+      ? object.id
+      : nestedSubscription.id || (typeof object.subscription === 'string' ? object.subscription : ''),
+    128
+  );
+
+  let status = cleanText(
+    eventType.startsWith('subscription.')
+      ? object.status
+      : nestedSubscription.status || order.status || transaction.status || object.status,
     64
   ).toLowerCase();
+  if (!status && eventType === 'checkout.completed') status = 'completed';
+  if (!status && eventType === 'subscription.paid') status = 'paid';
+
   const currencyCode = cleanText(
-    order.currency || transaction.currency || object.currency,
+    eventType.startsWith('subscription.')
+      ? product.currency
+      : order.currency || transaction.currency || object.currency || product.currency,
     3
   ).toUpperCase();
 
-  const rawAmount = order.amount_paid ?? order.amount ?? transaction.amount_paid ?? transaction.amount ?? null;
+  let rawAmount = null;
+  if (eventType === 'subscription.paid') {
+    rawAmount = product.price ?? null;
+  } else {
+    rawAmount =
+      order.amount_paid ??
+      order.amount ??
+      transaction.amount_paid ??
+      transaction.amount ??
+      product.price ??
+      null;
+  }
   const amountNumber = Number(rawAmount);
   const amountMinor = Number.isSafeInteger(amountNumber) && amountNumber >= 0
     ? String(amountNumber)
     : null;
 
+  const rawAccessUntil =
+    eventType.startsWith('subscription.')
+      ? object.current_period_end_date
+      : nestedSubscription.current_period_end_date;
+  let accessUntil = null;
+  if (rawAccessUntil) {
+    const date = new Date(rawAccessUntil);
+    if (!Number.isNaN(date.getTime())) accessUntil = date.toISOString();
+  }
+
   await pool.query(
     `insert into pal_creem_webhook_events
-      (event_id, event_type, live, occurred_at, checkout_id, order_id, transaction_id, subscription_id, status, claim_id, plan, source, currency_code, amount_minor)
-     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      (event_id, event_type, live, occurred_at, checkout_id, order_id, transaction_id, subscription_id, status, claim_id, plan, source, currency_code, amount_minor, access_until)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
      on conflict (event_id) do nothing`,
     [
       eventId,
@@ -571,6 +648,7 @@ async function recordCreemEvent(event) {
       source || null,
       currencyCode || null,
       amountMinor,
+      accessUntil,
     ]
   );
 
@@ -581,12 +659,12 @@ async function recordCreemEvent(event) {
 
 async function getCreemEntitlement(claimId) {
   const { rows } = await pool.query(
-    `select event_type, status, occurred_at, processed_at
+    `select event_type, status, access_until, occurred_at, processed_at
        from pal_creem_webhook_events
       where claim_id = $1
         and live = true
       order by coalesce(occurred_at, processed_at) desc
-      limit 50`,
+      limit 100`,
     [claimId]
   );
 
@@ -594,19 +672,48 @@ async function getCreemEntitlement(claimId) {
 
   const latest = rows[0];
   const latestStatus = String(latest.status || '').toLowerCase();
+
   if (
-    ['subscription.canceled', 'subscription.expired', 'subscription.paused', 'refund.created', 'dispute.created'].includes(latest.event_type) ||
-    ['canceled', 'expired', 'paused', 'unpaid', 'refunded', 'chargeback'].includes(latestStatus)
+    latest.event_type === 'refund.created' ||
+    latest.event_type === 'dispute.created' ||
+    ['refunded', 'chargeback'].includes(latestStatus)
   ) {
     return { active: false, state: latestStatus || latest.event_type };
   }
 
-  if (
-    ['checkout.completed', 'subscription.active', 'subscription.paid', 'subscription.trialing'].includes(latest.event_type) ||
-    ['paid', 'active', 'trialing'].includes(latestStatus)
-  ) {
-    return { active: true, state: latestStatus || 'active' };
+  if (latest.event_type === 'subscription.canceled' || latestStatus === 'canceled') {
+    const accessUntil = latest.access_until ? new Date(latest.access_until) : null;
+    if (accessUntil && !Number.isNaN(accessUntil.getTime()) && accessUntil.getTime() > Date.now()) {
+      return {
+        active: true,
+        state: 'canceled_until_period_end',
+        access_until: accessUntil.toISOString(),
+      };
+    }
+    return { active: false, state: 'canceled' };
   }
+
+  if (latest.event_type === 'subscription.paused' || latestStatus === 'paused') {
+    return { active: false, state: 'paused' };
+  }
+
+  if (
+    ['checkout.completed', 'subscription.active', 'subscription.paid', 'subscription.trialing', 'subscription.expired', 'subscription.update'].includes(latest.event_type) ||
+    ['paid', 'active', 'trialing', 'completed'].includes(latestStatus)
+  ) {
+    return {
+      active: true,
+      state: latestStatus || 'active',
+      ...(latest.access_until ? { access_until: latest.access_until } : {}),
+    };
+  }
+
+  const terminal = rows.find(row =>
+    row.event_type === 'refund.created' ||
+    row.event_type === 'dispute.created' ||
+    ['refunded', 'chargeback'].includes(String(row.status || '').toLowerCase())
+  );
+  if (terminal) return { active: false, state: String(terminal.status || terminal.event_type) };
 
   const paidEvent = rows.find(row =>
     ['checkout.completed', 'subscription.active', 'subscription.paid', 'subscription.trialing'].includes(row.event_type)
@@ -1367,9 +1474,9 @@ const server = http.createServer(async (req, res) => {
                  amount_minor,
                  coalesce(source, 'unknown') as source
             from pal_creem_webhook_events
-           where event_type = 'checkout.completed'
+           where event_type = 'subscription.paid'
              and live = true
-             and lower(coalesce(status, '')) in ('paid', 'completed', 'active')
+             and lower(coalesce(status, '')) in ('paid', 'active', 'completed')
           union all
           select 'manual_invoice'::text as provider,
                  occurred_at,
@@ -1400,9 +1507,9 @@ const server = http.createServer(async (req, res) => {
           union all
           select currency_code, amount_minor
             from pal_creem_webhook_events
-           where event_type = 'checkout.completed'
+           where event_type = 'subscription.paid'
              and live = true
-             and lower(coalesce(status, '')) in ('paid', 'completed', 'active')
+             and lower(coalesce(status, '')) in ('paid', 'active', 'completed')
           union all
           select currency_code, amount_minor
             from pal_manual_payment_events
@@ -1432,9 +1539,9 @@ const server = http.createServer(async (req, res) => {
           union all
           select coalesce(source, 'unknown') as source
             from pal_creem_webhook_events
-           where event_type = 'checkout.completed'
+           where event_type = 'subscription.paid'
              and live = true
-             and lower(coalesce(status, '')) in ('paid', 'completed', 'active')
+             and lower(coalesce(status, '')) in ('paid', 'active', 'completed')
           union all
           select coalesce(source, 'manual_invoice') as source
             from pal_manual_payment_events
@@ -1461,9 +1568,9 @@ const server = http.createServer(async (req, res) => {
           union all
           select 'creem'::text as provider
             from pal_creem_webhook_events
-           where event_type = 'checkout.completed'
+           where event_type = 'subscription.paid'
              and live = true
-             and lower(coalesce(status, '')) in ('paid', 'completed', 'active')
+             and lower(coalesce(status, '')) in ('paid', 'active', 'completed')
           union all
           select 'manual_invoice'::text as provider
             from pal_manual_payment_events
