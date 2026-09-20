@@ -13,6 +13,13 @@ const FASTSPRING_API_USERNAME = process.env.FASTSPRING_API_USERNAME || '';
 const FASTSPRING_API_PASSWORD = process.env.FASTSPRING_API_PASSWORD || '';
 const FASTSPRING_CHECKOUT_PATH = process.env.FASTSPRING_CHECKOUT_PATH || '';
 const FASTSPRING_CHECKOUT_LIVE = String(process.env.FASTSPRING_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
+const CREEM_API_KEY = process.env.CREEM_API_KEY || '';
+const CREEM_WEBHOOK_SECRET = process.env.CREEM_WEBHOOK_SECRET || '';
+const CREEM_MONTHLY_PRODUCT_ID = process.env.CREEM_MONTHLY_PRODUCT_ID || '';
+const CREEM_ANNUAL_PRODUCT_ID = process.env.CREEM_ANNUAL_PRODUCT_ID || '';
+const CREEM_LIVE = String(process.env.CREEM_LIVE || 'false').toLowerCase() === 'true';
+const PAL_CHECKOUT_PROVIDER = String(process.env.PAL_CHECKOUT_PROVIDER || '').trim().toLowerCase();
+const PAL_MANUAL_PAYMENT_ADMIN_SECRET = process.env.PAL_MANUAL_PAYMENT_ADMIN_SECRET || '';
 const SITE_ORIGIN = 'https://practical-automation-lab.onrender.com';
 const ALLOWED_EVENTS = new Set([
   'audit_started',
@@ -205,6 +212,57 @@ async function initialize() {
       where claim_id is not null
   `);
 
+  await pool.query(`
+    create table if not exists pal_creem_webhook_events (
+      event_id text primary key,
+      event_type text not null,
+      live boolean not null default false,
+      occurred_at timestamptz,
+      checkout_id text,
+      order_id text,
+      transaction_id text,
+      subscription_id text,
+      status text,
+      claim_id text,
+      plan text,
+      source text,
+      currency_code text,
+      amount_minor bigint,
+      processed_at timestamptz not null default now()
+    )
+  `);
+
+  await pool.query(`
+    create index if not exists pal_creem_webhook_events_processed_at_idx
+      on pal_creem_webhook_events (processed_at desc)
+  `);
+
+  await pool.query(`
+    create index if not exists pal_creem_webhook_events_claim_id_idx
+      on pal_creem_webhook_events (claim_id, occurred_at desc)
+      where claim_id is not null
+  `);
+
+  await pool.query(`
+    create table if not exists pal_manual_payment_events (
+      event_id text primary key,
+      action text not null check (action in ('paid', 'revoked')),
+      claim_id text not null,
+      plan text,
+      source text,
+      currency_code text,
+      amount_minor bigint,
+      reference text,
+      occurred_at timestamptz not null default now(),
+      processed_at timestamptz not null default now()
+    )
+  `);
+
+  await pool.query(`
+    create index if not exists pal_manual_payment_events_claim_id_idx
+      on pal_manual_payment_events (claim_id, occurred_at desc)
+  `);
+
   await insertEvent('audit_started', true);
   console.log('PAL_MEASUREMENT_PROBE ok=true event=audit_started production_excluded=true');
 }
@@ -391,6 +449,192 @@ function verifyFastSpringSignature(rawBody, signatureHeader) {
     error.statusCode = 401;
     throw error;
   }
+}
+
+function verifyCreemSignature(rawBody, signatureHeader) {
+  if (!CREEM_WEBHOOK_SECRET) {
+    const error = new Error('Creem webhook secret is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  if (!signatureHeader || !rawBody) {
+    const error = new Error('Missing Creem signature or body');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const expected = crypto
+    .createHmac('sha256', CREEM_WEBHOOK_SECRET)
+    .update(rawBody, 'utf8')
+    .digest('hex');
+
+  const expectedBuffer = Buffer.from(expected, 'utf8');
+  const receivedBuffer = Buffer.from(String(signatureHeader).trim(), 'utf8');
+  const valid =
+    expectedBuffer.length === receivedBuffer.length &&
+    crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+
+  if (!valid) {
+    const error = new Error('Invalid Creem webhook signature');
+    error.statusCode = 401;
+    throw error;
+  }
+}
+
+function creemEventDate(event) {
+  const value = event?.created_at;
+  if (value === null || value === undefined || value === '') return null;
+  if (typeof value === 'string' && !/^\d+$/.test(value)) {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date.toISOString();
+  }
+  const number = Number(value);
+  if (!Number.isFinite(number) || number <= 0) return null;
+  const milliseconds = number < 100000000000 ? number * 1000 : number;
+  const date = new Date(milliseconds);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+async function recordCreemEvent(event) {
+  const eventId = cleanText(event?.id, 128);
+  const eventType = cleanText(event?.eventType, 128);
+  const object = event && typeof event.object === 'object' && event.object ? event.object : {};
+  if (!eventId || !eventType) {
+    const error = new Error('Invalid Creem event');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const mode = cleanText(object.mode, 32).toLowerCase();
+  const live = ['prod', 'production', 'live'].includes(mode);
+  const metadata = object && typeof object.metadata === 'object' && object.metadata ? object.metadata : {};
+  const claimId = cleanText(
+    object.request_id || metadata.pal_claim_id || metadata.claim_id,
+    128
+  );
+  const plan = cleanText(metadata.pal_plan || metadata.plan, 32).toLowerCase();
+  const source = cleanText(metadata.pal_source || metadata.source, 64);
+  const order = object && typeof object.order === 'object' && object.order ? object.order : {};
+  const subscription = object && typeof object.subscription === 'object' && object.subscription ? object.subscription : {};
+  const transaction = object && typeof object.transaction === 'object' && object.transaction ? object.transaction : {};
+
+  const checkoutId = cleanText(object.id, 128);
+  const orderId = cleanText(order.id || object.order, 128);
+  const transactionId = cleanText(transaction.id || order.transaction || object.transaction, 128);
+  const subscriptionId = cleanText(subscription.id || object.subscription, 128);
+  const status = cleanText(
+    subscription.status || order.status || transaction.status || object.status,
+    64
+  ).toLowerCase();
+  const currencyCode = cleanText(
+    order.currency || transaction.currency || object.currency,
+    3
+  ).toUpperCase();
+
+  const rawAmount = order.amount_paid ?? order.amount ?? transaction.amount_paid ?? transaction.amount ?? null;
+  const amountNumber = Number(rawAmount);
+  const amountMinor = Number.isSafeInteger(amountNumber) && amountNumber >= 0
+    ? String(amountNumber)
+    : null;
+
+  await pool.query(
+    `insert into pal_creem_webhook_events
+      (event_id, event_type, live, occurred_at, checkout_id, order_id, transaction_id, subscription_id, status, claim_id, plan, source, currency_code, amount_minor)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+     on conflict (event_id) do nothing`,
+    [
+      eventId,
+      eventType,
+      live,
+      creemEventDate(event),
+      checkoutId || null,
+      orderId || null,
+      transactionId || null,
+      subscriptionId || null,
+      status || null,
+      claimId || null,
+      plan || null,
+      source || null,
+      currencyCode || null,
+      amountMinor,
+    ]
+  );
+
+  console.log(
+    `PAL_CREEM_WEBHOOK event_id=${eventId} event_type=${eventType} live=${live} order_id=${orderId || '-'} subscription_id=${subscriptionId || '-'}`
+  );
+}
+
+async function getCreemEntitlement(claimId) {
+  const { rows } = await pool.query(
+    `select event_type, status, occurred_at, processed_at
+       from pal_creem_webhook_events
+      where claim_id = $1
+        and live = true
+      order by coalesce(occurred_at, processed_at) desc
+      limit 50`,
+    [claimId]
+  );
+
+  if (rows.length === 0) return { active: false, state: 'pending' };
+
+  const latest = rows[0];
+  const latestStatus = String(latest.status || '').toLowerCase();
+  if (
+    ['subscription.canceled', 'subscription.expired', 'subscription.paused', 'refund.created', 'dispute.created'].includes(latest.event_type) ||
+    ['canceled', 'expired', 'paused', 'unpaid', 'refunded', 'chargeback'].includes(latestStatus)
+  ) {
+    return { active: false, state: latestStatus || latest.event_type };
+  }
+
+  if (
+    ['checkout.completed', 'subscription.active', 'subscription.paid', 'subscription.trialing'].includes(latest.event_type) ||
+    ['paid', 'active', 'trialing'].includes(latestStatus)
+  ) {
+    return { active: true, state: latestStatus || 'active' };
+  }
+
+  const paidEvent = rows.find(row =>
+    ['checkout.completed', 'subscription.active', 'subscription.paid', 'subscription.trialing'].includes(row.event_type)
+  );
+  return paidEvent ? { active: true, state: 'paid' } : { active: false, state: 'pending' };
+}
+
+async function getManualEntitlement(claimId) {
+  const { rows } = await pool.query(
+    `select action, occurred_at, processed_at
+       from pal_manual_payment_events
+      where claim_id = $1
+      order by coalesce(occurred_at, processed_at) desc
+      limit 1`,
+    [claimId]
+  );
+  if (rows.length === 0) return { active: false, state: 'pending' };
+  return rows[0].action === 'paid'
+    ? { active: true, state: 'paid' }
+    : { active: false, state: 'revoked' };
+}
+
+async function recordManualPaymentEvent({ action, claimId, plan, source, currencyCode, amountMinor, reference }) {
+  const eventId = 'manual_' + crypto.randomUUID();
+  await pool.query(
+    `insert into pal_manual_payment_events
+      (event_id, action, claim_id, plan, source, currency_code, amount_minor, reference)
+     values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [
+      eventId,
+      action,
+      claimId,
+      plan || null,
+      source || null,
+      currencyCode || null,
+      amountMinor,
+      reference || null,
+    ]
+  );
+  console.log(`PAL_MANUAL_PAYMENT event_id=${eventId} action=${action} claim_id=${claimId}`);
+  return eventId;
 }
 
 function fastSpringEventDate(event, data) {
@@ -649,13 +893,31 @@ async function getPaddleEntitlement(claimId) {
 
 async function getPalEntitlement(claimId) {
   const fastSpring = await getFastSpringEntitlement(claimId);
-  if (fastSpring.active || fastSpring.state !== 'pending') {
+  if (fastSpring.active) {
     return { provider: 'fastspring', ...fastSpring };
   }
 
+  const creem = await getCreemEntitlement(claimId);
+  if (creem.active) {
+    return { provider: 'creem', ...creem };
+  }
+
   const paddle = await getPaddleEntitlement(claimId);
-  if (paddle.active || paddle.state !== 'pending') {
+  if (paddle.active) {
     return { provider: 'paddle', ...paddle };
+  }
+
+  const manual = await getManualEntitlement(claimId);
+  if (manual.active || manual.state !== 'pending') {
+    return { provider: 'manual_invoice', ...manual };
+  }
+
+  for (const [provider, result] of [
+    ['fastspring', fastSpring],
+    ['creem', creem],
+    ['paddle', paddle],
+  ]) {
+    if (result.state !== 'pending') return { provider, ...result };
   }
 
   return { provider: null, active: false, state: 'pending' };
@@ -804,6 +1066,121 @@ async function createFastSpringCheckoutSession({ claimId, plan, source, live }) 
   };
 }
 
+function creemApiHeaders() {
+  if (!CREEM_API_KEY) {
+    const error = new Error('Creem API key is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+  return {
+    'x-api-key': CREEM_API_KEY,
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'User-Agent': 'PracticalAutomationLab/1.0',
+  };
+}
+
+async function createCreemCheckoutSession({ claimId, plan, source, live }) {
+  const productId = plan === 'monthly'
+    ? CREEM_MONTHLY_PRODUCT_ID
+    : plan === 'annual'
+      ? CREEM_ANNUAL_PRODUCT_ID
+      : '';
+
+  if (!productId) {
+    const error = new Error('Creem product is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  const base = live ? 'https://api.creem.io' : 'https://test-api.creem.io';
+  const response = await fetch(base + '/v1/checkouts', {
+    method: 'POST',
+    headers: creemApiHeaders(),
+    body: JSON.stringify({
+      product_id: productId,
+      request_id: claimId,
+      success_url: SITE_ORIGIN + '/checkout-success.html?claim=' + encodeURIComponent(claimId),
+      metadata: {
+        pal_claim_id: claimId,
+        pal_plan: plan,
+        pal_source: source,
+      },
+    }),
+  });
+
+  const text = await response.text();
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = {};
+  }
+
+  if (!response.ok) {
+    console.error('PAL_CREEM_API_ERROR status=' + response.status + ' body=' + JSON.stringify(data).slice(0, 1000));
+    const error = new Error('Creem checkout service rejected the request');
+    error.statusCode = response.status >= 500 ? 502 : 400;
+    throw error;
+  }
+
+  const checkoutUrl = cleanText(data.checkout_url, 2048);
+  let validUrl = false;
+  try {
+    const parsed = new URL(checkoutUrl);
+    validUrl = parsed.protocol === 'https:' && (parsed.hostname === 'creem.io' || parsed.hostname.endsWith('.creem.io'));
+  } catch {}
+
+  if (!validUrl) {
+    const error = new Error('Creem did not return a valid checkout URL');
+    error.statusCode = 502;
+    throw error;
+  }
+
+  console.log(
+    'PAL_CREEM_SESSION created=true live=' + Boolean(live) +
+    ' plan=' + plan +
+    ' source=' + source +
+    ' checkout_id=' + cleanText(data.id, 128)
+  );
+
+  return {
+    checkout_url: checkoutUrl,
+    live: Boolean(live),
+    session_id: cleanText(data.id, 128) || null,
+  };
+}
+
+async function createProviderCheckoutSession({ claimId, plan, source }) {
+  if (PAL_CHECKOUT_PROVIDER === 'fastspring') {
+    if (!FASTSPRING_CHECKOUT_LIVE) {
+      const error = new Error('Live FastSpring checkout is awaiting activation');
+      error.statusCode = 503;
+      throw error;
+    }
+    return {
+      provider: 'fastspring',
+      ...(await createFastSpringCheckoutSession({ claimId, plan, source, live: true })),
+    };
+  }
+
+  if (PAL_CHECKOUT_PROVIDER === 'creem') {
+    if (!CREEM_LIVE) {
+      const error = new Error('Live Creem checkout is awaiting activation');
+      error.statusCode = 503;
+      throw error;
+    }
+    return {
+      provider: 'creem',
+      ...(await createCreemCheckoutSession({ claimId, plan, source, live: true })),
+    };
+  }
+
+  const error = new Error('Live checkout provider is not activated');
+  error.statusCode = 503;
+  throw error;
+}
+
 const ALLOWED_LEAD_PRODUCTS = new Set([
   'pal-catalog-check',
   'feed-auditor',
@@ -819,6 +1196,7 @@ const ALLOWED_LEAD_INTENTS = new Set([
   'team-license',
   'batch-validation',
   'monitoring',
+  'invoice-request',
   'other',
 ]);
 
@@ -969,6 +1347,24 @@ const server = http.createServer(async (req, res) => {
             from pal_fastspring_webhook_events
            where event_type = 'order.completed'
              and live = true
+          union all
+          select 'creem'::text as provider,
+                 coalesce(occurred_at, processed_at) as occurred_at,
+                 currency_code,
+                 amount_minor,
+                 coalesce(source, 'unknown') as source
+            from pal_creem_webhook_events
+           where event_type = 'checkout.completed'
+             and live = true
+             and lower(coalesce(status, '')) in ('paid', 'completed', 'active')
+          union all
+          select 'manual_invoice'::text as provider,
+                 occurred_at,
+                 currency_code,
+                 amount_minor,
+                 coalesce(source, 'manual_invoice') as source
+            from pal_manual_payment_events
+           where action = 'paid'
         )
         select count(*)::bigint as completed_transactions,
                min(occurred_at) as first_completed_at,
@@ -988,6 +1384,16 @@ const server = http.createServer(async (req, res) => {
             from pal_fastspring_webhook_events
            where event_type = 'order.completed'
              and live = true
+          union all
+          select currency_code, amount_minor
+            from pal_creem_webhook_events
+           where event_type = 'checkout.completed'
+             and live = true
+             and lower(coalesce(status, '')) in ('paid', 'completed', 'active')
+          union all
+          select currency_code, amount_minor
+            from pal_manual_payment_events
+           where action = 'paid'
         )
         select currency_code,
                coalesce(sum(amount_minor), 0)::text as gross_completed_minor
@@ -1010,6 +1416,16 @@ const server = http.createServer(async (req, res) => {
             from pal_fastspring_webhook_events
            where event_type = 'order.completed'
              and live = true
+          union all
+          select coalesce(source, 'unknown') as source
+            from pal_creem_webhook_events
+           where event_type = 'checkout.completed'
+             and live = true
+             and lower(coalesce(status, '')) in ('paid', 'completed', 'active')
+          union all
+          select coalesce(source, 'manual_invoice') as source
+            from pal_manual_payment_events
+           where action = 'paid'
         )
         select source, count(*)::bigint as completed_transactions
           from completed
@@ -1029,6 +1445,16 @@ const server = http.createServer(async (req, res) => {
             from pal_fastspring_webhook_events
            where event_type = 'order.completed'
              and live = true
+          union all
+          select 'creem'::text as provider
+            from pal_creem_webhook_events
+           where event_type = 'checkout.completed'
+             and live = true
+             and lower(coalesce(status, '')) in ('paid', 'completed', 'active')
+          union all
+          select 'manual_invoice'::text as provider
+            from pal_manual_payment_events
+           where action = 'paid'
         )
         select provider, count(*)::bigint as completed_transactions
           from completed
@@ -1075,10 +1501,46 @@ const server = http.createServer(async (req, res) => {
           from latest
       `);
 
+      const { rows: creemSubscriptionRows } = await pool.query(`
+        with latest as (
+          select distinct on (subscription_id)
+                 subscription_id,
+                 event_type,
+                 lower(coalesce(status, '')) as status
+            from pal_creem_webhook_events
+           where subscription_id is not null
+             and event_type like 'subscription.%'
+             and live = true
+           order by subscription_id, coalesce(occurred_at, processed_at) desc, processed_at desc
+        )
+        select count(*) filter (
+                 where event_type not in ('subscription.canceled', 'subscription.expired', 'subscription.paused')
+                   and status not in ('canceled', 'expired', 'paused', 'unpaid')
+               )::bigint as active_subscriptions,
+               count(*) filter (
+                 where event_type in ('subscription.canceled', 'subscription.expired')
+                    or status in ('canceled', 'expired')
+               )::bigint as canceled_subscriptions
+          from latest
+      `);
+
+      const { rows: manualRows } = await pool.query(`
+        with latest as (
+          select distinct on (claim_id) claim_id, action
+            from pal_manual_payment_events
+           order by claim_id, occurred_at desc, processed_at desc
+        )
+        select count(*) filter (where action = 'paid')::bigint as active_entitlements
+          from latest
+      `);
+
       const paddleActive = Number(paddleSubscriptionRows[0].active_subscriptions);
       const paddleCanceled = Number(paddleSubscriptionRows[0].canceled_subscriptions);
       const fastSpringActive = Number(fastSpringSubscriptionRows[0].active_subscriptions);
       const fastSpringCanceled = Number(fastSpringSubscriptionRows[0].canceled_subscriptions);
+      const creemActive = Number(creemSubscriptionRows[0].active_subscriptions);
+      const creemCanceled = Number(creemSubscriptionRows[0].canceled_subscriptions);
+      const manualActive = Number(manualRows[0].active_entitlements);
 
       return sendJson(req, res, 200, {
         ok: true,
@@ -1086,8 +1548,9 @@ const server = http.createServer(async (req, res) => {
         completed_transactions: Number(totalsRows[0].completed_transactions),
         first_completed_at: totalsRows[0].first_completed_at,
         last_completed_at: totalsRows[0].last_completed_at,
-        active_subscriptions: paddleActive + fastSpringActive,
-        canceled_subscriptions: paddleCanceled + fastSpringCanceled,
+        active_subscriptions: paddleActive + fastSpringActive + creemActive,
+        canceled_subscriptions: paddleCanceled + fastSpringCanceled + creemCanceled,
+        active_manual_entitlements: manualActive,
         gross_completed_by_currency: Object.fromEntries(
           revenueRows.map(row => [row.currency_code, row.gross_completed_minor])
         ),
@@ -1106,8 +1569,15 @@ const server = http.createServer(async (req, res) => {
             active: fastSpringActive,
             canceled: fastSpringCanceled,
           },
+          creem: {
+            active: creemActive,
+            canceled: creemCanceled,
+          },
+          manual_invoice: {
+            active_entitlements: manualActive,
+          },
         },
-        note: 'Gross completed transaction totals are before provider fees, refunds, chargebacks, and adjustments. Paddle simulator events and FastSpring test events are excluded.',
+        note: 'Gross completed transaction totals are before provider fees, refunds, chargebacks, and adjustments. Paddle simulator events, FastSpring test events, and Creem test events are excluded. Manual invoice entries count only after an authorized operator records confirmed payment.',
       });
     }
 
@@ -1184,6 +1654,50 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    if (req.method === 'POST' && url.pathname === '/checkout-session') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+
+      const body = await readJsonBody(req, 4096);
+      const claimId = cleanText(body.claim_id, 128);
+      const plan = cleanText(body.plan, 32).toLowerCase();
+      const rawSource = cleanText(body.source, 64);
+      const source = /^[a-zA-Z0-9_-]{1,64}$/.test(rawSource) ? rawSource : 'direct';
+
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+      if (!['monthly', 'annual'].includes(plan)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid plan' });
+      }
+
+      const session = await createProviderCheckoutSession({ claimId, plan, source });
+      return sendJson(req, res, 201, { ok: true, ...session });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/creem/test-checkout-session') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+
+      const body = await readJsonBody(req, 4096);
+      const claimId = cleanText(body.claim_id, 128);
+      const plan = cleanText(body.plan, 32).toLowerCase();
+      const rawSource = cleanText(body.source, 64);
+      const source = /^[a-zA-Z0-9_-]{1,64}$/.test(rawSource) ? rawSource : 'direct';
+
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+      if (!['monthly', 'annual'].includes(plan)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid plan' });
+      }
+
+      const session = await createCreemCheckoutSession({ claimId, plan, source, live: false });
+      return sendJson(req, res, 201, { ok: true, provider: 'creem', ...session });
+    }
+
     if (req.method === 'POST' && url.pathname === '/fastspring/test-checkout-session') {
       if (req.headers.origin !== SITE_ORIGIN) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
@@ -1253,6 +1767,73 @@ const server = http.createServer(async (req, res) => {
         provider: 'fastspring',
         ...session,
       });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/creem/webhook') {
+      const rawBody = await readRawBody(req);
+      verifyCreemSignature(rawBody, req.headers['creem-signature']);
+
+      let event;
+      try {
+        event = JSON.parse(rawBody);
+      } catch {
+        const error = new Error('Invalid JSON');
+        error.statusCode = 400;
+        throw error;
+      }
+
+      await recordCreemEvent(event);
+      return sendJson(req, res, 200, { received: true });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/admin/manual-payment') {
+      if (!PAL_MANUAL_PAYMENT_ADMIN_SECRET) {
+        return sendJson(req, res, 503, { ok: false, error: 'Manual payment administration is not configured' });
+      }
+      const auth = cleanText(req.headers.authorization, 4096);
+      const expected = 'Bearer ' + PAL_MANUAL_PAYMENT_ADMIN_SECRET;
+      const authBuffer = Buffer.from(auth, 'utf8');
+      const expectedBuffer = Buffer.from(expected, 'utf8');
+      if (
+        authBuffer.length !== expectedBuffer.length ||
+        !crypto.timingSafeEqual(authBuffer, expectedBuffer)
+      ) {
+        return sendJson(req, res, 401, { ok: false, error: 'Unauthorized' });
+      }
+
+      const body = await readJsonBody(req, 4096);
+      const action = cleanText(body.action, 16).toLowerCase();
+      const claimId = cleanText(body.claim_id, 128);
+      const plan = cleanText(body.plan, 32).toLowerCase();
+      const rawSource = cleanText(body.source, 64);
+      const source = /^[a-zA-Z0-9_-]{1,64}$/.test(rawSource) ? rawSource : 'manual_invoice';
+      const currencyCode = cleanText(body.currency_code, 3).toUpperCase();
+      const amountMinorText = cleanText(String(body.amount_minor ?? ''), 24);
+      const reference = cleanText(body.reference, 160);
+
+      if (!['paid', 'revoked'].includes(action)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid action' });
+      }
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+      if (action === 'paid' && !['monthly', 'annual'].includes(plan)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid plan' });
+      }
+      if (action === 'paid' && (!/^[A-Z]{3}$/.test(currencyCode) || !/^\d+$/.test(amountMinorText))) {
+        return sendJson(req, res, 400, { ok: false, error: 'Confirmed paid events require currency_code and amount_minor' });
+      }
+
+      const eventId = await recordManualPaymentEvent({
+        action,
+        claimId,
+        plan,
+        source,
+        currencyCode: action === 'paid' ? currencyCode : '',
+        amountMinor: action === 'paid' ? amountMinorText : null,
+        reference,
+      });
+      return sendJson(req, res, 201, { ok: true, event_id: eventId, action });
     }
 
     if (req.method === 'POST' && url.pathname === '/fastspring/webhook') {
