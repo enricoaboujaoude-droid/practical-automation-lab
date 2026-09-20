@@ -4,17 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PAL Software Access — Practical Automation Lab</title>
-<meta name="description" content="Software subscription and team-license inquiries for Practical Automation Lab products.">
+<meta name="description" content="Software subscription, invoice and team-license inquiries for Practical Automation Lab products.">
 <link rel="canonical" href="https://practical-automation-lab.onrender.com/commercial-interest.html">
 <style>
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:760px;margin:42px auto;padding:0 18px 60px;line-height:1.55;color:#18181b}a{color:inherit}h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.06;margin:.4rem 0 1rem}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}.lead{font-size:1.06rem;opacity:.75}.panel{border:1px solid #e4e4e7;border-radius:18px;padding:22px;margin:24px 0;background:#fafafa}.field{margin:14px 0}.field label{display:block;font-weight:750;margin-bottom:6px}input,select,textarea{box-sizing:border-box;width:100%;border:1px solid #d4d4d8;border-radius:10px;padding:11px 12px;font:inherit;background:white;color:#18181b}textarea{min-height:120px;resize:vertical}.button{border:0;border-radius:10px;padding:12px 16px;background:#18181b;color:white;font-weight:800;cursor:pointer}.button:disabled{opacity:.5}.row{display:flex;gap:10px;align-items:flex-start}.row input{width:auto;margin-top:5px}.small{font-size:.88rem;opacity:.72}.status{margin-top:14px;font-weight:700}.ok{color:#166534}.bad{color:#b91c1c}.hp{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:760px;margin:42px auto;padding:0 18px 60px;line-height:1.55;color:#18181b}a{color:inherit}h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.06;margin:.4rem 0 1rem}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}.lead{font-size:1.06rem;opacity:.75}.panel{border:1px solid #e4e4e7;border-radius:18px;padding:22px;margin:24px 0;background:#fafafa}.field{margin:14px 0}.field label{display:block;font-weight:750;margin-bottom:6px}input,select,textarea{box-sizing:border-box;width:100%;border:1px solid #d4d4d8;border-radius:10px;padding:11px 12px;font:inherit;background:white;color:#18181b}textarea{min-height:120px;resize:vertical}.button{border:0;border-radius:10px;padding:12px 16px;background:#18181b;color:white;font-weight:800;cursor:pointer}.button:disabled{opacity:.5}.row{display:flex;gap:10px;align-items:flex-start}.row input{width:auto;margin-top:5px}.small{font-size:.88rem;opacity:.72}.status{margin-top:14px;font-weight:700}.ok{color:#166534}.bad{color:#b91c1c}.hp{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}.reference{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
 </style>
 </head>
 <body>
 <p><a href="index.html">← Practical Automation Lab</a></p>
 <div class="eyebrow">Software access</div>
 <h1>PAL software access and licensing.</h1>
-<p class="lead">Use this form for questions about PAL software subscriptions, team licenses, batch-software access, or recurring software monitoring. Only PAL software products and software licenses are offered through this site. Sending this form does not create a purchase or subscription.</p>
+<p class="lead">Use this form for PAL software subscriptions, software invoices, team licenses, batch-software access, or recurring software monitoring. Only PAL software products and software licenses are offered through this site. Sending this form does not itself create a purchase or subscription.</p>
 
 <section class="panel">
 <form id="leadForm">
@@ -22,7 +22,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:76
 <label for="product">Product</label>
 <select id="product" name="product" required>
 <option value="pal-catalog-check">PAL Catalog Check for Shopify</option>
-<option value="feed-auditor">Product Feed Preflight Auditor</option>
+<option value="feed-auditor">Product Feed Preflight Auditor / PAL Pro</option>
 <option value="merchant-api">Google Merchant API Migration Preflight</option>
 <option value="hubspot-api">HubSpot API Migration Preflight</option>
 <option value="eudr">EUDR DDS V3 Technical Preflight</option>
@@ -35,10 +35,20 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:76
 <label for="intent">What are you looking for?</label>
 <select id="intent" name="intent" required>
 <option value="paid-access">Paid access / Pro capability</option>
+<option value="invoice-request">Software invoice / bank-transfer payment</option>
 <option value="team-license">Team software license</option>
 <option value="batch-validation">Batch / larger-volume validation</option>
 <option value="monitoring">Recurring monitoring</option>
 <option value="other">Other software subscription question</option>
+</select>
+</div>
+
+<div class="field">
+<label for="plan">PAL Pro plan <span class="small">(required for invoice requests)</span></label>
+<select id="plan" name="plan">
+<option value="">Not selected</option>
+<option value="monthly">Monthly — $19/month</option>
+<option value="annual">Annual — $199/year</option>
 </select>
 </div>
 
@@ -54,7 +64,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:76
 
 <div class="field">
 <label for="message">What would make this worth paying for? <span class="small">(optional)</span></label>
-<textarea id="message" name="message" maxlength="1000" placeholder="Catalog size, number of stores/files, recurring workflow, or the software capability you need. Do not include credentials, secrets, customer data, or sensitive records."></textarea>
+<textarea id="message" name="message" maxlength="1000" placeholder="Catalog size, number of stores/files, recurring workflow, or the software capability you need. Do not include credentials, secrets, customer data, bank details, or sensitive records."></textarea>
 </div>
 
 <div class="hp" aria-hidden="true">
@@ -67,47 +77,98 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:76
 <label for="consent">I agree that Practical Automation Lab may store the contact details I submit here and use them to respond about this software-access request.</label>
 </div>
 
-<p class="small">We do not need passwords, access tokens, source code, merchant/customer records, supplier records, or payment-card data in this form. See the <a href="privacy.html">PAL privacy notice</a>.</p>
+<p class="small">We do not need passwords, access tokens, source code, merchant/customer records, supplier records, payment-card data, or bank-account details in this form. See the <a href="privacy.html">PAL privacy notice</a>.</p>
 
 <button id="submit" class="button" type="submit">Send software access request</button>
 <div id="status" class="status" role="status" aria-live="polite"></div>
 </form>
 </section>
 
-<p class="small">PAL's public browser-local preflight tools remain available without an account. This form is only for software subscription and licensing follow-up.</p><p class="small"><a href="terms.html">Terms of Service</a> · <a href="privacy.html">Privacy Notice</a> · <a href="refund-policy.html">Refund Policy</a></p>
+<p class="small">PAL's public browser-local preflight tools remain available without an account. Invoice requests are only a request for PAL software access; payment instructions are provided separately after the request is reviewed.</p>
+<p class="small"><a href="pricing.html">PAL Pro pricing</a> · <a href="terms.html">Terms of Service</a> · <a href="privacy.html">Privacy Notice</a> · <a href="refund-policy.html">Refund Policy</a></p>
 
 <script>
 const endpoint='https://pal-feed-auditor-events.onrender.com/commercial-interest';
 const allowedProducts=new Set(['pal-catalog-check','feed-auditor','merchant-api','hubspot-api','eudr','battery-passport','other']);
+const allowedIntents=new Set(['paid-access','invoice-request','team-license','batch-validation','monitoring','other']);
 const params=new URLSearchParams(location.search);
 const requested=params.get('product');
+const requestedIntent=params.get('intent');
+const requestedPlan=params.get('plan');
+const requestedClaim=params.get('claim')||'';
+const rawSource=params.get('source')||'direct';
+const source=/^[a-zA-Z0-9_-]{1,64}$/.test(rawSource)?rawSource:'direct';
+
 if(requested&&allowedProducts.has(requested))document.getElementById('product').value=requested;
+if(requestedIntent&&allowedIntents.has(requestedIntent))document.getElementById('intent').value=requestedIntent;
+if(['monthly','annual'].includes(requestedPlan))document.getElementById('plan').value=requestedPlan;
+
+function createClaimId(){
+  if(window.crypto&&typeof window.crypto.randomUUID==='function')return window.crypto.randomUUID();
+  const bytes=new Uint8Array(24);
+  window.crypto.getRandomValues(bytes);
+  return Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function currentClaim(intent){
+  let claim=/^[a-zA-Z0-9_-]{16,128}$/.test(requestedClaim)?requestedClaim:'';
+  if(!claim){
+    try{claim=sessionStorage.getItem('pal_pro_checkout_claim_id')||''}catch{}
+  }
+  if(intent==='invoice-request'&&!/^[a-zA-Z0-9_-]{16,128}$/.test(claim)){
+    claim=createClaimId();
+  }
+  return /^[a-zA-Z0-9_-]{16,128}$/.test(claim)?claim:'';
+}
 
 document.getElementById('leadForm').addEventListener('submit',async(e)=>{
   e.preventDefault();
   const button=document.getElementById('submit');
   const status=document.getElementById('status');
+  const intent=document.getElementById('intent').value;
+  const plan=document.getElementById('plan').value;
+  const claimId=currentClaim(intent);
+
+  if(intent==='invoice-request'&&!['monthly','annual'].includes(plan)){
+    status.className='status bad';
+    status.textContent='Choose the monthly or annual PAL Pro plan for an invoice request.';
+    return;
+  }
+
   button.disabled=true;
   status.className='status';
   status.textContent='Sending…';
+
   const payload={
     product:document.getElementById('product').value,
-    intent:document.getElementById('intent').value,
+    intent,
+    plan,
+    claim_id:claimId,
+    source,
     email:document.getElementById('email').value,
     company:document.getElementById('company').value,
     message:document.getElementById('message').value,
     website:document.getElementById('website').value,
     consent:document.getElementById('consent').checked
   };
+
   try{
     const res=await fetch(endpoint,{method:'POST',mode:'cors',cache:'no-store',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    if(!res.ok){
-      let message='Could not submit the request.';
-      try{const body=await res.json();if(body&&body.error)message=body.error}catch{}
-      throw new Error(message);
+    let body={};
+    try{body=await res.json()}catch{}
+    if(!res.ok)throw new Error(body&&body.error?body.error:'Could not submit the request.');
+
+    if(claimId){
+      try{sessionStorage.setItem('pal_pro_checkout_claim_id',claimId)}catch{}
     }
+
     status.className='status ok';
-    status.textContent='Request received. Thank you.';
+    if(intent==='invoice-request'&&claimId){
+      status.innerHTML='Invoice request received. Your PAL access reference is <span class="reference">'+claimId+'</span>. Keep this browser session until access is confirmed.';
+    }else{
+      status.textContent='Request received. Thank you.';
+    }
+
     e.target.reset();
     if(requested&&allowedProducts.has(requested))document.getElementById('product').value=requested;
   }catch(err){
