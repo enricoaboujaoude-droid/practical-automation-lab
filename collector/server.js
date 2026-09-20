@@ -13,6 +13,20 @@ const FASTSPRING_API_USERNAME = process.env.FASTSPRING_API_USERNAME || '';
 const FASTSPRING_API_PASSWORD = process.env.FASTSPRING_API_PASSWORD || '';
 const FASTSPRING_CHECKOUT_PATH = process.env.FASTSPRING_CHECKOUT_PATH || '';
 const FASTSPRING_CHECKOUT_LIVE = String(process.env.FASTSPRING_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
+
+const PAL_CHECKOUT_PROVIDER = String(process.env.PAL_CHECKOUT_PROVIDER || 'auto').trim().toLowerCase();
+
+const CREEM_API_KEY = process.env.CREEM_API_KEY || '';
+const CREEM_WEBHOOK_SECRET = process.env.CREEM_WEBHOOK_SECRET || '';
+const CREEM_PRODUCT_ID_MONTHLY = process.env.CREEM_PRODUCT_ID_MONTHLY || '';
+const CREEM_PRODUCT_ID_ANNUAL = process.env.CREEM_PRODUCT_ID_ANNUAL || '';
+const CREEM_CHECKOUT_LIVE = String(process.env.CREEM_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
+
+const PAYPRO_VALIDATION_KEY = process.env.PAYPRO_VALIDATION_KEY || '';
+const PAYPRO_PRODUCT_ID_MONTHLY = process.env.PAYPRO_PRODUCT_ID_MONTHLY || '';
+const PAYPRO_PRODUCT_ID_ANNUAL = process.env.PAYPRO_PRODUCT_ID_ANNUAL || '';
+const PAYPRO_CHECKOUT_LIVE = String(process.env.PAYPRO_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
+
 const SITE_ORIGIN = 'https://practical-automation-lab.onrender.com';
 const ALLOWED_EVENTS = new Set([
   'audit_started',
@@ -38,6 +52,9 @@ const ALLOWED_EVENTS = new Set([
   'battery_passport_report_downloaded',
   'battery_passport_commercial_cta_clicked',
   'commercial_lead_submitted',
+  'checkout_started',
+  'checkout_unavailable',
+  'checkout_redirected',
 ]);
 
 if (!DATABASE_URL) {
@@ -101,7 +118,10 @@ async function initialize() {
         'battery_passport_preflight_completed',
         'battery_passport_report_downloaded',
         'battery_passport_commercial_cta_clicked',
-        'commercial_lead_submitted'
+        'commercial_lead_submitted',
+        'checkout_started',
+        'checkout_unavailable',
+        'checkout_redirected'
       ))
   `);
   await pool.query(`
@@ -202,6 +222,64 @@ async function initialize() {
   await pool.query(`
     create index if not exists pal_fastspring_webhook_events_claim_id_idx
       on pal_fastspring_webhook_events (claim_id, occurred_at desc)
+      where claim_id is not null
+  `);
+
+  await pool.query(`
+    create table if not exists pal_creem_webhook_events (
+      event_id text primary key,
+      event_type text not null,
+      live boolean not null default false,
+      occurred_at timestamptz,
+      order_id text,
+      subscription_id text,
+      status text,
+      claim_id text,
+      plan text,
+      source text,
+      currency_code text,
+      amount_minor bigint,
+      processed_at timestamptz not null default now()
+    )
+  `);
+
+  await pool.query(`
+    create index if not exists pal_creem_webhook_events_processed_at_idx
+      on pal_creem_webhook_events (processed_at desc)
+  `);
+
+  await pool.query(`
+    create index if not exists pal_creem_webhook_events_claim_id_idx
+      on pal_creem_webhook_events (claim_id, occurred_at desc)
+      where claim_id is not null
+  `);
+
+  await pool.query(`
+    create table if not exists pal_paypro_webhook_events (
+      event_id text primary key,
+      event_type text not null,
+      test_mode boolean not null default true,
+      occurred_at timestamptz,
+      order_id text,
+      subscription_id text,
+      status text,
+      claim_id text,
+      plan text,
+      source text,
+      currency_code text,
+      amount_minor bigint,
+      processed_at timestamptz not null default now()
+    )
+  `);
+
+  await pool.query(`
+    create index if not exists pal_paypro_webhook_events_processed_at_idx
+      on pal_paypro_webhook_events (processed_at desc)
+  `);
+
+  await pool.query(`
+    create index if not exists pal_paypro_webhook_events_claim_id_idx
+      on pal_paypro_webhook_events (claim_id, occurred_at desc)
       where claim_id is not null
   `);
 
@@ -648,6 +726,16 @@ async function getPaddleEntitlement(claimId) {
 }
 
 async function getPalEntitlement(claimId) {
+  const creem = await getCreemEntitlement(claimId);
+  if (creem.active || creem.state !== 'pending') {
+    return { provider: 'creem', ...creem };
+  }
+
+  const paypro = await getPayProEntitlement(claimId);
+  if (paypro.active || paypro.state !== 'pending') {
+    return { provider: 'paypro', ...paypro };
+  }
+
   const fastSpring = await getFastSpringEntitlement(claimId);
   if (fastSpring.active || fastSpring.state !== 'pending') {
     return { provider: 'fastspring', ...fastSpring };
@@ -804,6 +892,442 @@ async function createFastSpringCheckoutSession({ claimId, plan, source, live }) 
   };
 }
 
+
+function verifyCreemSignature(rawBody, signatureHeader) {
+  if (!CREEM_WEBHOOK_SECRET) {
+    const error = new Error('Creem webhook secret is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+  if (!signatureHeader || !rawBody) {
+    const error = new Error('Missing Creem signature or body');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const expected = crypto
+    .createHmac('sha256', CREEM_WEBHOOK_SECRET)
+    .update(rawBody, 'utf8')
+    .digest('hex');
+
+  const expectedBuffer = Buffer.from(expected, 'utf8');
+  const received = String(signatureHeader).trim().toLowerCase();
+  if (!/^[a-f0-9]{64}$/.test(received)) {
+    const error = new Error('Invalid Creem signature');
+    error.statusCode = 401;
+    throw error;
+  }
+  const receivedBuffer = Buffer.from(received, 'utf8');
+  if (
+    expectedBuffer.length !== receivedBuffer.length ||
+    !crypto.timingSafeEqual(expectedBuffer, receivedBuffer)
+  ) {
+    const error = new Error('Invalid Creem signature');
+    error.statusCode = 401;
+    throw error;
+  }
+}
+
+function creemModeIsLive(object) {
+  const mode = cleanText(
+    object?.mode || object?.order?.mode || object?.product?.mode,
+    32
+  ).toLowerCase();
+  if (mode) return mode === 'prod' || mode === 'production' || mode === 'live';
+  return CREEM_CHECKOUT_LIVE;
+}
+
+function creemAmountMinor(object) {
+  const candidates = [
+    object?.order?.amount_paid,
+    object?.order?.amount,
+    object?.product?.price,
+  ];
+  for (const value of candidates) {
+    const number = Number(value);
+    if (Number.isSafeInteger(number) && number >= 0) return String(number);
+  }
+  return null;
+}
+
+async function recordCreemEvent(event) {
+  const eventId = cleanText(event?.id, 128);
+  const eventType = cleanText(event?.eventType, 128);
+  const object = event && typeof event.object === 'object' && event.object ? event.object : {};
+  if (!eventId || !eventType) {
+    const error = new Error('Invalid Creem event');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const live = creemModeIsLive(object);
+  const occurredAtNumber = Number(event?.created_at);
+  const occurredAt = Number.isFinite(occurredAtNumber) && occurredAtNumber > 0
+    ? new Date(occurredAtNumber < 100000000000 ? occurredAtNumber * 1000 : occurredAtNumber).toISOString()
+    : null;
+
+  const metadataCandidates = [
+    object?.metadata,
+    object?.subscription?.metadata,
+    object?.order?.metadata,
+  ];
+  let metadata = {};
+  for (const candidate of metadataCandidates) {
+    if (candidate && typeof candidate === 'object' && !Array.isArray(candidate)) {
+      metadata = candidate;
+      break;
+    }
+  }
+
+  const orderId = cleanText(object?.order?.id || object?.order, 128);
+  const subscriptionId = cleanText(
+    eventType.startsWith('subscription.')
+      ? object?.id || object?.subscription
+      : object?.subscription?.id || object?.subscription,
+    128
+  );
+  const status = cleanText(object?.status || object?.order?.status, 64).toLowerCase();
+  const claimId = cleanText(metadata.pal_claim_id, 128);
+  const plan = cleanText(metadata.pal_plan, 32);
+  const source = cleanText(metadata.pal_source, 64);
+  const currencyCode = cleanText(
+    object?.order?.currency || object?.product?.currency,
+    3
+  ).toUpperCase();
+  const amountMinor = creemAmountMinor(object);
+
+  await pool.query(
+    `insert into pal_creem_webhook_events
+      (event_id, event_type, live, occurred_at, order_id, subscription_id, status, claim_id, plan, source, currency_code, amount_minor)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+     on conflict (event_id) do nothing`,
+    [
+      eventId,
+      eventType,
+      live,
+      occurredAt,
+      orderId || null,
+      subscriptionId || null,
+      status || null,
+      claimId || null,
+      plan || null,
+      source || null,
+      currencyCode || null,
+      amountMinor,
+    ]
+  );
+
+  console.log(
+    `PAL_CREEM_WEBHOOK event_id=${eventId} event_type=${eventType} live=${live} order_id=${orderId || '-'} subscription_id=${subscriptionId || '-'}`
+  );
+}
+
+async function getCreemEntitlement(claimId) {
+  const { rows } = await pool.query(
+    `select event_type, status, occurred_at, processed_at
+       from pal_creem_webhook_events
+      where claim_id = $1
+        and live = true
+      order by coalesce(occurred_at, processed_at) desc, processed_at desc
+      limit 50`,
+    [claimId]
+  );
+  if (rows.length === 0) return { active: false, state: 'pending' };
+
+  const latest = rows[0];
+  if (['subscription.canceled', 'subscription.expired', 'subscription.paused'].includes(latest.event_type)) {
+    return { active: false, state: latest.event_type.split('.')[1] };
+  }
+  if (
+    ['checkout.completed', 'subscription.active', 'subscription.paid'].includes(latest.event_type) &&
+    !['canceled', 'expired', 'paused'].includes(String(latest.status || '').toLowerCase())
+  ) {
+    return { active: true, state: latest.event_type === 'checkout.completed' ? 'paid' : 'active' };
+  }
+
+  const paid = rows.find(row =>
+    ['checkout.completed', 'subscription.active', 'subscription.paid'].includes(row.event_type)
+  );
+  return paid ? { active: true, state: 'active' } : { active: false, state: 'pending' };
+}
+
+function creemConfigured(live = CREEM_CHECKOUT_LIVE) {
+  return Boolean(
+    CREEM_API_KEY &&
+    CREEM_PRODUCT_ID_MONTHLY &&
+    CREEM_PRODUCT_ID_ANNUAL &&
+    (!live || CREEM_CHECKOUT_LIVE)
+  );
+}
+
+async function createCreemCheckoutSession({ claimId, plan, source, live }) {
+  if (!CREEM_API_KEY) {
+    const error = new Error('Creem API key is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+  const productId = plan === 'monthly'
+    ? CREEM_PRODUCT_ID_MONTHLY
+    : plan === 'annual'
+      ? CREEM_PRODUCT_ID_ANNUAL
+      : '';
+  if (!productId) {
+    const error = new Error('Creem product is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  const apiBase = live ? 'https://api.creem.io' : 'https://test-api.creem.io';
+  const response = await fetch(apiBase + '/v1/checkouts', {
+    method: 'POST',
+    headers: {
+      'x-api-key': CREEM_API_KEY,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'User-Agent': 'PracticalAutomationLab/1.0',
+    },
+    body: JSON.stringify({
+      product_id: productId,
+      request_id: claimId,
+      success_url: SITE_ORIGIN + '/checkout-success.html',
+      metadata: {
+        pal_claim_id: claimId,
+        pal_plan: plan,
+        pal_source: source,
+      },
+    }),
+  });
+
+  const text = await response.text();
+  let data = {};
+  try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
+  if (!response.ok) {
+    console.error('PAL_CREEM_API_ERROR status=' + response.status + ' body=' + text.slice(0, 1000));
+    const error = new Error('Creem checkout service rejected the request');
+    error.statusCode = response.status >= 500 ? 502 : 400;
+    throw error;
+  }
+
+  const checkoutUrl = cleanText(data?.checkout_url, 2048);
+  if (!/^https:\/\/[^\s]+\.creem\.io\//i.test(checkoutUrl)) {
+    const error = new Error('Creem did not return a valid checkout URL');
+    error.statusCode = 502;
+    throw error;
+  }
+
+  return {
+    checkout_url: checkoutUrl,
+    live: Boolean(live),
+    session_id: cleanText(data?.id, 128) || null,
+  };
+}
+
+function parsePayProCustomFields(raw) {
+  const fields = {};
+  const text = cleanText(raw, 4096);
+  if (!text) return fields;
+  for (const part of text.split(/[,&]/)) {
+    const index = part.indexOf('=');
+    if (index < 1) continue;
+    const key = part.slice(0, index).trim().replace(/^x-/i, '');
+    const value = part.slice(index + 1).trim();
+    if (key) fields[key] = value;
+  }
+  return fields;
+}
+
+function payProTestMode(value) {
+  return ['1', 'true', 'yes'].includes(String(value || '').trim().toLowerCase());
+}
+
+function verifyPayProSignature(params) {
+  if (!PAYPRO_VALIDATION_KEY) {
+    const error = new Error('PayPro Global validation key is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  const signature = cleanText(params.get('SIGNATURE'), 256).toLowerCase();
+  if (!/^[a-f0-9]{64}$/.test(signature)) {
+    const error = new Error('Invalid PayPro Global signature');
+    error.statusCode = 401;
+    throw error;
+  }
+
+  const signedValue =
+    String(params.get('ORDER_ID') || '') +
+    String(params.get('ORDER_STATUS') || '') +
+    String(params.get('ORDER_TOTAL_AMOUNT') || '') +
+    String(params.get('CUSTOMER_EMAIL') || '') +
+    PAYPRO_VALIDATION_KEY +
+    String(params.get('TEST_MODE') || '') +
+    String(params.get('IPN_TYPE_NAME') || '');
+
+  const expected = crypto.createHash('sha256').update(signedValue, 'utf8').digest('hex');
+  const expectedBuffer = Buffer.from(expected, 'utf8');
+  const receivedBuffer = Buffer.from(signature, 'utf8');
+  if (
+    expectedBuffer.length !== receivedBuffer.length ||
+    !crypto.timingSafeEqual(expectedBuffer, receivedBuffer)
+  ) {
+    const error = new Error('Invalid PayPro Global signature');
+    error.statusCode = 401;
+    throw error;
+  }
+}
+
+function decimalAmountToMinor(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number < 0) return null;
+  return String(Math.round(number * 100));
+}
+
+async function recordPayProEvent(rawBody, params) {
+  const eventType = cleanText(params.get('IPN_TYPE_NAME'), 128);
+  const orderId = cleanText(params.get('ORDER_ID'), 128);
+  if (!eventType || !orderId) {
+    const error = new Error('Invalid PayPro Global event');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const eventId = crypto.createHash('sha256').update(rawBody, 'utf8').digest('hex');
+  const testMode = payProTestMode(params.get('TEST_MODE'));
+  const customFields = parsePayProCustomFields(params.get('ORDER_CUSTOM_FIELDS'));
+  const claimId = cleanText(customFields.pal_claim_id, 128);
+  const plan = cleanText(customFields.pal_plan, 32);
+  const source = cleanText(customFields.pal_source, 64);
+  const subscriptionId = cleanText(params.get('SUBSCRIPTION_ID'), 128);
+  const status = cleanText(params.get('ORDER_STATUS'), 64).toLowerCase();
+  const currencyCode = cleanText(params.get('ORDER_CURRENCY_CODE'), 3).toUpperCase();
+  const amountMinor = decimalAmountToMinor(params.get('ORDER_TOTAL_AMOUNT'));
+
+  let occurredAt = null;
+  const placedUtc = cleanText(params.get('ORDER_PLACED_TIME_UTC'), 80);
+  if (placedUtc) {
+    const date = new Date(placedUtc);
+    if (!Number.isNaN(date.getTime())) occurredAt = date.toISOString();
+  }
+
+  await pool.query(
+    `insert into pal_paypro_webhook_events
+      (event_id, event_type, test_mode, occurred_at, order_id, subscription_id, status, claim_id, plan, source, currency_code, amount_minor)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+     on conflict (event_id) do nothing`,
+    [
+      eventId,
+      eventType,
+      testMode,
+      occurredAt,
+      orderId,
+      subscriptionId || null,
+      status || null,
+      claimId || null,
+      plan || null,
+      source || null,
+      currencyCode || null,
+      amountMinor,
+    ]
+  );
+
+  console.log(
+    `PAL_PAYPRO_WEBHOOK event_id=${eventId} event_type=${eventType} test=${testMode} order_id=${orderId} subscription_id=${subscriptionId || '-'}`
+  );
+}
+
+async function getPayProEntitlement(claimId) {
+  const { rows } = await pool.query(
+    `select event_type, status, occurred_at, processed_at
+       from pal_paypro_webhook_events
+      where claim_id = $1
+        and test_mode = false
+      order by coalesce(occurred_at, processed_at) desc, processed_at desc
+      limit 50`,
+    [claimId]
+  );
+  if (rows.length === 0) return { active: false, state: 'pending' };
+
+  const latest = rows[0];
+  if (['SubscriptionSuspended', 'SubscriptionTerminated', 'SubscriptionFinished', 'OrderRefunded', 'OrderChargedBack'].includes(latest.event_type)) {
+    return { active: false, state: latest.event_type.toLowerCase() };
+  }
+  if (['OrderCharged', 'SubscriptionChargeSucceed', 'SubscriptionRenewed', 'OrderChargedBackWon'].includes(latest.event_type)) {
+    return { active: true, state: latest.event_type === 'OrderCharged' ? 'paid' : 'active' };
+  }
+
+  const paid = rows.find(row =>
+    ['OrderCharged', 'SubscriptionChargeSucceed', 'SubscriptionRenewed', 'OrderChargedBackWon'].includes(row.event_type)
+  );
+  return paid ? { active: true, state: 'active' } : { active: false, state: 'pending' };
+}
+
+function payProConfigured() {
+  return Boolean(PAYPRO_PRODUCT_ID_MONTHLY && PAYPRO_PRODUCT_ID_ANNUAL && PAYPRO_CHECKOUT_LIVE);
+}
+
+async function createPayProCheckoutSession({ claimId, plan, source, live }) {
+  const productId = plan === 'monthly'
+    ? PAYPRO_PRODUCT_ID_MONTHLY
+    : plan === 'annual'
+      ? PAYPRO_PRODUCT_ID_ANNUAL
+      : '';
+  if (!productId || !live || !PAYPRO_CHECKOUT_LIVE) {
+    const error = new Error('PayPro Global checkout is not configured for live orders');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  const checkout = new URL('https://store.payproglobal.com/checkout');
+  checkout.searchParams.set('products[1][id]', productId);
+  checkout.searchParams.set('x-pal_claim_id', claimId);
+  checkout.searchParams.set('x-pal_plan', plan);
+  checkout.searchParams.set('x-pal_source', source);
+
+  return {
+    checkout_url: checkout.toString(),
+    live: true,
+    session_id: null,
+  };
+}
+
+function resolvedCheckoutProvider() {
+  const requested = PAL_CHECKOUT_PROVIDER;
+  if (requested && requested !== 'auto') {
+    if (['fastspring', 'creem', 'paypro'].includes(requested)) return requested;
+    return null;
+  }
+  if (CREEM_CHECKOUT_LIVE && creemConfigured(true)) return 'creem';
+  if (PAYPRO_CHECKOUT_LIVE && payProConfigured()) return 'paypro';
+  if (FASTSPRING_CHECKOUT_LIVE) return 'fastspring';
+  return null;
+}
+
+async function createPalCheckoutSession({ claimId, plan, source }) {
+  const provider = resolvedCheckoutProvider();
+  if (!provider) {
+    const error = new Error('Live PAL Pro checkout is awaiting payment-provider activation');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  if (provider === 'creem') {
+    return { provider, ...(await createCreemCheckoutSession({ claimId, plan, source, live: true })) };
+  }
+  if (provider === 'paypro') {
+    return { provider, ...(await createPayProCheckoutSession({ claimId, plan, source, live: true })) };
+  }
+
+  if (!FASTSPRING_CHECKOUT_LIVE) {
+    const error = new Error('FastSpring checkout is not live');
+    error.statusCode = 503;
+    throw error;
+  }
+  return {
+    provider: 'fastspring',
+    ...(await createFastSpringCheckoutSession({ claimId, plan, source, live: true })),
+  };
+}
+
 const ALLOWED_LEAD_PRODUCTS = new Set([
   'pal-catalog-check',
   'feed-auditor',
@@ -949,7 +1473,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'GET' && url.pathname === '/metrics/payments') {
-      const { rows: totalsRows } = await pool.query(`
+      const completedCte = `
         with completed as (
           select 'paddle'::text as provider,
                  occurred_at,
@@ -960,6 +1484,7 @@ const server = http.createServer(async (req, res) => {
            where event_type = 'transaction.completed'
              and lower(coalesce(status, '')) = 'completed'
              and is_simulation = false
+
           union all
           select 'fastspring'::text as provider,
                  coalesce(occurred_at, processed_at) as occurred_at,
@@ -969,26 +1494,40 @@ const server = http.createServer(async (req, res) => {
             from pal_fastspring_webhook_events
            where event_type = 'order.completed'
              and live = true
+
+          union all
+          select 'creem'::text as provider,
+                 coalesce(occurred_at, processed_at) as occurred_at,
+                 currency_code,
+                 amount_minor,
+                 coalesce(source, 'unknown') as source
+            from pal_creem_webhook_events
+           where event_type = 'subscription.paid'
+             and live = true
+
+          union all
+          select 'paypro'::text as provider,
+                 coalesce(occurred_at, processed_at) as occurred_at,
+                 currency_code,
+                 amount_minor,
+                 coalesce(source, 'unknown') as source
+            from pal_paypro_webhook_events
+           where event_type in ('OrderCharged', 'SubscriptionChargeSucceed')
+             and test_mode = false
         )
+      `;
+
+      const { rows: totalsRows } = await pool.query(
+        completedCte + `
         select count(*)::bigint as completed_transactions,
                min(occurred_at) as first_completed_at,
                max(occurred_at) as last_completed_at
           from completed
-      `);
+        `
+      );
 
-      const { rows: revenueRows } = await pool.query(`
-        with completed as (
-          select currency_code, amount_minor
-            from pal_paddle_webhook_events
-           where event_type = 'transaction.completed'
-             and lower(coalesce(status, '')) = 'completed'
-             and is_simulation = false
-          union all
-          select currency_code, amount_minor
-            from pal_fastspring_webhook_events
-           where event_type = 'order.completed'
-             and live = true
-        )
+      const { rows: revenueRows } = await pool.query(
+        completedCte + `
         select currency_code,
                coalesce(sum(amount_minor), 0)::text as gross_completed_minor
           from completed
@@ -996,45 +1535,26 @@ const server = http.createServer(async (req, res) => {
            and amount_minor is not null
          group by currency_code
          order by currency_code
-      `);
+        `
+      );
 
-      const { rows: sourceRows } = await pool.query(`
-        with completed as (
-          select coalesce(source, 'unknown') as source
-            from pal_paddle_webhook_events
-           where event_type = 'transaction.completed'
-             and lower(coalesce(status, '')) = 'completed'
-             and is_simulation = false
-          union all
-          select coalesce(source, 'unknown') as source
-            from pal_fastspring_webhook_events
-           where event_type = 'order.completed'
-             and live = true
-        )
+      const { rows: sourceRows } = await pool.query(
+        completedCte + `
         select source, count(*)::bigint as completed_transactions
           from completed
          group by source
          order by count(*) desc, source
-      `);
+        `
+      );
 
-      const { rows: providerRows } = await pool.query(`
-        with completed as (
-          select 'paddle'::text as provider
-            from pal_paddle_webhook_events
-           where event_type = 'transaction.completed'
-             and lower(coalesce(status, '')) = 'completed'
-             and is_simulation = false
-          union all
-          select 'fastspring'::text as provider
-            from pal_fastspring_webhook_events
-           where event_type = 'order.completed'
-             and live = true
-        )
+      const { rows: providerRows } = await pool.query(
+        completedCte + `
         select provider, count(*)::bigint as completed_transactions
           from completed
          group by provider
          order by provider
-      `);
+        `
+      );
 
       const { rows: paddleSubscriptionRows } = await pool.query(`
         with latest as (
@@ -1065,12 +1585,54 @@ const server = http.createServer(async (req, res) => {
            order by subscription_id, coalesce(occurred_at, processed_at) desc, processed_at desc
         )
         select count(*) filter (
-                 where event_type <> 'subscription.deactivated'
-                   and status <> 'deactivated'
+                 where event_type in ('subscription.activated', 'subscription.charge.completed')
+                   and status not in ('canceled', 'deactivated')
                )::bigint as active_subscriptions,
                count(*) filter (
-                 where event_type = 'subscription.canceled'
-                    or status = 'canceled'
+                 where event_type in ('subscription.canceled', 'subscription.deactivated')
+                    or status in ('canceled', 'deactivated')
+               )::bigint as canceled_subscriptions
+          from latest
+      `);
+
+      const { rows: creemSubscriptionRows } = await pool.query(`
+        with latest as (
+          select distinct on (subscription_id)
+                 subscription_id,
+                 event_type,
+                 lower(coalesce(status, '')) as status
+            from pal_creem_webhook_events
+           where subscription_id is not null
+             and event_type like 'subscription.%'
+             and live = true
+           order by subscription_id, coalesce(occurred_at, processed_at) desc, processed_at desc
+        )
+        select count(*) filter (
+                 where event_type in ('subscription.active', 'subscription.paid')
+                   and status not in ('canceled', 'expired', 'paused')
+               )::bigint as active_subscriptions,
+               count(*) filter (
+                 where event_type in ('subscription.canceled', 'subscription.expired', 'subscription.paused')
+                    or status in ('canceled', 'expired', 'paused')
+               )::bigint as canceled_subscriptions
+          from latest
+      `);
+
+      const { rows: payProSubscriptionRows } = await pool.query(`
+        with latest as (
+          select distinct on (subscription_id)
+                 subscription_id,
+                 event_type
+            from pal_paypro_webhook_events
+           where subscription_id is not null
+             and test_mode = false
+           order by subscription_id, coalesce(occurred_at, processed_at) desc, processed_at desc
+        )
+        select count(*) filter (
+                 where event_type in ('OrderCharged', 'SubscriptionChargeSucceed', 'SubscriptionRenewed', 'OrderChargedBackWon')
+               )::bigint as active_subscriptions,
+               count(*) filter (
+                 where event_type in ('SubscriptionSuspended', 'SubscriptionTerminated', 'SubscriptionFinished')
                )::bigint as canceled_subscriptions
           from latest
       `);
@@ -1079,6 +1641,10 @@ const server = http.createServer(async (req, res) => {
       const paddleCanceled = Number(paddleSubscriptionRows[0].canceled_subscriptions);
       const fastSpringActive = Number(fastSpringSubscriptionRows[0].active_subscriptions);
       const fastSpringCanceled = Number(fastSpringSubscriptionRows[0].canceled_subscriptions);
+      const creemActive = Number(creemSubscriptionRows[0].active_subscriptions);
+      const creemCanceled = Number(creemSubscriptionRows[0].canceled_subscriptions);
+      const payproActive = Number(payProSubscriptionRows[0].active_subscriptions);
+      const payproCanceled = Number(payProSubscriptionRows[0].canceled_subscriptions);
 
       return sendJson(req, res, 200, {
         ok: true,
@@ -1086,8 +1652,8 @@ const server = http.createServer(async (req, res) => {
         completed_transactions: Number(totalsRows[0].completed_transactions),
         first_completed_at: totalsRows[0].first_completed_at,
         last_completed_at: totalsRows[0].last_completed_at,
-        active_subscriptions: paddleActive + fastSpringActive,
-        canceled_subscriptions: paddleCanceled + fastSpringCanceled,
+        active_subscriptions: paddleActive + fastSpringActive + creemActive + payproActive,
+        canceled_subscriptions: paddleCanceled + fastSpringCanceled + creemCanceled + payproCanceled,
         gross_completed_by_currency: Object.fromEntries(
           revenueRows.map(row => [row.currency_code, row.gross_completed_minor])
         ),
@@ -1098,16 +1664,12 @@ const server = http.createServer(async (req, res) => {
           providerRows.map(row => [row.provider, Number(row.completed_transactions)])
         ),
         subscriptions_by_provider: {
-          paddle: {
-            active: paddleActive,
-            canceled: paddleCanceled,
-          },
-          fastspring: {
-            active: fastSpringActive,
-            canceled: fastSpringCanceled,
-          },
+          paddle: { active: paddleActive, canceled: paddleCanceled },
+          fastspring: { active: fastSpringActive, canceled: fastSpringCanceled },
+          creem: { active: creemActive, canceled: creemCanceled },
+          paypro: { active: payproActive, canceled: payproCanceled },
         },
-        note: 'Gross completed transaction totals are before provider fees, refunds, chargebacks, and adjustments. Paddle simulator events and FastSpring test events are excluded.',
+        note: 'Gross completed transaction totals are before provider fees, refunds, chargebacks, and adjustments. Paddle simulator events and all provider test-mode events are excluded.',
       });
     }
 
@@ -1182,6 +1744,66 @@ const server = http.createServer(async (req, res) => {
         event: eventName,
         note: 'Synthetic measurement probe; excluded from production metrics.',
       });
+    }
+
+    if (req.method === 'GET' && url.pathname === '/checkout-readiness') {
+      const provider = resolvedCheckoutProvider();
+      return sendJson(req, res, 200, {
+        ok: true,
+        ready: Boolean(provider),
+        provider,
+        payment_path_verified: false,
+        note: provider
+          ? 'A live provider is configured; verify a real buyer checkout opening before setting payment_path_verified=true.'
+          : 'No live payment provider is configured yet.',
+      });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/checkout-session') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+
+      const body = await readJsonBody(req, 4096);
+      const claimId = cleanText(body.claim_id, 128);
+      const plan = cleanText(body.plan, 32).toLowerCase();
+      const rawSource = cleanText(body.source, 64);
+      const source = /^[a-zA-Z0-9_-]{1,64}$/.test(rawSource) ? rawSource : 'direct';
+
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+      if (!['monthly', 'annual'].includes(plan)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid plan' });
+      }
+
+      const session = await createPalCheckoutSession({ claimId, plan, source });
+      return sendJson(req, res, 201, { ok: true, ...session });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/creem/webhook') {
+      const rawBody = await readRawBody(req);
+      verifyCreemSignature(rawBody, req.headers['creem-signature']);
+
+      let event;
+      try {
+        event = JSON.parse(rawBody);
+      } catch {
+        const error = new Error('Invalid JSON');
+        error.statusCode = 400;
+        throw error;
+      }
+
+      await recordCreemEvent(event);
+      return sendJson(req, res, 200, { received: true });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/paypro/webhook') {
+      const rawBody = await readRawBody(req);
+      const params = new URLSearchParams(rawBody);
+      verifyPayProSignature(params);
+      await recordPayProEvent(rawBody, params);
+      return sendJson(req, res, 200, { received: true });
     }
 
     if (req.method === 'POST' && url.pathname === '/fastspring/test-checkout-session') {
