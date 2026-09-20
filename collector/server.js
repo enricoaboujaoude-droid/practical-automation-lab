@@ -31,6 +31,15 @@ const PAYPRO_PRODUCT_ID_MONTHLY = process.env.PAYPRO_PRODUCT_ID_MONTHLY || '';
 const PAYPRO_PRODUCT_ID_ANNUAL = process.env.PAYPRO_PRODUCT_ID_ANNUAL || '';
 const PAYPRO_CHECKOUT_LIVE = String(process.env.PAYPRO_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
 
+const MONTYPAY_CHECKOUT_URL = process.env.MONTYPAY_CHECKOUT_URL || '';
+const MONTYPAY_MERCHANT_KEY = process.env.MONTYPAY_MERCHANT_KEY || '';
+const MONTYPAY_PASSWORD = process.env.MONTYPAY_PASSWORD || '';
+const MONTYPAY_SCHEDULE_ID_MONTHLY = process.env.MONTYPAY_SCHEDULE_ID_MONTHLY || '';
+const MONTYPAY_SCHEDULE_ID_ANNUAL = process.env.MONTYPAY_SCHEDULE_ID_ANNUAL || '';
+const MONTYPAY_CURRENCY = String(process.env.MONTYPAY_CURRENCY || 'USD').trim().toUpperCase();
+const MONTYPAY_HASH_DIGEST = String(process.env.MONTYPAY_HASH_DIGEST || 'md5').trim().toLowerCase();
+const MONTYPAY_CHECKOUT_LIVE = String(process.env.MONTYPAY_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
+
 const SITE_ORIGIN = 'https://practical-automation-lab.onrender.com';
 const ALLOWED_EVENTS = new Set([
   'audit_started',
@@ -297,6 +306,60 @@ async function initialize() {
     create index if not exists pal_paypro_webhook_events_claim_id_idx
       on pal_paypro_webhook_events (claim_id, occurred_at desc)
       where claim_id is not null
+  `);
+
+  await pool.query(`
+    create table if not exists pal_montypay_checkout_sessions (
+      order_number text primary key,
+      claim_id text not null,
+      plan text not null,
+      source text not null,
+      live boolean not null default false,
+      amount_minor bigint not null,
+      currency_code text not null,
+      created_at timestamptz not null default now()
+    )
+  `);
+
+  await pool.query(`
+    create index if not exists pal_montypay_checkout_sessions_claim_idx
+      on pal_montypay_checkout_sessions (claim_id, created_at desc)
+  `);
+
+  await pool.query(`
+    create table if not exists pal_montypay_webhook_events (
+      event_id text primary key,
+      payment_id text,
+      event_type text not null,
+      event_status text,
+      order_status text,
+      live boolean not null default false,
+      order_number text,
+      transaction_id text,
+      recurring_init_trans_id text,
+      recurring_token text,
+      schedule_id text,
+      auto_renew boolean not null default false,
+      claim_id text,
+      plan text,
+      source text,
+      currency_code text,
+      amount_minor bigint,
+      access_until timestamptz,
+      processed_at timestamptz not null default now()
+    )
+  `);
+
+  await pool.query(`
+    create index if not exists pal_montypay_webhook_events_claim_idx
+      on pal_montypay_webhook_events (claim_id, processed_at desc)
+      where claim_id is not null
+  `);
+
+  await pool.query(`
+    create index if not exists pal_montypay_webhook_events_recurring_idx
+      on pal_montypay_webhook_events (recurring_init_trans_id, recurring_token)
+      where recurring_init_trans_id is not null or recurring_token is not null
   `);
 
   await insertEvent('audit_started', true);
@@ -742,6 +805,11 @@ async function getPaddleEntitlement(claimId) {
 }
 
 async function getPalEntitlement(claimId) {
+  const montypay = await getMontyPayEntitlement(claimId);
+  if (montypay.active || montypay.state !== 'pending') {
+    return { provider: 'montypay', ...montypay };
+  }
+
   const creem = await getCreemEntitlement(claimId);
   if (creem.active || creem.state !== 'pending') {
     return { provider: 'creem', ...creem };
@@ -1475,14 +1543,433 @@ async function createPayProCheckoutSession({ claimId, plan, source, live }) {
   };
 }
 
+
+function montyPayInnerDigest(value) {
+  if (!['md5', 'sha256'].includes(MONTYPAY_HASH_DIGEST)) {
+    const error = new Error('Unsupported MontyPay hash digest');
+    error.statusCode = 503;
+    throw error;
+  }
+  return crypto.createHash(MONTYPAY_HASH_DIGEST).update(value, 'utf8').digest('hex');
+}
+
+function montyPayRequestHash(orderNumber, amount, currency, description) {
+  const raw = (
+    orderNumber +
+    amount +
+    currency +
+    description +
+    MONTYPAY_PASSWORD
+  ).toUpperCase();
+  const inner = montyPayInnerDigest(raw);
+  return crypto.createHash('sha1').update(inner, 'utf8').digest('hex');
+}
+
+function asciiUpper(value) {
+  return String(value || '').replace(/[a-z]/g, char => char.toUpperCase());
+}
+
+function montyPayCallbackHash(params) {
+  const raw = asciiUpper(
+    String(params.get('id') || '') +
+    String(params.get('order_number') || '') +
+    String(params.get('order_amount') || '') +
+    String(params.get('order_currency') || '') +
+    String(params.get('order_description') || '') +
+    MONTYPAY_PASSWORD
+  );
+  const inner = montyPayInnerDigest(raw);
+  return crypto.createHash('sha1').update(inner, 'utf8').digest('hex');
+}
+
+function verifyMontyPayCallback(params) {
+  if (!MONTYPAY_PASSWORD) {
+    const error = new Error('MontyPay password is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  const received = cleanText(params.get('hash'), 128).toLowerCase();
+  const expected = montyPayCallbackHash(params).toLowerCase();
+  if (!/^[a-f0-9]{40}$/.test(received)) {
+    const error = new Error('Invalid MontyPay callback hash');
+    error.statusCode = 401;
+    throw error;
+  }
+
+  const receivedBuffer = Buffer.from(received, 'utf8');
+  const expectedBuffer = Buffer.from(expected, 'utf8');
+  if (
+    receivedBuffer.length !== expectedBuffer.length ||
+    !crypto.timingSafeEqual(receivedBuffer, expectedBuffer)
+  ) {
+    const error = new Error('Invalid MontyPay callback hash');
+    error.statusCode = 401;
+    throw error;
+  }
+}
+
+function montyPayPlanConfig(plan) {
+  if (plan === 'monthly') {
+    return {
+      amount: '19.00',
+      amountMinor: '1900',
+      description: 'PAL Pro Monthly',
+      scheduleId: MONTYPAY_SCHEDULE_ID_MONTHLY,
+    };
+  }
+  if (plan === 'annual') {
+    return {
+      amount: '199.00',
+      amountMinor: '19900',
+      description: 'PAL Pro Annual',
+      scheduleId: MONTYPAY_SCHEDULE_ID_ANNUAL,
+    };
+  }
+  return null;
+}
+
+function montyPayConfigured(requireLive = true) {
+  const baseConfigured = Boolean(
+    MONTYPAY_CHECKOUT_URL &&
+    MONTYPAY_MERCHANT_KEY &&
+    MONTYPAY_PASSWORD &&
+    /^[A-Z]{3}$/.test(MONTYPAY_CURRENCY) &&
+    ['md5', 'sha256'].includes(MONTYPAY_HASH_DIGEST) &&
+    MONTYPAY_SCHEDULE_ID_MONTHLY &&
+    MONTYPAY_SCHEDULE_ID_ANNUAL
+  );
+  if (!baseConfigured) return false;
+  return requireLive ? MONTYPAY_CHECKOUT_LIVE : true;
+}
+
+function montyPayAccessUntil(plan, from = new Date()) {
+  const value = new Date(from);
+  if (plan === 'monthly') value.setUTCMonth(value.getUTCMonth() + 1);
+  else if (plan === 'annual') value.setUTCFullYear(value.getUTCFullYear() + 1);
+  else return null;
+  return value.toISOString();
+}
+
+async function createMontyPayCheckoutSession({ claimId, plan, source, live }) {
+  if (!montyPayConfigured(false)) {
+    const error = new Error('MontyPay checkout is not fully configured');
+    error.statusCode = 503;
+    throw error;
+  }
+  if (Boolean(live) !== MONTYPAY_CHECKOUT_LIVE) {
+    const error = new Error('MontyPay environment does not match requested checkout mode');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  let base;
+  try {
+    base = new URL(MONTYPAY_CHECKOUT_URL);
+  } catch {
+    const error = new Error('MontyPay checkout URL is invalid');
+    error.statusCode = 503;
+    throw error;
+  }
+  if (base.protocol !== 'https:') {
+    const error = new Error('MontyPay checkout URL must use HTTPS');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  const config = montyPayPlanConfig(plan);
+  if (!config || !config.scheduleId) {
+    const error = new Error('MontyPay recurring schedule is not configured for this plan');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  const orderNumber =
+    'pal-' +
+    Date.now().toString(36) +
+    '-' +
+    crypto.randomBytes(10).toString('hex');
+
+  const requestHash = montyPayRequestHash(
+    orderNumber,
+    config.amount,
+    MONTYPAY_CURRENCY,
+    config.description
+  );
+
+  await pool.query(
+    `insert into pal_montypay_checkout_sessions
+      (order_number, claim_id, plan, source, live, amount_minor, currency_code)
+     values ($1, $2, $3, $4, $5, $6, $7)`,
+    [
+      orderNumber,
+      claimId,
+      plan,
+      source,
+      Boolean(live),
+      config.amountMinor,
+      MONTYPAY_CURRENCY,
+    ]
+  );
+
+  const endpoint = new URL('/api/v1/session', base).toString();
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'User-Agent': 'PracticalAutomationLab/1.0',
+    },
+    body: JSON.stringify({
+      merchant_key: MONTYPAY_MERCHANT_KEY,
+      operation: 'purchase',
+      order: {
+        number: orderNumber,
+        amount: config.amount,
+        currency: MONTYPAY_CURRENCY,
+        description: config.description,
+      },
+      success_url: SITE_ORIGIN + '/checkout-success.html',
+      cancel_url: SITE_ORIGIN + '/pricing.html?checkout=cancelled',
+      expiry_url: SITE_ORIGIN + '/pricing.html?checkout=expired',
+      error_url: SITE_ORIGIN + '/pricing.html?checkout=error',
+      recurring_init: true,
+      recurring_consent_required: true,
+      schedule_id: config.scheduleId,
+      payment_schedule_amount: config.amount,
+      hash: requestHash,
+    }),
+  });
+
+  const text = await response.text();
+  let data = {};
+  try { data = text ? JSON.parse(text) : {}; } catch { data = {}; }
+
+  if (!response.ok) {
+    console.error(
+      'PAL_MONTYPAY_API_ERROR status=' + response.status +
+      ' body=' + text.slice(0, 1000)
+    );
+    const error = new Error('MontyPay checkout service rejected the request');
+    error.statusCode = response.status >= 500 ? 502 : 400;
+    throw error;
+  }
+
+  const checkoutUrl = cleanText(data?.redirect_url, 2048);
+  if (!checkoutUrl) {
+    const error = new Error('MontyPay did not return a checkout URL');
+    error.statusCode = 502;
+    throw error;
+  }
+
+  let parsedCheckoutUrl;
+  try { parsedCheckoutUrl = new URL(checkoutUrl); } catch {}
+  if (!parsedCheckoutUrl || parsedCheckoutUrl.protocol !== 'https:') {
+    const error = new Error('MontyPay returned an invalid checkout URL');
+    error.statusCode = 502;
+    throw error;
+  }
+
+  console.log(
+    'PAL_MONTYPAY_SESSION created=true live=' + Boolean(live) +
+    ' plan=' + plan +
+    ' source=' + source +
+    ' order_number=' + orderNumber
+  );
+
+  return {
+    checkout_url: checkoutUrl,
+    live: Boolean(live),
+    session_id: orderNumber,
+  };
+}
+
+async function montyPaySessionForCallback(params) {
+  const orderNumber = cleanText(params.get('order_number'), 255);
+  if (orderNumber) {
+    const direct = await pool.query(
+      `select order_number, claim_id, plan, source, live, amount_minor, currency_code
+         from pal_montypay_checkout_sessions
+        where order_number = $1
+        limit 1`,
+      [orderNumber]
+    );
+    if (direct.rows[0]) return direct.rows[0];
+  }
+
+  const recurringInitTransId = cleanText(params.get('recurring_init_trans_id'), 128);
+  const recurringToken = cleanText(params.get('recurring_token'), 256);
+  if (!recurringInitTransId && !recurringToken) return null;
+
+  const linked = await pool.query(
+    `select e.claim_id,
+            e.plan,
+            e.source,
+            e.live,
+            e.amount_minor,
+            e.currency_code,
+            e.order_number
+       from pal_montypay_webhook_events e
+      where e.claim_id is not null
+        and (
+          ($1 <> '' and e.recurring_init_trans_id = $1)
+          or ($2 <> '' and e.recurring_token = $2)
+        )
+      order by e.processed_at desc
+      limit 1`,
+    [recurringInitTransId, recurringToken]
+  );
+  return linked.rows[0] || null;
+}
+
+async function recordMontyPayCallback(rawBody, params) {
+  verifyMontyPayCallback(params);
+
+  const paymentId = cleanText(params.get('id'), 128);
+  const eventType = cleanText(params.get('type'), 64).toLowerCase();
+  const eventStatus = cleanText(params.get('status'), 32).toLowerCase();
+  const orderStatus = cleanText(params.get('order_status'), 32).toLowerCase();
+  if (!paymentId || !eventType || !eventStatus || !orderStatus) {
+    const error = new Error('Invalid MontyPay callback');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const session = await montyPaySessionForCallback(params);
+  if (!session) {
+    const error = new Error('Unknown MontyPay order');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const callbackCurrency = cleanText(params.get('order_currency'), 6).toUpperCase();
+  const callbackAmountMinor = decimalAmountToMinor(params.get('order_amount'));
+  if (
+    ['sale', 'recurring'].includes(eventType) &&
+    (
+      callbackCurrency !== String(session.currency_code || '').toUpperCase() ||
+      callbackAmountMinor !== String(session.amount_minor || '')
+    )
+  ) {
+    const error = new Error('MontyPay callback amount or currency mismatch');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const recurringInitTransId = cleanText(params.get('recurring_init_trans_id'), 128);
+  const recurringToken = cleanText(params.get('recurring_token'), 256);
+  const scheduleId = cleanText(params.get('schedule_id'), 128);
+  const transactionId = cleanText(params.get('trans_id'), 128);
+  const isFinalPaid =
+    ['sale', 'recurring'].includes(eventType) &&
+    eventStatus === 'success' &&
+    orderStatus === 'settled';
+
+  const autoRenew =
+    eventType === 'recurring' ||
+    Boolean(recurringToken) ||
+    Boolean(scheduleId && recurringInitTransId);
+
+  const accessUntil = isFinalPaid
+    ? montyPayAccessUntil(session.plan)
+    : null;
+
+  const eventId = crypto
+    .createHash('sha256')
+    .update(rawBody, 'utf8')
+    .digest('hex');
+
+  await pool.query(
+    `insert into pal_montypay_webhook_events
+      (event_id, payment_id, event_type, event_status, order_status, live,
+       order_number, transaction_id, recurring_init_trans_id, recurring_token,
+       schedule_id, auto_renew, claim_id, plan, source, currency_code,
+       amount_minor, access_until)
+     values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
+     on conflict (event_id) do nothing`,
+    [
+      eventId,
+      paymentId,
+      eventType,
+      eventStatus,
+      orderStatus,
+      Boolean(session.live),
+      cleanText(params.get('order_number'), 255) || session.order_number || null,
+      transactionId || null,
+      recurringInitTransId || null,
+      recurringToken || null,
+      scheduleId || null,
+      autoRenew,
+      session.claim_id,
+      session.plan,
+      session.source,
+      callbackCurrency || session.currency_code,
+      callbackAmountMinor || session.amount_minor,
+      accessUntil,
+    ]
+  );
+
+  console.log(
+    'PAL_MONTYPAY_WEBHOOK event_id=' + eventId +
+    ' type=' + eventType +
+    ' status=' + eventStatus +
+    ' order_status=' + orderStatus +
+    ' live=' + Boolean(session.live) +
+    ' order_number=' + (cleanText(params.get('order_number'), 255) || '-')
+  );
+}
+
+async function getMontyPayEntitlement(claimId) {
+  const { rows } = await pool.query(
+    `select event_type, event_status, order_status, auto_renew, access_until, processed_at
+       from pal_montypay_webhook_events
+      where claim_id = $1
+        and live = true
+      order by processed_at desc
+      limit 100`,
+    [claimId]
+  );
+
+  if (rows.length === 0) return { active: false, state: 'pending' };
+
+  const latestTerminal = rows.find(row =>
+    ['refund', 'void', 'chargeback'].includes(row.event_type) &&
+    ['refund', 'void', 'chargeback'].includes(row.order_status)
+  );
+  const latestPaid = rows.find(row =>
+    ['sale', 'recurring'].includes(row.event_type) &&
+    row.event_status === 'success' &&
+    row.order_status === 'settled' &&
+    row.access_until
+  );
+
+  if (latestTerminal && (!latestPaid || latestTerminal.processed_at > latestPaid.processed_at)) {
+    return { active: false, state: latestTerminal.order_status };
+  }
+  if (!latestPaid) return { active: false, state: 'pending' };
+
+  const accessUntil = new Date(latestPaid.access_until);
+  if (Number.isNaN(accessUntil.getTime()) || accessUntil <= new Date()) {
+    return { active: false, state: 'expired' };
+  }
+
+  return {
+    active: true,
+    state: latestPaid.auto_renew ? 'active' : 'paid_term',
+    access_until: latestPaid.access_until,
+  };
+}
+
 function resolvedCheckoutProvider() {
   const requested = PAL_CHECKOUT_PROVIDER;
   if (requested && requested !== 'auto') {
+    if (requested === 'montypay' && montyPayConfigured(true)) return 'montypay';
     if (requested === 'creem' && creemConfigured(true)) return 'creem';
     if (requested === 'paypro' && payProConfigured()) return 'paypro';
     if (requested === 'fastspring' && fastSpringConfigured()) return 'fastspring';
     return null;
   }
+  if (montyPayConfigured(true)) return 'montypay';
   if (creemConfigured(true)) return 'creem';
   if (payProConfigured()) return 'paypro';
   if (fastSpringConfigured()) return 'fastspring';
@@ -1497,6 +1984,9 @@ async function createPalCheckoutSession({ claimId, plan, source }) {
     throw error;
   }
 
+  if (provider === 'montypay') {
+    return { provider, ...(await createMontyPayCheckoutSession({ claimId, plan, source, live: true })) };
+  }
   if (provider === 'creem') {
     return { provider, ...(await createCreemCheckoutSession({ claimId, plan, source, live: true })) };
   }
@@ -1701,6 +2191,18 @@ const server = http.createServer(async (req, res) => {
             from pal_paypro_webhook_events
            where event_type in ('OrderCharged', 'SubscriptionChargeSucceed')
              and test_mode = false
+
+          union all
+          select 'montypay'::text as provider,
+                 processed_at as occurred_at,
+                 currency_code,
+                 amount_minor,
+                 coalesce(source, 'unknown') as source
+            from pal_montypay_webhook_events
+           where event_type in ('sale', 'recurring')
+             and event_status = 'success'
+             and order_status = 'settled'
+             and live = true
         )
       `;
 
@@ -1824,6 +2326,24 @@ const server = http.createServer(async (req, res) => {
           from latest
       `);
 
+      const { rows: montyPaySubscriptionRows } = await pool.query(`
+        with by_claim as (
+          select claim_id,
+                 bool_or(auto_renew) as auto_renew,
+                 max(access_until) as access_until
+            from pal_montypay_webhook_events
+           where claim_id is not null
+             and live = true
+           group by claim_id
+        )
+        select count(*) filter (
+                 where auto_renew = true
+                   and access_until > now()
+               )::bigint as active_subscriptions,
+               0::bigint as canceled_subscriptions
+          from by_claim
+      `);
+
       const paddleActive = Number(paddleSubscriptionRows[0].active_subscriptions);
       const paddleCanceled = Number(paddleSubscriptionRows[0].canceled_subscriptions);
       const fastSpringActive = Number(fastSpringSubscriptionRows[0].active_subscriptions);
@@ -1832,6 +2352,8 @@ const server = http.createServer(async (req, res) => {
       const creemCanceled = Number(creemSubscriptionRows[0].canceled_subscriptions);
       const payproActive = Number(payProSubscriptionRows[0].active_subscriptions);
       const payproCanceled = Number(payProSubscriptionRows[0].canceled_subscriptions);
+      const montypayActive = Number(montyPaySubscriptionRows[0].active_subscriptions);
+      const montypayCanceled = Number(montyPaySubscriptionRows[0].canceled_subscriptions);
 
       return sendJson(req, res, 200, {
         ok: true,
@@ -1839,8 +2361,8 @@ const server = http.createServer(async (req, res) => {
         completed_transactions: Number(totalsRows[0].completed_transactions),
         first_completed_at: totalsRows[0].first_completed_at,
         last_completed_at: totalsRows[0].last_completed_at,
-        active_subscriptions: paddleActive + fastSpringActive + creemActive + payproActive,
-        canceled_subscriptions: paddleCanceled + fastSpringCanceled + creemCanceled + payproCanceled,
+        active_subscriptions: paddleActive + fastSpringActive + creemActive + payproActive + montypayActive,
+        canceled_subscriptions: paddleCanceled + fastSpringCanceled + creemCanceled + payproCanceled + montypayCanceled,
         gross_completed_by_currency: Object.fromEntries(
           revenueRows.map(row => [row.currency_code, row.gross_completed_minor])
         ),
@@ -1855,8 +2377,9 @@ const server = http.createServer(async (req, res) => {
           fastspring: { active: fastSpringActive, canceled: fastSpringCanceled },
           creem: { active: creemActive, canceled: creemCanceled },
           paypro: { active: payproActive, canceled: payproCanceled },
+          montypay: { active: montypayActive, canceled: montypayCanceled },
         },
-        note: 'Gross completed transaction totals are before provider fees, refunds, chargebacks, and adjustments. Paddle simulator events and all provider test-mode events are excluded.',
+        note: 'Gross completed transaction totals are before provider fees, refunds, chargebacks, and adjustments. Paddle simulator events and all provider test-mode events are excluded. MontyPay schedule cancellations do not emit a callback, so subscription cancellation state requires provider reconciliation; paid access still expires at the last paid-through date.',
       });
     }
 
@@ -1943,6 +2466,8 @@ const server = http.createServer(async (req, res) => {
           fastspring: fastSpringConfigured(),
           creem: creemConfigured(true),
           paypro: payProConfigured(),
+          montypay: montyPayConfigured(true),
+          montypay_test: montyPayConfigured(false) && !MONTYPAY_CHECKOUT_LIVE,
           creem_test: creemConfigured(false),
         },
         payment_path_verified: false,
@@ -1972,6 +2497,51 @@ const server = http.createServer(async (req, res) => {
 
       const session = await createPalCheckoutSession({ claimId, plan, source });
       return sendJson(req, res, 201, { ok: true, ...session });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/montypay/test-checkout-session') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+
+      const body = await readJsonBody(req, 4096);
+      const claimId = cleanText(body.claim_id, 128);
+      const plan = cleanText(body.plan, 32).toLowerCase();
+      const rawSource = cleanText(body.source, 64);
+      const source = /^[a-zA-Z0-9_-]{1,64}$/.test(rawSource) ? rawSource : 'direct';
+
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+      if (!['monthly', 'annual'].includes(plan)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid plan' });
+      }
+      if (MONTYPAY_CHECKOUT_LIVE || !montyPayConfigured(false)) {
+        return sendJson(req, res, 503, {
+          ok: false,
+          error: 'MontyPay sandbox is not configured',
+        });
+      }
+
+      const session = await createMontyPayCheckoutSession({
+        claimId,
+        plan,
+        source,
+        live: false,
+      });
+      return sendJson(req, res, 201, {
+        ok: true,
+        provider: 'montypay',
+        test: true,
+        ...session,
+      });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/montypay/webhook') {
+      const rawBody = await readRawBody(req);
+      const params = new URLSearchParams(rawBody);
+      await recordMontyPayCallback(rawBody, params);
+      return sendJson(req, res, 200, { received: true });
     }
 
     if (req.method === 'POST' && url.pathname === '/creem/test-checkout-session') {
