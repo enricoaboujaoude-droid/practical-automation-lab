@@ -40,6 +40,12 @@ const MONTYPAY_CURRENCY = String(process.env.MONTYPAY_CURRENCY || 'USD').trim().
 const MONTYPAY_HASH_DIGEST = String(process.env.MONTYPAY_HASH_DIGEST || 'md5').trim().toLowerCase();
 const MONTYPAY_CHECKOUT_LIVE = String(process.env.MONTYPAY_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
 
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
+const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET || '';
+const STRIPE_PRICE_ID_MONTHLY = process.env.STRIPE_PRICE_ID_MONTHLY || '';
+const STRIPE_PRICE_ID_ANNUAL = process.env.STRIPE_PRICE_ID_ANNUAL || '';
+const STRIPE_CHECKOUT_LIVE = String(process.env.STRIPE_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
+
 const SITE_ORIGIN = 'https://practical-automation-lab.onrender.com';
 const ALLOWED_EVENTS = new Set([
   'audit_started',
@@ -360,6 +366,39 @@ async function initialize() {
     create index if not exists pal_montypay_webhook_events_recurring_idx
       on pal_montypay_webhook_events (recurring_init_trans_id, recurring_token)
       where recurring_init_trans_id is not null or recurring_token is not null
+  `);
+
+  await pool.query(`
+    create table if not exists pal_stripe_webhook_events (
+      event_id text primary key,
+      event_type text not null,
+      live boolean not null default false,
+      occurred_at timestamptz,
+      checkout_session_id text,
+      customer_id text,
+      subscription_id text,
+      invoice_id text,
+      status text,
+      claim_id text,
+      plan text,
+      source text,
+      currency_code text,
+      amount_minor bigint,
+      access_until timestamptz,
+      processed_at timestamptz not null default now()
+    )
+  `);
+
+  await pool.query(`
+    create index if not exists pal_stripe_webhook_events_claim_idx
+      on pal_stripe_webhook_events (claim_id, processed_at desc)
+      where claim_id is not null
+  `);
+
+  await pool.query(`
+    create index if not exists pal_stripe_webhook_events_subscription_idx
+      on pal_stripe_webhook_events (subscription_id, processed_at desc)
+      where subscription_id is not null
   `);
 
   await insertEvent('audit_started', true);
@@ -805,6 +844,11 @@ async function getPaddleEntitlement(claimId) {
 }
 
 async function getPalEntitlement(claimId) {
+  const stripe = await getStripeEntitlement(claimId);
+  if (stripe.active || stripe.state !== 'pending') {
+    return { provider: 'stripe', ...stripe };
+  }
+
   const montypay = await getMontyPayEntitlement(claimId);
   if (montypay.active || montypay.state !== 'pending') {
     return { provider: 'montypay', ...montypay };
@@ -1544,6 +1588,345 @@ async function createPayProCheckoutSession({ claimId, plan, source, live }) {
 }
 
 
+
+function stripeConfigured(requireLive = true) {
+  const keyTypeOk = STRIPE_CHECKOUT_LIVE
+    ? STRIPE_SECRET_KEY.startsWith('sk_live_')
+    : STRIPE_SECRET_KEY.startsWith('sk_test_');
+  const base = Boolean(
+    keyTypeOk &&
+    STRIPE_WEBHOOK_SECRET.startsWith('whsec_') &&
+    STRIPE_PRICE_ID_MONTHLY.startsWith('price_') &&
+    STRIPE_PRICE_ID_ANNUAL.startsWith('price_')
+  );
+  if (!base) return false;
+  return requireLive ? STRIPE_CHECKOUT_LIVE : true;
+}
+
+function stripePlanPrice(plan) {
+  if (plan === 'monthly') return STRIPE_PRICE_ID_MONTHLY;
+  if (plan === 'annual') return STRIPE_PRICE_ID_ANNUAL;
+  return '';
+}
+
+async function stripeApi(pathname, body) {
+  if (!STRIPE_SECRET_KEY) {
+    const error = new Error('Stripe API key is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  const response = await fetch('https://api.stripe.com' + pathname, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + STRIPE_SECRET_KEY,
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'User-Agent': 'PracticalAutomationLab/1.0',
+    },
+    body: body instanceof URLSearchParams ? body.toString() : String(body || ''),
+  });
+
+  const text = await response.text();
+  let data = {};
+  try { data = text ? JSON.parse(text) : {}; } catch {}
+
+  if (!response.ok) {
+    console.error(
+      'PAL_STRIPE_API_ERROR status=' + response.status +
+      ' type=' + cleanText(data?.error?.type, 80) +
+      ' code=' + cleanText(data?.error?.code, 80)
+    );
+    const error = new Error('Stripe checkout service rejected the request');
+    error.statusCode = response.status >= 500 ? 502 : 400;
+    throw error;
+  }
+
+  return data;
+}
+
+async function createStripeCheckoutSession({ claimId, plan, source, live }) {
+  if (!stripeConfigured(false)) {
+    const error = new Error('Stripe checkout is not fully configured');
+    error.statusCode = 503;
+    throw error;
+  }
+  if (Boolean(live) !== STRIPE_CHECKOUT_LIVE) {
+    const error = new Error('Stripe environment does not match requested checkout mode');
+    error.statusCode = 503;
+    throw error;
+  }
+
+  const priceId = stripePlanPrice(plan);
+  if (!priceId) {
+    const error = new Error('Invalid plan');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const params = new URLSearchParams();
+  params.set('mode', 'subscription');
+  params.set('success_url', SITE_ORIGIN + '/checkout-success.html?session_id={CHECKOUT_SESSION_ID}');
+  params.set('cancel_url', SITE_ORIGIN + '/pricing.html?checkout=cancelled');
+  params.set('client_reference_id', claimId);
+  params.set('line_items[0][price]', priceId);
+  params.set('line_items[0][quantity]', '1');
+  params.set('metadata[pal_claim_id]', claimId);
+  params.set('metadata[pal_plan]', plan);
+  params.set('metadata[pal_source]', source);
+  params.set('subscription_data[metadata][pal_claim_id]', claimId);
+  params.set('subscription_data[metadata][pal_plan]', plan);
+  params.set('subscription_data[metadata][pal_source]', source);
+  params.set('allow_promotion_codes', 'false');
+
+  const session = await stripeApi('/v1/checkout/sessions', params);
+  const checkoutUrl = cleanText(session?.url, 2048);
+  const sessionId = cleanText(session?.id, 255);
+  if (!checkoutUrl || !sessionId || !checkoutUrl.startsWith('https://')) {
+    const error = new Error('Stripe did not return a valid hosted checkout session');
+    error.statusCode = 502;
+    throw error;
+  }
+
+  console.log(
+    'PAL_STRIPE_SESSION created=true live=' + Boolean(live) +
+    ' plan=' + plan +
+    ' source=' + source +
+    ' session_id=' + sessionId
+  );
+
+  return {
+    checkout_url: checkoutUrl,
+    live: Boolean(live),
+    session_id: sessionId,
+  };
+}
+
+function verifyStripeSignature(rawBody, header) {
+  if (!STRIPE_WEBHOOK_SECRET) {
+    const error = new Error('Stripe webhook secret is not configured');
+    error.statusCode = 503;
+    throw error;
+  }
+  if (!header || !rawBody) {
+    const error = new Error('Missing Stripe signature or body');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  let timestamp = '';
+  const signatures = [];
+  for (const item of String(header).split(',')) {
+    const index = item.indexOf('=');
+    if (index < 1) continue;
+    const key = item.slice(0, index).trim();
+    const value = item.slice(index + 1).trim();
+    if (key === 't') timestamp = value;
+    if (key === 'v1' && value) signatures.push(value);
+  }
+
+  const seconds = Number(timestamp);
+  const now = Math.floor(Date.now() / 1000);
+  if (!/^\d+$/.test(timestamp) || !Number.isSafeInteger(seconds) || Math.abs(now - seconds) > 300) {
+    const error = new Error('Expired or invalid Stripe webhook timestamp');
+    error.statusCode = 408;
+    throw error;
+  }
+  if (signatures.length === 0) {
+    const error = new Error('Missing Stripe v1 signature');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const expected = crypto
+    .createHmac('sha256', STRIPE_WEBHOOK_SECRET)
+    .update(timestamp + '.' + rawBody, 'utf8')
+    .digest('hex');
+  const expectedBuffer = Buffer.from(expected, 'utf8');
+  const valid = signatures.some(candidate => {
+    const candidateBuffer = Buffer.from(candidate, 'utf8');
+    return candidateBuffer.length === expectedBuffer.length &&
+      crypto.timingSafeEqual(candidateBuffer, expectedBuffer);
+  });
+  if (!valid) {
+    const error = new Error('Invalid Stripe webhook signature');
+    error.statusCode = 401;
+    throw error;
+  }
+}
+
+function stripeUnixToIso(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number <= 0) return null;
+  const date = new Date(number * 1000);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
+}
+
+function stripeInvoiceAccessUntil(invoice) {
+  const lines = Array.isArray(invoice?.lines?.data) ? invoice.lines.data : [];
+  const ends = lines
+    .map(line => Number(line?.period?.end))
+    .filter(value => Number.isFinite(value) && value > 0);
+  if (ends.length === 0) return null;
+  return stripeUnixToIso(Math.max(...ends));
+}
+
+async function stripeClaimContext(subscriptionId, customerId) {
+  if (!subscriptionId && !customerId) return null;
+  const { rows } = await pool.query(
+    `select claim_id, plan, source
+       from pal_stripe_webhook_events
+      where claim_id is not null
+        and (
+          ($1 <> '' and subscription_id = $1)
+          or ($2 <> '' and customer_id = $2)
+        )
+      order by processed_at desc
+      limit 1`,
+    [subscriptionId || '', customerId || '']
+  );
+  return rows[0] || null;
+}
+
+async function recordStripeEvent(event) {
+  const eventId = cleanText(event?.id, 255);
+  const eventType = cleanText(event?.type, 128);
+  const object = event?.data?.object && typeof event.data.object === 'object'
+    ? event.data.object
+    : {};
+  if (!eventId || !eventType) {
+    const error = new Error('Invalid Stripe event');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const live = event?.livemode === true;
+  const occurredAt = stripeUnixToIso(event?.created);
+  const metadata = object?.metadata && typeof object.metadata === 'object' ? object.metadata : {};
+
+  let checkoutSessionId = eventType.startsWith('checkout.session.') ? cleanText(object?.id, 255) : '';
+  let subscriptionId = cleanText(
+    eventType.startsWith('customer.subscription.') ? object?.id : object?.subscription,
+    255
+  );
+  if (!subscriptionId && typeof object?.parent?.subscription_details?.subscription === 'string') {
+    subscriptionId = cleanText(object.parent.subscription_details.subscription, 255);
+  }
+  const customerId = cleanText(object?.customer, 255);
+  const invoiceId = cleanText(eventType.startsWith('invoice.') ? object?.id : object?.invoice, 255);
+
+  let claimId = cleanText(metadata.pal_claim_id, 128);
+  let plan = cleanText(metadata.pal_plan, 32);
+  let source = cleanText(metadata.pal_source, 64);
+  if (!claimId && eventType.startsWith('checkout.session.')) {
+    claimId = cleanText(object?.client_reference_id, 128);
+  }
+
+  if (!claimId && (subscriptionId || customerId)) {
+    const context = await stripeClaimContext(subscriptionId, customerId);
+    if (context) {
+      claimId = cleanText(context.claim_id, 128);
+      plan = cleanText(context.plan, 32);
+      source = cleanText(context.source, 64);
+    }
+  }
+
+  let status = cleanText(object?.status || object?.payment_status, 64).toLowerCase();
+  if (eventType === 'invoice.paid') status = 'paid';
+  if (eventType === 'invoice.payment_failed') status = 'payment_failed';
+  if (eventType === 'customer.subscription.deleted') status = 'canceled';
+
+  const currencyCode = cleanText(object?.currency, 3).toUpperCase();
+  const amountValue =
+    eventType.startsWith('invoice.') ? object?.amount_paid :
+    eventType.startsWith('checkout.session.') ? object?.amount_total :
+    null;
+  const amountMinor = Number.isSafeInteger(Number(amountValue)) && Number(amountValue) >= 0
+    ? String(Number(amountValue))
+    : null;
+
+  const accessUntil = eventType === 'invoice.paid'
+    ? stripeInvoiceAccessUntil(object)
+    : null;
+
+  await pool.query(
+    `insert into pal_stripe_webhook_events
+      (event_id, event_type, live, occurred_at, checkout_session_id, customer_id,
+       subscription_id, invoice_id, status, claim_id, plan, source, currency_code,
+       amount_minor, access_until)
+     values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
+     on conflict (event_id) do nothing`,
+    [
+      eventId,
+      eventType,
+      live,
+      occurredAt,
+      checkoutSessionId || null,
+      customerId || null,
+      subscriptionId || null,
+      invoiceId || null,
+      status || null,
+      claimId || null,
+      plan || null,
+      source || null,
+      currencyCode || null,
+      amountMinor,
+      accessUntil,
+    ]
+  );
+
+  console.log(
+    'PAL_STRIPE_WEBHOOK event_id=' + eventId +
+    ' event_type=' + eventType +
+    ' live=' + live +
+    ' subscription_id=' + (subscriptionId || '-') +
+    ' invoice_id=' + (invoiceId || '-')
+  );
+}
+
+async function getStripeEntitlement(claimId) {
+  const { rows } = await pool.query(
+    `select event_type, status, access_until, occurred_at, processed_at
+       from pal_stripe_webhook_events
+      where claim_id = $1
+        and live = true
+      order by coalesce(occurred_at, processed_at) desc, processed_at desc
+      limit 100`,
+    [claimId]
+  );
+
+  if (rows.length === 0) return { active: false, state: 'pending' };
+
+  const deleted = rows.find(row => row.event_type === 'customer.subscription.deleted');
+  const latestPaid = rows.find(row => row.event_type === 'invoice.paid' && row.access_until);
+  if (!latestPaid) {
+    if (deleted) return { active: false, state: 'canceled' };
+    return { active: false, state: 'pending' };
+  }
+
+  const paidTime = new Date(latestPaid.occurred_at || latestPaid.processed_at).getTime();
+  const deletedTime = deleted
+    ? new Date(deleted.occurred_at || deleted.processed_at).getTime()
+    : 0;
+  if (deletedTime > paidTime) return { active: false, state: 'canceled' };
+
+  const accessUntil = new Date(latestPaid.access_until);
+  if (Number.isNaN(accessUntil.getTime()) || accessUntil <= new Date()) {
+    return { active: false, state: 'expired' };
+  }
+
+  const failedAfterPaid = rows.find(row => {
+    if (row.event_type !== 'invoice.payment_failed') return false;
+    const t = new Date(row.occurred_at || row.processed_at).getTime();
+    return t > paidTime;
+  });
+
+  return {
+    active: true,
+    state: failedAfterPaid ? 'grace_period' : 'active',
+    access_until: latestPaid.access_until,
+  };
+}
+
 function montyPayInnerDigest(value) {
   if (!['md5', 'sha256'].includes(MONTYPAY_HASH_DIGEST)) {
     const error = new Error('Unsupported MontyPay hash digest');
@@ -1963,12 +2346,14 @@ async function getMontyPayEntitlement(claimId) {
 function resolvedCheckoutProvider() {
   const requested = PAL_CHECKOUT_PROVIDER;
   if (requested && requested !== 'auto') {
+    if (requested === 'stripe' && stripeConfigured(true)) return 'stripe';
     if (requested === 'montypay' && montyPayConfigured(true)) return 'montypay';
     if (requested === 'creem' && creemConfigured(true)) return 'creem';
     if (requested === 'paypro' && payProConfigured()) return 'paypro';
     if (requested === 'fastspring' && fastSpringConfigured()) return 'fastspring';
     return null;
   }
+  if (stripeConfigured(true)) return 'stripe';
   if (montyPayConfigured(true)) return 'montypay';
   if (creemConfigured(true)) return 'creem';
   if (payProConfigured()) return 'paypro';
@@ -1984,6 +2369,9 @@ async function createPalCheckoutSession({ claimId, plan, source }) {
     throw error;
   }
 
+  if (provider === 'stripe') {
+    return { provider, ...(await createStripeCheckoutSession({ claimId, plan, source, live: true })) };
+  }
   if (provider === 'montypay') {
     return { provider, ...(await createMontyPayCheckoutSession({ claimId, plan, source, live: true })) };
   }
@@ -2193,6 +2581,16 @@ const server = http.createServer(async (req, res) => {
              and test_mode = false
 
           union all
+          select 'stripe'::text as provider,
+                 coalesce(occurred_at, processed_at) as occurred_at,
+                 currency_code,
+                 amount_minor,
+                 coalesce(source, 'unknown') as source
+            from pal_stripe_webhook_events
+           where event_type = 'invoice.paid'
+             and live = true
+
+          union all
           select 'montypay'::text as provider,
                  processed_at as occurred_at,
                  currency_code,
@@ -2326,6 +2724,28 @@ const server = http.createServer(async (req, res) => {
           from latest
       `);
 
+      const { rows: stripeSubscriptionRows } = await pool.query(`
+        with by_claim as (
+          select claim_id,
+                 max(access_until) filter (where event_type = 'invoice.paid') as access_until,
+                 max(coalesce(occurred_at, processed_at)) filter (where event_type = 'customer.subscription.deleted') as canceled_at,
+                 max(coalesce(occurred_at, processed_at)) filter (where event_type = 'invoice.paid') as paid_at
+            from pal_stripe_webhook_events
+           where claim_id is not null
+             and live = true
+           group by claim_id
+        )
+        select count(*) filter (
+                 where access_until > now()
+                   and (canceled_at is null or paid_at > canceled_at)
+               )::bigint as active_subscriptions,
+               count(*) filter (
+                 where canceled_at is not null
+                   and (paid_at is null or canceled_at > paid_at)
+               )::bigint as canceled_subscriptions
+          from by_claim
+      `);
+
       const { rows: montyPaySubscriptionRows } = await pool.query(`
         with by_claim as (
           select claim_id,
@@ -2354,6 +2774,8 @@ const server = http.createServer(async (req, res) => {
       const payproCanceled = Number(payProSubscriptionRows[0].canceled_subscriptions);
       const montypayActive = Number(montyPaySubscriptionRows[0].active_subscriptions);
       const montypayCanceled = Number(montyPaySubscriptionRows[0].canceled_subscriptions);
+      const stripeActive = Number(stripeSubscriptionRows[0].active_subscriptions);
+      const stripeCanceled = Number(stripeSubscriptionRows[0].canceled_subscriptions);
 
       return sendJson(req, res, 200, {
         ok: true,
@@ -2361,8 +2783,8 @@ const server = http.createServer(async (req, res) => {
         completed_transactions: Number(totalsRows[0].completed_transactions),
         first_completed_at: totalsRows[0].first_completed_at,
         last_completed_at: totalsRows[0].last_completed_at,
-        active_subscriptions: paddleActive + fastSpringActive + creemActive + payproActive + montypayActive,
-        canceled_subscriptions: paddleCanceled + fastSpringCanceled + creemCanceled + payproCanceled + montypayCanceled,
+        active_subscriptions: paddleActive + fastSpringActive + creemActive + payproActive + montypayActive + stripeActive,
+        canceled_subscriptions: paddleCanceled + fastSpringCanceled + creemCanceled + payproCanceled + montypayCanceled + stripeCanceled,
         gross_completed_by_currency: Object.fromEntries(
           revenueRows.map(row => [row.currency_code, row.gross_completed_minor])
         ),
@@ -2378,6 +2800,7 @@ const server = http.createServer(async (req, res) => {
           creem: { active: creemActive, canceled: creemCanceled },
           paypro: { active: payproActive, canceled: payproCanceled },
           montypay: { active: montypayActive, canceled: montypayCanceled },
+          stripe: { active: stripeActive, canceled: stripeCanceled },
         },
         note: 'Gross completed transaction totals are before provider fees, refunds, chargebacks, and adjustments. Paddle simulator events and all provider test-mode events are excluded. MontyPay schedule cancellations do not emit a callback, so subscription cancellation state requires provider reconciliation; paid access still expires at the last paid-through date.',
       });
@@ -2464,6 +2887,8 @@ const server = http.createServer(async (req, res) => {
         provider,
         candidates: {
           fastspring: fastSpringConfigured(),
+          stripe: stripeConfigured(true),
+          stripe_test: stripeConfigured(false) && !STRIPE_CHECKOUT_LIVE,
           creem: creemConfigured(true),
           paypro: payProConfigured(),
           montypay: montyPayConfigured(true),
@@ -2497,6 +2922,44 @@ const server = http.createServer(async (req, res) => {
 
       const session = await createPalCheckoutSession({ claimId, plan, source });
       return sendJson(req, res, 201, { ok: true, ...session });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/stripe/test-checkout-session') {
+      if (req.headers.origin !== SITE_ORIGIN) {
+        return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
+      }
+      const body = await readJsonBody(req, 4096);
+      const claimId = cleanText(body.claim_id, 128);
+      const plan = cleanText(body.plan, 32).toLowerCase();
+      const rawSource = cleanText(body.source, 64);
+      const source = /^[a-zA-Z0-9_-]{1,64}$/.test(rawSource) ? rawSource : 'direct';
+
+      if (!/^[a-zA-Z0-9_-]{16,128}$/.test(claimId)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid claim' });
+      }
+      if (!['monthly', 'annual'].includes(plan)) {
+        return sendJson(req, res, 400, { ok: false, error: 'Invalid plan' });
+      }
+      if (STRIPE_CHECKOUT_LIVE || !stripeConfigured(false)) {
+        return sendJson(req, res, 503, { ok: false, error: 'Stripe sandbox is not configured' });
+      }
+
+      const session = await createStripeCheckoutSession({ claimId, plan, source, live: false });
+      return sendJson(req, res, 201, { ok: true, provider: 'stripe', test: true, ...session });
+    }
+
+    if (req.method === 'POST' && url.pathname === '/stripe/webhook') {
+      const rawBody = await readRawBody(req);
+      verifyStripeSignature(rawBody, req.headers['stripe-signature']);
+      let event;
+      try { event = JSON.parse(rawBody); }
+      catch {
+        const error = new Error('Invalid JSON');
+        error.statusCode = 400;
+        throw error;
+      }
+      await recordStripeEvent(event);
+      return sendJson(req, res, 200, { received: true });
     }
 
     if (req.method === 'POST' && url.pathname === '/montypay/test-checkout-session') {
