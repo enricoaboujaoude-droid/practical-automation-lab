@@ -21,6 +21,10 @@ test("Pro CSV exports stay inside the embedded app and use fetcher delivery", as
   assert.match(pro, /exportType" value="scheduled"/);
   assert.match(pro, /new Blob/);
   assert.match(pro, /link\.download = payload\.filename/);
+  assert.match(pro, /CSV export failed/);
+  assert.match(pro, /The CSV could not be prepared/);
+  assert.match(pro, /Browser download needs confirmation/);
+  assert.match(pro, /Download again/);
 
   assert.doesNotMatch(pro, /href=\{?[^\n]*\/app\/export\?type=/);
   assert.doesNotMatch(pro, /target="_top"/);
