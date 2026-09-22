@@ -58,12 +58,14 @@ test("all app route source files avoid legacy CSV export navigation", async () =
 
 test("Pro export action authenticates and gates entitlement before reading export input", async () => {
   const pro = await source("app.pro.tsx");
-  const authIndex = pro.indexOf("authenticate.admin(request)");
-  const entitlementIndex = pro.indexOf("getEntitlementForShop");
-  const formIndex = pro.indexOf("request.formData()");
-  const proGateIndex = pro.indexOf('entitlement.plan !== "pro"');
+  const actionStart = pro.indexOf("export const action");
+  const authIndex = pro.indexOf("authenticate.admin(request)", actionStart);
+  const entitlementIndex = pro.indexOf("getEntitlementForShop", authIndex);
+  const proGateIndex = pro.indexOf('entitlement.plan !== "pro"', entitlementIndex);
+  const formIndex = pro.indexOf("request.formData()", proGateIndex);
 
-  assert.ok(authIndex >= 0);
+  assert.ok(actionStart >= 0);
+  assert.ok(authIndex > actionStart);
   assert.ok(entitlementIndex > authIndex);
   assert.ok(proGateIndex > entitlementIndex);
   assert.ok(formIndex > proGateIndex);
