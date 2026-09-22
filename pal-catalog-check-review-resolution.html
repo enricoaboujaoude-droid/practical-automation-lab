@@ -109,6 +109,10 @@ code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px;overflow-wrap:any
 </section>
 
 <section class="card">
+<h2>Owner reviewer-equivalent verification completed</h2>
+<p><strong>22 September 2026:</strong> The owner manually repeated the authenticated Shopify Admin review flow after the hardened production deployment, including the Monitoring &amp; reports export path. This manual verification is recorded in addition to the automated release gates and live health checks.</p>
+<p>After that manual pass, the current release candidate was subjected to a fresh set of <strong>12/12 independent live health requests</strong>, all of which returned <code>{&quot;ok&quot;:true,&quot;service&quot;:&quot;pal-catalog-check&quot;}</code>. The standalone app origin also returned successfully.</p>
+
 <h2>Reviewer retest requested</h2>
 <p>Please reinstall/open <strong>PAL Catalog Check</strong> from Shopify Admin, open <strong>Monitoring &amp; reports</strong>, and repeat the <strong>Findings CSV</strong> download. The download now stays inside the authenticated embedded workflow and should save the CSV without replacing the Shopify Admin view.</p>
 <p>Please also repeat the normal app-open and catalog-scan workflow. The production health endpoint is live and the review-availability check remains active.</p>
