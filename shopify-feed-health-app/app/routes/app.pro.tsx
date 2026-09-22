@@ -65,10 +65,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           imageRisks: true,
         },
       });
-      trackAppEvent("pro_export_downloaded", {
-        exportType: "history",
-        count: history.length,
-      });
+      trackAppEvent("pro_export_downloaded", { count: history.length });
       return {
         ok: true,
         message: "History CSV prepared.",
@@ -94,7 +91,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         };
       }
 
-      trackAppEvent("pro_export_downloaded", { exportType: "issues" });
+      trackAppEvent("pro_export_downloaded");
       return {
         ok: true,
         message: "Findings CSV prepared.",
@@ -121,7 +118,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         };
       }
 
-      trackAppEvent("pro_export_downloaded", { exportType: "scheduled" });
+      trackAppEvent("pro_export_downloaded");
       return {
         ok: true,
         message: "Scheduled report CSV prepared.",
