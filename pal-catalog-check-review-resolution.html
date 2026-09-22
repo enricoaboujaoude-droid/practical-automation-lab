@@ -37,6 +37,8 @@ code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px;overflow-wrap:any
 <li><strong>Added a recovery path.</strong> The page shows success/failure feedback and provides a <strong>Download again</strong> control if the browser does not begin the automatic download.</li>
 <li><strong>Added fail-safe export handling.</strong> If the database or CSV preparation fails, the action now returns a warning inside the existing embedded page instead of throwing into an error boundary or replacing the Shopify Admin view.</li>
 <li><strong>Added browser-download fallback handling.</strong> If the browser blocks the automatic Blob download, the app now keeps the page intact and shows an explicit confirmation warning with a direct <strong>Download again</strong> control.</li>
+<li><strong>Hardened billing lookup failures.</strong> If Shopify Partner subscription lookup fails temporarily, the app now falls back safely instead of letting the embedded route crash.</li>
+<li><strong>Hardened external support navigation.</strong> Privacy/support links now open outside the embedded frame so third-party pages cannot replace the Shopify Admin app surface.</li>
 <li><strong>Removed the legacy scheduled-report top-frame export link</strong> so there is no second path back into the failed navigation model.</li>
 </ol>
 </section>
@@ -47,7 +49,7 @@ code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px;overflow-wrap:any
 <li>A dedicated regression test verifies that Pro CSV exports use the in-page fetcher/download flow and that the old <code>/app/export?...</code> navigation is absent.</li>
 <li>A second regression assertion prevents the scheduled-report view from reintroducing top-frame CSV navigation.</li>
 <li>Every Render production build now runs the complete test suite and TypeScript typecheck <strong>before</strong> the production build. A failing test or type error blocks deployment.</li>
-<li>The latest production build passed <strong>14/14 tests</strong>, TypeScript typecheck, client build, and SSR build.</li>
+<li>The latest production build passed <strong>23/23 tests</strong>, TypeScript typecheck, client build, and SSR build.</li>
 </ol>
 </section>
 
@@ -75,15 +77,15 @@ code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px;overflow-wrap:any
 <section class="card ok">
 <h2>Verified production state</h2>
 <div class="grid">
-<div class="metric"><b>14 / 14 passed</b><span>Automated test suite</span></div>
+<div class="metric"><b>23 / 23 passed</b><span>Automated test suite</span></div>
 <div class="metric"><b>PASS</b><span>TypeScript typecheck</span></div>
 <div class="metric"><b>PASS</b><span>Client + SSR production build</span></div>
 <div class="metric"><b>HTTP 200</b><span><code>/healthz</code></span></div>
 <div class="metric"><b>HTTP 200</b><span>Standalone app origin</span></div>
 <div class="metric"><b>HTTP 200</b><span><code>/favicon.ico</code></span></div>
 </div>
-<p><strong>Latest production deployment:</strong> <code>dep-dapc6vvf3r2c73c77hs0</code></p>
-<p><strong>Latest production commit:</strong> <code>510c3418e2337d19851188914e99d695fc967d24</code></p>
+<p><strong>Latest production deployment:</strong> <code>dep-dapcf99srm7s73evuiqg</code></p>
+<p><strong>Latest production commit:</strong> <code>f882d651c9972493e8a336130cdcc603ea562fe9</code></p>
 <p class="status">Render reports the deployment as LIVE.</p>
 </section>
 
@@ -96,7 +98,7 @@ code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px;overflow-wrap:any
 <p><strong>Safe standalone origin:</strong> <code>f5ad12578d201ffdd69b61a8a02ecab8ed6aeb98</code></p>
 <p><strong>Favicon 404 removal:</strong> <code>40439ddf0a09bec8d672c3fb9a01d1895d50ced1</code></p>
 <p><strong>Fail-safe embedded CSV error handling:</strong> <code>e54635fc066539f966b0dc8831f35f1f9bc97cf6</code></p>
-<p><strong>Regression guard for safe failure handling / latest production:</strong> <code>510c3418e2337d19851188914e99d695fc967d24</code></p>
+<p><strong>Regression guard for safe failure handling / latest production:</strong> <code>f882d651c9972493e8a336130cdcc603ea562fe9</code></p>
 <p class="small">Note: commit IDs are supplied as deployment evidence; reviewer validation should be performed in Shopify Admin using the current production app.</p>
 </section>
 
