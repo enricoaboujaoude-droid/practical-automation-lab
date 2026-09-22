@@ -118,19 +118,12 @@ export default function ScheduledReportView() {
 
       <s-section heading="Export">
         <s-paragraph>
-          The report is visible here for reliable mobile review. Use the CSV export when you want a spreadsheet copy.
+          The report is visible here for reliable mobile review. CSV exports are
+          prepared inside Monitoring & reports so the embedded Shopify Admin
+          session never navigates away from the app.
         </s-paragraph>
         <p>
-          <a
-            href={`/app/export?type=scheduled&reportId=${encodeURIComponent(report.id)}`}
-            target="_top"
-            rel="noopener"
-          >
-            Download report CSV
-          </a>
-        </p>
-        <p>
-          <a href="/app/pro">Back to Monitoring & reports</a>
+          <a href="/app/pro">Back to Monitoring & reports to download CSV</a>
         </p>
       </s-section>
     </s-page>
