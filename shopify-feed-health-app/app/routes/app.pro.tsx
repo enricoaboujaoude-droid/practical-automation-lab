@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
-import { Form, useActionData, useLoaderData } from "react-router";
+import { Form, useActionData, useFetcher, useLoaderData } from "react-router";
+import prisma from "../db.server";
 import { authenticate } from "../shopify.server";
 import { getEntitlementForShop } from "../lib/entitlements.server";
 import { trackAppEvent } from "../lib/events.server";
@@ -8,6 +10,8 @@ import {
   acknowledgeAlert,
   generateScheduledReport,
   getProDashboard,
+  historyCsv,
+  scanIssuesCsv,
   updateMonitoringPreference,
 } from "../lib/pro-monitoring.server";
 
@@ -34,11 +38,108 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       ok: false,
       message:
         "Pro is not active for this shop yet. Billing will remain disabled until Shopify App Pricing is configured and tested.",
+      export: null,
     };
   }
 
   const formData = await request.formData();
   const intent = String(formData.get("intent") || "");
+
+  if (intent === "export-csv") {
+    const exportType = String(formData.get("exportType") || "");
+
+    if (exportType === "history") {
+      const history = await prisma.catalogScan.findMany({
+        where: { shop: session.shop },
+        orderBy: { generatedAt: "desc" },
+        take: 500,
+        select: {
+          generatedAt: true,
+          source: true,
+          score: true,
+          errors: true,
+          warnings: true,
+          productsChecked: true,
+          variantsChecked: true,
+          imagesChecked: true,
+          imageRisks: true,
+        },
+      });
+      trackAppEvent("pro_export_downloaded", {
+        exportType: "history",
+        count: history.length,
+      });
+      return {
+        ok: true,
+        message: "History CSV prepared.",
+        export: {
+          filename: "pal-catalog-check-history.csv",
+          body: historyCsv(history),
+        },
+      };
+    }
+
+    if (exportType === "issues") {
+      const scanId = String(formData.get("scanId") || "");
+      const scan = await prisma.catalogScan.findFirst({
+        where: { id: scanId, shop: session.shop },
+        select: { reportJson: true, generatedAt: true },
+      });
+
+      if (!scan) {
+        return {
+          ok: false,
+          message: "The selected scan could not be found.",
+          export: null,
+        };
+      }
+
+      trackAppEvent("pro_export_downloaded", { exportType: "issues" });
+      return {
+        ok: true,
+        message: "Findings CSV prepared.",
+        export: {
+          filename: `pal-catalog-check-findings-${scan.generatedAt
+            .toISOString()
+            .slice(0, 10)}.csv`,
+          body: scanIssuesCsv(scan.reportJson as any),
+        },
+      };
+    }
+
+    if (exportType === "scheduled") {
+      const reportId = String(formData.get("reportId") || "");
+      const report = await prisma.scheduledReport.findFirst({
+        where: { id: reportId, shop: session.shop },
+      });
+
+      if (!report) {
+        return {
+          ok: false,
+          message: "The selected scheduled report could not be found.",
+          export: null,
+        };
+      }
+
+      trackAppEvent("pro_export_downloaded", { exportType: "scheduled" });
+      return {
+        ok: true,
+        message: "Scheduled report CSV prepared.",
+        export: {
+          filename: `pal-catalog-check-report-${report.generatedAt
+            .toISOString()
+            .slice(0, 10)}.csv`,
+          body: scheduledReportCsv(report),
+        },
+      };
+    }
+
+    return {
+      ok: false,
+      message: "Unknown export type.",
+      export: null,
+    };
+  }
 
   if (intent === "monitoring") {
     const enabled = formData.get("enabled") === "on";
@@ -60,22 +161,27 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       message: enabled
         ? "Automatic monitoring schedule saved."
         : "Automatic monitoring paused.",
+      export: null,
     };
   }
 
   if (intent === "acknowledge") {
     const alertId = String(formData.get("alertId") || "");
     if (alertId) await acknowledgeAlert(session.shop, alertId);
-    return { ok: true, message: "Alert acknowledged." };
+    return { ok: true, message: "Alert acknowledged.", export: null };
   }
 
   if (intent === "generate-report") {
     await generateScheduledReport(session.shop);
     trackAppEvent("pro_report_generated");
-    return { ok: true, message: "A report snapshot was generated." };
+    return {
+      ok: true,
+      message: "A report snapshot was generated.",
+      export: null,
+    };
   }
 
-  return { ok: false, message: "Unknown action." };
+  return { ok: false, message: "Unknown action.", export: null };
 };
 
 function formatDate(value: string | Date | null | undefined) {
@@ -94,9 +200,60 @@ function displayMetric(value: unknown, suffix = "") {
   return `${String(value)}${suffix}`;
 }
 
+function csvCell(value: unknown) {
+  const text = String(value ?? "");
+  return `"${text.replaceAll('"', '""')}"`;
+}
+
+function scheduledReportCsv(report: {
+  rangeStart: Date;
+  rangeEnd: Date;
+  generatedAt: Date;
+  summaryJson: unknown;
+}) {
+  const summary =
+    report.summaryJson && typeof report.summaryJson === "object"
+      ? (report.summaryJson as Record<string, unknown>)
+      : {};
+
+  const rows: Array<[string, unknown]> = [
+    ["generated_at", report.generatedAt.toISOString()],
+    ["range_start", report.rangeStart.toISOString()],
+    ["range_end", report.rangeEnd.toISOString()],
+    ...Object.entries(summary),
+  ];
+
+  return [
+    "metric,value",
+    ...rows.map(([key, value]) => `${csvCell(key)},${csvCell(value)}`),
+  ].join("\n");
+}
+
+function triggerCsvDownload(payload: { filename: string; body: string }) {
+  const blob = new Blob(["\uFEFF", payload.body], {
+    type: "text/csv;charset=utf-8",
+  });
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = payload.filename;
+  link.style.display = "none";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2_000);
+}
+
 export default function ProMonitoringDashboard() {
   const data = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+  const exportFetcher = useFetcher<typeof action>();
+  const exportPayload = exportFetcher.data?.export;
+
+  useEffect(() => {
+    if (!exportPayload) return;
+    triggerCsvDownload(exportPayload);
+  }, [exportPayload]);
 
   if (data.entitlement.plan !== "pro" || !data.dashboard) {
     return (
@@ -136,6 +293,34 @@ export default function ProMonitoringDashboard() {
       {actionData?.message ? (
         <s-banner tone={actionData.ok ? "success" : "warning"} heading={actionData.ok ? "Updated" : "Not changed"}>
           {actionData.message}
+        </s-banner>
+      ) : null}
+
+      {exportFetcher.data?.message ? (
+        <s-banner
+          tone={exportFetcher.data.ok ? "success" : "warning"}
+          heading={exportFetcher.data.ok ? "CSV export ready" : "CSV export failed"}
+        >
+          {exportFetcher.data.message}
+          {exportPayload ? (
+            <>
+              {" "}
+              <button
+                type="button"
+                className="pal-link-button"
+                onClick={() => triggerCsvDownload(exportPayload)}
+                style={{
+                  border: 0,
+                  background: "transparent",
+                  padding: 0,
+                  cursor: "pointer",
+                  font: "inherit",
+                }}
+              >
+                Download again
+              </button>
+            </>
+          ) : null}
         </s-banner>
       ) : null}
 
@@ -219,14 +404,19 @@ export default function ProMonitoringDashboard() {
 
       <s-section heading="Saved scan history">
         <div className="pal-actions-row" style={{ marginBottom: 12 }}>
-          <a
-            className="pal-link-button"
-            href="/app/export?type=history"
-            target="_top"
-            rel="noopener"
-          >
-            Download history CSV
-          </a>
+          <exportFetcher.Form method="post">
+            <input type="hidden" name="intent" value="export-csv" />
+            <input type="hidden" name="exportType" value="history" />
+            <button
+              className="pal-button"
+              type="submit"
+              disabled={exportFetcher.state !== "idle"}
+            >
+              {exportFetcher.state !== "idle"
+                ? "Preparing CSV…"
+                : "Download history CSV"}
+            </button>
+          </exportFetcher.Form>
         </div>
         {history.length === 0 ? (
           <div className="pal-empty">No saved Pro scans yet.</div>
@@ -254,13 +444,28 @@ export default function ProMonitoringDashboard() {
                     <td align="right">{scan.warnings}</td>
                     <td align="right">{scan.imageRisks}</td>
                     <td>
-                      <a
-                        href={`/app/export?type=issues&scanId=${encodeURIComponent(scan.id)}`}
-                        target="_top"
-                        rel="noopener"
-                      >
-                        Findings CSV
-                      </a>
+                      <exportFetcher.Form method="post">
+                        <input type="hidden" name="intent" value="export-csv" />
+                        <input type="hidden" name="exportType" value="issues" />
+                        <input type="hidden" name="scanId" value={scan.id} />
+                        <button
+                          type="submit"
+                          className="pal-link-button"
+                          disabled={exportFetcher.state !== "idle"}
+                          style={{
+                            border: 0,
+                            background: "transparent",
+                            padding: 0,
+                            cursor:
+                              exportFetcher.state === "idle"
+                                ? "pointer"
+                                : "wait",
+                            font: "inherit",
+                          }}
+                        >
+                          Findings CSV
+                        </button>
+                      </exportFetcher.Form>
                     </td>
                   </tr>
                 ))}
@@ -332,15 +537,20 @@ export default function ProMonitoringDashboard() {
                       </tbody>
                     </table>
                     </div>
-                    <p style={{ marginTop: 12 }}>
-                      <a
-                        href={`/app/export?type=scheduled&reportId=${encodeURIComponent(report.id)}`}
-                        target="_top"
-                        rel="noopener"
-                      >
-                        <span className="pal-link-button">Download CSV</span>
-                      </a>
-                    </p>
+                    <div style={{ marginTop: 12 }}>
+                      <exportFetcher.Form method="post">
+                        <input type="hidden" name="intent" value="export-csv" />
+                        <input type="hidden" name="exportType" value="scheduled" />
+                        <input type="hidden" name="reportId" value={report.id} />
+                        <button
+                          type="submit"
+                          className="pal-button"
+                          disabled={exportFetcher.state !== "idle"}
+                        >
+                          Download CSV
+                        </button>
+                      </exportFetcher.Form>
+                    </div>
                   </div>
                 </details>
               );
