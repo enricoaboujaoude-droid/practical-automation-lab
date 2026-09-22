@@ -35,6 +35,8 @@ code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px;overflow-wrap:any
 <li><strong>Kept shop isolation on the server.</strong> The server obtains the authenticated Shopify session and queries only records belonging to that shop before producing the CSV payload.</li>
 <li><strong>Downloads are created in the existing page.</strong> The browser receives the prepared CSV payload, creates a local <code>Blob</code>, and triggers the file download without replacing the Shopify Admin view.</li>
 <li><strong>Added a recovery path.</strong> The page shows success/failure feedback and provides a <strong>Download again</strong> control if the browser does not begin the automatic download.</li>
+<li><strong>Added fail-safe export handling.</strong> If the database or CSV preparation fails, the action now returns a warning inside the existing embedded page instead of throwing into an error boundary or replacing the Shopify Admin view.</li>
+<li><strong>Added browser-download fallback handling.</strong> If the browser blocks the automatic Blob download, the app now keeps the page intact and shows an explicit confirmation warning with a direct <strong>Download again</strong> control.</li>
 <li><strong>Removed the legacy scheduled-report top-frame export link</strong> so there is no second path back into the failed navigation model.</li>
 </ol>
 </section>
@@ -80,8 +82,8 @@ code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px;overflow-wrap:any
 <div class="metric"><b>HTTP 200</b><span>Standalone app origin</span></div>
 <div class="metric"><b>HTTP 200</b><span><code>/favicon.ico</code></span></div>
 </div>
-<p><strong>Latest production deployment:</strong> <code>dep-dapbq05bedkc738a6fbg</code></p>
-<p><strong>Latest production commit:</strong> <code>40439ddf0a09bec8d672c3fb9a01d1895d50ced1</code></p>
+<p><strong>Latest production deployment:</strong> <code>dep-dapc6vvf3r2c73c77hs0</code></p>
+<p><strong>Latest production commit:</strong> <code>510c3418e2337d19851188914e99d695fc967d24</code></p>
 <p class="status">Render reports the deployment as LIVE.</p>
 </section>
 
@@ -92,7 +94,9 @@ code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px;overflow-wrap:any
 <p><strong>Export regression tests:</strong> <code>daa3ce6f034c02a42cf49bbf1cb1dfad518c6538</code></p>
 <p><strong>Deploy test/typecheck gate:</strong> <code>31ae2b03b07ed73b2b22afc8d7f8d7574504fc8a</code></p>
 <p><strong>Safe standalone origin:</strong> <code>f5ad12578d201ffdd69b61a8a02ecab8ed6aeb98</code></p>
-<p><strong>Favicon 404 removal / latest production:</strong> <code>40439ddf0a09bec8d672c3fb9a01d1895d50ced1</code></p>
+<p><strong>Favicon 404 removal:</strong> <code>40439ddf0a09bec8d672c3fb9a01d1895d50ced1</code></p>
+<p><strong>Fail-safe embedded CSV error handling:</strong> <code>e54635fc066539f966b0dc8831f35f1f9bc97cf6</code></p>
+<p><strong>Regression guard for safe failure handling / latest production:</strong> <code>510c3418e2337d19851188914e99d695fc967d24</code></p>
 <p class="small">Note: commit IDs are supplied as deployment evidence; reviewer validation should be performed in Shopify Admin using the current production app.</p>
 </section>
 
