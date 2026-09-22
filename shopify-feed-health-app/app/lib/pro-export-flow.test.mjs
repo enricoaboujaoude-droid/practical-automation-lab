@@ -116,3 +116,21 @@ test("all three Pro export controls submit through the embedded fetcher", async 
   assert.match(pro, /exportType" value="scheduled"/);
 });
 
+test("billing lookup failure falls back without crashing the embedded app", async () => {
+  const entitlements = await readFile(resolve(here, "entitlements.server.ts"), "utf8");
+
+  assert.match(entitlements, /try\s*\{/);
+  assert.match(entitlements, /hasPaidProSubscription\(admin\)/);
+  assert.match(entitlements, /entitlement_lookup_failed_falling_back_to_free/);
+  assert.match(entitlements, /return freeEntitlement\(\)/);
+});
+
+test("external support links open outside the embedded Shopify frame", async () => {
+  const support = await source("app.support.tsx");
+  const externalLinks = support.match(/href="https:\/\/[^"]+"/g) || [];
+  const blankTargets = support.match(/target="_blank"/g) || [];
+
+  assert.equal(externalLinks.length, 2);
+  assert.equal(blankTargets.length, 2);
+});
+
