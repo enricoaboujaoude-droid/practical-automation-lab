@@ -6,62 +6,106 @@
 <title>PAL Catalog Check — Shopify Review Resolution</title>
 <meta name="robots" content="noindex,nofollow">
 <style>
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:920px;margin:auto;padding:32px 18px 60px;color:#18181b;line-height:1.55}
-h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;margin:.35rem 0 1rem}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:940px;margin:auto;padding:32px 18px 60px;color:#18181b;line-height:1.55}
+h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;margin:.35rem 0 1rem}h2{margin-top:0}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}
 .card{border:1px solid #e4e4e7;border-radius:16px;padding:20px;margin:18px 0}.ok{background:#f0fdf4;border-color:#86efac}.warn{background:#fffbeb;border-color:#facc15}
 .badge{display:inline-block;border-radius:999px;padding:6px 10px;font-size:.8rem;font-weight:800;background:#dcfce7;color:#166534}
-code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px}a{color:inherit}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.metric{border:1px solid #e4e4e7;border-radius:12px;padding:14px}.metric b{display:block;font-size:1.35rem}.small{font-size:.9rem;opacity:.72}li{margin:.45rem 0}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+code{background:#f4f4f5;padding:.12rem .3rem;border-radius:5px;overflow-wrap:anywhere}a{color:inherit}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.metric{border:1px solid #e4e4e7;border-radius:12px;padding:14px;background:#fff}.metric b{display:block;font-size:1.2rem}.small{font-size:.9rem;opacity:.72}li{margin:.45rem 0}.status{font-weight:750;color:#166534}@media(max-width:700px){.grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="eyebrow">Practical Automation Lab · Shopify App Review Evidence</div>
-<h1>PAL Catalog Check — 503 / “APPLICATION LOADING” resolution</h1>
-<p><span class="badge">RESOLVED IN PRODUCTION — 18 SEPTEMBER 2026</span></p>
+<h1>PAL Catalog Check — critical-error resolution</h1>
+<p><span class="badge">LATEST PRODUCTION FIX LIVE — 22 SEPTEMBER 2026</span></p>
 
 <section class="card warn">
-<h2>Reviewer finding</h2>
-<p>During Shopify review, the embedded Admin route initially returned HTTP 503 and stayed on “APPLICATION LOADING”. The same transient availability event caused both review findings: no usable merchant UI and a critical web error.</p>
-</section>
-
-<section class="card">
-<h2>Root cause confirmed</h2>
-<p>The production app was on a Render Free web-service instance. Render documents that Free web services spin down after 15 minutes without inbound traffic and that the next request can take about a minute while the service starts. The reviewer’s first request arrived during this cold-start window.</p>
-<p class="small">Reference: <a href="https://render.com/docs/free" target="_blank" rel="noopener">Render Free instance limitations</a>.</p>
+<h2>Reviewer findings addressed</h2>
+<ol>
+<li><strong>Embedded Admin availability:</strong> an earlier review request reached the app while its free Render service was waking and the reviewer saw HTTP 503 / “APPLICATION LOADING”.</li>
+<li><strong>Findings CSV export:</strong> the reviewer later reported that clicking <strong>Findings CSV</strong> opened a blank/black page and prevented completion of the export workflow.</li>
+</ol>
 </section>
 
 <section class="card ok">
-<h2>Production remediation</h2>
+<h2>Latest Findings CSV remediation</h2>
+<p>The export flow has been changed so CSV downloads no longer navigate the reviewer or merchant away from the embedded Shopify Admin application.</p>
 <ol>
-<li><strong>Removed database/schema work from runtime startup.</strong> Startup no longer runs <code>prisma generate</code> or <code>prisma db push</code>. Those build/setup concerns are kept out of the request-serving path.</li>
-<li><strong>Added a lightweight health route:</strong> <a href="https://pal-catalog-check-app.onrender.com/healthz" target="_blank" rel="noopener"><code>/healthz</code></a> returns HTTP 200 without Shopify authentication.</li>
-<li><strong>Added continuous availability traffic during review:</strong> a GitHub Actions availability job requests <code>/healthz</code> every 5 minutes, preventing the 15-minute idle spin-down window while the app remains on free compute.</li>
-<li><strong>Preserved the existing embedded merchant workflow.</strong> No new Shopify scopes, customer data, order data, product mutations, or merchant-data telemetry were introduced by this fix.</li>
+<li><strong>Removed top-frame export navigation.</strong> The Pro dashboard no longer uses direct <code>/app/export?...</code> links or <code>target="_top"</code> for History, Findings, or scheduled-report exports.</li>
+<li><strong>Kept the request inside the authenticated embedded route.</strong> The UI submits the export request with React Router <code>useFetcher</code> to the authenticated Pro action.</li>
+<li><strong>Kept shop isolation on the server.</strong> The server obtains the authenticated Shopify session and queries only records belonging to that shop before producing the CSV payload.</li>
+<li><strong>Downloads are created in the existing page.</strong> The browser receives the prepared CSV payload, creates a local <code>Blob</code>, and triggers the file download without replacing the Shopify Admin view.</li>
+<li><strong>Added a recovery path.</strong> The page shows success/failure feedback and provides a <strong>Download again</strong> control if the browser does not begin the automatic download.</li>
+<li><strong>Removed the legacy scheduled-report top-frame export link</strong> so there is no second path back into the failed navigation model.</li>
+</ol>
+</section>
+
+<section class="card ok">
+<h2>Regression prevention added</h2>
+<ol>
+<li>A dedicated regression test verifies that Pro CSV exports use the in-page fetcher/download flow and that the old <code>/app/export?...</code> navigation is absent.</li>
+<li>A second regression assertion prevents the scheduled-report view from reintroducing top-frame CSV navigation.</li>
+<li>Every Render production build now runs the complete test suite and TypeScript typecheck <strong>before</strong> the production build. A failing test or type error blocks deployment.</li>
+<li>The latest production build passed <strong>14/14 tests</strong>, TypeScript typecheck, client build, and SSR build.</li>
 </ol>
 </section>
 
 <section class="card">
-<h2>Verification after deployment</h2>
+<h2>Additional critical-error hardening</h2>
+<p>During the final production smoke test we also removed two avoidable public-origin error surfaces before requesting another review:</p>
+<ol>
+<li><strong>Standalone app origin:</strong> visiting the app origin outside Shopify Admin now renders a clear PAL Catalog Check page explaining that authenticated use happens inside Shopify Admin. It no longer falls into an unauthenticated app error page.</li>
+<li><strong>Favicon:</strong> <code>/favicon.ico</code> now returns HTTP 200 instead of an incidental 404.</li>
+</ol>
+</section>
+
+<section class="card">
+<h2>503 / “APPLICATION LOADING” availability remediation</h2>
+<p>The earlier 503 was traced to the cold-start behavior of the Render Free web-service instance rather than to the catalog workflow itself.</p>
+<ol>
+<li>Runtime startup no longer performs Prisma generation or schema synchronization before serving requests.</li>
+<li>A lightweight unauthenticated <a href="https://pal-catalog-check-app.onrender.com/healthz" target="_blank" rel="noopener"><code>/healthz</code></a> route returns HTTP 200.</li>
+<li>A GitHub Actions availability check requests <code>/healthz</code> every 5 minutes during review to reduce idle spin-down exposure.</li>
+<li>No additional Shopify scopes or product/customer/order mutations were introduced by this availability fix.</li>
+</ol>
+<p class="small">The app remains on free infrastructure, so the keep-alive measure reduces cold-start exposure but does not change Render's underlying free-service policy.</p>
+</section>
+
+<section class="card ok">
+<h2>Verified production state</h2>
 <div class="grid">
-<div class="metric"><b>HTTP 200</b><span>Independent <code>/healthz</code> check</span></div>
-<div class="metric"><b>~0.47 s</b><span>Observed health response</span></div>
-<div class="metric"><b>HTTP 302</b><span>Root entry correctly redirects to <code>/app</code></span></div>
-<div class="metric"><b>~4.5 s</b><span>New server startup from <code>node server.mjs</code> to listening</span></div>
+<div class="metric"><b>14 / 14 passed</b><span>Automated test suite</span></div>
+<div class="metric"><b>PASS</b><span>TypeScript typecheck</span></div>
+<div class="metric"><b>PASS</b><span>Client + SSR production build</span></div>
+<div class="metric"><b>HTTP 200</b><span><code>/healthz</code></span></div>
+<div class="metric"><b>HTTP 200</b><span>Standalone app origin</span></div>
+<div class="metric"><b>HTTP 200</b><span><code>/favicon.ico</code></span></div>
 </div>
-<p>Production deployment <code>dep-damnn93m8hqs739e1o4g</code> completed LIVE on 18 September 2026.</p>
-<p>The corrected startup log now shows <code>node server.mjs</code> directly. In contrast, the pre-fix cold start ran Prisma generation and schema synchronization before the web server could listen.</p>
-<p>During the reviewer session itself, once the old cold start completed, the embedded route subsequently returned HTTP 200 and the app successfully completed a catalog scan. This confirmed that the merchant UI/workflow was healthy once the process was available; the remediation targets the transient availability failure that blocked the reviewer’s first view.</p>
+<p><strong>Latest production deployment:</strong> <code>dep-dapbq05bedkc738a6fbg</code></p>
+<p><strong>Latest production commit:</strong> <code>40439ddf0a09bec8d672c3fb9a01d1895d50ced1</code></p>
+<p class="status">Render reports the deployment as LIVE.</p>
+</section>
+
+<section class="card">
+<h2>Relevant fix history</h2>
+<p><strong>Embedded CSV flow:</strong> <code>d20d40d00da23daa81d5bf9c9f76bc3a13cf6ad5</code></p>
+<p><strong>Legacy export navigation removal:</strong> <code>0a95f466eb1ca90c47fc1729d1e5fba317c31f40</code></p>
+<p><strong>Export regression tests:</strong> <code>daa3ce6f034c02a42cf1729d1e5fba317c31f40</code></p>
+<p><strong>Deploy test/typecheck gate:</strong> <code>31ae2b03b07ed73b2b22afc8d7f8d7574504fc8a</code></p>
+<p><strong>Safe standalone origin:</strong> <code>f5ad12578d201ffdd69b61a8a02ecab8ed6aeb98</code></p>
+<p><strong>Favicon 404 removal / latest production:</strong> <code>40439ddf0a09bec8d672c3fb9a01d1895d50ced1</code></p>
+<p class="small">Note: commit IDs are supplied as deployment evidence; reviewer validation should be performed in Shopify Admin using the current production app.</p>
 </section>
 
 <section class="card ok">
 <h2>Live evidence</h2>
 <p><strong>Health endpoint:</strong> <a href="https://pal-catalog-check-app.onrender.com/healthz" target="_blank" rel="noopener">https://pal-catalog-check-app.onrender.com/healthz</a></p>
 <p><strong>Production app origin:</strong> <a href="https://pal-catalog-check-app.onrender.com/" target="_blank" rel="noopener">https://pal-catalog-check-app.onrender.com/</a></p>
-<p><strong>Fix commits:</strong> <code>2fc3529887e9f35555dd390fb51a39aa38287152</code>, <code>644786620541da501dafb17234598b87b647ae84</code>, <code>393ae957bbd1267fd0c52da96faee1e8e45d53a1</code>.</p>
 </section>
 
 <section class="card">
-<h2>Reviewer retest</h2>
-<p>Please reinstall/open PAL Catalog Check through Shopify Admin and repeat the embedded Admin-route test. The app should now open without the Render cold-start “APPLICATION LOADING” failure, and the merchant can interact with the catalog-readiness UI normally.</p>
+<h2>Reviewer retest requested</h2>
+<p>Please reinstall/open <strong>PAL Catalog Check</strong> from Shopify Admin, open <strong>Monitoring &amp; reports</strong>, and repeat the <strong>Findings CSV</strong> download. The download now stays inside the authenticated embedded workflow and should save the CSV without replacing the Shopify Admin view.</p>
+<p>Please also repeat the normal app-open and catalog-scan workflow. The production health endpoint is live and the review-availability check remains active.</p>
 </section>
 </body>
 </html>
