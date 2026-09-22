@@ -47,7 +47,10 @@ export default function Support() {
           opens and scan completion. Stored PAL shop data is deleted when the
           app processes an uninstall or Shopify shop-redaction event.
         </s-paragraph>
-        <s-link href="https://practical-automation-lab.onrender.com/shopify-feed-health-privacy.html">
+        <s-link
+          href="https://practical-automation-lab.onrender.com/shopify-feed-health-privacy.html"
+          target="_blank"
+        >
           Read the privacy policy
         </s-link>
       </s-section>
@@ -98,7 +101,10 @@ export default function Support() {
           passwords, Shopify access tokens, recovery codes, customer
           information, or confidential catalog exports.
         </s-paragraph>
-        <s-link href="https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4">
+        <s-link
+          href="https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4"
+          target="_blank"
+        >
           Open beta support & feedback
         </s-link>
       </s-section>
