@@ -83,8 +83,14 @@ export async function getEntitlementForShop(
     return proEntitlement("preview");
   }
 
-  if (admin && (await hasPaidProSubscription(admin))) {
-    return proEntitlement("shopify-app-pricing");
+  if (admin) {
+    try {
+      if (await hasPaidProSubscription(admin)) {
+        return proEntitlement("shopify-app-pricing");
+      }
+    } catch {
+      console.error("[pal-pro] entitlement_lookup_failed_falling_back_to_free");
+    }
   }
 
   return freeEntitlement();
