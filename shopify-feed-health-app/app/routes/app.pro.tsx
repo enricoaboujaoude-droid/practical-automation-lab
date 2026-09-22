@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { Form, useActionData, useFetcher, useLoaderData } from "react-router";
 import prisma from "../db.server";
@@ -48,7 +48,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   if (intent === "export-csv") {
     const exportType = String(formData.get("exportType") || "");
 
-    if (exportType === "history") {
+    try {
+      if (exportType === "history") {
       const history = await prisma.catalogScan.findMany({
         where: { shop: session.shop },
         orderBy: { generatedAt: "desc" },
@@ -131,11 +132,24 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       };
     }
 
-    return {
-      ok: false,
-      message: "Unknown export type.",
-      export: null,
-    };
+      return {
+        ok: false,
+        message: "Unknown export type.",
+        export: null,
+      };
+    } catch (error) {
+      console.error(
+        "[pal-shopify] CSV export failed",
+        exportType,
+        error instanceof Error ? error.message : "unknown error",
+      );
+      return {
+        ok: false,
+        message:
+          "The CSV could not be prepared. Please try again; the app will remain open in Shopify Admin.",
+        export: null,
+      };
+    }
   }
 
   if (intent === "monitoring") {
@@ -246,10 +260,26 @@ export default function ProMonitoringDashboard() {
   const actionData = useActionData<typeof action>();
   const exportFetcher = useFetcher<typeof action>();
   const exportPayload = exportFetcher.data?.export;
+  const [downloadError, setDownloadError] = useState("");
+
+  function downloadCsv(payload: { filename: string; body: string }) {
+    try {
+      triggerCsvDownload(payload);
+      setDownloadError("");
+    } catch (error) {
+      console.error(
+        "[pal-shopify] browser CSV download failed",
+        error instanceof Error ? error.message : "unknown error",
+      );
+      setDownloadError(
+        "The CSV was prepared, but the browser blocked the automatic download. Select Download again.",
+      );
+    }
+  }
 
   useEffect(() => {
     if (!exportPayload) return;
-    triggerCsvDownload(exportPayload);
+    downloadCsv(exportPayload);
   }, [exportPayload]);
 
   if (data.entitlement.plan !== "pro" || !data.dashboard) {
@@ -305,7 +335,7 @@ export default function ProMonitoringDashboard() {
               <button
                 type="button"
                 className="pal-link-button"
-                onClick={() => triggerCsvDownload(exportPayload)}
+                onClick={() => downloadCsv(exportPayload)}
                 style={{
                   border: 0,
                   background: "transparent",
@@ -318,6 +348,12 @@ export default function ProMonitoringDashboard() {
               </button>
             </>
           ) : null}
+        </s-banner>
+      ) : null}
+
+      {downloadError ? (
+        <s-banner tone="warning" heading="Browser download needs confirmation">
+          {downloadError}
         </s-banner>
       ) : null}
 
