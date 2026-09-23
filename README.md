@@ -6,6 +6,10 @@ Practical Automation Lab builds privacy-conscious tools for product data, commer
 
 ## PAL Catalog Check for Shopify
 
+**Install free from the Shopify App Store:** https://apps.shopify.com/pal-catalog-check
+
+**Current merchant pilot:** We’re looking for 5 Shopify merchants to run one real Free-plan scan and send practical feedback on what the scanner catches or misses. No testimonial is required. Feedback: enricoaboujaoude@gmail.com
+
 PAL Catalog Check is a read-only Shopify catalog-readiness scanner. It reviews product and variant data for issues that can create product-feed problems and provides remediation guidance without editing the store.
 
 - Shopify scope: `read_products`
