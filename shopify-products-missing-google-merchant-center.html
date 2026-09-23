@@ -17,13 +17,13 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 @media(max-width:650px){table{font-size:.9rem}}
 </style>
 </head>
-<body>
+<body data-pal-view="pal_missing_products_guide_viewed">
 <p><a href="index.html">← Practical Automation Lab</a></p>
 <div class="eyebrow">Shopify · Google Merchant Center · missing products</div>
 <h1>Products missing from Merchant Center? Split catalog problems from sync problems.</h1>
 <p class="lead">A missing Shopify product can be caused by catalog data, publication/channel settings, feed mapping, Google processing or account-level issues. Start by proving the catalog-side basics instead of changing everything at once.</p>
 
-<p><a class="button" href="https://apps.shopify.com/pal-catalog-check">Install PAL Catalog Check — Free</a><a class="button secondary" href="product-feed-preflight.html">Audit a feed CSV</a></p>
+<p><a class="button" href="https://apps.shopify.com/pal-catalog-check" data-pal-event="pal_missing_products_guide_clicked">Install PAL Catalog Check — Free</a><a class="button secondary" href="product-feed-preflight.html">Audit a feed CSV</a></p>
 
 <section class="panel notice">
 <h2>First-pass checklist</h2>
@@ -47,7 +47,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 <section class="panel notice">
 <h2>Why run PAL before changing the feed?</h2>
 <p>It gives you a bounded read-only snapshot of the Shopify-side problems PAL knows how to detect. If PAL finds catalog issues, fix and rescan. If it finds none, you have stronger evidence to focus on the feed, sync or Merchant Center side instead.</p>
-<p><a class="button" href="https://apps.shopify.com/pal-catalog-check">Install Free and run one scan</a></p>
+<p><a class="button" href="https://apps.shopify.com/pal-catalog-check" data-pal-event="pal_missing_products_guide_clicked">Install Free and run one scan</a></p>
 </section>
 
 <section class="panel">
@@ -56,5 +56,5 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 <p class="small">PAL Catalog Check is read-only and does not edit products or variants.</p>
 </section>
 <footer><a href="shopify-catalog-check.html">PAL Catalog Check</a><a href="pal-catalog-check-support.html">Support</a><a href="privacy.html">Privacy</a></footer>
-</body>
+<script src="pal-analytics.js" defer></script></body>
 </html>
