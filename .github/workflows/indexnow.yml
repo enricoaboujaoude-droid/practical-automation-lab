@@ -1,0 +1,56 @@
+name: IndexNow PAL public pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "*.html"
+      - "sitemap.xml"
+      - "robots.txt"
+      - "a308e807eac54897f390bd401091a89b.txt"
+      - ".github/workflows/indexnow.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit current high-intent PAL URLs to IndexNow
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > indexnow.json <<'JSON'
+          {
+            "host": "practical-automation-lab.onrender.com",
+            "key": "a308e807eac54897f390bd401091a89b",
+            "keyLocation": "https://practical-automation-lab.onrender.com/a308e807eac54897f390bd401091a89b.txt",
+            "urlList": [
+              "https://practical-automation-lab.onrender.com/",
+              "https://practical-automation-lab.onrender.com/shopify-catalog-check.html",
+              "https://practical-automation-lab.onrender.com/pricing.html",
+              "https://practical-automation-lab.onrender.com/product-feed-preflight.html",
+              "https://practical-automation-lab.onrender.com/merchant-center-image-readiness-2027.html",
+              "https://practical-automation-lab.onrender.com/shopify-gtin-mpn-merchant-center.html",
+              "https://practical-automation-lab.onrender.com/shopify-products-missing-google-merchant-center.html",
+              "https://practical-automation-lab.onrender.com/pal-catalog-check-support.html",
+              "https://practical-automation-lab.onrender.com/pal-catalog-check-privacy.html"
+            ]
+          }
+          JSON
+
+          status="$(curl --silent --show-error --output indexnow-response.txt --write-out '%{http_code}' \
+            --request POST \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data-binary @indexnow.json \
+            https://api.indexnow.org/IndexNow)"
+
+          echo "IndexNow HTTP status: ${status}"
+          cat indexnow-response.txt || true
+
+          case "${status}" in
+            200|202) exit 0 ;;
+            *) echo "IndexNow submission failed." >&2; exit 1 ;;
+          esac
