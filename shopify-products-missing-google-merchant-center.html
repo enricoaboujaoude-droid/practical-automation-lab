@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shopify Products Missing from Google Merchant Center — Catalog Checklist</title>
+<meta name="description" content="A practical Shopify checklist when products or variants are missing from Google Merchant Center. Separate catalog-readiness issues from feed and account-side sync problems.">
+<link rel="canonical" href="https://practical-automation-lab.onrender.com/shopify-products-missing-google-merchant-center.html">
+<meta property="og:title" content="Shopify Products Missing from Merchant Center — Checklist">
+<meta property="og:description" content="Check catalog-side issues first, then isolate feed or Merchant Center sync problems. Free Shopify catalog scan available.">
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:900px;margin:0 auto;padding:36px 18px 60px;line-height:1.6;color:#18181b}
+a{color:inherit}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}h1{font-size:clamp(2.1rem,5vw,3.7rem);line-height:1.05;margin:.5rem 0 1rem}
+.lead{font-size:1.08rem;opacity:.76;max-width:760px}.button{display:inline-block;text-decoration:none;border-radius:10px;padding:12px 16px;background:#18181b;color:#fff;font-weight:800;margin:8px 8px 8px 0}
+.secondary{background:#fff;color:#18181b;border:1px solid #d4d4d8}.panel{border:1px solid #e4e4e7;border-radius:16px;padding:20px;margin:24px 0}.notice{background:#fafafa}.small{font-size:.9rem;opacity:.72}
+table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #e4e4e7;text-align:left;vertical-align:top}footer{border-top:1px solid #e4e4e7;margin-top:42px;padding-top:18px;display:flex;gap:14px;flex-wrap:wrap;font-size:.92rem}
+@media(max-width:650px){table{font-size:.9rem}}
+</style>
+</head>
+<body>
+<p><a href="index.html">← Practical Automation Lab</a></p>
+<div class="eyebrow">Shopify · Google Merchant Center · missing products</div>
+<h1>Products missing from Merchant Center? Split catalog problems from sync problems.</h1>
+<p class="lead">A missing Shopify product can be caused by catalog data, publication/channel settings, feed mapping, Google processing or account-level issues. Start by proving the catalog-side basics instead of changing everything at once.</p>
+
+<p><a class="button" href="https://apps.shopify.com/pal-catalog-check">Install PAL Catalog Check — Free</a><a class="button secondary" href="product-feed-preflight.html">Audit a feed CSV</a></p>
+
+<section class="panel notice">
+<h2>First-pass checklist</h2>
+<table>
+<tr><th>Check</th><th>Why it matters</th></tr>
+<tr><td>Product title and vendor/brand</td><td>Missing or weak product identity can create downstream data-quality problems.</td></tr>
+<tr><td>Product URL</td><td>A usable product destination is part of a healthy catalog/feed path.</td></tr>
+<tr><td>Images</td><td>Missing or undersized images can create readiness issues even when other fields are valid.</td></tr>
+<tr><td>Price</td><td>Non-positive or inconsistent prices deserve investigation before blaming sync.</td></tr>
+<tr><td>Variant identifiers</td><td>Confirm the exact affected variants have the identifiers you expect; never invent GTINs or MPNs.</td></tr>
+<tr><td>Variant structure</td><td>Duplicate option combinations can make catalog interpretation ambiguous.</td></tr>
+</table>
+</section>
+
+<section class="panel">
+<h2>If the catalog looks clean</h2>
+<p>Move downstream. Check whether the product is eligible for the intended sales channel, whether the Google/YouTube or feed app is sending the expected variant, whether a supplemental feed or rule is overriding data, and whether Merchant Center is still processing or rejecting the item.</p>
+<p><strong>PAL’s boundary:</strong> PAL Catalog Check inspects Shopify catalog readiness. It does not connect to Merchant Center and cannot prove why Google omitted a product.</p>
+</section>
+
+<section class="panel notice">
+<h2>Why run PAL before changing the feed?</h2>
+<p>It gives you a bounded read-only snapshot of the Shopify-side problems PAL knows how to detect. If PAL finds catalog issues, fix and rescan. If it finds none, you have stronger evidence to focus on the feed, sync or Merchant Center side instead.</p>
+<p><a class="button" href="https://apps.shopify.com/pal-catalog-check">Install Free and run one scan</a></p>
+</section>
+
+<section class="panel">
+<h2>Use the result as a triage signal, not an approval guarantee</h2>
+<p>Google Merchant Center evaluates factors outside a Shopify catalog scan, including feed processing and account/policy conditions. A clean PAL scan does not guarantee approval or visibility.</p>
+<p class="small">PAL Catalog Check is read-only and does not edit products or variants.</p>
+</section>
+<footer><a href="shopify-catalog-check.html">PAL Catalog Check</a><a href="pal-catalog-check-support.html">Support</a><a href="privacy.html">Privacy</a></footer>
+</body>
+</html>
