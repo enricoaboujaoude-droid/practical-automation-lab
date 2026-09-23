@@ -74,6 +74,18 @@ const ALLOWED_EVENTS = new Set([
   'checkout_started',
   'checkout_unavailable',
   'checkout_redirected',
+  'pal_home_viewed',
+  'pal_home_shopify_clicked',
+  'pal_shopify_landing_viewed',
+  'pal_shopify_landing_clicked',
+  'pal_gtin_guide_viewed',
+  'pal_gtin_guide_clicked',
+  'pal_missing_products_guide_viewed',
+  'pal_missing_products_guide_clicked',
+  'pal_pricing_viewed',
+  'pal_pricing_shopify_clicked',
+  'pal_feed_auditor_shopify_clicked',
+  'pal_image_readiness_shopify_clicked',
 ]);
 
 if (!DATABASE_URL) {
@@ -140,7 +152,19 @@ async function initialize() {
         'commercial_lead_submitted',
         'checkout_started',
         'checkout_unavailable',
-        'checkout_redirected'
+        'checkout_redirected',
+        'pal_home_viewed',
+        'pal_home_shopify_clicked',
+        'pal_shopify_landing_viewed',
+        'pal_shopify_landing_clicked',
+        'pal_gtin_guide_viewed',
+        'pal_gtin_guide_clicked',
+        'pal_missing_products_guide_viewed',
+        'pal_missing_products_guide_clicked',
+        'pal_pricing_viewed',
+        'pal_pricing_shopify_clicked',
+        'pal_feed_auditor_shopify_clicked',
+        'pal_image_readiness_shopify_clicked'
       ))
   `);
   await pool.query(`
