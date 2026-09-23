@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shopify GTIN / MPN Missing or Not Syncing to Google Merchant Center — Checklist</title>
+<meta name="description" content="A practical Shopify checklist for GTIN, MPN and identifier gaps before troubleshooting Google Merchant Center sync. Run PAL Catalog Check free for read-only catalog diagnostics.">
+<link rel="canonical" href="https://practical-automation-lab.onrender.com/shopify-gtin-mpn-merchant-center.html">
+<meta property="og:title" content="Shopify GTIN / MPN Merchant Center Checklist">
+<meta property="og:description" content="Check catalog-side identifier gaps before chasing feed-sync problems. Free read-only Shopify scan available.">
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:900px;margin:0 auto;padding:36px 18px 60px;line-height:1.6;color:#18181b}
+a{color:inherit}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}h1{font-size:clamp(2.1rem,5vw,3.7rem);line-height:1.05;margin:.5rem 0 1rem}
+.lead{font-size:1.08rem;opacity:.76;max-width:760px}.button{display:inline-block;text-decoration:none;border-radius:10px;padding:12px 16px;background:#18181b;color:#fff;font-weight:800;margin:8px 8px 8px 0}
+.secondary{background:#fff;color:#18181b;border:1px solid #d4d4d8}.panel{border:1px solid #e4e4e7;border-radius:16px;padding:20px;margin:24px 0}.notice{background:#fafafa}.step{margin:20px 0}.step h3{margin-bottom:5px}.small{font-size:.9rem;opacity:.72}
+code{background:#f4f4f5;padding:2px 5px;border-radius:5px}footer{border-top:1px solid #e4e4e7;margin-top:42px;padding-top:18px;display:flex;gap:14px;flex-wrap:wrap;font-size:.92rem}
+</style>
+</head>
+<body>
+<p><a href="index.html">← Practical Automation Lab</a></p>
+<div class="eyebrow">Shopify · Google Merchant Center · identifiers</div>
+<h1>GTIN or MPN missing in Merchant Center? Check the Shopify catalog first.</h1>
+<p class="lead">When a variant reaches Google without the identifier data you expected, separate two questions: is the identifier actually present and consistent in Shopify, or is the downstream feed/sync failing to carry it? PAL Catalog Check helps with the first question.</p>
+
+<p><a class="button" href="https://apps.shopify.com/pal-catalog-check">Install PAL Catalog Check — Free</a><a class="button secondary" href="product-feed-preflight.html">Audit a CSV instead</a></p>
+
+<section class="panel notice">
+<h2>Fast diagnostic order</h2>
+<div class="step"><h3>1. Check the exact variant, not only the parent product</h3><p>Identifier problems often hide at variant level. Confirm the affected variant has the SKU/MPN or barcode/GTIN you intended to submit.</p></div>
+<div class="step"><h3>2. Do not invent identifiers</h3><p>Use manufacturer-assigned identifiers when they exist. Google’s product-data guidance says not to guess or manufacture an MPN or GTIN.</p></div>
+<div class="step"><h3>3. Check related catalog fields at the same time</h3><p>Review title, vendor/brand, product URL, images, price and variant structure. A feed problem can be compounded by more than one catalog-readiness issue.</p></div>
+<div class="step"><h3>4. Then inspect the feed or app sync</h3><p>If Shopify contains the correct identifier on the exact variant but Merchant Center still receives a blank or different value, the remaining problem may be in the feed mapping, channel app, supplemental source or sync path. PAL does not diagnose Merchant Center transport or account-side configuration.</p></div>
+</section>
+
+<section class="panel">
+<h2>What PAL Catalog Check can verify</h2>
+<ul>
+<li>Variants where neither SKU/MPN nor barcode/GTIN is present.</li>
+<li>Product titles and vendor/brand presence.</li>
+<li>Online Store URLs and product images.</li>
+<li>Prices and duplicate variant option combinations.</li>
+<li>Observable image-dimension readiness.</li>
+</ul>
+<p><strong>What it cannot prove:</strong> that Google received the field, that a particular feed mapping is correct, or that Merchant Center will approve the product.</p>
+</section>
+
+<section class="panel notice">
+<h2>Run one real scan before changing the feed</h2>
+<p>PAL Catalog Check is read-only and requests product access for catalog scanning. The Free plan checks the current Shopify catalog and gives remediation guidance without editing products or requiring Google Merchant Center credentials.</p>
+<p><a class="button" href="https://apps.shopify.com/pal-catalog-check">Install Free and scan the catalog</a></p>
+</section>
+
+<section class="panel">
+<h2>Official identifier references</h2>
+<ul>
+<li><a href="https://support.google.com/merchants/answer/6324461" target="_blank" rel="noopener">Google Merchant Center: GTIN</a></li>
+<li><a href="https://support.google.com/merchants/answer/6324482" target="_blank" rel="noopener">Google Merchant Center: MPN</a></li>
+<li><a href="https://support.google.com/merchants/answer/6324478" target="_blank" rel="noopener">Google Merchant Center: identifier_exists</a></li>
+</ul>
+<p class="small">PAL is not affiliated with Google. Always verify final diagnostics in Shopify and Merchant Center.</p>
+</section>
+<footer><a href="shopify-catalog-check.html">PAL Catalog Check</a><a href="pal-catalog-check-support.html">Support</a><a href="privacy.html">Privacy</a></footer>
+</body>
+</html>
