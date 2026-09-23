@@ -96,16 +96,17 @@ export default function Support() {
 
       <s-section heading="Get help">
         <s-paragraph>
-          During public beta, report reproducible issues or product feedback in
-          the Practical Automation Lab support thread. Never include store
-          passwords, Shopify access tokens, recovery codes, customer
-          information, or confidential catalog exports.
+          During public beta, send reproducible issues or product feedback by
+          email. Include the issue code, affected product title, and what field
+          you expected PAL to read. Never include store passwords, Shopify
+          access tokens, recovery codes, customer information, or confidential
+          catalog exports.
         </s-paragraph>
         <s-link
-          href="https://github.com/enricoaboujaoude-droid/practical-automation-lab/issues/4"
+          href="mailto:enricoaboujaoude@gmail.com?subject=PAL%20Catalog%20Check%20support"
           target="_blank"
         >
-          Open beta support & feedback
+          Email PAL Catalog Check support
         </s-link>
       </s-section>
 
