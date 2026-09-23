@@ -44,7 +44,7 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:10
 <div id="pro-locked" class="pro-lock">
   <b>Browser batch-audit preview.</b>
   <p class="small">New paid browser checkout is not the active PAL sales path. If your catalog is on Shopify, install PAL Catalog Check Free and use Shopify App Pricing if Pro becomes useful.</p>
-  <div class="row"><a class="button" href="https://apps.shopify.com/pal-catalog-check">Install PAL Catalog Check — Free</a><button id="checkPro" class="secondary" type="button">Check existing browser access</button><span id="proStatus" class="status"></span></div>
+  <div class="row"><a class="button" href="https://apps.shopify.com/pal-catalog-check" data-pal-event="pal_feed_auditor_shopify_clicked">Install PAL Catalog Check — Free</a><button id="checkPro" class="secondary" type="button">Check existing browser access</button><span id="proStatus" class="status"></span></div>
 </div>
 <div id="pro-unlocked" class="hidden">
   <p><span class="pill">PAL Pro active</span></p>
@@ -74,14 +74,14 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:10
 <textarea id="inquiryText" readonly></textarea>
 <div class="row" style="margin-top:10px"><button id="copyInquiry">Copy inquiry template</button><span id="copyStatus" class="status"></span></div>
 </div>
-<p><a class="button" href="https://apps.shopify.com/pal-catalog-check">Install PAL Catalog Check — Free</a></p><p class="small muted">The browser-local CSV audit remains free and separate from the Shopify app.</p>
+<p><a class="button" href="https://apps.shopify.com/pal-catalog-check" data-pal-event="pal_feed_auditor_shopify_clicked">Install PAL Catalog Check — Free</a></p><p class="small muted">The browser-local CSV audit remains free and separate from the Shopify app.</p>
 </div>
 </section>
 <section id="shopify-beta" class="commercial">
 <h2>PAL Catalog Check is live on Shopify</h2>
 <p>The native read-only Shopify app scans catalog readiness directly after installation, including product, image, identifier, price and variant checks.</p>
 <p class="small muted">The Free plan is available now. No Merchant Center credentials are required, and PAL does not edit products or variants.</p>
-<a id="shopifyBetaInterest" class="button" href="https://apps.shopify.com/pal-catalog-check">Install PAL Catalog Check — Free</a>
+<a id="shopifyBetaInterest" class="button" href="https://apps.shopify.com/pal-catalog-check" data-pal-event="pal_feed_auditor_shopify_clicked">Install PAL Catalog Check — Free</a>
 </section>
 <section style="margin-top:36px">
 <h2>What this checks</h2>
@@ -185,5 +185,5 @@ $('runBatch').onclick=runBatchAudit;
 $('downloadBatch').onclick=downloadBatchCsv;
 refreshProAccess();
 </script>
-</body>
+<script src="pal-analytics.js" defer></script></body>
 </html>
