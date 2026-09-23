@@ -2505,6 +2505,28 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    if (req.method === 'GET' && url.pathname === '/metrics/shopify-funnel') {
+      const names = [
+        'pal_home_viewed',
+        'pal_home_shopify_clicked',
+        'pal_shopify_landing_viewed',
+        'pal_shopify_landing_clicked',
+        'pal_gtin_guide_viewed',
+        'pal_gtin_guide_clicked',
+        'pal_missing_products_guide_viewed',
+        'pal_missing_products_guide_clicked',
+        'pal_pricing_viewed',
+        'pal_pricing_shopify_clicked',
+        'pal_feed_auditor_shopify_clicked',
+        'pal_image_readiness_shopify_clicked',
+      ];
+      return sendJson(req, res, 200, {
+        ok: true,
+        scope: 'production_only',
+        events: await productionMetrics(names),
+      });
+    }
+
     if (req.method === 'GET' && url.pathname === '/metrics/merchant-migration') {
       const names = [
         'merchant_migration_started',
