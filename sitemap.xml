@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://practical-automation-lab.onrender.com/</loc></url>
-  <url><loc>https://practical-automation-lab.onrender.com/shopify-catalog-check.html</loc></url>
-  <url><loc>https://practical-automation-lab.onrender.com/product-feed-preflight.html</loc></url>
-  <url><loc>https://practical-automation-lab.onrender.com/merchant-center-image-readiness-2027.html</loc></url>
+  <url><loc>https://practical-automation-lab.onrender.com/</loc><lastmod>2026-09-23</lastmod></url>
+  <url><loc>https://practical-automation-lab.onrender.com/shopify-catalog-check.html</loc><lastmod>2026-09-23</lastmod></url>
+  <url><loc>https://practical-automation-lab.onrender.com/pricing.html</loc><lastmod>2026-09-23</lastmod></url>
+  <url><loc>https://practical-automation-lab.onrender.com/product-feed-preflight.html</loc><lastmod>2026-09-23</lastmod></url>
+  <url><loc>https://practical-automation-lab.onrender.com/merchant-center-image-readiness-2027.html</loc><lastmod>2026-09-23</lastmod></url>
+  <url><loc>https://practical-automation-lab.onrender.com/pal-catalog-check-support.html</loc><lastmod>2026-09-23</lastmod></url>
+  <url><loc>https://practical-automation-lab.onrender.com/pal-catalog-check-privacy.html</loc><lastmod>2026-09-23</lastmod></url>
   <url><loc>https://practical-automation-lab.onrender.com/google-merchant-api-migration-preflight.html</loc></url>
   <url><loc>https://practical-automation-lab.onrender.com/shopify-feed-health-support.html</loc></url>
   <url><loc>https://practical-automation-lab.onrender.com/shopify-feed-health-privacy.html</loc></url>
@@ -25,6 +28,5 @@
   <url><loc>https://practical-automation-lab.onrender.com/eudr-dds-v3-api-migration-checklist.html</loc></url>
   <url><loc>https://practical-automation-lab.onrender.com/eu-battery-passport-preflight.html</loc></url>
   <url><loc>https://practical-automation-lab.onrender.com/ap-exception-health-check.html</loc></url>
-  <url><loc>https://practical-automation-lab.onrender.com/pricing.html</loc></url>
   <url><loc>https://practical-automation-lab.onrender.com/commercial-interest.html</loc></url>
 </urlset>
