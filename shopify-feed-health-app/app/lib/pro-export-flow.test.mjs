@@ -129,10 +129,14 @@ test("billing lookup failure falls back without crashing the embedded app", asyn
 
 test("external support links open outside the embedded Shopify frame", async () => {
   const support = await source("app.support.tsx");
-  const externalLinks = support.match(/href="https:\/\/[^"]+"/g) || [];
-  const blankTargets = support.match(/target="_blank"/g) || [];
 
-  assert.equal(externalLinks.length, 2);
-  assert.equal(blankTargets.length, 2);
+  assert.match(
+    support,
+    /href="https:\/\/practical-automation-lab\.onrender\.com\/shopify-feed-health-privacy\.html"[\s\S]*?target="_blank"/,
+  );
+  assert.match(
+    support,
+    /href="mailto:enricoaboujaoude@gmail\.com\?subject=PAL%20Catalog%20Check%20support"[\s\S]*?target="_blank"/,
+  );
 });
 
