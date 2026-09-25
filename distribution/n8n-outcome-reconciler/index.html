@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>n8n Outcome Reconciler</title>
+  <meta name="description" content="Detect green-but-wrong n8n executions locally in your browser.">
+  <style>
+    :root { color-scheme: dark; --bg:#07110f; --panel:#0d1b17; --line:#234139; --text:#effaf5; --muted:#9eb8ae; --mint:#78f0bd; --amber:#ffc96b; --red:#ff8585; }
+    * { box-sizing:border-box; }
+    body { margin:0; font:15px/1.55 Inter,ui-sans-serif,system-ui,sans-serif; background:radial-gradient(circle at top left,#123129 0,#07110f 42%); color:var(--text); min-height:100vh; }
+    main { width:min(1080px,calc(100% - 32px)); margin:auto; padding:54px 0 80px; }
+    header { max-width:760px; margin-bottom:30px; }
+    .eyebrow { color:var(--mint); text-transform:uppercase; letter-spacing:.14em; font-size:12px; font-weight:800; }
+    h1 { font-size:clamp(34px,6vw,62px); line-height:1.02; margin:10px 0 14px; letter-spacing:-.045em; }
+    header p { color:var(--muted); font-size:18px; }
+    .privacy { display:inline-flex; gap:8px; align-items:center; border:1px solid var(--line); padding:7px 11px; border-radius:999px; color:var(--muted); }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .panel { background:color-mix(in srgb,var(--panel) 94%,transparent); border:1px solid var(--line); border-radius:18px; padding:22px; box-shadow:0 22px 80px #0005; }
+    .panel h2 { margin:0 0 4px; font-size:20px; }
+    .panel > p { color:var(--muted); margin:0 0 18px; }
+    label { display:block; color:var(--muted); font-size:13px; margin:14px 0 6px; }
+    input,select,textarea { width:100%; border:1px solid var(--line); background:#07130f; color:var(--text); border-radius:10px; padding:11px 12px; font:inherit; }
+    textarea { min-height:160px; resize:vertical; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; font-size:12px; }
+    input:focus,select:focus,textarea:focus { outline:2px solid #78f0bd55; border-color:var(--mint); }
+    .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    button { border:0; border-radius:11px; padding:12px 16px; font-weight:800; cursor:pointer; }
+    .primary { width:100%; margin-top:18px; background:var(--mint); color:#052117; }
+    .secondary { background:#17352c; color:var(--text); border:1px solid var(--line); }
+    .file { display:flex; gap:8px; align-items:center; }
+    .file input { padding:8px; }
+    #results { margin-top:18px; display:none; }
+    .summary { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:16px 0; }
+    .metric { border:1px solid var(--line); border-radius:12px; padding:13px; background:#07130f; }
+    .metric strong { display:block; font-size:22px; }
+    .metric span { color:var(--muted); font-size:12px; }
+    .verdict { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:15px; border-radius:12px; border:1px solid var(--line); }
+    .healthy { border-color:#3a9f76; } .attention_required { border-color:#a74f4f; } .review { border-color:#a77b37; }
+    .finding,.execution { border-top:1px solid var(--line); padding:13px 0; }
+    .bad { color:var(--red); } .warn { color:var(--amber); } .good { color:var(--mint); }
+    .actions { display:flex; gap:10px; margin-top:16px; }
+    small { color:var(--muted); }
+    @media (max-width:780px) { .grid,.row { grid-template-columns:1fr; } .summary { grid-template-columns:1fr 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">Outcome contract reconciler</div>
+    <h1>Catch n8n runs that are green—but wrong.</h1>
+    <p>Import a workflow and its execution export. Define the outcome that should have happened. Get a deterministic report for missed terminals, zero-item success, absent receipts, and overdue runs.</p>
+    <div class="privacy">◉ Local-only · files never leave your browser</div>
+  </header>
+
+  <section class="grid">
+    <div class="panel">
+      <h2>1. Import evidence</h2>
+      <p>n8n workflow JSON plus one or more execution records.</p>
+      <label for="workflowFile">Workflow export</label>
+      <div class="file"><input id="workflowFile" type="file" accept="application/json,.json"></div>
+      <label for="workflowJson">Or paste workflow JSON</label>
+      <textarea id="workflowJson" spellcheck="false" placeholder='{"name":"Daily report","nodes":[],"connections":{}}'></textarea>
+      <label for="executionFile">Execution export</label>
+      <div class="file"><input id="executionFile" type="file" accept="application/json,.json"></div>
+      <label for="executionJson">Or paste execution JSON</label>
+      <textarea id="executionJson" spellcheck="false" placeholder='[{"id":"123","status":"success","data":{"resultData":{"runData":{}}}}]'></textarea>
+    </div>
+
+    <div class="panel">
+      <h2>2. Define the outcome contract</h2>
+      <p>State the minimum observable evidence of a correct run.</p>
+      <label for="terminalNode">Terminal node</label>
+      <select id="terminalNode"><option value="">Import workflow to infer</option></select>
+      <div class="row">
+        <div><label for="minItems">Minimum terminal items</label><input id="minItems" type="number" min="0" value="1"></div>
+        <div><label for="cadenceHours">Expected cadence (hours)</label><input id="cadenceHours" type="number" min="0" value="24"></div>
+      </div>
+      <label for="receiptPath">Optional receipt path in terminal item</label>
+      <input id="receiptPath" placeholder="json.messageId">
+      <small>Examples: <code>json.messageId</code>, <code>json.order.id</code>, <code>json.saved</code></small>
+      <button class="primary" id="runButton">Generate reconciliation report</button>
+      <div id="error" class="bad" role="alert" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section id="results" class="panel" aria-live="polite">
+    <div class="verdict" id="verdict"></div>
+    <div class="summary" id="summary"></div>
+    <div id="details"></div>
+    <div class="actions"><button id="download" class="secondary">Download JSON report</button><button id="reset" class="secondary">Reset</button></div>
+  </section>
+</main>
+<script src="reconciler.js"></script>
+<script>
+  const $ = (id) => document.getElementById(id);
+  let lastReport = null;
+
+  async function readFile(input, textarea) {
+    const file = input.files[0];
+    if (file) textarea.value = await file.text();
+  }
+
+  function parse(text, label) {
+    if (!text.trim()) throw new Error(`${label} JSON is required.`);
+    try { return JSON.parse(text); } catch (error) { throw new Error(`${label} JSON is invalid: ${error.message}`); }
+  }
+
+  function refreshTerminals() {
+    try {
+      const workflow = parse($("workflowJson").value, "Workflow");
+      const names = (workflow.nodes || []).map((node) => node.name);
+      const terminals = OutcomeReconciler.terminalCandidates(workflow);
+      $("terminalNode").innerHTML = names.map((name) => `<option value="${escapeHtml(name)}" ${terminals.includes(name) ? "data-terminal=true" : ""}>${escapeHtml(name)}${terminals.includes(name) ? " · terminal" : ""}</option>`).join("");
+      if (terminals[0]) $("terminalNode").value = terminals[0];
+    } catch (_) {}
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]));
+  }
+
+  function render(report) {
+    $("results").style.display = "block";
+    const verdictLabel = report.verdict === "healthy" ? "Outcome contract satisfied" : report.verdict === "review" ? "Review recommended" : "Outcome mismatch detected";
+    $("verdict").className = `verdict ${report.verdict}`;
+    $("verdict").innerHTML = `<div><strong>${verdictLabel}</strong><br><small>${escapeHtml(report.workflow.name)} · terminal: ${escapeHtml(report.contract.terminalNode || "unset")}</small></div><strong class="${report.verdict === "healthy" ? "good" : report.verdict === "review" ? "warn" : "bad"}">${report.verdict.replaceAll("_", " ").toUpperCase()}</strong>`;
+    const metrics = [[report.summary.executionCount,"Executions"],[report.summary.passed,"Passed"],[report.summary.failed,"Failed"],[report.summary.globalFindings,"Global findings"]];
+    $("summary").innerHTML = metrics.map(([value,label]) => `<div class="metric"><strong>${value}</strong><span>${label}</span></div>`).join("");
+    const globals = report.findings.map((item) => `<div class="finding"><strong class="${item.severity === "error" ? "bad" : "warn"}">${escapeHtml(item.code)}</strong><br>${escapeHtml(item.message)}</div>`).join("");
+    const executions = report.executions.map((item) => `<div class="execution"><strong>Execution ${escapeHtml(item.id)}</strong> · <span class="${item.outcome === "passed_contract" ? "good" : item.outcome === "warning" ? "warn" : "bad"}">${item.outcome.replaceAll("_", " ")}</span><br><small>Status ${escapeHtml(item.status)} · ${item.terminalItems} terminal item(s) · ${item.visitedNodes} visited node(s)</small>${item.issues.map((issue) => `<div>↳ <span class="${issue.severity === "error" ? "bad" : "warn"}">${escapeHtml(issue.message)}</span></div>`).join("")}</div>`).join("");
+    $("details").innerHTML = `<h3>Findings</h3>${globals || "<p class=good>No global findings.</p>"}<h3>Execution outcomes</h3>${executions || "<p>No executions.</p>"}`;
+    $("results").scrollIntoView({ behavior:"smooth", block:"start" });
+  }
+
+  $("workflowFile").addEventListener("change", async () => { await readFile($("workflowFile"), $("workflowJson")); refreshTerminals(); });
+  $("executionFile").addEventListener("change", () => readFile($("executionFile"), $("executionJson")));
+  $("workflowJson").addEventListener("change", refreshTerminals);
+  $("runButton").addEventListener("click", () => {
+    $("error").textContent = "";
+    try {
+      const workflow = parse($("workflowJson").value, "Workflow");
+      const executions = parse($("executionJson").value, "Execution");
+      lastReport = OutcomeReconciler.reconcile(workflow, executions, {
+        terminalNode: $("terminalNode").value,
+        minItems: $("minItems").value,
+        cadenceHours: $("cadenceHours").value,
+        receiptPath: $("receiptPath").value,
+      });
+      const count = Number(localStorage.getItem("outcomeReconcilerReports") || 0) + 1;
+      localStorage.setItem("outcomeReconcilerReports", String(count));
+      render(lastReport);
+    } catch (error) { $("error").textContent = error.message; }
+  });
+  $("download").addEventListener("click", () => {
+    if (!lastReport) return;
+    const blob = new Blob([JSON.stringify(lastReport, null, 2)], { type:"application/json" });
+    const link = Object.assign(document.createElement("a"), { href:URL.createObjectURL(blob), download:"n8n-outcome-report.json" });
+    link.click(); URL.revokeObjectURL(link.href);
+  });
+  $("reset").addEventListener("click", () => location.reload());
+</script>
+</body>
+</html>
