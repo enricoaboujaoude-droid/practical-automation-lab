@@ -1,0 +1,21 @@
+[
+  {
+    "id": "success-101",
+    "status": "success",
+    "startedAt": "2026-09-25T15:00:00.000Z",
+    "data": { "resultData": { "runData": {
+      "Schedule": [{ "data": { "main": [[{ "json": {} }]] } }],
+      "Get Rows": [{ "data": { "main": [[{ "json": { "customer": "A" } }]] } }],
+      "Send Report": [{ "data": { "main": [[{ "json": { "messageId": "mail-101" } }]] } }]
+    } } }
+  },
+  {
+    "id": "green-but-wrong-102",
+    "status": "success",
+    "startedAt": "2026-09-25T14:00:00.000Z",
+    "data": { "resultData": { "runData": {
+      "Schedule": [{ "data": { "main": [[{ "json": {} }]] } }],
+      "Get Rows": [{ "data": { "main": [[]] } }]
+    } } }
+  }
+]
