@@ -1,0 +1,12 @@
+{
+  "name": "Daily client report",
+  "nodes": [
+    { "name": "Schedule", "type": "n8n-nodes-base.scheduleTrigger" },
+    { "name": "Get Rows", "type": "n8n-nodes-base.googleSheets" },
+    { "name": "Send Report", "type": "n8n-nodes-base.gmail" }
+  ],
+  "connections": {
+    "Schedule": { "main": [[{ "node": "Get Rows", "type": "main", "index": 0 }]] },
+    "Get Rows": { "main": [[{ "node": "Send Report", "type": "main", "index": 0 }]] }
+  }
+}
