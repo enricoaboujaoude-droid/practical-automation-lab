@@ -17,6 +17,10 @@ It deterministically detects:
 
 The tool deliberately marks repository-dependent behavior as **REVIEW** rather than inventing live GitHub state.
 
+## Troubleshooting guide
+
+For the blocked-merge pattern where a required check remains **Expected — Waiting**, or stacked pull requests skip CI because their base branch does not match a workflow filter, use the [required-check preflight checklist](./github-required-check-expected-waiting.md).
+
 ## Run
 
 Open `index.html` directly, or serve the directory as static files:
