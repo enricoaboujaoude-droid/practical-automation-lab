@@ -1,0 +1,10 @@
+name: runner contract example
+on: [push]
+jobs:
+  build:
+    strategy:
+      matrix:
+        arch: [x64, arm64]
+    runs-on: [self-hosted, linux, "${{ matrix.arch }}"]
+    steps:
+      - run: echo ok
