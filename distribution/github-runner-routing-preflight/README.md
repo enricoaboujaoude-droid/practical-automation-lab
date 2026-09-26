@@ -15,6 +15,10 @@ It expands finite `strategy.matrix` runner labels, intersects `runs-on` labels a
 
 Known GitHub-hosted labels such as `ubuntu-latest` are explicitly out of scope. This static evidence does not prove live GitHub service health, autoscaling latency, runner software health, or eventual queue time.
 
+## Troubleshooting guide
+
+For jobs stuck at **Waiting for a runner to pick up this job**, use the [self-hosted runner routing checklist](./self-hosted-runner-waiting-for-runner.md) to distinguish missing labels, inaccessible groups, single-runner bottlenecks, and a fleet snapshot with no idle eligible runner.
+
 ## Inputs
 
 Workflow YAML plus a redacted inventory:
