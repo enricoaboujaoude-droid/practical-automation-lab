@@ -1,0 +1,28 @@
+"use strict";
+const assert = require("assert");
+const fs = require("fs");
+const path = require("path");
+const core = require("../core");
+const root = path.join(__dirname, "..");
+const read = (name) => fs.readFileSync(path.join(root, "samples", name), "utf8");
+const base = JSON.parse(read("baseline-plan.json"));
+const candidate = JSON.parse(read("candidate-plan.json"));
+const locks = { baselineLockfile: read("baseline.lock.hcl"), candidateLockfile: read("candidate.lock.hcl") };
+const run = (b, c, extra) => core.analyze({ baselinePlan: b, candidatePlan: c, ...locks, ...(extra || {}) });
+let count = 0;
+const test = (name, fn) => { fn(); count += 1; console.log(`ok ${count} - ${name}`); };
+
+test("AWS database replacement is BLOCK and high risk", () => { const r=run(base,candidate); assert.equal(r.status,"BLOCK"); assert.equal(r.summary.high_risk_replacements,1); });
+test("replacement path is preserved", () => assert.deepEqual(run(base,candidate).upgrade_introduced_replacements[0].replace_paths,["region"]));
+test("new unknown value is recorded", () => assert.deepEqual(run(base,candidate).upgrade_introduced_replacements[0].newly_unknown_paths,["endpoint"]));
+test("unchanged candidate is PASS", () => { const c=structuredClone(base); assert.equal(run(base,c).status,"PASS"); });
+test("existing baseline replacement is not newly introduced", () => { const b=structuredClone(candidate); assert.equal(run(b,candidate).summary.upgrade_introduced_replacements,0); });
+test("Azure identity replacement is high risk", () => { const c=structuredClone(candidate); c.resource_changes[0].address="azurerm_role_assignment.prod"; c.resource_changes[0].type="azurerm_role_assignment"; assert.equal(run(base,c).upgrade_introduced_replacements[0].risk.domains[0],"IDENTITY"); });
+test("Cloudflare network replacement is high risk", () => { const c=structuredClone(candidate); c.resource_changes[0].address="cloudflare_load_balancer.prod"; c.resource_changes[0].type="cloudflare_load_balancer"; assert.equal(run(base,c).upgrade_introduced_replacements[0].risk.domains[0],"NETWORK"); });
+test("Kubernetes cluster replacement is high risk", () => { const c=structuredClone(candidate); c.resource_changes[0].address="aws_eks_cluster.prod"; c.resource_changes[0].type="aws_eks_cluster"; assert.equal(run(base,c).upgrade_introduced_replacements[0].risk.domains[0],"CLUSTER"); });
+test("configuration mismatch blocks attribution", () => { const c=structuredClone(base); c.configuration.root_module.resources.push({address:"aws_s3_bucket.x"}); assert.ok(run(base,c).findings.some(x=>x.code==="PROVENANCE_CONFIGURATION_MISMATCH")); });
+test("variable mismatch blocks attribution", () => { const c=structuredClone(base); c.variables.region.value="eu-west-1"; assert.ok(run(base,c).findings.some(x=>x.code==="PROVENANCE_VARIABLES_MISMATCH")); });
+test("no provider delta blocks attribution", () => { const r=run(base,base,{candidateLockfile:locks.baselineLockfile}); assert.ok(r.findings.some(x=>x.code==="PROVENANCE_NO_PROVIDER_DELTA")); });
+test("missing configuration requires review", () => { const b=structuredClone(base),c=structuredClone(base); delete b.configuration; delete c.configuration; assert.equal(run(b,c).status,"REVIEW"); });
+test("HTML embeds deterministic evidence", () => assert.match(core.renderHtml(run(base,candidate)),/UPGRADE_INTRODUCED_REPLACEMENT/));
+console.log(`1..${count}`);
