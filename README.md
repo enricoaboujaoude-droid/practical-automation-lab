@@ -103,6 +103,12 @@ All public browser-local tools are designed to keep uploaded or pasted business 
 
 ## Open-source operator tools
 
+### Helm Ownership Transfer Preflight
+
+A browser-local tool and zero-dependency CLI for Helm `--take-ownership`, chart splits, and multi-release collisions. It combines old release history, an adopting manifest, and optional live metadata to emit deterministic PASS/REVIEW/BLOCK evidence for cross-release deletion, unexpected owners, shared cluster-scoped resources, hooks, and missing live verification.
+
+- [Tool, CLI, tests, and Helm #32218 fixture](distribution/helm-ownership-transfer-preflight/)
+
 ### GitHub Runner Routing Contract Preflight
 
 A credential-free browser tool, CLI, and GitHub Action that expands finite workflow matrices and compares `runs-on` labels/groups with a redacted self-hosted runner inventory. It emits deterministic PASS/REVIEW/BLOCK evidence for unsatisfiable routes, repository-access conflicts, broad fallbacks, and single-runner bottlenecks.
