@@ -1,0 +1,9 @@
+{
+  "name": "main merge safety",
+  "target": "branch",
+  "enforcement": "active",
+  "rules": [
+    { "type": "required_status_checks", "parameters": { "required_status_checks": [{ "context": "test" }] } },
+    { "type": "merge_queue", "parameters": {} }
+  ]
+}
