@@ -1,0 +1,6 @@
+{
+  "name": "github-oidc-subject-preflight",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": { "test": "node test.js" }
+}
