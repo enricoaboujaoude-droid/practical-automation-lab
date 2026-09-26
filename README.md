@@ -101,6 +101,15 @@ https://practical-automation-lab.onrender.com/eu-battery-passport-preflight.html
 
 All public browser-local tools are designed to keep uploaded or pasted business data in the browser unless a page explicitly states otherwise.
 
+## Open-source operator tools
+
+### PostgreSQL Restore Portability Preflight
+
+A dependency-free browser tool, CLI, and GitHub Action that compares `pg_restore --list` metadata with a redacted destination inventory. It produces deterministic PASS/REVIEW/BLOCK evidence for missing owner roles, unavailable extensions, and unsafe PostgreSQL major-version direction—without uploading the dump or connecting to the database.
+
+- [Tool, CLI, Action, tests, and samples](distribution/pg-restore-portability-preflight/)
+- [Guide: unsupported archive version and `transaction_timeout`](distribution/pg-restore-portability-preflight/pg-restore-unsupported-version-transaction-timeout.md)
+
 ## Important
 
 Never commit secrets, access tokens, customer data, merchant catalog contents, or private credentials to this repository.
