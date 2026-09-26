@@ -1,9 +1,9 @@
 import { appendFile, readFile, writeFile } from "node:fs/promises";
 import { analyzeRestore, renderHtml } from "./src/analyzer.mjs";
 
-const tocPath = process.env.INPUT_TOC_PATH;
-const targetPath = process.env.INPUT_TARGET_PATH;
-const noOwner = String(process.env.INPUT_NO_OWNER).toLowerCase() === "true";
+const tocPath = process.env["INPUT_TOC-PATH"] ?? process.env.INPUT_TOC_PATH;
+const targetPath = process.env["INPUT_TARGET-PATH"] ?? process.env.INPUT_TARGET_PATH;
+const noOwner = String(process.env["INPUT_NO-OWNER"] ?? process.env.INPUT_NO_OWNER).toLowerCase() === "true";
 const jsonPath = "pg-restore-preflight.json";
 const htmlPath = "pg-restore-preflight.html";
 
