@@ -1,0 +1,9 @@
+name: risky runner contract
+on: [push]
+jobs:
+  deploy:
+    runs-on:
+      group: restricted
+      labels: [self-hosted, linux, gpu]
+    steps:
+      - run: echo deploy
