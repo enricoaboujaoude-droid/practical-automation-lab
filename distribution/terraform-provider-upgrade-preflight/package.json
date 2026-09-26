@@ -1,0 +1,6 @@
+{
+  "name": "terraform-provider-upgrade-preflight",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "test": "node tests/test.js", "sample": "node cli.js --baseline-plan samples/baseline-plan.json --candidate-plan samples/candidate-plan.json --baseline-lockfile samples/baseline.lock.hcl --candidate-lockfile samples/candidate.lock.hcl" }
+}
