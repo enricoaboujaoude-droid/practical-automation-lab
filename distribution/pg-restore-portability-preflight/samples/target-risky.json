@@ -1,0 +1,5 @@
+{
+  "serverVersion": "15.8",
+  "roles": ["postgres"],
+  "availableExtensions": ["plpgsql"]
+}

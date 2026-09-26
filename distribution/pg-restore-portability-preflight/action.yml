@@ -1,0 +1,26 @@
+name: PostgreSQL Restore Portability Preflight
+description: Compare pg_restore TOC metadata with a redacted target inventory before restore.
+inputs:
+  toc-path:
+    description: Path to output from pg_restore --list.
+    required: true
+  target-path:
+    description: Path to the redacted target inventory JSON.
+    required: true
+  no-owner:
+    description: Model an explicit --no-owner restore.
+    required: false
+    default: "false"
+outputs:
+  status:
+    description: PASS, REVIEW, or BLOCK.
+  json-report:
+    description: Path to the JSON evidence report.
+  html-report:
+    description: Path to the HTML evidence report.
+runs:
+  using: node20
+  main: action.mjs
+branding:
+  icon: database
+  color: blue

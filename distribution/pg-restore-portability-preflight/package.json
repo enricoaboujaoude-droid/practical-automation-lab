@@ -1,0 +1,12 @@
+{
+  "name": "pg-restore-portability-preflight",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local deterministic preflight for PostgreSQL archive restores.",
+  "scripts": {
+    "test": "node --test",
+    "sample:safe": "node cli.mjs --toc samples/archive.list --target samples/target-safe.json",
+    "sample:risky": "node cli.mjs --toc samples/archive.list --target samples/target-risky.json"
+  }
+}

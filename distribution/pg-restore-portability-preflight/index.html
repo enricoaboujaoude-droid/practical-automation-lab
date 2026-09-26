@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PostgreSQL Restore Portability Preflight</title>
+<link rel="stylesheet" href="style.css">
+<main>
+  <p class="eyebrow">Runs entirely in this browser</p>
+  <h1>PostgreSQL archive restore-portability preflight</h1>
+  <p>Compare redacted <code>pg_restore --list</code> metadata with a target inventory before attempting a restore. No dump or credential is uploaded.</p>
+  <form>
+    <label>Archive TOC<textarea id="toc" required placeholder="Paste pg_restore --list output"></textarea></label>
+    <label>Target inventory JSON<textarea id="target" required>{
+  "serverVersion": "16.4",
+  "roles": ["app_owner"],
+  "availableExtensions": ["pg_trgm"]
+}</textarea></label>
+    <label class="check"><input id="no-owner" type="checkbox"> Model an explicit <code>--no-owner</code> restore</label>
+    <button type="submit">Run preflight</button>
+  </form>
+  <section>
+    <div class="actions"><button id="download-json" type="button">Download JSON</button><button id="download-html" type="button">Download HTML</button></div>
+    <pre id="output">No analysis yet.</pre>
+  </section>
+</main>
+<script type="module" src="app.mjs"></script>
+</html>

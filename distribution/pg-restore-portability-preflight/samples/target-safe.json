@@ -1,0 +1,5 @@
+{
+  "serverVersion": "16.4",
+  "roles": ["app_owner"],
+  "availableExtensions": ["pg_trgm", "plpgsql"]
+}
