@@ -103,6 +103,13 @@ All public browser-local tools are designed to keep uploaded or pasted business 
 
 ## Open-source operator tools
 
+### GitHub Runner Routing Contract Preflight
+
+A credential-free browser tool, CLI, and GitHub Action that expands finite workflow matrices and compares `runs-on` labels/groups with a redacted self-hosted runner inventory. It emits deterministic PASS/REVIEW/BLOCK evidence for unsatisfiable routes, repository-access conflicts, broad fallbacks, and single-runner bottlenecks.
+
+- [Tool, CLI, Action, tests, and samples](distribution/github-runner-routing-preflight/)
+
+
 ### PostgreSQL Restore Portability Preflight
 
 A dependency-free browser tool, CLI, and GitHub Action that compares `pg_restore --list` metadata with a redacted destination inventory. It produces deterministic PASS/REVIEW/BLOCK evidence for missing owner roles, unavailable extensions, and unsafe PostgreSQL major-version direction—without uploading the dump or connecting to the database.
