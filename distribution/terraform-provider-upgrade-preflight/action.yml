@@ -1,0 +1,36 @@
+name: Terraform Provider-Upgrade Replacement Preflight
+description: Deterministically block provider upgrades that introduce resource replacements.
+inputs:
+  baseline-plan:
+    description: Path to terraform show -json output produced with the baseline lockfile.
+    required: true
+  candidate-plan:
+    description: Path to terraform show -json output produced with the candidate lockfile.
+    required: true
+  baseline-lockfile:
+    description: Path to the baseline .terraform.lock.hcl.
+    required: true
+  candidate-lockfile:
+    description: Path to the candidate .terraform.lock.hcl.
+    required: true
+  json-output:
+    description: JSON evidence path.
+    default: upgrade-preflight.json
+  html-output:
+    description: Standalone HTML evidence path.
+    default: upgrade-preflight.html
+  fail-on-block:
+    description: Exit non-zero for BLOCK.
+    default: "true"
+outputs:
+  status:
+    description: PASS, REVIEW, or BLOCK.
+  replacement-count:
+    description: Number of replacements introduced only in the candidate plan.
+  json-report:
+    description: JSON evidence path.
+  html-report:
+    description: HTML evidence path.
+runs:
+  using: node20
+  main: action.js
