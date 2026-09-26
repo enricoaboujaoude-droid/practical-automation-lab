@@ -1,0 +1,1 @@
+{"name":"helm-ownership-transfer-preflight","version":"0.1.0","private":true,"type":"module","scripts":{"test":"node --test","sample":"node cli.mjs --old samples/helm-32218-old.yaml --adopting samples/helm-32218-adopting.yaml --live samples/helm-32218-live.json --old-release release-a --old-namespace test --new-release release-b --new-namespace test"}}
