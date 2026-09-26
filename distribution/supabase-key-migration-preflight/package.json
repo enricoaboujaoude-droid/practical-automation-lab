@@ -1,0 +1,17 @@
+{
+  "name": "supabase-key-migration-preflight",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Read-only pre-cutover checks for Supabase publishable and secret API keys",
+  "type": "module",
+  "bin": {
+    "supabase-key-preflight": "./bin/supabase-key-preflight.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
