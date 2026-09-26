@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>GitHub OIDC Immutable-Subject Preflight</title>
+  <meta name="description" content="Check whether AWS, Azure, or GCP workload identity trust will survive GitHub's immutable-subject migration. Runs locally in your browser.">
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#e7edf7;background:#07111f;color-scheme:dark}*{box-sizing:border-box}body{margin:0}main{max-width:1080px;margin:auto;padding:32px 18px 70px}h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1;margin:.25em 0}p{color:#a9b8cb;line-height:1.55}.badge{display:inline-block;padding:5px 9px;border:1px solid #264564;border-radius:999px;color:#8dd5ff;font-size:.8rem}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#0d1b2c;border:1px solid #203650;border-radius:14px;padding:18px}label{display:block;margin:12px 0 5px;color:#c7d6e8;font-size:.9rem}input,select,textarea,button{width:100%;border-radius:8px;border:1px solid #34506e;background:#081523;color:#eef6ff;padding:10px;font:inherit}textarea{min-height:230px;font-family:ui-monospace,SFMono-Regular,monospace;font-size:.82rem}button{margin-top:16px;background:#2a76d2;border:0;font-weight:700;cursor:pointer}button.secondary{background:#18304a}.status{font-size:2rem;font-weight:800}.PASS{color:#52d273}.REVIEW{color:#ffbf47}.BLOCK{color:#ff6b6b}.finding{padding:10px 0;border-top:1px solid #213750}.finding code{color:#7fc8ff}.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.small{font-size:.82rem}.privacy{border-left:3px solid #2a76d2;padding-left:12px}@media(max-width:760px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Browser-local · no uploads · deterministic</span>
+  <h1>Will your GitHub OIDC trust survive immutable subjects?</h1>
+  <p>Compare current and proposed GitHub Actions OIDC subjects against an AWS IAM trust policy, Azure federated credential, or GCP workload identity condition before a repository rename, transfer, or subject-format migration.</p>
+  <div class="grid">
+    <section class="card">
+      <label for="provider">Cloud provider</label><select id="provider"><option value="aws">AWS IAM</option><option value="azure">Azure federated credential</option><option value="gcp">GCP workload identity</option></select>
+      <label for="current">Current GitHub OIDC subject</label><input id="current" value="repo:acme/payments:ref:refs/heads/main">
+      <label for="proposed">Proposed immutable subject</label><input id="proposed" value="repo:acme@123/payments@456:ref:refs/heads/main">
+      <label for="audience">Audience</label><input id="audience" value="sts.amazonaws.com">
+      <label for="policy">Trust policy / credential JSON</label><textarea id="policy"></textarea>
+      <button id="run">Run migration preflight</button>
+      <p class="small privacy">Everything stays in this tab. Do not paste live tokens or credentials; only public claim values and trust configuration are needed.</p>
+    </section>
+    <section class="card">
+      <div id="status" class="status REVIEW">READY</div>
+      <p id="summary">Load the included safe-transition example or paste your own policy.</p>
+      <div id="findings"></div>
+      <div class="actions"><button id="download" class="secondary" disabled>Download evidence JSON</button><button id="example" class="secondary">Load blocking example</button></div>
+    </section>
+  </div>
+</main>
+<script src="core.js"></script>
+<script>
+const safePolicy={Version:"2012-10-17",Statement:[{Effect:"Allow",Principal:{Federated:"arn:aws:iam::111122223333:oidc-provider/token.actions.githubusercontent.com"},Action:"sts:AssumeRoleWithWebIdentity",Condition:{StringEquals:{"token.actions.githubusercontent.com:aud":"sts.amazonaws.com","token.actions.githubusercontent.com:sub":["repo:acme/payments:ref:refs/heads/main","repo:acme@123/payments@456:ref:refs/heads/main"]}}}]};
+const blockingPolicy=JSON.parse(JSON.stringify(safePolicy));blockingPolicy.Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"]=["repo:acme/payments:ref:refs/heads/main"];
+const $=id=>document.getElementById(id);let lastReport=null;
+function setPolicy(value){$("policy").value=JSON.stringify(value,null,2)}setPolicy(safePolicy);
+function run(){try{lastReport=OidcSubjectPreflight.analyze({provider:$("provider").value,currentSub:$("current").value,proposedSub:$("proposed").value,audience:$("audience").value,policy:$("policy").value});$("status").textContent=lastReport.status;$("status").className=`status ${lastReport.status}`;$("summary").textContent=`${lastReport.evidence.subjectRuleCount} subject rule(s), ${lastReport.evidence.audienceRuleCount} audience rule(s).`;$("findings").innerHTML=lastReport.findings.map(f=>`<div class="finding"><strong class="${f.status}">${f.status}</strong> <code>${f.code}</code><br>${f.message}${f.detail?`<div class="small">${f.detail.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}</div>`:""}</div>`).join("");$("download").disabled=false}catch(error){$("status").textContent="ERROR";$("status").className="status BLOCK";$("summary").textContent=error.message;$("findings").innerHTML="";$("download").disabled=true}}
+$("run").onclick=run;$("example").onclick=()=>{setPolicy(blockingPolicy);run()};$("download").onclick=()=>{if(!lastReport)return;const blob=new Blob([JSON.stringify(lastReport,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`github-oidc-preflight-${lastReport.status.toLowerCase()}.json`;a.click();URL.revokeObjectURL(url)};run();
+</script>
+</body>
+</html>
