@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GitHub Runner Routing Contract Preflight</title>
+<style>body{font:16px system-ui;max-width:1100px;margin:36px auto;padding:0 20px;color:#17212b}textarea{width:100%;min-height:260px;font:13px ui-monospace,monospace;margin:6px 0 18px}button{padding:10px 16px;margin-right:8px}pre{white-space:pre-wrap;background:#f3f6f8;padding:16px;overflow:auto}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:800px){.grid{grid-template-columns:1fr}}</style>
+<h1>GitHub runner routing contract preflight</h1>
+<p>Check workflow routing against a redacted runner/group inventory locally. Nothing is uploaded.</p>
+<form id="form"><div class="grid"><label>Workflow YAML<textarea id="workflow" required></textarea></label><label>Runner inventory JSON<textarea id="inventory" required></textarea></label></div><button>Run preflight</button></form>
+<p><button id="json" type="button">Download JSON</button><button id="html" type="button">Download HTML</button></p>
+<pre id="output">No analysis yet.</pre>
+<script type="module" src="app.mjs"></script>
+</html>
