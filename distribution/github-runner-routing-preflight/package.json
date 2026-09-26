@@ -1,0 +1,12 @@
+{
+  "name": "github-runner-routing-preflight",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Deterministic preflight for GitHub Actions self-hosted runner routing contracts.",
+  "scripts": {
+    "test": "node --test",
+    "sample:safe": "node cli.mjs --workflow samples/workflow-safe.yml --inventory samples/inventory.json",
+    "sample:risky": "node cli.mjs --workflow samples/workflow-risky.yml --inventory samples/inventory.json"
+  }
+}
