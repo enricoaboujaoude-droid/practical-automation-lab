@@ -1,0 +1,14 @@
+{
+  "repository": "acme/widgets",
+  "runners": [
+    {"name":"linux-x64-1","labels":["linux","x64"],"group":"production","status":"online","busy":false},
+    {"name":"linux-x64-2","labels":["linux","x64"],"group":"production","status":"online","busy":false},
+    {"name":"linux-arm64-1","labels":["linux","arm64"],"group":"production","status":"online","busy":false},
+    {"name":"linux-arm64-2","labels":["linux","arm64"],"group":"production","status":"online","busy":false},
+    {"name":"gpu-1","labels":["linux","gpu"],"group":"restricted","status":"online","busy":false}
+  ],
+  "groups": [
+    {"name":"production","repositories":["acme/widgets"]},
+    {"name":"restricted","repositories":["acme/other"]}
+  ]
+}
