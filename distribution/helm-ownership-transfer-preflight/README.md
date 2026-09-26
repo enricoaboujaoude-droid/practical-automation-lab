@@ -19,6 +19,10 @@ This is evidence, not a deployment engine. It never contacts a cluster, uploads 
 
 Serve this directory as static files and open `index.html`. Choose the old stored manifest, adopting manifest, and optional redacted live inventory. Export JSON or standalone HTML evidence.
 
+## Troubleshooting guide
+
+For the exact `invalid ownership metadata` error and the deletion hazard after `--take-ownership`, use the [ownership-transfer evidence checklist](./helm-invalid-ownership-metadata-take-ownership.md).
+
 ## CLI
 
 ```bash
