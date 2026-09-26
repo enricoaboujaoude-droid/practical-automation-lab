@@ -1,0 +1,6 @@
+{
+  "format_version": "1.2",
+  "configuration": {"root_module":{"resources":[{"address":"aws_db_instance.primary","type":"aws_db_instance"}]}},
+  "variables": {"region":{"value":"us-east-1"}},
+  "resource_changes": [{"address":"aws_db_instance.primary","mode":"managed","type":"aws_db_instance","provider_name":"registry.terraform.io/hashicorp/aws","change":{"actions":["no-op"],"before":{"engine":"postgres"},"after":{"engine":"postgres"},"after_unknown":{},"replace_paths":[]}}]
+}
