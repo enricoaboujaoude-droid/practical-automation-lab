@@ -1,0 +1,19 @@
+name: GitHub Runner Routing Contract Preflight
+description: Deterministically checks workflow runner demands against a redacted self-hosted runner inventory.
+inputs:
+  workflow-path:
+    description: Path to one GitHub Actions workflow YAML file.
+    required: true
+  inventory-path:
+    description: Path to redacted runner inventory JSON.
+    required: true
+outputs:
+  status:
+    description: PASS, REVIEW, or BLOCK.
+  json-report:
+    description: Generated JSON evidence path.
+  html-report:
+    description: Generated standalone HTML evidence path.
+runs:
+  using: node20
+  main: action.mjs
