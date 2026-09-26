@@ -1,0 +1,1 @@
+{"apiVersion":"v1","kind":"ConfigMap","metadata":{"name":"shared-config","namespace":"test","annotations":{"meta.helm.sh/release-name":"release-a","meta.helm.sh/release-namespace":"test"}}}
