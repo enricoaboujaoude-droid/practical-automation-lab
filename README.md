@@ -103,6 +103,13 @@ All public browser-local tools are designed to keep uploaded or pasted business 
 
 ## Open-source operator tools
 
+### Terraform Provider-Upgrade Replacement Contract Preflight
+
+A credential-free browser tool, CLI, and GitHub Action that compares baseline and candidate Terraform plan JSON plus provider lockfiles. It emits deterministic PASS/REVIEW/BLOCK evidence for provider-upgrade-induced destroy/create actions, provenance mismatches, replacement paths, newly unknown values, and high-risk database, identity, network, or cluster replacements.
+
+- [Tool, CLI, Action, tests, and sample](distribution/terraform-provider-upgrade-preflight/)
+- [Guide: provider upgrade forces replacement](distribution/terraform-provider-upgrade-preflight/terraform-provider-upgrade-forces-replacement.md)
+
 ### Helm Ownership Transfer Preflight
 
 A browser-local tool and zero-dependency CLI for Helm `--take-ownership`, chart splits, and multi-release collisions. It combines old release history, an adopting manifest, and optional live metadata to emit deterministic PASS/REVIEW/BLOCK evidence for cross-release deletion, unexpected owners, shared cluster-scoped resources, hooks, and missing live verification.
@@ -114,7 +121,6 @@ A browser-local tool and zero-dependency CLI for Helm `--take-ownership`, chart 
 A credential-free browser tool, CLI, and GitHub Action that expands finite workflow matrices and compares `runs-on` labels/groups with a redacted self-hosted runner inventory. It emits deterministic PASS/REVIEW/BLOCK evidence for unsatisfiable routes, repository-access conflicts, broad fallbacks, and single-runner bottlenecks.
 
 - [Tool, CLI, Action, tests, and samples](distribution/github-runner-routing-preflight/)
-
 
 ### PostgreSQL Restore Portability Preflight
 
