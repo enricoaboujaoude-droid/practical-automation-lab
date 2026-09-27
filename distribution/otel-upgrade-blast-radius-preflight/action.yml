@@ -1,0 +1,26 @@
+name: OTel Upgrade Blast-Radius Preflight
+description: Block telemetry upgrades that silently break saved Grafana panels or Prometheus alerts.
+inputs:
+  before:
+    description: Baseline Prometheus exposition/metric inventory
+    required: true
+  after:
+    description: After-canary Prometheus exposition/metric inventory
+    required: true
+  consumers:
+    description: Newline-separated Grafana JSON and Prometheus rule YAML paths
+    required: true
+  fail-on-block:
+    description: Exit 1 when blocking findings exist
+    required: false
+    default: 'true'
+outputs:
+  status:
+    description: PASS, REVIEW, or BLOCK
+  blocking-count:
+    description: Number of blocking dependencies
+  review-count:
+    description: Number of dependencies requiring review
+runs:
+  using: node20
+  main: action.mjs

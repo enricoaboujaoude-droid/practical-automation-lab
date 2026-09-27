@@ -1,0 +1,15 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import {parseInventory,extractGrafana,extractPrometheusRules,analyze,toHtml,toSarif} from './core.mjs';
+const read=n=>fs.readFileSync(new URL(`fixtures/${n}`,import.meta.url),'utf8');
+const safe=()=>analyze({beforeText:read('safe-before.prom'),afterText:read('safe-after.prom'),consumers:[{name:'safe-dashboard.json',text:read('safe-dashboard.json')},{name:'safe-rules.yml',text:read('safe-rules.yml')}]});
+const incident=()=>analyze({beforeText:read('incident-before.prom'),afterText:read('incident-after.prom'),consumers:[{name:'incident-dashboard.json',text:read('incident-dashboard.json')},{name:'incident-rules.yml',text:read('incident-rules.yml')}]});
+test('inventory unions observed labels',()=>assert.deepEqual(parseInventory('m{b="1"} 1\nm{a="2"} 2').m,['a','b']));
+test('Grafana expressions are extracted',()=>assert.equal(extractGrafana(read('safe-dashboard.json')).length,1));
+test('Prometheus rule expressions are extracted',()=>assert.equal(extractPrometheusRules(read('safe-rules.yml')).length,1));
+test('safe fixture passes',()=>assert.equal(safe().status,'PASS'));
+test('removed metrics block',()=>assert.ok(incident().findings.some(f=>f.ruleId==='OTEL-METRIC-REMOVED')));
+test('removed selector labels block',()=>assert.ok(incident().findings.some(f=>f.ruleId==='OTEL-SELECTOR-LABEL-REMOVED')));
+test('removed grouping labels require review',()=>assert.ok(incident().findings.some(f=>f.ruleId==='OTEL-GROUP-LABEL-REMOVED')));
+test('output is deterministic',()=>assert.equal(JSON.stringify(incident()),JSON.stringify(incident())));
+test('HTML escapes evidence',()=>assert.ok(toHtml({...safe(),findings:[{level:'BLOCK',ruleId:'x',consumer:'<x>',message:'&'}]}).includes('&lt;x&gt;')));
+test('SARIF maps blocking findings to errors',()=>assert.ok(toSarif(incident()).runs[0].results.some(r=>r.level==='error')));
+test('invalid dashboard JSON is rejected',()=>assert.throws(()=>extractGrafana('{','bad.json'),/invalid JSON/));

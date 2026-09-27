@@ -1,0 +1,2 @@
+http_server_request_duration_seconds_bucket{service_name="checkout",http_response_status_code="200",le="0.5",deployment_environment_name="prod"} 6
+otelcol_exporter_send_failed_metric_points_total{exporter="otlp"} 0

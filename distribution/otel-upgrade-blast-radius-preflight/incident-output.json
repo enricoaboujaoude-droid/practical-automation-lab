@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "BLOCK",
+  "summary": {
+    "beforeMetrics": 3,
+    "afterMetrics": 3,
+    "consumers": 3,
+    "blocking": 2,
+    "review": 1
+  },
+  "findings": [
+    {
+      "ruleId": "OTEL-METRIC-REMOVED",
+      "level": "BLOCK",
+      "consumer": "OTelExporterFailures",
+      "path": "incident-rules.yml:5",
+      "metric": "otelcol_exporter_send_failed_metric_points",
+      "message": "Referenced metric otelcol_exporter_send_failed_metric_points is absent after the upgrade.",
+      "candidates": [
+        "otelcol_exporter_send_failed_metric_points_total"
+      ]
+    },
+    {
+      "ruleId": "OTEL-SELECTOR-LABEL-REMOVED",
+      "level": "BLOCK",
+      "consumer": "HTTP 5xx latency",
+      "path": "$.panels[0].targets[0]",
+      "metric": "http_server_duration_seconds_bucket",
+      "label": "http_status_code",
+      "message": "Selector label http_status_code is absent from http_server_duration_seconds_bucket after the upgrade."
+    },
+    {
+      "ruleId": "OTEL-GROUP-LABEL-REMOVED",
+      "level": "REVIEW",
+      "consumer": "RPC latency",
+      "path": "$.panels[1].targets[0]",
+      "label": "rpc_system",
+      "message": "Grouping label rpc_system is absent from every surviving referenced metric."
+    }
+  ]
+}

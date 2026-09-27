@@ -1,0 +1,1 @@
+{"title":"Checkout telemetry","panels":[{"title":"5xx latency","targets":[{"refId":"A","expr":"sum by (service_name) (rate(http_server_request_duration_seconds_bucket{http_response_status_code=~\"5..\"}[5m]))"}]}]}

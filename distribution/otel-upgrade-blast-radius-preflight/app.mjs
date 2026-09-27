@@ -1,0 +1,4 @@
+import {analyze} from './core.mjs';let last;
+const $=id=>document.getElementById(id),read=f=>f.text();
+$('run').onclick=async()=>{try{const b=$('before').files[0],a=$('after').files[0],cs=[...$('consumers').files];if(!b||!a||!cs.length)throw new Error('Select before, after, and at least one consumer file.');last=analyze({beforeText:await read(b),afterText:await read(a),consumers:await Promise.all(cs.map(async f=>({name:f.name,text:await read(f)})))});$('status').textContent=last.status;$('status').className=last.status;$('output').textContent=JSON.stringify(last,null,2);$('download').hidden=false}catch(e){$('status').textContent='INPUT ERROR';$('status').className='BLOCK';$('output').textContent=e.message}};
+$('download').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(last,null,2)+'\n'],{type:'application/json'}));a.download='otel-preflight.json';a.click();URL.revokeObjectURL(a.href)};

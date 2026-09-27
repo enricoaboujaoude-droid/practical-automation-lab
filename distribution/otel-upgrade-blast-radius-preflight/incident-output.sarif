@@ -1,0 +1,84 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "otel-upgrade-blast-radius-preflight",
+          "version": "0.1.0",
+          "rules": [
+            {
+              "id": "OTEL-METRIC-REMOVED",
+              "shortDescription": {
+                "text": "Saved query references a metric absent after upgrade"
+              }
+            },
+            {
+              "id": "OTEL-SELECTOR-LABEL-REMOVED",
+              "shortDescription": {
+                "text": "Selector requires a label absent after upgrade"
+              }
+            },
+            {
+              "id": "OTEL-GROUP-LABEL-REMOVED",
+              "shortDescription": {
+                "text": "Grouping label is absent after upgrade"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "OTEL-METRIC-REMOVED",
+          "level": "error",
+          "message": {
+            "text": "Referenced metric otelcol_exporter_send_failed_metric_points is absent after the upgrade."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "incident-rules.yml:5"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OTEL-SELECTOR-LABEL-REMOVED",
+          "level": "error",
+          "message": {
+            "text": "Selector label http_status_code is absent from http_server_duration_seconds_bucket after the upgrade."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "$.panels[0].targets[0]"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "OTEL-GROUP-LABEL-REMOVED",
+          "level": "warning",
+          "message": {
+            "text": "Grouping label rpc_system is absent from every surviving referenced metric."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "$.panels[1].targets[0]"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

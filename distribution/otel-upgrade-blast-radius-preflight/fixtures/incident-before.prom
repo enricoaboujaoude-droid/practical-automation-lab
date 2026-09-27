@@ -1,0 +1,3 @@
+http_server_duration_seconds_bucket{service_name="checkout",http_status_code="500",le="0.5"} 4
+otelcol_exporter_send_failed_metric_points{exporter="otlp"} 2
+rpc_server_duration_seconds_bucket{service_name="billing",rpc_system="grpc",le="0.5"} 3

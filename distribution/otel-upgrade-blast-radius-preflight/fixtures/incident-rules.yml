@@ -1,0 +1,6 @@
+groups:
+  - name: collector
+    rules:
+      - alert: OTelExporterFailures
+        expr: |
+          rate(otelcol_exporter_send_failed_metric_points[5m]) > 0
