@@ -103,6 +103,13 @@ All public browser-local tools are designed to keep uploaded or pasted business 
 
 ## Open-source operator tools
 
+### Argo CD Sync-Progression Contract Preflight
+
+A browser-local tool, zero-dependency CLI, and GitHub Action that checks whether rendered Argo CD/Kubernetes manifests can deterministically progress through sync waves and hooks. It emits PASS/REVIEW/BLOCK JSON, HTML, or SARIF evidence for dependency-order inversions, hook lifecycle deadlocks, SyncWindow conflicts, invalid waves, and the reported Argo CD 3.4.2 App-of-Apps ordering regression.
+
+- [Tool, CLI, Action, tests, and samples](distribution/argocd-sync-progression-preflight/)
+- [Guide: sync wave stuck, hook waiting for deletion, or waves reordered after upgrade](distribution/argocd-sync-progression-preflight/argocd-sync-wave-stuck-hook-waiting-for-deletion.md)
+
 ### Terraform Provider-Upgrade Replacement Contract Preflight
 
 A credential-free browser tool, CLI, and GitHub Action that compares baseline and candidate Terraform plan JSON plus provider lockfiles. It emits deterministic PASS/REVIEW/BLOCK evidence for provider-upgrade-induced destroy/create actions, provenance mismatches, replacement paths, newly unknown values, and high-risk database, identity, network, or cluster replacements.
