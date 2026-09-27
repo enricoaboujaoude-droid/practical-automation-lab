@@ -57,6 +57,10 @@ Exit `1` means `BLOCK`; `PASS` and `REVIEW` exit `0` so teams can choose whether
 
 This is a static dependency preflight, not a PromQL evaluator. It intentionally supports only Prometheus exposition text, Grafana JSON, and Prometheus rule YAML in v0.1. It does not claim semantic equivalence, query correctness, alert firing, or production safety.
 
+## Troubleshooting guide
+
+- [OpenTelemetry upgrade broke a Grafana dashboard or Prometheus alert](opentelemetry-upgrade-broke-grafana-dashboard-prometheus-alert.md)
+
 ## Measurable success event
 
 One non-owner public repository references the Action and analyzes real before/after inventory plus at least one Grafana or Prometheus consumer file. Owned fixtures, owner-run workflows, stars, page views, and repository publication do not count.

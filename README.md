@@ -141,6 +141,7 @@ A dependency-free browser tool, CLI, and GitHub Action that compares `pg_restore
 A browser-local tool, zero-dependency CLI, and Node 20 GitHub Action that compares before/after-canary Prometheus inventories with Grafana dashboard JSON and Prometheus rule YAML. It emits deterministic PASS/REVIEW/BLOCK JSON, standalone HTML, and SARIF evidence when saved consumers lose metrics or required labels during an OpenTelemetry upgrade.
 
 - [Tool, CLI, Action, tests, fixtures, and evidence samples](distribution/otel-upgrade-blast-radius-preflight/)
+- [Guide: OpenTelemetry upgrade broke a Grafana dashboard or Prometheus alert](distribution/otel-upgrade-blast-radius-preflight/opentelemetry-upgrade-broke-grafana-dashboard-prometheus-alert.md)
 
 ## Important
 
