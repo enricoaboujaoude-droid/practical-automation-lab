@@ -1,0 +1,26 @@
+name: Argo CD Sync-Progression Preflight
+description: Deterministically block Argo CD wave, hook, window, and upgrade progression hazards.
+inputs:
+  manifests:
+    description: Path to rendered Argo CD/Kubernetes YAML
+    required: true
+  project:
+    description: Optional AppProject YAML path
+    required: false
+  current-version:
+    description: Current Argo CD version
+    required: false
+  target-version:
+    description: Target Argo CD version
+    required: true
+outputs:
+  status:
+    description: PASS, REVIEW, or BLOCK
+  evidence-json:
+    description: Path to JSON evidence
+runs:
+  using: node20
+  main: dist/index.mjs
+branding:
+  icon: git-merge
+  color: orange
