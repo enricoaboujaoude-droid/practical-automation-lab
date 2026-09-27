@@ -44,6 +44,10 @@ Serve this directory as static files to use `index.html`; analysis stays in the 
 
 Success event: a non-owner public repository references the Action and produces evidence for a real Argo CD manifest change or upgrade. Publication and owner-run tests do not count.
 
+## Troubleshooting
+
+- [Argo CD sync wave stuck, hook waiting for deletion, or waves reordered after upgrade](argocd-sync-wave-stuck-hook-waiting-for-deletion.md)
+
 ## Evidence basis
 
 - App-of-Apps v3.4.2 ordering regression: https://github.com/argoproj/argo-cd/issues/27917
