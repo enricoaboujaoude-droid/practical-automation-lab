@@ -4,6 +4,10 @@ Compare the same Terraform configuration under a baseline and candidate provider
 
 The tool is deterministic and credential-free. Four local files enter; JSON and standalone HTML evidence leave. It does not run Terraform, contact a cloud API, upload files, or use AI.
 
+## Troubleshooting guide
+
+If a provider update makes an existing resource show `must be replaced`, `forces replacement`, or `-/+`, use the [Terraform provider upgrade forces replacement preflight guide](./terraform-provider-upgrade-forces-replacement.md) to preserve comparable plans and isolate upgrade-induced replacement paths.
+
 ## Inputs
 
 1. Baseline `terraform show -json` plan
