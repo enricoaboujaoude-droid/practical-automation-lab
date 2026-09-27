@@ -1,0 +1,1 @@
+{"name":"argocd-sync-progression-preflight","version":"0.1.0","private":true,"type":"module","scripts":{"test":"node test.mjs","sample:safe":"node cli.mjs --manifests sample/safe.yaml --target 3.3.9","sample:block":"node cli.mjs --manifests sample/blocked.yaml --current 3.3.9 --target 3.4.2"},"engines":{"node":">=20"}}
