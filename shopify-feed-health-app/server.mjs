@@ -1,14 +1,19 @@
 import compression from "compression";
 import express from "express";
 import morgan from "morgan";
+import { PrismaClient } from "@prisma/client";
 import { createRequestHandler } from "@react-router/express";
 import * as build from "./build/server/index.js";
-import { registerNanoCatalogPreflight } from "./nano-catalog-preflight.mjs";
+import { createCatalogScanReplayStore, registerNanoCatalogPreflight } from "./nano-catalog-preflight.mjs";
 import { sanitizeRequestTarget } from "./server-logging.mjs";
 
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";
 const mode = process.env.NODE_ENV || "production";
+const nanoPrisma = new PrismaClient({
+  errorFormat: mode === "production" ? "minimal" : "pretty",
+});
+const nanoReplayStore = createCatalogScanReplayStore(nanoPrisma);
 
 const app = express();
 
@@ -30,7 +35,7 @@ app.use(
   "/api/nano/catalog-preflight",
   express.json({ limit: "256kb", type: "application/json" }),
 );
-registerNanoCatalogPreflight(app);
+registerNanoCatalogPreflight(app, { replayStore: nanoReplayStore });
 
 app.use(
   "/assets",
