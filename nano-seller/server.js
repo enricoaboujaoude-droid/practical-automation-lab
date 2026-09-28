@@ -1,21 +1,13 @@
 import express from "express";
-import nanoWeb from "nanocurrency-web";
-const { wallet } = nanoWeb;
 
 const PORT = Number(process.env.PORT || 10000);
 const PRICE_RAW = process.env.PRICE_RAW || "10000000000000000000000000000";
 const PRICE_NANO = "0.01";
 const VERIFY_BASE = process.env.NANO_VERIFY_BASE || "https://pursekeeper.dev/v1/verify";
-const SEED = String(process.env.NANO_SEED || "").trim().toUpperCase();
+const PAY_TO = String(process.env.NANO_ADDRESS || "").trim();
 
-if (!/^[0-9A-F]{64}$/.test(SEED)) {
-  throw new Error("NANO_SEED must be a 64-character hexadecimal legacy Nano seed");
-}
-
-const imported = wallet.fromLegacySeed(SEED);
-const PAY_TO = imported.accounts?.[0]?.address;
-if (!PAY_TO || !PAY_TO.startsWith("nano_")) {
-  throw new Error("Failed to derive Nano receiving address");
+if (!/^nano_[13][13456789abcdefghijkmnopqrstuwxyz]{59}$/.test(PAY_TO)) {
+  throw new Error("NANO_ADDRESS must be a valid public Nano address");
 }
 
 const app = express();
@@ -247,6 +239,39 @@ app.get("/v1/stats", (_req, res) => {
     payment_hashes_consumed_since_process_start: usedPayments.size,
     uptime_seconds: Math.floor(process.uptime()),
   });
+});
+
+app.get("/v1/preflight", async (_req, res) => {
+  const target = `http://127.0.0.1:${PORT}/v1/audit`;
+  try {
+    const response = await fetch(target, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        records: [{
+          id: "preflight-sku",
+          title: "Preflight Product",
+          link: "https://example.com/products/preflight-sku",
+          image_link: "https://example.com/images/preflight-sku.jpg",
+          gtin: "4006381333931",
+          brand: "Example",
+          mpn: "PREFLIGHT-SKU",
+          price: "19.99 USD",
+          availability: "in_stock",
+          identifier_exists: true
+        }]
+      }),
+      signal: AbortSignal.timeout(5000)
+    });
+    const body = await response.json();
+    res.status(response.status === 402 ? 200 : 500).json({
+      ok: response.status === 402,
+      observed_status: response.status,
+      observed_body: body
+    });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: "preflight_failed" });
+  }
 });
 
 app.post("/v1/audit", async (req, res) => {
