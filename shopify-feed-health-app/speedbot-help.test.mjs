@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { extractPublicAssignment, extractPublicAssignmentContext, recoverSpeedbotHelpThread } from "./speedbot-help.mjs";
+import { extractPublicAssignment, extractPublicAssignmentContext, recoverSpeedbotHelpFromOperatorInbox, recoverSpeedbotHelpThread } from "./speedbot-help.mjs";
 
 test("extractPublicAssignment reads direct public identifiers", () => {
   assert.deepEqual(
@@ -181,5 +181,98 @@ test("recoverSpeedbotHelpThread fails safe on multiple threads", async () => {
 
   assert.equal(result.status, "ambiguous");
   assert.equal(result.candidateCount, 2);
+  assert.equal(result.ids, null);
+});
+
+
+test("extractPublicAssignment recovers IDs embedded in public Speedbot URLs", () => {
+  const roomId = "room_0123456789abcdef0123456789abcdef";
+  const introId = "intro_abcdef0123456789abcdef0123456789";
+  const result = extractPublicAssignment({
+    link: `https://speedbot.dev/work/${roomId}?intro=${introId}`,
+  });
+
+  assert.equal(result.roomId, roomId);
+  assert.equal(result.introId, introId);
+  assert.equal(result.publicUrl, `https://speedbot.dev/work/${roomId}?intro=${introId}`);
+});
+
+test("extractPublicAssignment never treats a private operator URL as public work", () => {
+  const result = extractPublicAssignment({
+    operator_link:
+      "https://speedbot.dev/operator/op_" + "a".repeat(64),
+  });
+
+  assert.equal(result.publicUrl, null);
+  assert.equal(result.roomId, null);
+  assert.equal(result.introId, null);
+});
+
+test("recoverSpeedbotHelpFromOperatorInbox recovers one public work link without auth headers", async () => {
+  const roomId = "room_11111111111111111111111111111111";
+  const introId = "intro_22222222222222222222222222222222";
+  let requestedUrl = "";
+  let requestedHeaders = null;
+
+  const result = await recoverSpeedbotHelpFromOperatorInbox({
+    operatorLink:
+      "https://speedbot.dev/operator/op_" + "b".repeat(64),
+    fetchImpl: async (url, options) => {
+      requestedUrl = String(url);
+      requestedHeaders = options.headers;
+      return {
+        ok: true,
+        status: 200,
+        async json() {
+          return {
+            pending: [
+              {
+                kind: "work_reply",
+                public_link: `https://speedbot.dev/work/${roomId}?intro=${introId}`,
+              },
+            ],
+          };
+        },
+      };
+    },
+  });
+
+  assert.equal(result.status, "single");
+  assert.equal(result.candidateCount, 1);
+  assert.equal(result.ids.roomId, roomId);
+  assert.equal(result.ids.introId, introId);
+  assert.match(requestedUrl, /\/inbox\.json$/);
+  assert.equal(Object.hasOwn(requestedHeaders, "Authorization"), false);
+});
+
+test("recoverSpeedbotHelpFromOperatorInbox fails safe on multiple public work links", async () => {
+  const result = await recoverSpeedbotHelpFromOperatorInbox({
+    operatorLink:
+      "https://speedbot.dev/operator/op_" + "c".repeat(64),
+    fetchImpl: async () => ({
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          pending: [
+            { public_link: "https://speedbot.dev/work/room_11111111111111111111111111111111" },
+            { public_link: "https://speedbot.dev/work/room_22222222222222222222222222222222" },
+          ],
+        };
+      },
+    }),
+  });
+
+  assert.equal(result.status, "ambiguous");
+  assert.equal(result.candidateCount, 2);
+  assert.equal(result.ids, null);
+});
+
+test("recoverSpeedbotHelpFromOperatorInbox rejects non-Speedbot operator links", async () => {
+  const result = await recoverSpeedbotHelpFromOperatorInbox({
+    operatorLink: "https://example.com/operator/op_" + "d".repeat(64),
+  });
+
+  assert.equal(result.status, "invalid-link");
   assert.equal(result.ids, null);
 });
