@@ -125,7 +125,18 @@ export function extractPublicAssignment(body) {
     for (const [field, pattern] of Object.entries(patterns)) {
       if (!result[field] && pattern.test(value)) result[field] = value;
     }
-    if (!result.publicUrl && /^https:\/\/speedbot\.dev\//i.test(value)) {
+
+    const embedded = {
+      introId: value.match(/(?:^|[^a-z0-9_])(intro_[a-f0-9]{32})(?:$|[^a-f0-9])/i)?.[1],
+      roomId: value.match(/(?:^|[^a-z0-9_])(room_[a-f0-9]{32})(?:$|[^a-f0-9])/i)?.[1],
+      requestId: value.match(/(?:^|[^a-z0-9_])(request_[a-f0-9]{32})(?:$|[^a-f0-9])/i)?.[1],
+      responseId: value.match(/(?:^|[^a-z0-9_])(response_[a-f0-9]{32})(?:$|[^a-f0-9])/i)?.[1],
+    };
+    for (const [field, token] of Object.entries(embedded)) {
+      if (!result[field] && token) result[field] = token.toLowerCase();
+    }
+
+    if (!result.publicUrl && /^https:\/\/speedbot\.dev\/(?!operator\/)/i.test(value)) {
       result.publicUrl = value;
     }
   }
@@ -205,6 +216,71 @@ export async function recoverSpeedbotHelpThread({
   const body = await response.json().catch(() => ({}));
   const candidates = collectThreadCandidates(body)
     .filter((candidate) => candidate.ids.roomId || candidate.ids.introId)
+    .slice(0, 10);
+
+  if (candidates.length !== 1) {
+    return {
+      status: candidates.length === 0 ? "none" : "ambiguous",
+      candidateCount: candidates.length,
+      ids: null,
+    };
+  }
+
+  return {
+    status: "single",
+    candidateCount: 1,
+    ids: candidates[0].ids,
+  };
+}
+
+export async function recoverSpeedbotHelpFromOperatorInbox({
+  operatorLink,
+  fetchImpl = fetch,
+} = {}) {
+  const link = String(operatorLink || "").trim();
+  if (!link) return null;
+
+  let inboxUrl;
+  try {
+    inboxUrl = new URL(link);
+  } catch {
+    return { status: "invalid-link", candidateCount: 0, ids: null };
+  }
+
+  if (
+    inboxUrl.protocol !== "https:" ||
+    inboxUrl.hostname !== "speedbot.dev" ||
+    !/^\/operator\/op_[a-f0-9]{64}\/?$/i.test(inboxUrl.pathname)
+  ) {
+    return { status: "invalid-link", candidateCount: 0, ids: null };
+  }
+
+  inboxUrl.pathname = inboxUrl.pathname.replace(/\/$/, "") + "/inbox.json";
+  inboxUrl.search = "";
+  inboxUrl.hash = "";
+
+  const response = await fetchImpl(inboxUrl, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "User-Agent": "PAL-Speedbot-Help/1.0",
+    },
+    signal: AbortSignal.timeout(12000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Speedbot operator-inbox recovery returned HTTP ${response.status}.`);
+  }
+
+  const body = await response.json().catch(() => ({}));
+  const candidates = collectThreadCandidates(body)
+    .filter(
+      (candidate) =>
+        candidate.ids.roomId ||
+        candidate.ids.introId ||
+        candidate.ids.responseId ||
+        candidate.ids.publicUrl,
+    )
     .slice(0, 10);
 
   if (candidates.length !== 1) {
@@ -308,24 +384,63 @@ export async function ensureSpeedbotHelpAssignment({
     const stored = extractPublicAssignment(existing.assignment_json);
     if (!stored.roomId && !stored.introId && apiKey) {
       try {
-        const recovered = await recoverSpeedbotHelpThread({ apiKey, fetchImpl, baseUrl });
-        if (recovered?.status === "single" && recovered.ids) {
+        const threadRecovery = await recoverSpeedbotHelpThread({
+          apiKey,
+          fetchImpl,
+          baseUrl,
+        });
+
+        if (threadRecovery?.status === "single" && threadRecovery.ids) {
           return {
             status: "assigned",
             created: false,
             ...stored,
-            ...recovered.ids,
+            ...threadRecovery.ids,
             recovered: true,
+            recoverySource: "intro-responses",
             context: extractPublicAssignmentContext(existing.assignment_json),
           };
         }
+
+        if (threadRecovery?.status === "ambiguous") {
+          return {
+            status: "assigned",
+            created: false,
+            ...stored,
+            recovered: false,
+            recoveryStatus: "ambiguous",
+            recoverySource: "intro-responses",
+            recoveryCandidateCount: threadRecovery.candidateCount || 0,
+            context: extractPublicAssignmentContext(existing.assignment_json),
+          };
+        }
+
+        const inboxRecovery = await recoverSpeedbotHelpFromOperatorInbox({
+          operatorLink: agent?.operator_link,
+          fetchImpl,
+        });
+
+        if (inboxRecovery?.status === "single" && inboxRecovery.ids) {
+          return {
+            status: "assigned",
+            created: false,
+            ...stored,
+            ...inboxRecovery.ids,
+            recovered: true,
+            recoverySource: "operator-inbox",
+            context: extractPublicAssignmentContext(existing.assignment_json),
+          };
+        }
+
         return {
           status: "assigned",
           created: false,
           ...stored,
           recovered: false,
-          recoveryStatus: recovered?.status || "none",
-          recoveryCandidateCount: recovered?.candidateCount || 0,
+          recoveryStatus: inboxRecovery?.status || threadRecovery?.status || "none",
+          recoverySource: inboxRecovery ? "operator-inbox" : "intro-responses",
+          recoveryCandidateCount:
+            inboxRecovery?.candidateCount || threadRecovery?.candidateCount || 0,
           context: extractPublicAssignmentContext(existing.assignment_json),
         };
       } catch (error) {
@@ -412,8 +527,10 @@ export function startSpeedbotHelpAssignment() {
             result.requestId || "none"
           } response=${result.responseId || "none"} recovered=${Boolean(
             result.recovered,
-          )} recovery=${result.recoveryStatus || "none"} candidates=${
-            result.recoveryCandidateCount || 0
+          )} recovery=${result.recoveryStatus || "none"} source=${
+            result.recoverySource || "none"
+          } candidates=${result.recoveryCandidateCount || 0} public=${
+            result.publicUrl || "none"
           } context=${JSON.stringify(result.context || {})}`,
         );
       })
