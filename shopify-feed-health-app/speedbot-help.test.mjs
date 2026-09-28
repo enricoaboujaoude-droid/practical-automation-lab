@@ -53,3 +53,27 @@ test("extractPublicAssignment returns nulls for unrelated private fields", () =>
     },
   );
 });
+
+
+test("extractPublicAssignment finds identifiers through deeper nesting", () => {
+  assert.deepEqual(
+    extractPublicAssignment({
+      result: {
+        activation: {
+          request: {
+            intro_id: "intro_deep",
+            room_id: "room_deep",
+            request_id: "request_deep",
+            url: "https://speedbot.dev/work/intro_deep",
+          },
+        },
+      },
+    }),
+    {
+      introId: "intro_deep",
+      roomId: "room_deep",
+      requestId: "request_deep",
+      publicUrl: "https://speedbot.dev/work/intro_deep",
+    },
+  );
+});
