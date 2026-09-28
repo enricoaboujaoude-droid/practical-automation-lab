@@ -233,6 +233,58 @@ export async function recoverSpeedbotHelpThread({
   };
 }
 
+export async function recoverSpeedbotHelpFromWait({
+  apiKey,
+  fetchImpl = fetch,
+  baseUrl = DEFAULT_BASE_URL,
+} = {}) {
+  const key = String(apiKey || "").trim();
+  if (!key) return null;
+
+  const root = cleanBaseUrl(baseUrl);
+  const url = new URL("/api/me/wait", root);
+  url.searchParams.set("timeout_seconds", "0");
+
+  const response = await fetchImpl(url, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${key}`,
+      "User-Agent": "PAL-Speedbot-Help/1.0",
+    },
+    signal: AbortSignal.timeout(12000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Speedbot wait recovery returned HTTP ${response.status}.`);
+  }
+
+  const body = await response.json().catch(() => ({}));
+  const candidates = collectThreadCandidates(body)
+    .filter(
+      (candidate) =>
+        candidate.ids.roomId ||
+        candidate.ids.introId ||
+        candidate.ids.responseId ||
+        candidate.ids.publicUrl,
+    )
+    .slice(0, 10);
+
+  if (candidates.length !== 1) {
+    return {
+      status: candidates.length === 0 ? "none" : "ambiguous",
+      candidateCount: candidates.length,
+      ids: null,
+    };
+  }
+
+  return {
+    status: "single",
+    candidateCount: 1,
+    ids: candidates[0].ids,
+  };
+}
+
 export async function recoverSpeedbotHelpFromOperatorInbox({
   operatorLink,
   fetchImpl = fetch,
@@ -242,15 +294,18 @@ export async function recoverSpeedbotHelpFromOperatorInbox({
 
   let inboxUrl;
   try {
-    inboxUrl = new URL(link);
+    inboxUrl = new URL(link, "https://speedbot.dev");
   } catch {
     return { status: "invalid-link", candidateCount: 0, ids: null };
   }
 
+  const operatorSegments = inboxUrl.pathname.split("/").filter(Boolean);
   if (
     inboxUrl.protocol !== "https:" ||
     inboxUrl.hostname !== "speedbot.dev" ||
-    !/^\/operator\/op_[a-f0-9]{64}\/?$/i.test(inboxUrl.pathname)
+    operatorSegments.length !== 2 ||
+    operatorSegments[0] !== "operator" ||
+    !/^[A-Za-z0-9_-]{10,200}$/.test(operatorSegments[1])
   ) {
     return { status: "invalid-link", candidateCount: 0, ids: null };
   }
@@ -415,6 +470,37 @@ export async function ensureSpeedbotHelpAssignment({
           };
         }
 
+        const waitRecovery = await recoverSpeedbotHelpFromWait({
+          apiKey,
+          fetchImpl,
+          baseUrl,
+        });
+
+        if (waitRecovery?.status === "single" && waitRecovery.ids) {
+          return {
+            status: "assigned",
+            created: false,
+            ...stored,
+            ...waitRecovery.ids,
+            recovered: true,
+            recoverySource: "wait",
+            context: extractPublicAssignmentContext(existing.assignment_json),
+          };
+        }
+
+        if (waitRecovery?.status === "ambiguous") {
+          return {
+            status: "assigned",
+            created: false,
+            ...stored,
+            recovered: false,
+            recoveryStatus: "ambiguous",
+            recoverySource: "wait",
+            recoveryCandidateCount: waitRecovery.candidateCount || 0,
+            context: extractPublicAssignmentContext(existing.assignment_json),
+          };
+        }
+
         const inboxRecovery = await recoverSpeedbotHelpFromOperatorInbox({
           operatorLink: agent?.operator_link,
           fetchImpl,
@@ -437,10 +523,18 @@ export async function ensureSpeedbotHelpAssignment({
           created: false,
           ...stored,
           recovered: false,
-          recoveryStatus: inboxRecovery?.status || threadRecovery?.status || "none",
-          recoverySource: inboxRecovery ? "operator-inbox" : "intro-responses",
+          recoveryStatus:
+            inboxRecovery?.status || waitRecovery?.status || threadRecovery?.status || "none",
+          recoverySource: inboxRecovery
+            ? "operator-inbox"
+            : waitRecovery
+              ? "wait"
+              : "intro-responses",
           recoveryCandidateCount:
-            inboxRecovery?.candidateCount || threadRecovery?.candidateCount || 0,
+            inboxRecovery?.candidateCount ||
+            waitRecovery?.candidateCount ||
+            threadRecovery?.candidateCount ||
+            0,
           context: extractPublicAssignmentContext(existing.assignment_json),
         };
       } catch (error) {
