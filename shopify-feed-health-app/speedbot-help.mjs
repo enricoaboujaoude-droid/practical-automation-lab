@@ -97,40 +97,129 @@ export function extractPublicAssignment(body) {
     introId: new Set(["intro_id", "introduction_id"]),
     roomId: new Set(["room_id", "work_room_id"]),
     requestId: new Set(["request_id", "work_request_id"]),
+    responseId: new Set(["response_id", "intro_response_id"]),
     publicUrl: new Set(["public_url", "request_url", "work_url"]),
+  };
+  const patterns = {
+    introId: /^intro_[a-f0-9]{32}$/,
+    roomId: /^room_[a-f0-9]{32}$/,
+    requestId: /^request_[a-f0-9]{32}$/,
+    responseId: /^response_[a-f0-9]{32}$/,
   };
   const result = {
     introId: null,
     roomId: null,
     requestId: null,
+    responseId: null,
     publicUrl: null,
   };
   const seen = new Set();
 
+  function considerString(key, raw) {
+    const value = String(raw || "").trim();
+    if (!value) return;
+
+    for (const [field, keys] of Object.entries(wanted)) {
+      if (!result[field] && keys.has(key)) result[field] = value;
+    }
+    for (const [field, pattern] of Object.entries(patterns)) {
+      if (!result[field] && pattern.test(value)) result[field] = value;
+    }
+    if (!result.publicUrl && /^https:\/\/speedbot\.dev\//i.test(value)) {
+      result.publicUrl = value;
+    }
+  }
+
   function visit(node, depth = 0) {
-    if (!node || typeof node !== "object" || depth > 6 || seen.has(node)) return;
+    if (!node || typeof node !== "object" || depth > 8 || seen.has(node)) return;
     seen.add(node);
 
     if (Array.isArray(node)) {
-      for (const item of node.slice(0, 20)) visit(item, depth + 1);
+      for (const item of node.slice(0, 50)) visit(item, depth + 1);
       return;
     }
 
     for (const [key, value] of Object.entries(node)) {
-      if (typeof value === "string" && value.trim()) {
-        for (const [field, keys] of Object.entries(wanted)) {
-          if (!result[field] && keys.has(key)) result[field] = value.trim();
-        }
-        if (!result.publicUrl && key === "url" && /^https:\/\/speedbot\.dev\//i.test(value.trim())) {
-          result.publicUrl = value.trim();
-        }
-      }
+      if (typeof value === "string") considerString(key, value);
       visit(value, depth + 1);
     }
   }
 
   visit(body);
   return result;
+}
+
+function collectThreadCandidates(body) {
+  const candidates = [];
+  const seen = new Set();
+
+  function visit(node, depth = 0) {
+    if (!node || typeof node !== "object" || depth > 8 || seen.has(node)) return;
+    seen.add(node);
+
+    if (Array.isArray(node)) {
+      for (const item of node.slice(0, 100)) visit(item, depth + 1);
+      return;
+    }
+
+    const ids = extractPublicAssignment(node);
+    if (ids.roomId || ids.introId || ids.responseId) {
+      candidates.push({ node, ids });
+    }
+    for (const value of Object.values(node)) visit(value, depth + 1);
+  }
+
+  visit(body);
+
+  const unique = new Map();
+  for (const candidate of candidates) {
+    const key = candidate.ids.roomId || candidate.ids.responseId || candidate.ids.introId;
+    if (key && !unique.has(key)) unique.set(key, candidate);
+  }
+  return [...unique.values()];
+}
+
+export async function recoverSpeedbotHelpThread({
+  apiKey,
+  fetchImpl = fetch,
+  baseUrl = DEFAULT_BASE_URL,
+} = {}) {
+  const key = String(apiKey || "").trim();
+  if (!key) return null;
+
+  const root = cleanBaseUrl(baseUrl);
+  const response = await fetchImpl(new URL("/api/intro-responses", root), {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${key}`,
+      "User-Agent": "PAL-Speedbot-Help/1.0",
+    },
+    signal: AbortSignal.timeout(12000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Speedbot intro-response recovery returned HTTP ${response.status}.`);
+  }
+
+  const body = await response.json().catch(() => ({}));
+  const candidates = collectThreadCandidates(body)
+    .filter((candidate) => candidate.ids.roomId || candidate.ids.introId)
+    .slice(0, 10);
+
+  if (candidates.length !== 1) {
+    return {
+      status: candidates.length === 0 ? "none" : "ambiguous",
+      candidateCount: candidates.length,
+      ids: null,
+    };
+  }
+
+  return {
+    status: "single",
+    candidateCount: 1,
+    ids: candidates[0].ids,
+  };
 }
 
 async function saveAssignment(db, body) {
@@ -212,17 +301,54 @@ export async function ensureSpeedbotHelpAssignment({
   baseUrl = process.env.SPEEDBOT_BASE_URL || DEFAULT_BASE_URL,
 } = {}) {
   const existing = await readSpeedbotHelpAssignment(db);
+  const agent = await readSpeedbotRecord(db);
+  const apiKey = String(agent?.api_key || "").trim();
+
   if (existing?.status === "assigned" && existing?.assignment_json) {
+    const stored = extractPublicAssignment(existing.assignment_json);
+    if (!stored.roomId && !stored.introId && apiKey) {
+      try {
+        const recovered = await recoverSpeedbotHelpThread({ apiKey, fetchImpl, baseUrl });
+        if (recovered?.status === "single" && recovered.ids) {
+          return {
+            status: "assigned",
+            created: false,
+            ...stored,
+            ...recovered.ids,
+            recovered: true,
+            context: extractPublicAssignmentContext(existing.assignment_json),
+          };
+        }
+        return {
+          status: "assigned",
+          created: false,
+          ...stored,
+          recovered: false,
+          recoveryStatus: recovered?.status || "none",
+          recoveryCandidateCount: recovered?.candidateCount || 0,
+          context: extractPublicAssignmentContext(existing.assignment_json),
+        };
+      } catch (error) {
+        return {
+          status: "assigned",
+          created: false,
+          ...stored,
+          recovered: false,
+          recoveryStatus: "error",
+          recoveryError: String(error?.message || error).slice(0, 300),
+          context: extractPublicAssignmentContext(existing.assignment_json),
+        };
+      }
+    }
+
     return {
       status: "assigned",
       created: false,
-      ...extractPublicAssignment(existing.assignment_json),
+      ...stored,
       context: extractPublicAssignmentContext(existing.assignment_json),
     };
   }
 
-  const agent = await readSpeedbotRecord(db);
-  const apiKey = String(agent?.api_key || "").trim();
   if (!apiKey) {
     return { status: "agent-not-ready", created: false };
   }
@@ -284,6 +410,10 @@ export function startSpeedbotHelpAssignment() {
             result.created,
           )} intro=${result.introId || "none"} room=${result.roomId || "none"} request=${
             result.requestId || "none"
+          } response=${result.responseId || "none"} recovered=${Boolean(
+            result.recovered,
+          )} recovery=${result.recoveryStatus || "none"} candidates=${
+            result.recoveryCandidateCount || 0
           } context=${JSON.stringify(result.context || {})}`,
         );
       })

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { extractPublicAssignment, extractPublicAssignmentContext } from "./speedbot-help.mjs";
+import { extractPublicAssignment, extractPublicAssignmentContext, recoverSpeedbotHelpThread } from "./speedbot-help.mjs";
 
 test("extractPublicAssignment reads direct public identifiers", () => {
   assert.deepEqual(
@@ -15,6 +15,7 @@ test("extractPublicAssignment reads direct public identifiers", () => {
       introId: "intro_123",
       roomId: "room_456",
       requestId: "request_789",
+      responseId: null,
       publicUrl: "https://speedbot.dev/work/intro_123",
     },
   );
@@ -34,6 +35,7 @@ test("extractPublicAssignment reads nested assignment identifiers", () => {
       introId: "intro_nested",
       roomId: "room_nested",
       requestId: "request_nested",
+      responseId: null,
       publicUrl: "https://speedbot.dev/work/intro_nested",
     },
   );
@@ -49,6 +51,7 @@ test("extractPublicAssignment returns nulls for unrelated private fields", () =>
       introId: null,
       roomId: null,
       requestId: null,
+      responseId: null,
       publicUrl: null,
     },
   );
@@ -73,6 +76,7 @@ test("extractPublicAssignment finds identifiers through deeper nesting", () => {
       introId: "intro_deep",
       roomId: "room_deep",
       requestId: "request_deep",
+      responseId: null,
       publicUrl: "https://speedbot.dev/work/intro_deep",
     },
   );
@@ -110,4 +114,72 @@ test("extractPublicAssignmentContext truncates long public text", () => {
     goal: "x".repeat(900),
   });
   assert.equal(context.goal.length, 700);
+});
+
+
+test("extractPublicAssignment recognizes identifiers by value through renamed fields", () => {
+  assert.deepEqual(
+    extractPublicAssignment({
+      assignment: {
+        target: "intro_0123456789abcdef0123456789abcdef",
+        conversation: "room_abcdef0123456789abcdef0123456789",
+        link: "response_00112233445566778899aabbccddeeff",
+      },
+    }),
+    {
+      introId: "intro_0123456789abcdef0123456789abcdef",
+      roomId: "room_abcdef0123456789abcdef0123456789",
+      requestId: null,
+      responseId: "response_00112233445566778899aabbccddeeff",
+      publicUrl: null,
+    },
+  );
+});
+
+test("recoverSpeedbotHelpThread accepts one recoverable thread", async () => {
+  const result = await recoverSpeedbotHelpThread({
+    apiKey: "sb_" + "a".repeat(64),
+    fetchImpl: async () => ({
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          outgoing: [
+            {
+              response: "response_00112233445566778899aabbccddeeff",
+              intro: "intro_0123456789abcdef0123456789abcdef",
+              room: "room_abcdef0123456789abcdef0123456789",
+            },
+          ],
+        };
+      },
+    }),
+  });
+
+  assert.equal(result.status, "single");
+  assert.equal(result.candidateCount, 1);
+  assert.equal(result.ids.roomId, "room_abcdef0123456789abcdef0123456789");
+  assert.equal(result.ids.introId, "intro_0123456789abcdef0123456789abcdef");
+});
+
+test("recoverSpeedbotHelpThread fails safe on multiple threads", async () => {
+  const result = await recoverSpeedbotHelpThread({
+    apiKey: "sb_" + "b".repeat(64),
+    fetchImpl: async () => ({
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          threads: [
+            { room: "room_11111111111111111111111111111111" },
+            { room: "room_22222222222222222222222222222222" },
+          ],
+        };
+      },
+    }),
+  });
+
+  assert.equal(result.status, "ambiguous");
+  assert.equal(result.candidateCount, 2);
+  assert.equal(result.ids, null);
 });
