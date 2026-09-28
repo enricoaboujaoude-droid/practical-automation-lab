@@ -23,7 +23,7 @@ The API uses a simple documented Nano 402 flow:
 3. Send at least that amount of XNO to the returned Nano address.
 4. Retry the same request with `X-Nano-Payment: <send-block-hash>`.
 
-The service verifies the send against the public Pursekeeper `/v1/verify` endpoint. The wallet seed is stored only as a Render environment variable and is never committed to this repository.
+The service verifies the send against the public Pursekeeper `/v1/verify` endpoint. The runtime stores only the public Nano receiving address; no wallet seed or private key is deployed or committed to this repository.
 
 ## Endpoints
 
