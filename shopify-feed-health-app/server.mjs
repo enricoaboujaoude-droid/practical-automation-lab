@@ -3,7 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import { createRequestHandler } from "@react-router/express";
 import * as build from "./build/server/index.js";
-import { sanitizeRequestTarget } from "./server-logging.mjs";
+import { sanitizeRequestTarget } from "./server-logging.mjs";\nimport {\n  nanoCatalogAuditMetadata,\n  nanoCatalogAuditOptions,\n  nanoCatalogAuditPost,\n} from "./nano-catalog-audit.mjs";
 
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";
