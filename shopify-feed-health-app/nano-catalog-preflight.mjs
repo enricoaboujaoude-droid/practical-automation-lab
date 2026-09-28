@@ -5,6 +5,8 @@ const DEFAULT_PRICE_XNO = "0.01";
 const DEFAULT_VERIFY_URL = "https://pursekeeper.dev/v1/verify";
 const MAX_PRODUCTS = 100;
 const REPLAY_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+const REPLAY_SHOP = "__pal_nano_payment__";
+const REPLAY_SOURCE = "nano_payment";
 
 function canonicalize(value) {
   if (Array.isArray(value)) return value.map(canonicalize);
@@ -223,12 +225,75 @@ function paymentRequired(res, { payTo, priceRaw, priceXno, quote, error }) {
   });
 }
 
+export function createCatalogScanReplayStore(prisma) {
+  if (!prisma?.catalogScan) {
+    throw new TypeError("A Prisma client with catalogScan access is required.");
+  }
+
+  const idFor = (hash) => `nano_payment_${String(hash).toLowerCase()}`;
+
+  const read = async (hash) => {
+    const row = await prisma.catalogScan.findUnique({
+      where: { id: idFor(hash) },
+    });
+    if (!row || row.shop !== REPLAY_SHOP || row.source !== REPLAY_SOURCE) return null;
+
+    const payload = row.reportJson;
+    if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+    if (typeof payload.quote !== "string" || !payload.result || typeof payload.result !== "object") {
+      return null;
+    }
+
+    return {
+      quote: payload.quote,
+      result: payload.result,
+      payment: payload.payment && typeof payload.payment === "object" ? payload.payment : null,
+      at: row.createdAt instanceof Date ? row.createdAt.getTime() : Date.now(),
+    };
+  };
+
+  return {
+    get: read,
+    async put(hash, record) {
+      const data = {
+        id: idFor(hash),
+        shop: REPLAY_SHOP,
+        source: REPLAY_SOURCE,
+        plan: "system",
+        generatedAt: new Date(record.result?.generated_at || Date.now()),
+        score: Number(record.result?.summary?.score || 0),
+        errors: Number(record.result?.summary?.errors || 0),
+        warnings: Number(record.result?.summary?.warnings || 0),
+        productsChecked: Number(record.result?.summary?.products_checked || 0),
+        variantsChecked: 0,
+        imagesChecked: 0,
+        imageRisks: 0,
+        productPaginationCapped: false,
+        reportJson: {
+          quote: record.quote,
+          result: record.result,
+          payment: record.payment || null,
+        },
+      };
+
+      try {
+        await prisma.catalogScan.create({ data });
+        return { created: true, record };
+      } catch (error) {
+        if (error?.code !== "P2002") throw error;
+        return { created: false, record: await read(hash) };
+      }
+    },
+  };
+}
+
 export function registerNanoCatalogPreflight(app, options = {}) {
   const payTo = options.payTo ?? process.env.NANO_PAY_TO ?? "";
   const priceRaw = options.priceRaw ?? process.env.NANO_CATALOG_PRICE_RAW ?? DEFAULT_PRICE_RAW;
   const priceXno = options.priceXno ?? process.env.NANO_CATALOG_PRICE_XNO ?? DEFAULT_PRICE_XNO;
   const verifyUrl = options.verifyUrl ?? process.env.NANO_VERIFY_URL ?? DEFAULT_VERIFY_URL;
   const fetchImpl = options.fetchImpl ?? fetch;
+  const replayStore = options.replayStore ?? null;
   const consumed = new Map();
   const pending = new Map();
 
@@ -300,6 +365,24 @@ export function registerNanoCatalogPreflight(app, options = {}) {
       return res.status(200).json({ ...prior.result, payment: { hash: paymentHash, idempotent_replay: true } });
     }
 
+    if (replayStore) {
+      const durablePrior = await replayStore.get(paymentHash);
+      if (durablePrior) {
+        consumed.set(paymentHash, durablePrior);
+        if (durablePrior.quote !== quote) {
+          return paymentRequired(res, { payTo, priceRaw, priceXno, quote, error: "payment_reused" });
+        }
+        return res.status(200).json({
+          ...durablePrior.result,
+          payment: {
+            ...(durablePrior.payment || {}),
+            hash: paymentHash,
+            idempotent_replay: true,
+          },
+        });
+      }
+    }
+
     if (pending.has(paymentHash)) await pending.get(paymentHash);
     const afterWait = consumed.get(paymentHash);
     if (afterWait) {
@@ -326,13 +409,43 @@ export function registerNanoCatalogPreflight(app, options = {}) {
       }
 
       const result = auditCatalog(req.body);
-      consumed.set(paymentHash, { quote, result, at: Date.now() });
+      const payment = {
+        hash: paymentHash,
+        from: verification.from ?? null,
+        amount_nano: verification.amount_nano ?? null,
+      };
+      let record = { quote, result, payment, at: Date.now() };
+
+      if (replayStore) {
+        const persisted = await replayStore.put(paymentHash, record);
+        if (!persisted?.record) {
+          return res.status(503).json({ error: "payment_replay_store_unavailable" });
+        }
+        record = persisted.record;
+        consumed.set(paymentHash, record);
+
+        if (record.quote !== quote) {
+          return paymentRequired(res, { payTo, priceRaw, priceXno, quote, error: "payment_reused" });
+        }
+        if (!persisted.created) {
+          return res.status(200).json({
+            ...record.result,
+            payment: {
+              ...(record.payment || {}),
+              hash: paymentHash,
+              idempotent_replay: true,
+            },
+          });
+        }
+      } else {
+        consumed.set(paymentHash, record);
+      }
+
       return res.status(200).json({
-        ...result,
+        ...record.result,
         payment: {
+          ...(record.payment || payment),
           hash: paymentHash,
-          from: verification.from ?? null,
-          amount_nano: verification.amount_nano ?? null,
           idempotent_replay: false,
         },
       });
