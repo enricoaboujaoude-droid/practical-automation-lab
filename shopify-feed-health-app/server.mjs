@@ -6,6 +6,7 @@ import * as build from "./build/server/index.js";
 import { sanitizeRequestTarget } from "./server-logging.mjs";
 import { startSpeedbotRegistration } from "./speedbot-agent.mjs";
 import { startSpeedbotHelpAssignment } from "./speedbot-help.mjs";
+import { startSuperteamScout } from "./superteam-agent.mjs";
 import {
   nanoCatalogAuditMetadata,
   nanoCatalogAuditOptions,
@@ -69,4 +70,5 @@ app.listen(port, host, () => {
   console.log(`[pal-shopify] listening on ${host}:${port}`);
   startSpeedbotRegistration();
   startSpeedbotHelpAssignment();
+  startSuperteamScout();
 });
