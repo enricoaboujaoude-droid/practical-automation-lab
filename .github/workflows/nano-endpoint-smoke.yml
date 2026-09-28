@@ -1,0 +1,33 @@
+name: Nano endpoint smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/nano-endpoint-smoke.yml"
+      - "shopify-feed-health-app/nano-catalog-audit.mjs"
+      - "shopify-feed-health-app/server.mjs"
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify unpaid POST returns the public Nano quote
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://pal-catalog-check-app.onrender.com/api/nano/catalog-audit"
+          payload='{"products":[{"id":"smoke-1","title":"Smoke Test Product","link":"https://example.com/p/smoke-1","image_link":"https://example.com/smoke-1.jpg","price":"19.99 USD","availability":"in_stock","brand":"PAL","gtin":"1234567890123"}]}'
+          status="$(curl --silent --show-error --output /tmp/body.json --write-out '%{http_code}'             --request POST "$url"             --header 'content-type: application/json'             --data "$payload")"
+          test "$status" = "402"
+          node -e '
+            const fs=require("fs");
+            const b=JSON.parse(fs.readFileSync("/tmp/body.json","utf8"));
+            if(b.error!=="payment_required") throw new Error("missing payment_required");
+            if(b.network!=="nano:mainnet") throw new Error("wrong network");
+            if(b.asset!=="XNO") throw new Error("wrong asset");
+            if(b.amount_xno!=="0.01") throw new Error("wrong price");
+            if(b.pay_to!=="nano_1cwckodornuho5eytrz5qjrk8a6x7udadyq3jsris9sqitmu5y5btad3jq6x") throw new Error("wrong address");
+            console.log(JSON.stringify({status:402, network:b.network, asset:b.asset, amount_xno:b.amount_xno, pay_to:b.pay_to}));
+          '
