@@ -3,6 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import { createRequestHandler } from "@react-router/express";
 import * as build from "./build/server/index.js";
+import { registerNanoCatalogPreflight } from "./nano-catalog-preflight.mjs";
 import { sanitizeRequestTarget } from "./server-logging.mjs";
 
 const port = Number(process.env.PORT || 3000);
@@ -25,6 +26,11 @@ app.head("/healthz", (_req, res) => {
   res.sendStatus(200);
 });
 
+app.use(
+  "/api/nano/catalog-preflight",
+  express.json({ limit: "256kb", type: "application/json" }),
+);
+registerNanoCatalogPreflight(app);
 
 app.use(
   "/assets",
