@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   auditCatalog,
+  createCatalogScanReplayStore,
   quoteDigest,
   stableJson,
   validateCatalogInput,
@@ -82,4 +83,55 @@ test("clean row can score 100", () => {
   assert.equal(report.summary.errors, 0);
   assert.equal(report.summary.warnings, 0);
   assert.equal(report.summary.score, 100);
+});
+
+
+test("durable replay store persists a payment and resolves a duplicate create", async () => {
+  const rows = new Map();
+  const prisma = {
+    catalogScan: {
+      async findUnique({ where }) {
+        return rows.get(where.id) ?? null;
+      },
+      async create({ data }) {
+        if (rows.has(data.id)) {
+          const error = new Error("duplicate");
+          error.code = "P2002";
+          throw error;
+        }
+        rows.set(data.id, { ...data, createdAt: new Date() });
+        return rows.get(data.id);
+      },
+    },
+  };
+
+  const store = createCatalogScanReplayStore(prisma);
+  const hash = "A".repeat(64);
+  const record = {
+    quote: "quote-1",
+    result: {
+      generated_at: new Date().toISOString(),
+      summary: {
+        score: 94,
+        errors: 0,
+        warnings: 2,
+        products_checked: 1,
+      },
+      rows: [],
+    },
+    payment: { hash, amount_nano: "0.01" },
+    at: Date.now(),
+  };
+
+  const first = await store.put(hash, record);
+  assert.equal(first.created, true);
+
+  const loaded = await store.get(hash);
+  assert.equal(loaded.quote, "quote-1");
+  assert.equal(loaded.payment.hash, hash);
+  assert.equal(loaded.result.summary.score, 94);
+
+  const second = await store.put(hash, { ...record, quote: "quote-2" });
+  assert.equal(second.created, false);
+  assert.equal(second.record.quote, "quote-1");
 });
