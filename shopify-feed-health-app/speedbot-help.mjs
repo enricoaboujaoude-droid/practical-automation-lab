@@ -44,30 +44,44 @@ export async function readSpeedbotHelpAssignment(db = prisma) {
 }
 
 export function extractPublicAssignment(body) {
-  const sources = [
-    body,
-    body?.assignment,
-    body?.work,
-    body?.request,
-    body?.introduction,
-  ].filter(Boolean);
+  const wanted = {
+    introId: new Set(["intro_id", "introduction_id"]),
+    roomId: new Set(["room_id", "work_room_id"]),
+    requestId: new Set(["request_id", "work_request_id"]),
+    publicUrl: new Set(["public_url", "request_url", "work_url"]),
+  };
+  const result = {
+    introId: null,
+    roomId: null,
+    requestId: null,
+    publicUrl: null,
+  };
+  const seen = new Set();
 
-  const pick = (...keys) => {
-    for (const source of sources) {
-      for (const key of keys) {
-        const value = source?.[key];
-        if (typeof value === "string" && value.trim()) return value.trim();
-      }
+  function visit(node, depth = 0) {
+    if (!node || typeof node !== "object" || depth > 6 || seen.has(node)) return;
+    seen.add(node);
+
+    if (Array.isArray(node)) {
+      for (const item of node.slice(0, 20)) visit(item, depth + 1);
+      return;
     }
-    return null;
-  };
 
-  return {
-    introId: pick("intro_id", "introduction_id"),
-    roomId: pick("room_id", "work_room_id"),
-    requestId: pick("request_id", "work_request_id", "id"),
-    publicUrl: pick("public_url", "url", "request_url", "work_url"),
-  };
+    for (const [key, value] of Object.entries(node)) {
+      if (typeof value === "string" && value.trim()) {
+        for (const [field, keys] of Object.entries(wanted)) {
+          if (!result[field] && keys.has(key)) result[field] = value.trim();
+        }
+        if (!result.publicUrl && key === "url" && /^https:\/\/speedbot\.dev\//i.test(value.trim())) {
+          result.publicUrl = value.trim();
+        }
+      }
+      visit(value, depth + 1);
+    }
+  }
+
+  visit(body);
+  return result;
 }
 
 async function saveAssignment(db, body) {
