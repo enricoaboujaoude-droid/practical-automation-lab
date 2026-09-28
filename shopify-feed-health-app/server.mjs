@@ -4,6 +4,7 @@ import morgan from "morgan";
 import { createRequestHandler } from "@react-router/express";
 import * as build from "./build/server/index.js";
 import { sanitizeRequestTarget } from "./server-logging.mjs";
+import { startSpeedbotRegistration } from "./speedbot-agent.mjs";
 import {
   nanoCatalogAuditMetadata,
   nanoCatalogAuditOptions,
@@ -65,4 +66,5 @@ app.all(
 
 app.listen(port, host, () => {
   console.log(`[pal-shopify] listening on ${host}:${port}`);
+  startSpeedbotRegistration();
 });
