@@ -1,0 +1,55 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import { extractPublicAssignment } from "./speedbot-help.mjs";
+
+test("extractPublicAssignment reads direct public identifiers", () => {
+  assert.deepEqual(
+    extractPublicAssignment({
+      intro_id: "intro_123",
+      room_id: "room_456",
+      request_id: "request_789",
+      public_url: "https://speedbot.dev/work/intro_123",
+    }),
+    {
+      introId: "intro_123",
+      roomId: "room_456",
+      requestId: "request_789",
+      publicUrl: "https://speedbot.dev/work/intro_123",
+    },
+  );
+});
+
+test("extractPublicAssignment reads nested assignment identifiers", () => {
+  assert.deepEqual(
+    extractPublicAssignment({
+      assignment: {
+        introduction_id: "intro_nested",
+        work_room_id: "room_nested",
+        work_request_id: "request_nested",
+        work_url: "https://speedbot.dev/work/intro_nested",
+      },
+    }),
+    {
+      introId: "intro_nested",
+      roomId: "room_nested",
+      requestId: "request_nested",
+      publicUrl: "https://speedbot.dev/work/intro_nested",
+    },
+  );
+});
+
+test("extractPublicAssignment returns nulls for unrelated private fields", () => {
+  assert.deepEqual(
+    extractPublicAssignment({
+      credential_reference: "redacted",
+      private_opening: "not public",
+    }),
+    {
+      introId: null,
+      roomId: null,
+      requestId: null,
+      publicUrl: null,
+    },
+  );
+});
