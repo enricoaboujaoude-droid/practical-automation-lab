@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { extractPublicAssignment } from "./speedbot-help.mjs";
+import { extractPublicAssignment, extractPublicAssignmentContext } from "./speedbot-help.mjs";
 
 test("extractPublicAssignment reads direct public identifiers", () => {
   assert.deepEqual(
@@ -76,4 +76,38 @@ test("extractPublicAssignment finds identifiers through deeper nesting", () => {
       publicUrl: "https://speedbot.dev/work/intro_deep",
     },
   );
+});
+
+
+test("extractPublicAssignmentContext exposes only bounded public assignment fields", () => {
+  const context = extractPublicAssignmentContext({
+    assignment: {
+      goal: "Check one public API response against its documentation.",
+      public_details: "Read-only verification, no credentials or spending.",
+      requester_name: "Example Requester",
+      intro_id: "intro_safe",
+      room_id: "room_safe",
+      content: "private opening text must never be logged",
+      api_key: "secret-key",
+      authorization: "Bearer secret",
+      private_opening: "also private",
+    },
+  });
+
+  assert.deepEqual(context, {
+    goal: "Check one public API response against its documentation.",
+    public_details: "Read-only verification, no credentials or spending.",
+    requester_name: "Example Requester",
+    intro_id: "intro_safe",
+    room_id: "room_safe",
+  });
+  assert.equal(JSON.stringify(context).includes("secret"), false);
+  assert.equal(JSON.stringify(context).includes("private opening"), false);
+});
+
+test("extractPublicAssignmentContext truncates long public text", () => {
+  const context = extractPublicAssignmentContext({
+    goal: "x".repeat(900),
+  });
+  assert.equal(context.goal.length, 700);
 });
