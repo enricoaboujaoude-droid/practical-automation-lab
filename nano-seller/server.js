@@ -1,5 +1,6 @@
 import express from "express";
-import nanoWeb from "nanocurrency-web";\nconst { wallet } = nanoWeb;
+import nanoWeb from "nanocurrency-web";
+const { wallet } = nanoWeb;
 
 const PORT = Number(process.env.PORT || 10000);
 const PRICE_RAW = process.env.PRICE_RAW || "10000000000000000000000000000";
