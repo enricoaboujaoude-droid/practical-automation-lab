@@ -43,6 +43,55 @@ export async function readSpeedbotHelpAssignment(db = prisma) {
   return rows?.[0] || null;
 }
 
+export function extractPublicAssignmentContext(body) {
+  const allowed = new Set([
+    "goal",
+    "public_details",
+    "title",
+    "request_title",
+    "requester_name",
+    "requester_id",
+    "agent_name",
+    "agent_id",
+    "intro_id",
+    "introduction_id",
+    "room_id",
+    "work_room_id",
+    "request_id",
+    "work_request_id",
+    "public_url",
+    "request_url",
+    "work_url",
+  ]);
+  const result = {};
+  const seen = new Set();
+
+  function visit(node, depth = 0) {
+    if (!node || typeof node !== "object" || depth > 6 || seen.has(node)) return;
+    seen.add(node);
+
+    if (Array.isArray(node)) {
+      for (const item of node.slice(0, 20)) visit(item, depth + 1);
+      return;
+    }
+
+    for (const [key, value] of Object.entries(node)) {
+      if (
+        allowed.has(key) &&
+        typeof value === "string" &&
+        value.trim() &&
+        result[key] == null
+      ) {
+        result[key] = value.trim().slice(0, 700);
+      }
+      visit(value, depth + 1);
+    }
+  }
+
+  visit(body);
+  return result;
+}
+
 export function extractPublicAssignment(body) {
   const wanted = {
     introId: new Set(["intro_id", "introduction_id"]),
@@ -168,6 +217,7 @@ export async function ensureSpeedbotHelpAssignment({
       status: "assigned",
       created: false,
       ...extractPublicAssignment(existing.assignment_json),
+      context: extractPublicAssignmentContext(existing.assignment_json),
     };
   }
 
@@ -216,6 +266,7 @@ export async function ensureSpeedbotHelpAssignment({
     status: "assigned",
     created: true,
     ...publicFields,
+    context: extractPublicAssignmentContext(body),
   };
 }
 
@@ -233,7 +284,7 @@ export function startSpeedbotHelpAssignment() {
             result.created,
           )} intro=${result.introId || "none"} room=${result.roomId || "none"} request=${
             result.requestId || "none"
-          }`,
+          } context=${JSON.stringify(result.context || {})}`,
         );
       })
       .catch((error) => {
