@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { extractPublicAssignment, extractPublicAssignmentContext, recoverSpeedbotHelpFromOperatorInbox, recoverSpeedbotHelpThread } from "./speedbot-help.mjs";
+import { extractPublicAssignment, extractPublicAssignmentContext, recoverSpeedbotHelpFromOperatorInbox, recoverSpeedbotHelpFromWait, recoverSpeedbotHelpThread } from "./speedbot-help.mjs";
 
 test("extractPublicAssignment reads direct public identifiers", () => {
   assert.deepEqual(
@@ -275,4 +275,100 @@ test("recoverSpeedbotHelpFromOperatorInbox rejects non-Speedbot operator links",
 
   assert.equal(result.status, "invalid-link");
   assert.equal(result.ids, null);
+});
+
+
+test("recoverSpeedbotHelpFromWait recovers one pending public work target", async () => {
+  const roomId = "room_33333333333333333333333333333333";
+  const introId = "intro_44444444444444444444444444444444";
+  let requestedUrl = "";
+  let auth = "";
+
+  const result = await recoverSpeedbotHelpFromWait({
+    apiKey: "sb_" + "d".repeat(64),
+    fetchImpl: async (url, options) => {
+      requestedUrl = String(url);
+      auth = options.headers.Authorization;
+      return {
+        ok: true,
+        status: 200,
+        async json() {
+          return {
+            pending_actions: [
+              {
+                public_url: `https://speedbot.dev/work/${roomId}?intro=${introId}`,
+              },
+            ],
+          };
+        },
+      };
+    },
+  });
+
+  assert.equal(result.status, "single");
+  assert.equal(result.candidateCount, 1);
+  assert.equal(result.ids.roomId, roomId);
+  assert.equal(result.ids.introId, introId);
+  assert.match(requestedUrl, /\/api\/me\/wait\?timeout_seconds=0$/);
+  assert.match(auth, /^Bearer sb_/);
+});
+
+test("recoverSpeedbotHelpFromWait fails safe when no pending work exists", async () => {
+  const result = await recoverSpeedbotHelpFromWait({
+    apiKey: "sb_" + "e".repeat(64),
+    fetchImpl: async () => ({
+      ok: true,
+      status: 200,
+      async json() {
+        return { pending_actions: [] };
+      },
+    }),
+  });
+
+  assert.equal(result.status, "none");
+  assert.equal(result.candidateCount, 0);
+  assert.equal(result.ids, null);
+});
+
+test("recoverSpeedbotHelpFromWait fails safe on multiple pending work targets", async () => {
+  const result = await recoverSpeedbotHelpFromWait({
+    apiKey: "sb_" + "f".repeat(64),
+    fetchImpl: async () => ({
+      ok: true,
+      status: 200,
+      async json() {
+        return {
+          pending_actions: [
+            { public_url: "https://speedbot.dev/work/room_55555555555555555555555555555555" },
+            { public_url: "https://speedbot.dev/work/room_66666666666666666666666666666666" },
+          ],
+        };
+      },
+    }),
+  });
+
+  assert.equal(result.status, "ambiguous");
+  assert.equal(result.candidateCount, 2);
+  assert.equal(result.ids, null);
+});
+
+test("recoverSpeedbotHelpFromOperatorInbox accepts bounded opaque same-origin operator tokens", async () => {
+  let requestedUrl = "";
+
+  const result = await recoverSpeedbotHelpFromOperatorInbox({
+    operatorLink: "/operator/opaqueToken_1234567890",
+    fetchImpl: async (url) => {
+      requestedUrl = String(url);
+      return {
+        ok: true,
+        status: 200,
+        async json() {
+          return { pending: [] };
+        },
+      };
+    },
+  });
+
+  assert.equal(result.status, "none");
+  assert.match(requestedUrl, /^https:\/\/speedbot\.dev\/operator\/opaqueToken_1234567890\/inbox\.json$/);
 });
