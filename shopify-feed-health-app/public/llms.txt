@@ -1,0 +1,47 @@
+# Practical Automation Lab — Nano-paid APIs
+
+PAL exposes deterministic commerce-data utilities for software agents. No account is required.
+
+Base URL: https://pal-catalog-check-app.onrender.com
+Network: nano:mainnet
+Asset: XNO
+Active receiver: nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr
+Discovery: GET /api/nano/manifest
+
+## Payment flow
+
+1. POST the JSON body to a paid endpoint without a payment header.
+2. The server answers HTTP 402 with pay_to, amount_raw, amount_xno and request_sha256.
+3. Send exactly the quoted XNO amount to pay_to.
+4. Retry the identical JSON body with:
+   X-Nano-Payment: <64-character confirmed Nano send-block hash>
+5. A successful paid call answers 200. A payment hash is bound to the request and endpoint; changed-body or cross-endpoint reuse is rejected.
+
+This service never asks for a Nano seed or private key.
+
+## POST /api/nano/catalog-audit
+
+Price: 0.01 XNO per call.
+Body:
+{"products":[{"id":"sku-1","title":"Example","link":"https://example.com/p/1","image_link":"https://example.com/i/1.jpg","price":"19.99 USD","availability":"in_stock","brand":"Example","gtin":"4006381333931"}]}
+
+Up to 100 products. Returns row-level catalog issues, summary and score.
+
+## POST /api/nano/gtin-check
+
+Price: 0.01 XNO per call.
+Body:
+{"gtins":["4006381333931","036000291452"]}
+
+Up to 100 identifiers. Validates GTIN-8, GTIN/UPC-12, GTIN-13 and GTIN-14 lengths and check digits.
+
+## POST /api/nano/feed-diff
+
+Price: 0.01 XNO per call.
+Body:
+{"before":[{"id":"sku-1","price":"19.99 USD","availability":"in_stock"}],"after":[{"id":"sku-1","price":"17.99 USD","availability":"out_of_stock"}]}
+
+Up to 100 rows per snapshot. Reports added IDs, removed IDs and changed commerce fields.
+
+Public source:
+https://github.com/enricoaboujaoude-droid/practical-automation-lab

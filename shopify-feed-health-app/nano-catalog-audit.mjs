@@ -10,7 +10,7 @@ const DEFAULT_VERIFY_URL = "https://pursekeeper.dev/v1/verify";
 const MAX_PRODUCTS = 100;
 const VALID_AVAILABILITY = new Set(["in_stock", "out_of_stock", "preorder", "backorder"]);
 
-function getConfig() {
+export function getNanoPaymentConfig() {
   const address = String(process.env.PAL_NANO_ADDRESS || "").trim();
   return {
     address,
@@ -208,7 +208,7 @@ export function auditCatalog(products) {
 }
 
 export function buildPaymentQuote(body) {
-  const config = getConfig();
+  const config = getNanoPaymentConfig();
   if (!config.address.startsWith("nano_")) {
     throw new Error("PAL_NANO_ADDRESS is not configured.");
   }
@@ -226,7 +226,7 @@ export function buildPaymentQuote(body) {
   };
 }
 
-function setPublicHeaders(res) {
+export function setPublicHeaders(res) {
   res.set({
     "Cache-Control": "no-store",
     "Access-Control-Allow-Origin": "*",
@@ -263,7 +263,7 @@ async function ensurePaymentTable() {
   return tableReadyPromise;
 }
 
-async function readPaymentUse(paymentHash) {
+export async function readPaymentUse(paymentHash) {
   await ensurePaymentTable();
   const rows = await prisma.$queryRawUnsafe(
     "SELECT payment_hash, body_sha256, response_json, amount_raw, created_at FROM pal_nano_payment_use WHERE payment_hash = $1 LIMIT 1",
@@ -272,7 +272,7 @@ async function readPaymentUse(paymentHash) {
   return rows?.[0] || null;
 }
 
-async function writePaymentUse(paymentHash, digest, result, amountRaw) {
+export async function writePaymentUse(paymentHash, digest, result, amountRaw) {
   await ensurePaymentTable();
   await prisma.$executeRawUnsafe(
     `INSERT INTO pal_nano_payment_use (payment_hash, body_sha256, response_json, amount_raw)
@@ -286,8 +286,8 @@ async function writePaymentUse(paymentHash, digest, result, amountRaw) {
   return readPaymentUse(paymentHash);
 }
 
-async function verifyPayment(paymentHash) {
-  const config = getConfig();
+export async function verifyPayment(paymentHash) {
+  const config = getNanoPaymentConfig();
   const url = new URL(config.verifyUrl);
   url.searchParams.set("hash", paymentHash);
   url.searchParams.set("to", config.address);
@@ -344,7 +344,7 @@ async function verifyPayment(paymentHash) {
 }
 
 export function nanoCatalogAuditMetadata(_req, res) {
-  const config = getConfig();
+  const config = getNanoPaymentConfig();
   setPublicHeaders(res);
   res.status(200).json({
     ok: true,

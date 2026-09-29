@@ -21,6 +21,14 @@ import {
   nanoCatalogAuditOptions,
   nanoCatalogAuditPost,
 } from "./nano-catalog-audit.mjs";
+import {
+  nanoCommerceManifest,
+  nanoCommerceOptions,
+  nanoFeedDiffMetadata,
+  nanoFeedDiffPost,
+  nanoGtinMetadata,
+  nanoGtinPost,
+} from "./nano-commerce-tools.mjs";
 
 const port = Number(process.env.PORT || 3000);
 const host = process.env.HOST || "0.0.0.0";
@@ -56,6 +64,24 @@ app.post(
   "/api/nano/catalog-audit",
   express.json({ limit: "128kb" }),
   nanoCatalogAuditPost,
+);
+
+app.get("/api/nano/manifest", nanoCommerceManifest);
+
+app.get("/api/nano/gtin-check", nanoGtinMetadata);
+app.options("/api/nano/gtin-check", nanoCommerceOptions);
+app.post(
+  "/api/nano/gtin-check",
+  express.json({ limit: "64kb" }),
+  nanoGtinPost,
+);
+
+app.get("/api/nano/feed-diff", nanoFeedDiffMetadata);
+app.options("/api/nano/feed-diff", nanoCommerceOptions);
+app.post(
+  "/api/nano/feed-diff",
+  express.json({ limit: "256kb" }),
+  nanoFeedDiffPost,
 );
 
 app.use(
