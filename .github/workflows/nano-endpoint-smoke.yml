@@ -28,6 +28,6 @@ jobs:
             if(b.network!=="nano:mainnet") throw new Error("wrong network");
             if(b.asset!=="XNO") throw new Error("wrong asset");
             if(b.amount_xno!=="0.01") throw new Error("wrong price");
-            if(b.pay_to!=="nano_1cwckodornuho5eytrz5qjrk8a6x7udadyq3jsris9sqitmu5y5btad3jq6x") throw new Error("wrong address");
+            if(b.pay_to!=="nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr") throw new Error("wrong address");
             console.log(JSON.stringify({status:402, network:b.network, asset:b.asset, amount_xno:b.amount_xno, pay_to:b.pay_to}));
           '
