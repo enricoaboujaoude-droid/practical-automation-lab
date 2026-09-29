@@ -3,6 +3,9 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 const DEFAULT_BASE_URL = "https://superteam.fun";
 const AGENT_NAME = "Practical Automation Lab";
+const DEFAULT_SCOUT_INTERVAL_MS = 6 * 60 * 60 * 1000;
+const MIN_SCOUT_INTERVAL_MS = 60 * 60 * 1000;
+const MAX_SCOUT_INTERVAL_MS = 24 * 60 * 60 * 1000;
 let tableReadyPromise;
 
 function cleanBaseUrl(value) {
@@ -12,6 +15,17 @@ function cleanBaseUrl(value) {
 function boundedText(value, max = 500) {
   const text = String(value ?? "").trim();
   return text ? text.slice(0, max) : null;
+}
+
+export function resolveSuperteamScoutIntervalMs(
+  value = process.env.SUPERTEAM_SCOUT_INTERVAL_MS,
+) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_SCOUT_INTERVAL_MS;
+  return Math.min(
+    MAX_SCOUT_INTERVAL_MS,
+    Math.max(MIN_SCOUT_INTERVAL_MS, Math.floor(parsed)),
+  );
 }
 
 export async function ensureSuperteamTable(db = prisma) {
@@ -280,7 +294,9 @@ export function startSuperteamScout() {
     return;
   }
 
-  setTimeout(() => {
+  const intervalMs = resolveSuperteamScoutIntervalMs();
+
+  const run = () => {
     runSuperteamScout()
       .then((result) => {
         console.log(
@@ -293,6 +309,13 @@ export function startSuperteamScout() {
       })
       .catch((error) => {
         console.error("[pal-superteam] scout deferred:", error?.message || error);
+      })
+      .finally(() => {
+        const next = setTimeout(run, intervalMs);
+        next.unref?.();
       });
-  }, 9000).unref();
+  };
+
+  const initial = setTimeout(run, 9000);
+  initial.unref?.();
 }

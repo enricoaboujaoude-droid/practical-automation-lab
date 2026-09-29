@@ -5,6 +5,7 @@ import {
   fetchAgentListings,
   normalizeAgentListings,
   publicListingSummary,
+  resolveSuperteamScoutIntervalMs,
 } from "./superteam-agent.mjs";
 
 function response(status, body) {
@@ -89,4 +90,13 @@ test("fetchAgentListings fails closed on authentication failure", async () => {
       }),
     /HTTP 401/,
   );
+});
+
+
+test("resolveSuperteamScoutIntervalMs defaults to six hours and stays bounded", () => {
+  assert.equal(resolveSuperteamScoutIntervalMs(undefined), 6 * 60 * 60 * 1000);
+  assert.equal(resolveSuperteamScoutIntervalMs("not-a-number"), 6 * 60 * 60 * 1000);
+  assert.equal(resolveSuperteamScoutIntervalMs("1000"), 60 * 60 * 1000);
+  assert.equal(resolveSuperteamScoutIntervalMs(String(8 * 60 * 60 * 1000)), 8 * 60 * 60 * 1000);
+  assert.equal(resolveSuperteamScoutIntervalMs(String(72 * 60 * 60 * 1000)), 24 * 60 * 60 * 1000);
 });
