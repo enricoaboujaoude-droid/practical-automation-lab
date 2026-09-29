@@ -7,6 +7,8 @@ on:
       - ".github/workflows/nano-endpoint-smoke.yml"
       - "shopify-feed-health-app/nano-catalog-audit.mjs"
       - "shopify-feed-health-app/nano-commerce-tools.mjs"
+      - "shopify-feed-health-app/nano-commerce-tools.test.mjs"
+      - "shopify-feed-health-app/nano-x402.mjs"
       - "shopify-feed-health-app/server.mjs"
       - "shopify-feed-health-app/public/llms.txt"
   workflow_dispatch:
@@ -15,7 +17,7 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify Nano commerce manifest and unpaid quotes
+      - name: Verify Nano commerce suite and x402
         shell: bash
         run: |
           set -euo pipefail
@@ -33,15 +35,29 @@ jobs:
             if(b.x402_version!==2) throw new Error("x402 v2 not advertised");
             if(!Array.isArray(b.schemes)||!b.schemes.includes("exact")) throw new Error("x402 exact not advertised");
             const ids=new Set((b.services||[]).map(x=>x.id));
-            for(const id of ["catalog-audit","gtin-check","feed-diff"]) if(!ids.has(id)) throw new Error("missing "+id);
+            for(const id of ["catalog-audit","gtin-check","feed-diff"]) {
+              if(!ids.has(id)) throw new Error("missing "+id);
+            }
           ' "$address"
 
           check_quote () {
             local path="$1"
             local payload="$2"
-            local body="$3"
-            status="$(curl --silent --show-error --output "$body" --write-out '%{http_code}'               --request POST "$base$path"               --header 'content-type: application/json'               --data "$payload")"
+            local prefix="$3"
+            local body="/tmp/${prefix}.json"
+            local headers="/tmp/${prefix}.headers"
+            local status
+
+            status="$(curl --silent --show-error \
+              --dump-header "$headers" \
+              --output "$body" \
+              --write-out '%{http_code}' \
+              --request POST "$base$path" \
+              --header 'content-type: application/json' \
+              --data "$payload")"
+
             test "$status" = "402"
+
             node -e '
               const fs=require("fs");
               const b=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
@@ -52,13 +68,35 @@ jobs:
               if(b.pay_to!==process.argv[2]) throw new Error("wrong address");
               if(!/^[a-f0-9]{64}$/i.test(b.request_sha256||"")) throw new Error("missing request digest");
             ' "$body" "$address"
+
+            header="$(awk 'BEGIN{IGNORECASE=1} /^PAYMENT-REQUIRED:/{sub(/^[^:]+:[[:space:]]*/, ""); gsub(/\r/,""); print; exit}' "$headers")"
+            test -n "$header"
+
+            node -e '
+              const v=JSON.parse(Buffer.from(process.argv[1],"base64").toString("utf8"));
+              if(v.x402Version!==2) throw new Error("bad challenge version");
+              if(!v.resource||typeof v.resource.url!=="string") throw new Error("missing resource");
+              const a=(v.accepts||[])[0];
+              if(!a||a.scheme!=="exact"||a.network!=="nano:mainnet") throw new Error("bad x402 requirement");
+              if(a.asset!=="XNO"||a.payTo!==process.argv[2]) throw new Error("bad x402 payment target");
+              if(a.amount!=="10000000000000000000000000000") throw new Error("bad x402 amount");
+            ' "$header" "$address"
           }
 
-          check_quote             "/api/nano/catalog-audit"             '{"products":[{"id":"smoke-1","title":"Smoke Test Product","link":"https://example.com/p/smoke-1","image_link":"https://example.com/smoke-1.jpg","price":"19.99 USD","availability":"in_stock","brand":"PAL","gtin":"4006381333931"}]}'             /tmp/catalog.json
+          check_quote \
+            "/api/nano/catalog-audit" \
+            '{"products":[{"id":"smoke-1","title":"Smoke Test Product","link":"https://example.com/p/smoke-1","image_link":"https://example.com/smoke-1.jpg","price":"19.99 USD","availability":"in_stock","brand":"PAL","gtin":"4006381333931"}]}' \
+            catalog
 
-          check_quote             "/api/nano/gtin-check"             '{"gtins":["4006381333931","036000291452"]}'             /tmp/gtin.json
+          check_quote \
+            "/api/nano/gtin-check" \
+            '{"gtins":["4006381333931","036000291452"]}' \
+            gtin
 
-          check_quote             "/api/nano/feed-diff"             '{"before":[{"id":"smoke-1","price":"19.99 USD","availability":"in_stock"}],"after":[{"id":"smoke-1","price":"17.99 USD","availability":"out_of_stock"}]}'             /tmp/diff.json
+          check_quote \
+            "/api/nano/feed-diff" \
+            '{"before":[{"id":"smoke-1","price":"19.99 USD","availability":"in_stock"}],"after":[{"id":"smoke-1","price":"17.99 USD","availability":"out_of_stock"}]}' \
+            diff
 
           curl --fail --silent --show-error "$base/.well-known/x402" -o /tmp/x402.json
           node -e '
@@ -68,22 +106,15 @@ jobs:
             if(!Array.isArray(b.items)||b.items.length<3) throw new Error("missing discovery items");
             for(const item of b.items){
               const a=(item.accepts||[])[0];
-              if(!a||a.scheme!=="exact"||a.network!=="nano:mainnet"||a.payTo!==process.argv[1]) throw new Error("bad x402 discovery item");
+              if(!a||a.scheme!=="exact"||a.network!=="nano:mainnet"||a.payTo!==process.argv[1]) {
+                throw new Error("bad x402 discovery item");
+              }
             }
           ' "$address"
-
-          header="$(awk 'BEGIN{IGNORECASE=1} /^PAYMENT-REQUIRED:/{sub(/^[^:]+:[[:space:]]*/, ""); gsub(/\r/,""); print; exit}' /tmp/headers.txt)"
-          test -n "$header"
-          node -e '
-            const v=JSON.parse(Buffer.from(process.argv[1],"base64").toString("utf8"));
-            if(v.x402Version!==2) throw new Error("bad challenge version");
-            const a=(v.accepts||[])[0];
-            if(!a||a.scheme!=="exact"||a.network!=="nano:mainnet"||a.payTo!==process.argv[2]) throw new Error("bad challenge requirement");
-          ' "$header" "$address"
 
           curl --fail --silent --show-error "$base/llms.txt" -o /tmp/llms.txt
           grep -Fq "/api/nano/gtin-check" /tmp/llms.txt
           grep -Fq "/api/nano/feed-diff" /tmp/llms.txt
-
           grep -Fq "PAYMENT-SIGNATURE" /tmp/llms.txt
+
           echo "Nano commerce suite + x402 v2 smoke passed."
