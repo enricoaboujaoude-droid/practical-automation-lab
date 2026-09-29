@@ -178,16 +178,27 @@ test("fetchOpenBasedAgentsTasks fails closed on HTTP and schema errors", async (
   );
 });
 
-test("resolveBasedAgentsScoutIntervalMs defaults to six hours and stays bounded", () => {
-  assert.equal(resolveBasedAgentsScoutIntervalMs(undefined), 6 * 60 * 60 * 1000);
-  assert.equal(resolveBasedAgentsScoutIntervalMs("bad"), 6 * 60 * 60 * 1000);
-  assert.equal(resolveBasedAgentsScoutIntervalMs("1000"), 60 * 60 * 1000);
-  assert.equal(
-    resolveBasedAgentsScoutIntervalMs(String(8 * 60 * 60 * 1000)),
-    8 * 60 * 60 * 1000,
-  );
-  assert.equal(
-    resolveBasedAgentsScoutIntervalMs(String(72 * 60 * 60 * 1000)),
-    24 * 60 * 60 * 1000,
-  );
+test("resolveBasedAgentsScoutIntervalMs defaults to six hours when env is unset and stays bounded", () => {
+  const previous = process.env.BASEDAGENTS_SCOUT_INTERVAL_MS;
+  delete process.env.BASEDAGENTS_SCOUT_INTERVAL_MS;
+
+  try {
+    assert.equal(resolveBasedAgentsScoutIntervalMs(undefined), 6 * 60 * 60 * 1000);
+    assert.equal(resolveBasedAgentsScoutIntervalMs("bad"), 6 * 60 * 60 * 1000);
+    assert.equal(resolveBasedAgentsScoutIntervalMs("1000"), 60 * 60 * 1000);
+    assert.equal(
+      resolveBasedAgentsScoutIntervalMs(String(8 * 60 * 60 * 1000)),
+      8 * 60 * 60 * 1000,
+    );
+    assert.equal(
+      resolveBasedAgentsScoutIntervalMs(String(72 * 60 * 60 * 1000)),
+      24 * 60 * 60 * 1000,
+    );
+  } finally {
+    if (previous === undefined) {
+      delete process.env.BASEDAGENTS_SCOUT_INTERVAL_MS;
+    } else {
+      process.env.BASEDAGENTS_SCOUT_INTERVAL_MS = previous;
+    }
+  }
 });
