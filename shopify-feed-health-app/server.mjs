@@ -29,6 +29,8 @@ import {
   nanoFeedDiffPost,
   nanoGtinMetadata,
   nanoGtinPost,
+  nanoX402ValidateMetadata,
+  nanoX402ValidatePost,
   nanoX402WellKnown,
 } from "./nano-commerce-tools.mjs";
 
@@ -85,6 +87,14 @@ app.post(
   "/api/nano/feed-diff",
   express.json({ limit: "256kb" }),
   nanoFeedDiffPost,
+);
+
+app.get("/api/nano/x402-validate", nanoX402ValidateMetadata);
+app.options("/api/nano/x402-validate", nanoCommerceOptions);
+app.post(
+  "/api/nano/x402-validate",
+  express.json({ limit: "128kb" }),
+  nanoX402ValidatePost,
 );
 
 app.use(
