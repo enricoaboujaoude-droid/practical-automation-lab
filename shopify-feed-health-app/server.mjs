@@ -8,7 +8,7 @@ import { startSpeedbotRegistration } from "./speedbot-agent.mjs";
 import { startSpeedbotHelpAssignment } from "./speedbot-help.mjs";
 import { startSuperteamScout } from "./superteam-agent.mjs";
 import { startBasedAgentsScout } from "./basedagents-scout.mjs";
-import { startTaskmarketScout } from "./taskmarket-scout.mjs";
+import { startTaskmarketScout } from "./taskmarket-scout.mjs";\nimport { startNearMarketAgent } from "./near-market-agent.mjs";
 import { startSubnanoPublisher } from "./subnano-publisher.mjs";
 import {
   APIHUB_AUDIT_PATH,
