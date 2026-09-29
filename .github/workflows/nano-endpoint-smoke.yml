@@ -30,6 +30,8 @@ jobs:
             if(b.network!=="nano:mainnet") throw new Error("wrong network");
             if(b.asset!=="XNO") throw new Error("wrong asset");
             if(b.pay_to!==process.argv[1]) throw new Error("wrong address");
+            if(b.x402_version!==2) throw new Error("x402 v2 not advertised");
+            if(!Array.isArray(b.schemes)||!b.schemes.includes("exact")) throw new Error("x402 exact not advertised");
             const ids=new Set((b.services||[]).map(x=>x.id));
             for(const id of ["catalog-audit","gtin-check","feed-diff"]) if(!ids.has(id)) throw new Error("missing "+id);
           ' "$address"
@@ -58,8 +60,30 @@ jobs:
 
           check_quote             "/api/nano/feed-diff"             '{"before":[{"id":"smoke-1","price":"19.99 USD","availability":"in_stock"}],"after":[{"id":"smoke-1","price":"17.99 USD","availability":"out_of_stock"}]}'             /tmp/diff.json
 
+          curl --fail --silent --show-error "$base/.well-known/x402" -o /tmp/x402.json
+          node -e '
+            const fs=require("fs");
+            const b=JSON.parse(fs.readFileSync("/tmp/x402.json","utf8"));
+            if(b.x402Version!==2) throw new Error("wrong discovery version");
+            if(!Array.isArray(b.items)||b.items.length<3) throw new Error("missing discovery items");
+            for(const item of b.items){
+              const a=(item.accepts||[])[0];
+              if(!a||a.scheme!=="exact"||a.network!=="nano:mainnet"||a.payTo!==process.argv[1]) throw new Error("bad x402 discovery item");
+            }
+          ' "$address"
+
+          header="$(awk 'BEGIN{IGNORECASE=1} /^PAYMENT-REQUIRED:/{sub(/^[^:]+:[[:space:]]*/, ""); gsub(/\r/,""); print; exit}' /tmp/headers.txt)"
+          test -n "$header"
+          node -e '
+            const v=JSON.parse(Buffer.from(process.argv[1],"base64").toString("utf8"));
+            if(v.x402Version!==2) throw new Error("bad challenge version");
+            const a=(v.accepts||[])[0];
+            if(!a||a.scheme!=="exact"||a.network!=="nano:mainnet"||a.payTo!==process.argv[2]) throw new Error("bad challenge requirement");
+          ' "$header" "$address"
+
           curl --fail --silent --show-error "$base/llms.txt" -o /tmp/llms.txt
           grep -Fq "/api/nano/gtin-check" /tmp/llms.txt
           grep -Fq "/api/nano/feed-diff" /tmp/llms.txt
 
-          echo "Nano commerce suite smoke passed."
+          grep -Fq "PAYMENT-SIGNATURE" /tmp/llms.txt
+          echo "Nano commerce suite + x402 v2 smoke passed."

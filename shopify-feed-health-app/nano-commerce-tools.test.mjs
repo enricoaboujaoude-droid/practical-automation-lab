@@ -8,6 +8,14 @@ import {
   validateFeedDiffBody,
   validateGtinBody,
 } from "./nano-commerce-tools.mjs";
+import {
+  decodeX402Header,
+  encodeX402Header,
+  nanoX402DiscoveryItems,
+  nanoX402PaymentRequired,
+  nanoX402Requirements,
+  x402PayloadUseKey,
+} from "./nano-x402.mjs";
 
 test("GTIN checker accepts valid GTIN-13 and rejects a bad check digit", () => {
   const valid = inspectGtin("4006381333931");
@@ -53,4 +61,90 @@ test("feed diff validation requires unique non-empty ids and bounded snapshots",
     validateFeedDiffBody({ before: [{ id: "a" }, { id: "a" }], after: [] }).ok,
     false,
   );
+});
+
+
+test("x402 challenge uses exact nano:mainnet and the configured PAL receiver", () => {
+  const previous = process.env.PAL_NANO_ADDRESS;
+  process.env.PAL_NANO_ADDRESS =
+    "nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr";
+  try {
+    const req = {
+      get(name) {
+        const key = String(name).toLowerCase();
+        if (key === "host" || key === "x-forwarded-host") return "pal.example";
+        if (key === "x-forwarded-proto") return "https";
+        return undefined;
+      },
+      protocol: "https",
+    };
+    const spec = {
+      path: "/api/nano/gtin-check",
+      description: "GTIN checker",
+    };
+    const body = nanoX402PaymentRequired(req, spec);
+    assert.equal(body.x402Version, 2);
+    assert.equal(body.resource.url, "https://pal.example/api/nano/gtin-check");
+    assert.equal(body.accepts[0].scheme, "exact");
+    assert.equal(body.accepts[0].network, "nano:mainnet");
+    assert.equal(body.accepts[0].asset, "XNO");
+    assert.equal(
+      body.accepts[0].payTo,
+      "nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr",
+    );
+    assert.equal(body.accepts[0].extra.workThreshold, "fffffff800000000");
+    const roundTrip = decodeX402Header(encodeX402Header(body));
+    assert.equal(roundTrip.ok, true);
+    assert.deepEqual(roundTrip.payload, body);
+  } finally {
+    if (previous === undefined) delete process.env.PAL_NANO_ADDRESS;
+    else process.env.PAL_NANO_ADDRESS = previous;
+  }
+});
+
+test("x402 payment payload keys are deterministic and request-independent", () => {
+  const payload = {
+    x402Version: 2,
+    accepted: { scheme: "exact", network: "nano:mainnet", amount: "1", asset: "XNO", payTo: "nano_test" },
+    payload: { block: { previous: "A" } },
+  };
+  assert.equal(x402PayloadUseKey(payload), x402PayloadUseKey(structuredClone(payload)));
+  assert.match(x402PayloadUseKey(payload), /^x402:[a-f0-9]{64}$/);
+});
+
+test("x402 discovery publishes every PAL Nano commerce service", () => {
+  const previous = process.env.PAL_NANO_ADDRESS;
+  process.env.PAL_NANO_ADDRESS =
+    "nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr";
+  try {
+    const services = [
+      { path: "/a" },
+      { path: "/b" },
+      { path: "/c" },
+    ];
+    const items = nanoX402DiscoveryItems("https://pal.example", services);
+    assert.deepEqual(items.map((item) => item.resource), [
+      "https://pal.example/a",
+      "https://pal.example/b",
+      "https://pal.example/c",
+    ]);
+    for (const item of items) {
+      assert.equal(item.x402Version, 2);
+      assert.equal(item.accepts[0].scheme, "exact");
+      assert.equal(item.accepts[0].network, "nano:mainnet");
+    }
+  } finally {
+    if (previous === undefined) delete process.env.PAL_NANO_ADDRESS;
+    else process.env.PAL_NANO_ADDRESS = previous;
+  }
+});
+
+test("x402 requirement builder rejects a missing receiver", () => {
+  const previous = process.env.PAL_NANO_ADDRESS;
+  delete process.env.PAL_NANO_ADDRESS;
+  try {
+    assert.throws(() => nanoX402Requirements(), /PAL_NANO_ADDRESS/);
+  } finally {
+    if (previous !== undefined) process.env.PAL_NANO_ADDRESS = previous;
+  }
 });

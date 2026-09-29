@@ -8,6 +8,17 @@ import {
   verifyPayment,
   writePaymentUse,
 } from "./nano-catalog-audit.mjs";
+import {
+  attachX402Required,
+  decodeX402Header,
+  nanoX402DiscoveryItems,
+  nanoX402Requirements,
+  priorNanoX402Use,
+  recordNanoX402Use,
+  settleNanoX402,
+  verifyNanoX402,
+  x402PaymentHeader,
+} from "./nano-x402.mjs";
 
 const MAX_GTINS = 100;
 const MAX_FEED_ROWS = 100;
@@ -74,8 +85,9 @@ function buildToolQuote(spec, body) {
   };
 }
 
-function sendToolQuote(res, spec, body, reason) {
+function sendToolQuote(req, res, spec, body, reason) {
   const quote = buildToolQuote(spec, body);
+  attachX402Required(req, res, spec, reason);
   res.set({
     "X-Payment-Network": quote.network,
     "X-Payment-Asset": quote.asset,
@@ -253,14 +265,111 @@ async function handlePaidTool(req, res, spec, validate, run) {
   }
 
   const digest = paymentDigest(spec.path, req.body);
+  const signatureHeader = x402PaymentHeader(req);
+
+  if (signatureHeader) {
+    const decoded = decodeX402Header(signatureHeader);
+    if (!decoded.ok) {
+      sendToolQuote(req, res, spec, req.body, decoded.error);
+      return;
+    }
+
+    try {
+      const prior = await priorNanoX402Use(decoded.payload, digest);
+      if (prior.previous) {
+        if (prior.conflict) {
+          setPublicHeaders(res);
+          res.status(409).json({
+            error: "payment_reused",
+            message: "This x402 payment was already used for a different request or endpoint.",
+          });
+          return;
+        }
+        setPublicHeaders(res);
+        res.status(200).json(prior.previous.response_json);
+        return;
+      }
+
+      const requirements = nanoX402Requirements();
+      const verified = await verifyNanoX402(decoded.payload, requirements);
+      if (!verified.ok) {
+        sendToolQuote(req, res, spec, req.body, verified.reason);
+        return;
+      }
+
+      const result = run(req.body);
+      const settled = await settleNanoX402(decoded.payload, requirements);
+      if (!settled.ok) {
+        const retry = await priorNanoX402Use(decoded.payload, digest);
+        if (retry.previous && !retry.conflict) {
+          setPublicHeaders(res);
+          res.status(200).json(retry.previous.response_json);
+          return;
+        }
+        sendToolQuote(req, res, spec, req.body, settled.reason);
+        return;
+      }
+
+      result.payment = {
+        network: "nano:mainnet",
+        scheme: "exact",
+        protocol: "x402-v2",
+        block_hash: settled.transaction,
+        amount_raw: requirements.amount,
+        payer: settled.payer,
+        verified: true,
+      };
+      result.operation_id = crypto
+        .createHash("sha256")
+        .update(`pal-nano:${spec.id}:x402:${settled.transaction}:${digest}`)
+        .digest("hex")
+        .slice(0, 24);
+
+      const stored = await recordNanoX402Use(
+        decoded.payload,
+        settled.transaction,
+        digest,
+        result,
+        requirements.amount,
+      );
+      if (
+        !stored.payloadRow ||
+        stored.payloadRow.body_sha256 !== digest ||
+        !stored.transactionRow ||
+        stored.transactionRow.body_sha256 !== digest
+      ) {
+        setPublicHeaders(res);
+        res.status(409).json({
+          error: "payment_race",
+          message: "The x402 payment was consumed by another request.",
+        });
+        return;
+      }
+
+      setPublicHeaders(res);
+      res.set("PAYMENT-RESPONSE", Buffer.from(JSON.stringify(settled.data), "utf8").toString("base64"));
+      res.status(200).json(stored.payloadRow.response_json);
+      return;
+    } catch (error) {
+      console.error(`[pal-nano-${spec.id}-x402]`, error);
+      setPublicHeaders(res);
+      res.status(503).json({
+        error: "service_unavailable",
+        message: "The x402 paid operation could not be completed safely.",
+      });
+      return;
+    }
+  }
+
   const paymentHash = String(req.get("X-Nano-Payment") || "").trim().toUpperCase();
 
   if (!paymentHash) {
-    sendToolQuote(res, spec, req.body);
+    sendToolQuote(req, res, spec, req.body);
     return;
   }
   if (!/^[A-F0-9]{64}$/.test(paymentHash)) {
     sendToolQuote(
+      req,
       res,
       spec,
       req.body,
@@ -287,7 +396,7 @@ async function handlePaidTool(req, res, spec, validate, run) {
 
     const verification = await verifyPayment(paymentHash);
     if (!verification.ok) {
-      sendToolQuote(res, spec, req.body, verification.reason);
+      sendToolQuote(req, res, spec, req.body, verification.reason);
       return;
     }
 
@@ -336,11 +445,12 @@ function metadataFor(spec) {
     method: spec.method,
     network: "nano:mainnet",
     asset: "XNO",
-    scheme: "pal-nano-hash-v1",
+    schemes: ["exact", "pal-nano-hash-v1"],
+    x402_version: 2,
     price_xno: config.priceXno,
     price_raw: config.priceRaw,
     pay_to: config.address || null,
-    payment_header: "X-Nano-Payment",
+    payment_headers: ["PAYMENT-SIGNATURE", "X-Nano-Payment"],
   };
 }
 
@@ -356,14 +466,16 @@ export function nanoCommerceManifest(_req, res) {
     network: "nano:mainnet",
     asset: "XNO",
     pay_to: config.address || null,
-    scheme: "pal-nano-hash-v1",
+    schemes: ["exact", "pal-nano-hash-v1"],
+    x402_version: 2,
+    facilitator: "https://facilitator.pursekeeper.dev",
     price_xno: config.priceXno,
     services: NANO_COMMERCE_SERVICES,
     flow: [
-      "POST the JSON body to a paid endpoint without payment.",
-      "Read the 402 quote and send the exact XNO amount to pay_to.",
-      "Retry the identical JSON body with X-Nano-Payment set to the confirmed send-block hash.",
+      "Standard x402 v2: read PAYMENT-REQUIRED, sign the accepted nano:mainnet exact payment, retry with PAYMENT-SIGNATURE.",
+      "Compatibility rail: send the exact XNO amount to pay_to, then retry the identical JSON with X-Nano-Payment set to the confirmed send-block hash.",
     ],
+    x402_discovery: "/.well-known/x402",
     agent_docs: "/llms.txt",
   });
 }
@@ -391,4 +503,18 @@ export async function nanoFeedDiffPost(req, res) {
   await handlePaidTool(req, res, FEED_DIFF_SPEC, validateFeedDiffBody, (body) =>
     feedDiff(body.before, body.after),
   );
+}
+
+
+export function nanoX402WellKnown(req, res) {
+  const proto = String(req.get("x-forwarded-proto") || req.protocol || "https").split(",")[0].trim();
+  const host = String(req.get("x-forwarded-host") || req.get("host") || "pal-catalog-check-app.onrender.com").split(",")[0].trim();
+  const baseUrl = `${proto}://${host}`;
+  setPublicHeaders(res);
+  res.status(200).json({
+    x402Version: 2,
+    items: nanoX402DiscoveryItems(baseUrl, NANO_COMMERCE_SERVICES),
+    docs: `${baseUrl}/llms.txt`,
+    merchant: "Practical Automation Lab",
+  });
 }

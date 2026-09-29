@@ -1,5 +1,15 @@
 import crypto from "node:crypto";
 import { PrismaClient } from "@prisma/client";
+import {
+  attachX402Required,
+  decodeX402Header,
+  nanoX402Requirements,
+  priorNanoX402Use,
+  recordNanoX402Use,
+  settleNanoX402,
+  verifyNanoX402,
+  x402PaymentHeader,
+} from "./nano-x402.mjs";
 
 const prisma = new PrismaClient();
 let tableReadyPromise;
@@ -230,13 +240,18 @@ export function setPublicHeaders(res) {
   res.set({
     "Cache-Control": "no-store",
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type, X-Nano-Payment",
+    "Access-Control-Allow-Headers": "Content-Type, X-Nano-Payment, PAYMENT-SIGNATURE, X-PAYMENT",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Expose-Headers": "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-Payment-Network, X-Payment-Asset, X-Payment-Address, X-Payment-Amount-Raw",
   });
 }
 
-function sendQuote(res, body, reason) {
+function sendQuote(req, res, body, reason) {
   const quote = buildPaymentQuote(body);
+  attachX402Required(req, res, {
+    path: "/api/nano/catalog-audit",
+    description: "Deterministic product-feed row audit for core shopping-data hygiene.",
+  }, reason);
   res.set({
     "X-Payment-Network": quote.network,
     "X-Payment-Asset": quote.asset,
@@ -354,12 +369,13 @@ export function nanoCatalogAuditMetadata(_req, res) {
     method: "POST",
     network: "nano:mainnet",
     asset: "XNO",
-    scheme: "pal-nano-hash-v1",
+    schemes: ["exact", "pal-nano-hash-v1"],
+    x402_version: 2,
     price_xno: config.priceXno,
     price_raw: config.priceRaw,
     pay_to: config.address || null,
     max_products: MAX_PRODUCTS,
-    payment_header: "X-Nano-Payment",
+    payment_headers: ["PAYMENT-SIGNATURE", "X-Nano-Payment"],
   });
 }
 
@@ -376,14 +392,110 @@ export async function nanoCatalogAuditPost(req, res) {
   }
 
   const digest = bodyDigest(req.body);
+  const signatureHeader = x402PaymentHeader(req);
+
+  if (signatureHeader) {
+    const decoded = decodeX402Header(signatureHeader);
+    if (!decoded.ok) {
+      sendQuote(req, res, req.body, decoded.error);
+      return;
+    }
+
+    try {
+      const prior = await priorNanoX402Use(decoded.payload, digest);
+      if (prior.previous) {
+        if (prior.conflict) {
+          setPublicHeaders(res);
+          res.status(409).json({
+            error: "payment_reused",
+            message: "This x402 payment was already used for a different request or endpoint.",
+          });
+          return;
+        }
+        setPublicHeaders(res);
+        res.status(200).json(prior.previous.response_json);
+        return;
+      }
+
+      const requirements = nanoX402Requirements();
+      const verified = await verifyNanoX402(decoded.payload, requirements);
+      if (!verified.ok) {
+        sendQuote(req, res, req.body, verified.reason);
+        return;
+      }
+
+      const result = auditCatalog(req.body.products);
+      const settled = await settleNanoX402(decoded.payload, requirements);
+      if (!settled.ok) {
+        const retry = await priorNanoX402Use(decoded.payload, digest);
+        if (retry.previous && !retry.conflict) {
+          setPublicHeaders(res);
+          res.status(200).json(retry.previous.response_json);
+          return;
+        }
+        sendQuote(req, res, req.body, settled.reason);
+        return;
+      }
+
+      result.payment = {
+        network: "nano:mainnet",
+        scheme: "exact",
+        protocol: "x402-v2",
+        block_hash: settled.transaction,
+        amount_raw: requirements.amount,
+        payer: settled.payer,
+        verified: true,
+      };
+      result.audit_id = crypto
+        .createHash("sha256")
+        .update(`pal-nano-audit:x402:${settled.transaction}:${digest}`)
+        .digest("hex")
+        .slice(0, 24);
+
+      const stored = await recordNanoX402Use(
+        decoded.payload,
+        settled.transaction,
+        digest,
+        result,
+        requirements.amount,
+      );
+      if (
+        !stored.payloadRow ||
+        stored.payloadRow.body_sha256 !== digest ||
+        !stored.transactionRow ||
+        stored.transactionRow.body_sha256 !== digest
+      ) {
+        setPublicHeaders(res);
+        res.status(409).json({
+          error: "payment_race",
+          message: "The x402 payment was consumed by another request.",
+        });
+        return;
+      }
+
+      setPublicHeaders(res);
+      res.set("PAYMENT-RESPONSE", Buffer.from(JSON.stringify(settled.data), "utf8").toString("base64"));
+      res.status(200).json(stored.payloadRow.response_json);
+      return;
+    } catch (error) {
+      console.error("[pal-nano-audit-x402]", error);
+      setPublicHeaders(res);
+      res.status(503).json({
+        error: "service_unavailable",
+        message: "The x402 paid audit could not be completed safely.",
+      });
+      return;
+    }
+  }
+
   const paymentHash = String(req.get("X-Nano-Payment") || "").trim().toUpperCase();
 
   if (!paymentHash) {
-    sendQuote(res, req.body);
+    sendQuote(req, res, req.body);
     return;
   }
   if (!/^[A-F0-9]{64}$/.test(paymentHash)) {
-    sendQuote(res, req.body, "X-Nano-Payment must be a 64-character Nano send-block hash.");
+    sendQuote(req, res, req.body, "X-Nano-Payment must be a 64-character Nano send-block hash.");
     return;
   }
 
@@ -405,7 +517,7 @@ export async function nanoCatalogAuditPost(req, res) {
 
     const verification = await verifyPayment(paymentHash);
     if (!verification.ok) {
-      sendQuote(res, req.body, verification.reason);
+      sendQuote(req, res, req.body, verification.reason);
       return;
     }
 

@@ -8,16 +8,28 @@ Asset: XNO
 Active receiver: nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr
 Discovery: GET /api/nano/manifest
 
-## Payment flow
+## Payment flows
 
-1. POST the JSON body to a paid endpoint without a payment header.
-2. The server answers HTTP 402 with pay_to, amount_raw, amount_xno and request_sha256.
-3. Send exactly the quoted XNO amount to pay_to.
-4. Retry the identical JSON body with:
+PAL accepts two compatible Nano payment rails on the same endpoints.
+
+### Standard x402 v2 (preferred for agents)
+
+1. POST the JSON body without payment.
+2. HTTP 402 includes a base64 JSON PAYMENT-REQUIRED header.
+3. Select the `exact` acceptance for `nano:mainnet`, sign the required Nano send state block, and retry the identical request with:
+   PAYMENT-SIGNATURE: <base64 x402 v2 PaymentPayload>
+4. PAL verifies and settles through https://facilitator.pursekeeper.dev and returns PAYMENT-RESPONSE on success.
+
+x402 discovery: GET /.well-known/x402
+
+### Confirmed-block compatibility rail
+
+1. Read the JSON 402 quote.
+2. Send exactly the quoted XNO amount to pay_to.
+3. Retry the identical JSON with:
    X-Nano-Payment: <64-character confirmed Nano send-block hash>
-5. A successful paid call answers 200. A payment hash is bound to the request and endpoint; changed-body or cross-endpoint reuse is rejected.
 
-This service never asks for a Nano seed or private key.
+A payment is single-use across endpoints and changed bodies. PAL never asks for a Nano seed or private key.
 
 ## POST /api/nano/catalog-audit
 

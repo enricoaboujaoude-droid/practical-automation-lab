@@ -28,6 +28,7 @@ import {
   nanoFeedDiffPost,
   nanoGtinMetadata,
   nanoGtinPost,
+  nanoX402WellKnown,
 } from "./nano-commerce-tools.mjs";
 
 const port = Number(process.env.PORT || 3000);
@@ -67,6 +68,7 @@ app.post(
 );
 
 app.get("/api/nano/manifest", nanoCommerceManifest);
+app.get("/.well-known/x402", nanoX402WellKnown);
 
 app.get("/api/nano/gtin-check", nanoGtinMetadata);
 app.options("/api/nano/gtin-check", nanoCommerceOptions);
