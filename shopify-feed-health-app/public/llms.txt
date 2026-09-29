@@ -55,5 +55,14 @@ Body:
 
 Up to 100 rows per snapshot. Reports added IDs, removed IDs and changed commerce fields.
 
+## POST /api/nano/x402-validate
+
+Price: 0.05 XNO per call.
+Body (direct PaymentRequired form):
+{"x402Version":2,"resource":{"url":"https://seller.example/v1/report","description":"Example report","mimeType":"application/json"},"accepts":[{"scheme":"exact","network":"nano:mainnet","amount":"50000000000000000000000000000","asset":"XNO","payTo":"nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr","maxTimeoutSeconds":30,"extra":{"work":"required","workThreshold":"fffffff800000000"}}]}
+
+You may instead wrap the declaration as {"declaration":{...},"method":"POST","payment_headers":["PAYMENT-SIGNATURE"]}.
+Returns a deterministic static verdict on x402Version, resource URL shape, nano:mainnet exact acceptance, XNO/raw amount shape, Nano payTo shape, timeout, work metadata and optional payment-header metadata. It never fetches the declared resource, never sends a payment and does not establish that an offer is live, funded or payable.
+
 Public source:
 https://github.com/enricoaboujaoude-droid/practical-automation-lab
