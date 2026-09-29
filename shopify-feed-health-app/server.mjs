@@ -9,6 +9,7 @@ import { startSpeedbotHelpAssignment } from "./speedbot-help.mjs";
 import { startSuperteamScout } from "./superteam-agent.mjs";
 import { startBasedAgentsScout } from "./basedagents-scout.mjs";
 import { startTaskmarketScout } from "./taskmarket-scout.mjs";
+import { startSubnanoPublisher } from "./subnano-publisher.mjs";
 import {
   APIHUB_AUDIT_PATH,
   APIHUB_OPENAPI_PATH,
@@ -118,4 +119,5 @@ app.listen(port, host, () => {
   startSuperteamScout();
   startBasedAgentsScout();
   startTaskmarketScout();
+  startSubnanoPublisher();
 });
