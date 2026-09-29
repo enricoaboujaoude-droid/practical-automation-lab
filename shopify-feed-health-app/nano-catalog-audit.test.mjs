@@ -71,7 +71,7 @@ test("auditCatalog catches duplicate IDs and malformed commerce fields", () => {
 });
 
 test("buildPaymentQuote exposes only public payment metadata", () => {
-  process.env.PAL_NANO_ADDRESS = "nano_1cwckodornuho5eytrz5qjrk8a6x7udadyq3jsris9sqitmu5y5btad3jq6x";
+  process.env.PAL_NANO_ADDRESS = "nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr";
   process.env.PAL_NANO_PRICE_RAW = "10000000000000000000000000000";
   process.env.PAL_NANO_PRICE_XNO = "0.01";
   const body = { products: [{ id: "sku-1" }] };
