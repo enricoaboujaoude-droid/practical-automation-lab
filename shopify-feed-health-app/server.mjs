@@ -8,6 +8,13 @@ import { startSpeedbotRegistration } from "./speedbot-agent.mjs";
 import { startSpeedbotHelpAssignment } from "./speedbot-help.mjs";
 import { startSuperteamScout } from "./superteam-agent.mjs";
 import {
+  APIHUB_AUDIT_PATH,
+  APIHUB_OPENAPI_PATH,
+  apiHubCatalogAuditMetadata,
+  apiHubCatalogAuditOpenApi,
+  apiHubCatalogAuditPost,
+} from "./apihub-catalog-audit.mjs";
+import {
   nanoCatalogAuditMetadata,
   nanoCatalogAuditOptions,
   nanoCatalogAuditPost,
@@ -32,6 +39,14 @@ app.head("/healthz", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.sendStatus(200);
 });
+
+app.get(APIHUB_AUDIT_PATH, apiHubCatalogAuditMetadata);
+app.get(APIHUB_OPENAPI_PATH, apiHubCatalogAuditOpenApi);
+app.post(
+  APIHUB_AUDIT_PATH,
+  express.json({ limit: "128kb" }),
+  apiHubCatalogAuditPost,
+);
 
 app.get("/api/nano/catalog-audit", nanoCatalogAuditMetadata);
 app.options("/api/nano/catalog-audit", nanoCatalogAuditOptions);
