@@ -22,6 +22,8 @@ import {
 
 const MAX_GTINS = 100;
 const MAX_FEED_ROWS = 100;
+const X402_VALIDATE_PRICE_RAW = "50000000000000000000000000000";
+const X402_VALIDATE_PRICE_XNO = "0.05";
 const DIFF_FIELDS = [
   "title",
   "link",
@@ -58,6 +60,16 @@ export const NANO_COMMERCE_SERVICES = Object.freeze([
     description:
       "Compare two product-feed snapshots and report added, removed and changed commerce fields for up to 100 rows per side.",
   },
+  {
+    id: "x402-validate",
+    name: "PAL x402/Nano Declaration Validator",
+    path: "/api/nano/x402-validate",
+    method: "POST",
+    description:
+      "Deterministically validate an x402 v2 declaration for a Nano exact-payment rail without fetching or settling the declared resource.",
+    priceRaw: X402_VALIDATE_PRICE_RAW,
+    priceXno: X402_VALIDATE_PRICE_XNO,
+  },
 ]);
 
 function paymentDigest(resource, body) {
@@ -69,6 +81,8 @@ function buildToolQuote(spec, body) {
   if (!config.address.startsWith("nano_")) {
     throw new Error("PAL_NANO_ADDRESS is not configured.");
   }
+  const priceRaw = String(spec.priceRaw || config.priceRaw).trim();
+  const priceXno = String(spec.priceXno || config.priceXno).trim();
   return {
     error: "payment_required",
     service: spec.name,
@@ -77,8 +91,8 @@ function buildToolQuote(spec, body) {
     asset: "XNO",
     scheme: "pal-nano-hash-v1",
     pay_to: config.address,
-    amount_raw: config.priceRaw,
-    amount_xno: config.priceXno,
+    amount_raw: priceRaw,
+    amount_xno: priceXno,
     request_sha256: paymentDigest(spec.path, body),
     retry:
       "Send the exact Nano amount, then retry the same JSON request with X-Nano-Payment: <send block hash>.",
@@ -290,7 +304,7 @@ async function handlePaidTool(req, res, spec, validate, run) {
         return;
       }
 
-      const requirements = nanoX402Requirements();
+      const requirements = nanoX402Requirements({ amountRaw: spec.priceRaw });
       const verified = await verifyNanoX402(decoded.payload, requirements);
       if (!verified.ok) {
         sendToolQuote(req, res, spec, req.body, verified.reason);
@@ -394,7 +408,7 @@ async function handlePaidTool(req, res, spec, validate, run) {
       return;
     }
 
-    const verification = await verifyPayment(paymentHash);
+    const verification = await verifyPayment(paymentHash, spec.priceRaw || null);
     if (!verification.ok) {
       sendToolQuote(req, res, spec, req.body, verification.reason);
       return;
@@ -447,15 +461,285 @@ function metadataFor(spec) {
     asset: "XNO",
     schemes: ["exact", "pal-nano-hash-v1"],
     x402_version: 2,
-    price_xno: config.priceXno,
-    price_raw: config.priceRaw,
+    price_xno: String(spec.priceXno || config.priceXno).trim(),
+    price_raw: String(spec.priceRaw || config.priceRaw).trim(),
     pay_to: config.address || null,
     payment_headers: ["PAYMENT-SIGNATURE", "X-Nano-Payment"],
   };
 }
 
+
+function plainObject(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function declarationPayload(body) {
+  if (plainObject(body?.declaration)) return body.declaration;
+  if (plainObject(body?.payment_required)) return body.payment_required;
+  return body;
+}
+
+function validAbsoluteHttpUrl(value) {
+  if (typeof value !== "string" || !value.trim()) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function validNanoAddressShape(value) {
+  return /^nano_[13][13456789abcdefghijkmnopqrstuwxyz]{59}$/.test(String(value || "").trim());
+}
+
+function declarationFinding(findings, severity, code, path, message) {
+  findings.push({ severity, code, path, message });
+}
+
+export function validateX402DeclarationBody(body) {
+  if (!plainObject(body)) {
+    return { ok: false, error: "Body must be a JSON object." };
+  }
+  if ("declaration" in body && !plainObject(body.declaration)) {
+    return { ok: false, error: "declaration must be a JSON object when supplied." };
+  }
+  if ("payment_required" in body && !plainObject(body.payment_required)) {
+    return { ok: false, error: "payment_required must be a JSON object when supplied." };
+  }
+  return { ok: true };
+}
+
+export function inspectX402Declaration(body) {
+  const declaration = declarationPayload(body);
+  const findings = [];
+
+  if (declaration.x402Version !== 2) {
+    declarationFinding(
+      findings,
+      "error",
+      "x402_version",
+      "x402Version",
+      "x402Version must be the number 2.",
+    );
+  }
+
+  const resource = declaration.resource;
+  if (!plainObject(resource)) {
+    declarationFinding(findings, "error", "resource_missing", "resource", "resource must be an object.");
+  } else if (!validAbsoluteHttpUrl(resource.url)) {
+    declarationFinding(
+      findings,
+      "error",
+      "resource_url",
+      "resource.url",
+      "resource.url must be an absolute http(s) URL.",
+    );
+  }
+
+  const accepts = declaration.accepts;
+  let nanoAccepts = 0;
+  const seenNanoAccepts = new Set();
+
+  if (!Array.isArray(accepts) || accepts.length < 1) {
+    declarationFinding(
+      findings,
+      "error",
+      "accepts_missing",
+      "accepts",
+      "accepts must be a non-empty array.",
+    );
+  } else if (accepts.length > 20) {
+    declarationFinding(
+      findings,
+      "error",
+      "accepts_too_large",
+      "accepts",
+      "accepts may contain at most 20 entries for this validator.",
+    );
+  }
+
+  if (Array.isArray(accepts)) {
+    accepts.slice(0, 20).forEach((accept, index) => {
+      const base = `accepts[${index}]`;
+      if (!plainObject(accept)) {
+        declarationFinding(findings, "error", "accept_not_object", base, "accept entry must be an object.");
+        return;
+      }
+
+      if (accept.network !== "nano:mainnet") return;
+      nanoAccepts += 1;
+
+      if (accept.scheme !== "exact") {
+        declarationFinding(
+          findings,
+          "error",
+          "nano_scheme",
+          `${base}.scheme`,
+          'nano:mainnet must use scheme "exact".',
+        );
+      }
+
+      if (accept.asset !== "XNO") {
+        declarationFinding(
+          findings,
+          "error",
+          "nano_asset",
+          `${base}.asset`,
+          'nano:mainnet must declare asset "XNO".',
+        );
+      }
+
+      if (!/^[1-9]\d*$/.test(String(accept.amount ?? ""))) {
+        declarationFinding(
+          findings,
+          "error",
+          "nano_amount",
+          `${base}.amount`,
+          "amount must be a positive base-10 integer in raw.",
+        );
+      }
+
+      if (!validNanoAddressShape(accept.payTo)) {
+        declarationFinding(
+          findings,
+          "error",
+          "nano_pay_to",
+          `${base}.payTo`,
+          "payTo must have the shape of a Nano mainnet address.",
+        );
+      }
+
+      if (!Number.isInteger(accept.maxTimeoutSeconds) || accept.maxTimeoutSeconds <= 0) {
+        declarationFinding(
+          findings,
+          "error",
+          "nano_timeout",
+          `${base}.maxTimeoutSeconds`,
+          "maxTimeoutSeconds must be a positive integer.",
+        );
+      }
+
+      if ("extra" in accept && !plainObject(accept.extra)) {
+        declarationFinding(
+          findings,
+          "error",
+          "nano_extra",
+          `${base}.extra`,
+          "extra must be an object when supplied.",
+        );
+      } else if (plainObject(accept.extra)) {
+        const work = accept.extra.work;
+        if (work !== undefined && !["required", "optional"].includes(work)) {
+          declarationFinding(
+            findings,
+            "error",
+            "nano_work_mode",
+            `${base}.extra.work`,
+            'extra.work must be "required" or "optional" when supplied.',
+          );
+        }
+        if (
+          work === "required" &&
+          !/^[0-9a-fA-F]{16}$/.test(String(accept.extra.workThreshold || ""))
+        ) {
+          declarationFinding(
+            findings,
+            "error",
+            "nano_work_threshold",
+            `${base}.extra.workThreshold`,
+            "required work must include a 16-hex-character workThreshold.",
+          );
+        }
+      }
+
+      const duplicateKey = [
+        String(accept.scheme || ""),
+        String(accept.amount || ""),
+        String(accept.payTo || ""),
+      ].join("|");
+      if (seenNanoAccepts.has(duplicateKey)) {
+        declarationFinding(
+          findings,
+          "warning",
+          "duplicate_nano_accept",
+          base,
+          "This Nano accept duplicates an earlier scheme/amount/payTo tuple.",
+        );
+      }
+      seenNanoAccepts.add(duplicateKey);
+    });
+  }
+
+  if (nanoAccepts === 0) {
+    declarationFinding(
+      findings,
+      "error",
+      "nano_accept_missing",
+      "accepts",
+      'No accept entry declares network "nano:mainnet".',
+    );
+  }
+
+  const method = typeof body.method === "string" ? body.method.trim().toUpperCase() : null;
+  if (method && !/^[A-Z]+$/.test(method)) {
+    declarationFinding(
+      findings,
+      "warning",
+      "method_shape",
+      "method",
+      "method metadata should be an HTTP method token such as GET or POST.",
+    );
+  }
+
+  const paymentHeaders = body.payment_headers;
+  if (paymentHeaders !== undefined) {
+    if (!Array.isArray(paymentHeaders) || paymentHeaders.some((value) => typeof value !== "string")) {
+      declarationFinding(
+        findings,
+        "error",
+        "payment_headers_shape",
+        "payment_headers",
+        "payment_headers must be an array of strings when supplied.",
+      );
+    } else if (
+      !paymentHeaders.some((value) => String(value).trim().toUpperCase() === "PAYMENT-SIGNATURE")
+    ) {
+      declarationFinding(
+        findings,
+        "warning",
+        "payment_signature_header_missing",
+        "payment_headers",
+        "Metadata does not list PAYMENT-SIGNATURE as an accepted payment header.",
+      );
+    }
+  }
+
+  const errors = findings.filter((item) => item.severity === "error").length;
+  const warnings = findings.filter((item) => item.severity === "warning").length;
+
+  return {
+    service: "PAL x402/Nano Declaration Validator",
+    generated_at: new Date().toISOString(),
+    scope:
+      "Static declaration validation only. No resource is fetched, no payment is made, and liveness or funding is not established.",
+    verdict: errors > 0 ? "invalid" : warnings > 0 ? "valid_with_warnings" : "valid",
+    summary: {
+      valid: errors === 0,
+      errors,
+      warnings,
+      accepts_checked: Array.isArray(accepts) ? Math.min(accepts.length, 20) : 0,
+      nano_accepts: nanoAccepts,
+    },
+    method,
+    resource_url: plainObject(resource) && typeof resource.url === "string" ? resource.url : null,
+    findings,
+  };
+}
+
 const GTIN_SPEC = NANO_COMMERCE_SERVICES.find((item) => item.id === "gtin-check");
 const FEED_DIFF_SPEC = NANO_COMMERCE_SERVICES.find((item) => item.id === "feed-diff");
+const X402_VALIDATE_SPEC = NANO_COMMERCE_SERVICES.find((item) => item.id === "x402-validate");
 
 export function nanoCommerceManifest(_req, res) {
   const config = getNanoPaymentConfig();
@@ -490,6 +774,17 @@ export function nanoFeedDiffMetadata(_req, res) {
   res.status(200).json({ ...metadataFor(FEED_DIFF_SPEC), max_rows_per_snapshot: MAX_FEED_ROWS });
 }
 
+export function nanoX402ValidateMetadata(_req, res) {
+  setPublicHeaders(res);
+  res.status(200).json({
+    ...metadataFor(X402_VALIDATE_SPEC),
+    scope:
+      "Static declaration validation only; no declared resource is fetched and no payment or settlement is attempted.",
+    input:
+      "Send an x402 v2 PaymentRequired object directly, or wrap it as { declaration, method?, payment_headers? }.",
+  });
+}
+
 export function nanoCommerceOptions(_req, res) {
   setPublicHeaders(res);
   res.sendStatus(204);
@@ -502,6 +797,16 @@ export async function nanoGtinPost(req, res) {
 export async function nanoFeedDiffPost(req, res) {
   await handlePaidTool(req, res, FEED_DIFF_SPEC, validateFeedDiffBody, (body) =>
     feedDiff(body.before, body.after),
+  );
+}
+
+export async function nanoX402ValidatePost(req, res) {
+  await handlePaidTool(
+    req,
+    res,
+    X402_VALIDATE_SPEC,
+    validateX402DeclarationBody,
+    inspectX402Declaration,
   );
 }
 
