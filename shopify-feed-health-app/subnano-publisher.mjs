@@ -268,7 +268,7 @@ export async function declareSubnanoAgent(fetchImpl = fetch) {
 
 async function listPosts(status, fetchImpl = fetch) {
   return subnanoRequest(
-    `/posts?status=${encodeURIComponent(status)}&page=1&per_page=50`,
+    `/posts?status=${encodeURIComponent(status)}&page=1&per_page=20`,
     { method: "GET" },
     fetchImpl,
   );
