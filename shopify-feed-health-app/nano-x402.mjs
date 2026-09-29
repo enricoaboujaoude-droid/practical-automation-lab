@@ -28,15 +28,16 @@ function absoluteResourceUrl(req, path) {
   return `https://pal-catalog-check-app.onrender.com${path}`;
 }
 
-export function nanoX402Requirements() {
+export function nanoX402Requirements(overrides = {}) {
   const config = getNanoPaymentConfig();
   if (!config.address.startsWith("nano_")) {
     throw new Error("PAL_NANO_ADDRESS is not configured.");
   }
+  const amountRaw = String(overrides.amountRaw || config.priceRaw).trim();
   return {
     scheme: X402_SCHEME,
     network: X402_NETWORK,
-    amount: config.priceRaw,
+    amount: amountRaw,
     asset: X402_ASSET,
     payTo: config.address,
     maxTimeoutSeconds: 30,
@@ -55,7 +56,7 @@ export function nanoX402PaymentRequired(req, spec, reason) {
       description: spec.description,
       mimeType: "application/json",
     },
-    accepts: [nanoX402Requirements()],
+    accepts: [nanoX402Requirements({ amountRaw: spec.priceRaw })],
   };
   if (reason) body.error = reason;
   return body;
@@ -184,13 +185,12 @@ export async function recordNanoX402Use(paymentPayload, transaction, digest, res
 }
 
 export function nanoX402DiscoveryItems(baseUrl = "https://pal-catalog-check-app.onrender.com", services = []) {
-  const requirement = nanoX402Requirements();
   const lastUpdated = new Date().toISOString();
   return services.map((service) => ({
     resource: `${baseUrl.replace(/\/$/, "")}${service.path}`,
     type: "http",
     x402Version: X402_VERSION,
-    accepts: [requirement],
+    accepts: [nanoX402Requirements({ amountRaw: service.priceRaw })],
     lastUpdated,
   }));
 }
