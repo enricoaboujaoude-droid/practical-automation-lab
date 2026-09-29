@@ -7,6 +7,7 @@ import { sanitizeRequestTarget } from "./server-logging.mjs";
 import { startSpeedbotRegistration } from "./speedbot-agent.mjs";
 import { startSpeedbotHelpAssignment } from "./speedbot-help.mjs";
 import { startSuperteamScout } from "./superteam-agent.mjs";
+import { startBasedAgentsScout } from "./basedagents-scout.mjs";
 import {
   APIHUB_AUDIT_PATH,
   APIHUB_OPENAPI_PATH,
@@ -86,4 +87,5 @@ app.listen(port, host, () => {
   startSpeedbotRegistration();
   startSpeedbotHelpAssignment();
   startSuperteamScout();
+  startBasedAgentsScout();
 });
