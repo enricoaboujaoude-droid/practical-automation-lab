@@ -301,12 +301,13 @@ export async function writePaymentUse(paymentHash, digest, result, amountRaw) {
   return readPaymentUse(paymentHash);
 }
 
-export async function verifyPayment(paymentHash) {
+export async function verifyPayment(paymentHash, minimumRaw = null) {
   const config = getNanoPaymentConfig();
+  const requiredRaw = String(minimumRaw || config.priceRaw).trim();
   const url = new URL(config.verifyUrl);
   url.searchParams.set("hash", paymentHash);
   url.searchParams.set("to", config.address);
-  url.searchParams.set("min_raw", config.priceRaw);
+  url.searchParams.set("min_raw", requiredRaw);
 
   let response;
   try {
@@ -334,7 +335,7 @@ export async function verifyPayment(paymentHash) {
 
   let enough = false;
   try {
-    enough = BigInt(data.amount_raw || "0") >= BigInt(config.priceRaw);
+    enough = BigInt(data.amount_raw || "0") >= BigInt(requiredRaw);
   } catch {
     enough = false;
   }
