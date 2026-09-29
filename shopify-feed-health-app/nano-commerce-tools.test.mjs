@@ -5,8 +5,10 @@ import {
   feedDiff,
   gtinCheck,
   inspectGtin,
+  inspectX402Declaration,
   validateFeedDiffBody,
   validateGtinBody,
+  validateX402DeclarationBody,
 } from "./nano-commerce-tools.mjs";
 import {
   decodeX402Header,
@@ -146,5 +148,108 @@ test("x402 requirement builder rejects a missing receiver", () => {
     assert.throws(() => nanoX402Requirements(), /PAL_NANO_ADDRESS/);
   } finally {
     if (previous !== undefined) process.env.PAL_NANO_ADDRESS = previous;
+  }
+});
+
+
+test("x402 declaration validator accepts a coherent Nano exact declaration", () => {
+  const body = {
+    declaration: {
+      x402Version: 2,
+      resource: {
+        url: "https://seller.example/v1/report",
+        description: "Example report",
+        mimeType: "application/json",
+      },
+      accepts: [
+        {
+          scheme: "exact",
+          network: "nano:mainnet",
+          amount: "50000000000000000000000000000",
+          asset: "XNO",
+          payTo: "nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr",
+          maxTimeoutSeconds: 30,
+          extra: {
+            work: "required",
+            workThreshold: "fffffff800000000",
+          },
+        },
+      ],
+    },
+    method: "POST",
+    payment_headers: ["PAYMENT-SIGNATURE"],
+  };
+
+  assert.equal(validateX402DeclarationBody(body).ok, true);
+  const result = inspectX402Declaration(body);
+  assert.equal(result.verdict, "valid");
+  assert.equal(result.summary.valid, true);
+  assert.equal(result.summary.nano_accepts, 1);
+  assert.equal(result.method, "POST");
+  assert.deepEqual(result.findings, []);
+});
+
+test("x402 declaration validator reports missing Nano rail and inconsistent work metadata", () => {
+  const noNano = inspectX402Declaration({
+    x402Version: 2,
+    resource: { url: "https://seller.example/v1/report" },
+    accepts: [
+      {
+        scheme: "exact",
+        network: "eip155:8453",
+        amount: "1000",
+        asset: "USDC",
+        payTo: "0x0000000000000000000000000000000000000001",
+        maxTimeoutSeconds: 30,
+      },
+    ],
+  });
+  assert.equal(noNano.verdict, "invalid");
+  assert.ok(noNano.findings.some((item) => item.code === "nano_accept_missing"));
+
+  const badWork = inspectX402Declaration({
+    x402Version: 2,
+    resource: { url: "https://seller.example/v1/report" },
+    accepts: [
+      {
+        scheme: "exact",
+        network: "nano:mainnet",
+        amount: "0.05",
+        asset: "XNO",
+        payTo: "nano_invalid",
+        maxTimeoutSeconds: 0,
+        extra: { work: "required" },
+      },
+    ],
+  });
+  const codes = new Set(badWork.findings.map((item) => item.code));
+  assert.equal(badWork.verdict, "invalid");
+  assert.ok(codes.has("nano_amount"));
+  assert.ok(codes.has("nano_pay_to"));
+  assert.ok(codes.has("nano_timeout"));
+  assert.ok(codes.has("nano_work_threshold"));
+});
+
+test("x402 discovery preserves default prices and supports a service-specific price", () => {
+  const previousAddress = process.env.PAL_NANO_ADDRESS;
+  const previousRaw = process.env.PAL_NANO_PRICE_RAW;
+  process.env.PAL_NANO_ADDRESS =
+    "nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr";
+  process.env.PAL_NANO_PRICE_RAW = "10000000000000000000000000000";
+  try {
+    const items = nanoX402DiscoveryItems("https://pal.example", [
+      { path: "/default" },
+      {
+        path: "/premium",
+        priceRaw: "50000000000000000000000000000",
+      },
+    ]);
+    assert.equal(items[0].accepts[0].amount, "10000000000000000000000000000");
+    assert.equal(items[1].accepts[0].amount, "50000000000000000000000000000");
+  } finally {
+    if (previousAddress === undefined) delete process.env.PAL_NANO_ADDRESS;
+    else process.env.PAL_NANO_ADDRESS = previousAddress;
+    if (previousRaw === undefined) delete process.env.PAL_NANO_PRICE_RAW;
+    else process.env.PAL_NANO_PRICE_RAW = previousRaw;
   }
 });
