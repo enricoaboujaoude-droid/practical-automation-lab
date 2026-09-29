@@ -24,7 +24,20 @@ jobs:
           base="https://pal-catalog-check-app.onrender.com"
           address="nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr"
 
-          curl --fail --silent --show-error "$base/api/nano/manifest" -o /tmp/manifest.json
+          # Render deploys asynchronously after the push. Wait for the new Nano/x402
+          # surface instead of reporting a false failure against the previous live commit.
+          ready=0
+          for attempt in $(seq 1 36); do
+            if curl --fail --silent --show-error "$base/api/nano/manifest" -o /tmp/manifest.json; then
+              if node -e 'const b=require("/tmp/manifest.json"); process.exit(b.x402_version===2 ? 0 : 1)'; then
+                ready=1
+                break
+              fi
+            fi
+            sleep 5
+          done
+          test "$ready" = "1"
+
           node -e '
             const fs=require("fs");
             const b=JSON.parse(fs.readFileSync("/tmp/manifest.json","utf8"));
