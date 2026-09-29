@@ -6,28 +6,60 @@ on:
     paths:
       - ".github/workflows/nano-endpoint-smoke.yml"
       - "shopify-feed-health-app/nano-catalog-audit.mjs"
+      - "shopify-feed-health-app/nano-commerce-tools.mjs"
       - "shopify-feed-health-app/server.mjs"
+      - "shopify-feed-health-app/public/llms.txt"
   workflow_dispatch:
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
     steps:
-      - name: Verify unpaid POST returns the public Nano quote
+      - name: Verify Nano commerce manifest and unpaid quotes
         shell: bash
         run: |
           set -euo pipefail
-          url="https://pal-catalog-check-app.onrender.com/api/nano/catalog-audit"
-          payload='{"products":[{"id":"smoke-1","title":"Smoke Test Product","link":"https://example.com/p/smoke-1","image_link":"https://example.com/smoke-1.jpg","price":"19.99 USD","availability":"in_stock","brand":"PAL","gtin":"1234567890123"}]}'
-          status="$(curl --silent --show-error --output /tmp/body.json --write-out '%{http_code}'             --request POST "$url"             --header 'content-type: application/json'             --data "$payload")"
-          test "$status" = "402"
+          base="https://pal-catalog-check-app.onrender.com"
+          address="nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr"
+
+          curl --fail --silent --show-error "$base/api/nano/manifest" -o /tmp/manifest.json
           node -e '
             const fs=require("fs");
-            const b=JSON.parse(fs.readFileSync("/tmp/body.json","utf8"));
-            if(b.error!=="payment_required") throw new Error("missing payment_required");
+            const b=JSON.parse(fs.readFileSync("/tmp/manifest.json","utf8"));
+            if(b.ok!==true) throw new Error("manifest not ok");
             if(b.network!=="nano:mainnet") throw new Error("wrong network");
             if(b.asset!=="XNO") throw new Error("wrong asset");
-            if(b.amount_xno!=="0.01") throw new Error("wrong price");
-            if(b.pay_to!=="nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr") throw new Error("wrong address");
-            console.log(JSON.stringify({status:402, network:b.network, asset:b.asset, amount_xno:b.amount_xno, pay_to:b.pay_to}));
-          '
+            if(b.pay_to!==process.argv[1]) throw new Error("wrong address");
+            const ids=new Set((b.services||[]).map(x=>x.id));
+            for(const id of ["catalog-audit","gtin-check","feed-diff"]) if(!ids.has(id)) throw new Error("missing "+id);
+          ' "$address"
+
+          check_quote () {
+            local path="$1"
+            local payload="$2"
+            local body="$3"
+            status="$(curl --silent --show-error --output "$body" --write-out '%{http_code}'               --request POST "$base$path"               --header 'content-type: application/json'               --data "$payload")"
+            test "$status" = "402"
+            node -e '
+              const fs=require("fs");
+              const b=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));
+              if(b.error!=="payment_required") throw new Error("missing payment_required");
+              if(b.network!=="nano:mainnet") throw new Error("wrong network");
+              if(b.asset!=="XNO") throw new Error("wrong asset");
+              if(b.amount_xno!=="0.01") throw new Error("wrong price");
+              if(b.pay_to!==process.argv[2]) throw new Error("wrong address");
+              if(!/^[a-f0-9]{64}$/i.test(b.request_sha256||"")) throw new Error("missing request digest");
+            ' "$body" "$address"
+          }
+
+          check_quote             "/api/nano/catalog-audit"             '{"products":[{"id":"smoke-1","title":"Smoke Test Product","link":"https://example.com/p/smoke-1","image_link":"https://example.com/smoke-1.jpg","price":"19.99 USD","availability":"in_stock","brand":"PAL","gtin":"4006381333931"}]}'             /tmp/catalog.json
+
+          check_quote             "/api/nano/gtin-check"             '{"gtins":["4006381333931","036000291452"]}'             /tmp/gtin.json
+
+          check_quote             "/api/nano/feed-diff"             '{"before":[{"id":"smoke-1","price":"19.99 USD","availability":"in_stock"}],"after":[{"id":"smoke-1","price":"17.99 USD","availability":"out_of_stock"}]}'             /tmp/diff.json
+
+          curl --fail --silent --show-error "$base/llms.txt" -o /tmp/llms.txt
+          grep -Fq "/api/nano/gtin-check" /tmp/llms.txt
+          grep -Fq "/api/nano/feed-diff" /tmp/llms.txt
+
+          echo "Nano commerce suite smoke passed."
