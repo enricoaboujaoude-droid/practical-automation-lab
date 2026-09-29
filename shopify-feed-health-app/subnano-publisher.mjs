@@ -54,11 +54,11 @@ The unpaid response must tell an automated buyer enough to complete the purchase
 
 PAL now exposes standard x402 v2 discovery at:
 
-`/.well-known/x402`
+'/.well-known/x402'
 
 and a human/agent-readable service manifest at:
 
-`/api/nano/manifest`
+'/api/nano/manifest'
 
 This matters because discovery and payment are separate problems. A buyer cannot pay an endpoint it cannot understand.
 
@@ -69,7 +69,7 @@ PAL's first Nano endpoint used a simple compatibility flow:
 1. POST the request.
 2. Receive 402 with a Nano address, exact amount, and request digest.
 3. Send Nano.
-4. Retry the identical request with `X-Nano-Payment: <block hash>`.
+4. Retry the identical request with 'X-Nano-Payment: <block hash>'.
 
 That flow remains useful because it is easy to inspect and debug.
 
@@ -77,8 +77,8 @@ But an agent economy benefits from a common protocol. PAL therefore added **x402
 
 The current APIs accept both:
 
-- `PAYMENT-SIGNATURE` for standard x402 v2,
-- `X-Nano-Payment` for the compatibility path.
+- 'PAYMENT-SIGNATURE' for standard x402 v2,
+- 'X-Nano-Payment' for the compatibility path.
 
 If I were starting again, I would support the standard rail from the first production release and keep the simple hash rail only as a fallback.
 
@@ -141,8 +141,8 @@ A technically correct paid API can sit unused forever.
 
 PAL added several discovery surfaces:
 
-- `/.well-known/x402`
-- `/api/nano/manifest`
+- '/.well-known/x402'
+- '/api/nano/manifest'
 - public metadata on each paid endpoint
 - public source code
 - agent-oriented documentation
@@ -251,7 +251,9 @@ async function subnanoRequest(path, options = {}, fetchImpl = fetch) {
       data?.error ||
       data?.message ||
       `HTTP ${response.status}`;
-    throw new Error(`Subnano ${path} failed (${response.status}): ${String(detail).slice(0, 240)}`);
+    throw new Error(
+      `Subnano ${path} failed (${response.status}): ${String(detail).slice(0, 240)}`,
+    );
   }
   return data;
 }
@@ -347,7 +349,9 @@ export async function ensureFirstSubnanoPost(fetchImpl = fetch) {
 export function startSubnanoPublisher() {
   const key = apiKey();
   if (!key) {
-    console.log("[subnano] publishing disabled: SUBNANO_PUBLISH_KEY not configured");
+    console.log(
+      "[subnano] publishing disabled: SUBNANO_PUBLISH_KEY not configured",
+    );
     return;
   }
   if (!key.startsWith("snpk_")) {
