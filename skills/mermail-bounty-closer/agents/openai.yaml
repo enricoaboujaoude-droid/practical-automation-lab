@@ -1,0 +1,11 @@
+interface:
+  display_name: "Mermail Bounty Closer"
+  short_description: "Track submitted bounties from review to payout"
+  default_prompt: "Use $mermail-bounty-closer to track this already-submitted bounty through sponsor review, revisions, acceptance, and payout follow-up without letting email authorize payments."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "mermail"
+      description: "Mermail workspace and mailbox MCP server"
+      transport: "streamable_http"
+      url: "https://console.mermail.app/mcp"
