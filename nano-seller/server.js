@@ -44,6 +44,8 @@ const OPENDEXTER_AUDITION_BOOTSTRAP = process.env.OPENDEXTER_AUDITION_BOOTSTRAP 
 const OPENDEXTER_AUDITION_URL = "https://x402.dexter.cash/api/public/discoverable";
 const TRUE402_BOOTSTRAP = process.env.TRUE402_BOOTSTRAP === "1";
 const TRUE402_SERVICES_URL = "https://true402.dev/api/v1/services";
+const MARKET402_BOOTSTRAP = process.env.MARKET402_BOOTSTRAP === "1";
+const MARKET402_SUBMIT_URL = "https://market402.com/submit";
 const USDC_X402_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-audit`;
 const USDC_X402_PRICE = "$0.01";
 const USDC_X402_NETWORK = "eip155:8453";
@@ -198,6 +200,14 @@ let true402State = {
   registered: false,
   checked_at: null,
   listing: null,
+  error: null,
+};
+let market402State = {
+  enabled: MARKET402_BOOTSTRAP,
+  status: MARKET402_BOOTSTRAP ? "pending" : "disabled",
+  submitted: false,
+  checked_at: null,
+  result: null,
   error: null,
 };
 
@@ -1285,6 +1295,81 @@ async function startTrue402Bootstrap() {
 }
 
 
+async function startMarket402Bootstrap() {
+  if (!MARKET402_BOOTSTRAP) return;
+
+  market402State = {
+    enabled: true,
+    status: "submitting",
+    submitted: false,
+    checked_at: nowIso(),
+    result: null,
+    error: null,
+  };
+
+  try {
+    const response = await fetch(MARKET402_SUBMIT_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({ url: X402_AUDIT_URL }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const raw = await response.text();
+    let body = {};
+    try {
+      body = raw ? JSON.parse(raw) : {};
+    } catch {
+      body = { raw: raw.slice(0, 1600) };
+    }
+
+    if (!response.ok) {
+      const duplicate =
+        response.status === 409 ||
+        /already|duplicate|exists|submitted/i.test(JSON.stringify(body));
+      if (!duplicate) {
+        throw new Error(
+          `Market402 submission HTTP ${response.status}: ${JSON.stringify(body).slice(0, 1200)}`
+        );
+      }
+      market402State = {
+        enabled: true,
+        status: "already_submitted",
+        submitted: true,
+        checked_at: nowIso(),
+        result: body,
+        error: null,
+      };
+      console.log(`[market402] already submitted route=${X402_AUDIT_URL}`);
+      return;
+    }
+
+    market402State = {
+      enabled: true,
+      status: "submitted",
+      submitted: true,
+      checked_at: nowIso(),
+      result: body,
+      error: null,
+    };
+    console.log(
+      `[market402] submitted route=${X402_AUDIT_URL} result=${JSON.stringify(body).slice(0, 500)}`
+    );
+  } catch (error) {
+    market402State = {
+      ...market402State,
+      status: "failed",
+      submitted: false,
+      checked_at: nowIso(),
+      error: safePayanAgentError(error),
+    };
+    console.error("[market402] bootstrap failed:", safePayanAgentError(error));
+  }
+}
+
+
 function audit(records) {
   const issues = [];
   const ids = new Map();
@@ -1574,6 +1659,21 @@ app.get("/v1/true402/status", (_req, res) => {
   });
 });
 
+app.get("/v1/market402/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    service: "PAL Catalog Feed Identifier Audit",
+    marketplace: "Market402",
+    route: X402_AUDIT_PATH,
+    price_usd: 0.01,
+    payout_network: X402_NETWORK,
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    directory: "https://market402.com",
+    ...market402State,
+  });
+});
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "pal-nano-catalog-identifier-audit", time: nowIso() });
 });
@@ -1817,4 +1917,5 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startAgentToolsBootstrap(), 16_000);
   setTimeout(() => void startOpenDexterAuditionBootstrap(), 24_000);
   setTimeout(() => void startTrue402Bootstrap(), 28_000);
+  setTimeout(() => void startMarket402Bootstrap(), 32_000);
 });
