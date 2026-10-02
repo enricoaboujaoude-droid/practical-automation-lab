@@ -100,6 +100,25 @@ function combinedJobText(job) {
     .join(" ");
 }
 
+export function selectNearMarketObservedJobs(
+  jobs,
+  { minUsd = DEFAULT_MIN_USD } = {},
+) {
+  if (!Array.isArray(jobs)) return [];
+  const minimum = Number(normalizeDecimal(minUsd));
+
+  return jobs
+    .filter((job) => {
+      if (String(job?.status || "").toLowerCase() !== "open") return false;
+      const budget = budgetNumber(job);
+      if (budget === null || budget < minimum) return false;
+      if (SPEND_RISK.test(combinedJobText(job))) return false;
+      return true;
+    })
+    .map(publicNearMarketJobSummary)
+    .slice(0, 20);
+}
+
 export function selectNearMarketPaidJobs(
   jobs,
   {
@@ -264,12 +283,14 @@ export async function runNearMarketAgent({
     return {
       status: "deferred",
       reason: "missing_agent_token",
+      observed: [],
       candidates: [],
       bids: [],
     };
   }
 
   const jobs = await fetchNearMarketJobBoard({ fetchImpl, token, baseUrl });
+  const observed = selectNearMarketObservedJobs(jobs, { minUsd });
   const candidates = selectNearMarketPaidJobs(jobs, {
     minUsd,
     autoBidJobIds,
@@ -279,6 +300,7 @@ export async function runNearMarketAgent({
     return {
       status: "ready",
       autoBidEnabled,
+      observed,
       candidates,
       bids: [],
     };
@@ -345,6 +367,7 @@ export async function runNearMarketAgent({
   return {
     status: "ready",
     autoBidEnabled,
+    observed,
     candidates,
     bids,
   };
@@ -367,7 +390,9 @@ export function startNearMarketAgent() {
         console.log(
           `[pal-near-market] status=${result.status} autoBid=${
             result.autoBidEnabled === true
-          } candidates=${JSON.stringify(
+          } observed=${JSON.stringify(
+            result.observed || [],
+          )} candidates=${JSON.stringify(
             result.candidates || [],
           )} bids=${JSON.stringify(result.bids || [])}`,
         );
