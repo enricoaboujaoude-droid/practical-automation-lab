@@ -33,6 +33,8 @@ const INDEX402_BOOTSTRAP = process.env.INDEX402_BOOTSTRAP === "1";
 const INDEX402_REGISTER_URL = "https://402index.io/api/v1/register";
 const X402SCOUT_BOOTSTRAP = process.env.X402SCOUT_BOOTSTRAP === "1";
 const X402SCOUT_REGISTER_URL = "https://x402scout.com/register";
+const AGENTTOOLS_BOOTSTRAP = process.env.AGENTTOOLS_BOOTSTRAP === "1";
+const AGENTTOOLS_REGISTER_URL = "https://agent-tools.cloud/api/v1/submit";
 const USDC_X402_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-audit`;
 const USDC_X402_PRICE = "$0.01";
 const USDC_X402_NETWORK = "eip155:8453";
@@ -151,6 +153,14 @@ let x402ScoutState = {
   registered: false,
   checked_at: null,
   service_id: null,
+  error: null,
+};
+let agentToolsState = {
+  enabled: AGENTTOOLS_BOOTSTRAP,
+  status: AGENTTOOLS_BOOTSTRAP ? "pending" : "disabled",
+  registered: false,
+  checked_at: null,
+  service: null,
   error: null,
 };
 
@@ -800,6 +810,75 @@ async function startX402ScoutBootstrap() {
   }
 }
 
+async function startAgentToolsBootstrap() {
+  if (!AGENTTOOLS_BOOTSTRAP) return;
+  agentToolsState = {
+    enabled: true,
+    status: "registering",
+    registered: false,
+    checked_at: nowIso(),
+    service: null,
+    error: null,
+  };
+
+  try {
+    const response = await fetch(AGENTTOOLS_REGISTER_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({
+        url: X402_AUDIT_URL,
+        name: "PAL Catalog Feed Identifier Audit",
+        description:
+          "Deterministic product-feed identifier and consistency audit for 1-100 catalog records: duplicate IDs, GTIN format/checksum, URL shape, price formatting, availability, and brand/MPN consistency. Paid directly in Base USDC over x402.",
+        category: "ecommerce",
+        chains: ["base"],
+        price_min_usdc: 0.01,
+        price_max_usdc: 0.01,
+        contact: "enricoaboujaoude@gmail.com",
+      }),
+      signal: AbortSignal.timeout(45_000),
+    });
+
+    const raw = await response.text();
+    let body = {};
+    try {
+      body = raw ? JSON.parse(raw) : {};
+    } catch {
+      body = { raw: raw.slice(0, 1200) };
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `agent-tools.cloud registration HTTP ${response.status}: ${JSON.stringify(body).slice(0, 1000)}`
+      );
+    }
+
+    agentToolsState = {
+      enabled: true,
+      status: body?.status || "registered",
+      registered: true,
+      checked_at: nowIso(),
+      service: body?.service || body?.data || body,
+      error: null,
+    };
+    console.log(
+      `[agenttools] submitted route=${X402_AUDIT_URL} status=${agentToolsState.status}`
+    );
+  } catch (error) {
+    agentToolsState = {
+      ...agentToolsState,
+      status: "failed",
+      registered: false,
+      checked_at: nowIso(),
+      error: safePayanAgentError(error),
+    };
+    console.error("[agenttools] bootstrap failed:", safePayanAgentError(error));
+  }
+}
+
 function audit(records) {
   const issues = [];
   const ids = new Map();
@@ -1019,6 +1098,21 @@ app.get("/v1/x402scout/status", (_req, res) => {
     payout_address: BASE_PAYOUT_ADDRESS,
     directory: "https://x402scout.com",
     ...x402ScoutState,
+  });
+});
+
+app.get("/v1/agenttools/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    service: "PAL Catalog Feed Identifier Audit",
+    marketplace: "agent-tools.cloud",
+    route: X402_AUDIT_PATH,
+    price_usd: 0.01,
+    payout_network: X402_NETWORK,
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    directory: "https://agent-tools.cloud",
+    ...agentToolsState,
   });
 });
 
@@ -1261,4 +1355,5 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startAgent402Bootstrap(), 4_000);
   setTimeout(() => void startIndex402Bootstrap(), 8_000);
   setTimeout(() => void startX402ScoutBootstrap(), 12_000);
+  setTimeout(() => void startAgentToolsBootstrap(), 16_000);
 });
