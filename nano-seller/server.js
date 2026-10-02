@@ -65,6 +65,41 @@ const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "128kb" }));
 
+const USDC_X402_PATHS = new Set([
+  X402_AUDIT_PATH,
+  X402_GTIN_PATH,
+  X402_FEED_DIFF_PATH,
+]);
+
+function mirrorX402PaymentRequiredBody(req, res, next) {
+  if (req.method !== "POST" || !USDC_X402_PATHS.has(req.path)) {
+    next();
+    return;
+  }
+
+  const originalSend = res.send.bind(res);
+  res.send = function sendWithMirroredPaymentRequirements(body) {
+    if (res.statusCode === 402) {
+      const header = res.getHeader("PAYMENT-REQUIRED") || res.getHeader("payment-required");
+      if (header) {
+        try {
+          const encoded = Array.isArray(header) ? header[0] : String(header);
+          const decoded = JSON.parse(Buffer.from(encoded, "base64").toString("utf8"));
+          res.type("application/json");
+          return originalSend(JSON.stringify(decoded));
+        } catch (error) {
+          console.warn("[x402] could not mirror PAYMENT-REQUIRED into response body:", error?.message || error);
+        }
+      }
+    }
+    return originalSend(body);
+  };
+
+  next();
+}
+
+app.use(mirrorX402PaymentRequiredBody);
+
 const usdcFacilitatorClient = new HTTPFacilitatorClient(facilitator);
 const usdcResourceServer = new x402ResourceServer(usdcFacilitatorClient)
   .register(USDC_X402_NETWORK, new ExactEvmScheme());
