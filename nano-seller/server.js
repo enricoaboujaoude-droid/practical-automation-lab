@@ -61,10 +61,10 @@ app.use(
           },
         ],
         description:
-          "Deterministic product-feed identifier and consistency audit for 1-100 catalog records.",
+          "Google Merchant Center and Google Shopping product-feed audit for 1-100 catalog records: duplicate IDs, GTIN validation/checksum, URLs, prices, availability, and brand/MPN consistency.",
         mimeType: "application/json",
         serviceName: "PAL Catalog Feed Identifier Audit",
-        tags: ["catalog", "product-feed", "ecommerce", "validation", "merchant-center"],
+        tags: ["catalog", "product-feed", "merchant-feed", "ecommerce", "validation", "merchant-center", "google-shopping", "gtin"],
         extensions: {
           ...declareDiscoveryExtension({
             input: {
@@ -115,6 +115,7 @@ app.use(
 const usedPayments = new Map();
 const inFlightPayments = new Set();
 let paidAudits = 0;
+let usdcPaidAudits = 0;
 let payanAgentState = {
   enabled: PAYANAGENT_BOOTSTRAP,
   status: PAYANAGENT_BOOTSTRAP ? "pending" : "disabled",
@@ -395,16 +396,16 @@ function x402Manifest() {
     version: 1,
     name: "Practical Automation Lab",
     summary:
-      "Deterministic catalog and product-feed validation for autonomous commerce agents.",
+      "Deterministic Google Merchant Center, Google Shopping, merchant-feed, product-feed, catalog and GTIN validation for autonomous commerce agents.",
     homepage: PUBLIC_BASE_URL,
     repository:
       "https://github.com/enricoaboujaoude-droid/practical-automation-lab/tree/nano-seller/nano-seller",
     resources: [
       {
         resource: X402_AUDIT_URL,
-        name: "PAL Catalog Feed Identifier Audit",
+        name: "PAL Merchant Center Product Feed Audit",
         description:
-          "Audit 1-100 product-feed records for duplicate IDs, GTIN checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+          "Audit 1-100 Google Merchant Center / Google Shopping product-feed records for duplicate IDs, GTIN validation/checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
         method: "POST",
         price: X402_PRICE_USD,
         inputSchema: {
@@ -441,7 +442,7 @@ function x402Manifest() {
         payTo: BASE_PAYOUT_ADDRESS,
       },
     },
-    capabilities: { tools: 1, categories: ["commerce", "catalog", "validation"] },
+    capabilities: { tools: 1, categories: ["commerce", "merchant-feed", "product-feed", "catalog-validation", "gtin"] },
     machineReadable: {
       openapi: `${PUBLIC_BASE_URL}/openapi.json`,
       status: `${PUBLIC_BASE_URL}/v1/agent402/status`,
@@ -456,16 +457,17 @@ function x402OpenApi() {
       title: "PAL Catalog Feed Identifier Audit",
       version: "1.0.0",
       description:
-        "Deterministic product-feed identifier and consistency audit paid per call with x402 Base USDC.",
+        "Deterministic Google Merchant Center / Google Shopping product-feed and catalog validation paid per call with x402 Base USDC.",
     },
     servers: [{ url: PUBLIC_BASE_URL }],
     paths: {
       [X402_AUDIT_PATH]: {
         post: {
           operationId: "auditCatalogFeedIdentifiers",
-          summary: "Audit catalog feed identifiers and consistency",
+          summary: "Google Merchant Center and product feed audit",
           description:
-            "Checks 1-100 product records for duplicate IDs, GTIN checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+            "Validate 1-100 merchant/catalog feed records before Google Merchant Center or Google Shopping submission: duplicate IDs, GTIN validation/checksum, URLs, price formatting, availability, and brand/MPN consistency.",
+          tags: ["ecommerce", "merchant-feed", "google-shopping", "catalog-validation", "gtin"],
           requestBody: {
             required: true,
             content: {
@@ -842,6 +844,7 @@ app.get("/v1/price", (_req, res) => {
 app.get("/v1/stats", (_req, res) => {
   res.json({
     paid_audits_since_process_start: paidAudits,
+    usdc_x402_paid_audits_since_process_start: usdcPaidAudits,
     payment_hashes_consumed_since_process_start: usedPayments.size,
     uptime_seconds: Math.floor(process.uptime()),
   });
@@ -945,6 +948,11 @@ app.post("/v1/usdc/catalog-audit", (req, res) => {
       detail: "Body must contain records as an array with 1 to 100 items.",
     });
   }
+
+  usdcPaidAudits += 1;
+  console.log(
+    `[revenue] usdc_x402_catalog_audit served price_usd=0.01 network=${USDC_X402_NETWORK} count=${usdcPaidAudits}`
+  );
 
   const result = audit(records);
   return res.json({
