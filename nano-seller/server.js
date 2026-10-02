@@ -1,4 +1,9 @@
 import express from "express";
+import { facilitator } from "@payai/facilitator";
+import { HTTPFacilitatorClient } from "@x402/core/server";
+import { ExactEvmScheme } from "@x402/evm/exact/server";
+import { paymentMiddleware, x402ResourceServer } from "@x402/express";
+import { declareDiscoveryExtension } from "@x402/extensions/bazaar";
 
 const PORT = Number(process.env.PORT || 10000);
 const PRICE_RAW = process.env.PRICE_RAW || "10000000000000000000000000000";
@@ -13,14 +18,72 @@ const PUBLIC_BASE_URL = String(
 ).replace(/\/$/, "");
 const PAYANAGENT_OFFER_TITLE = "PAL Catalog Feed Identifier Audit";
 const PAYANAGENT_OFFER_ENDPOINT = `${PUBLIC_BASE_URL}/v1/payanagent/catalog-audit`;
+const USDC_X402_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-audit`;
+const USDC_X402_PRICE = "$0.01";
+const USDC_X402_NETWORK = "eip155:8453";
 
 if (!/^nano_[13][13456789abcdefghijkmnopqrstuwxyz]{59}$/.test(PAY_TO)) {
   throw new Error("NANO_ADDRESS must be a valid public Nano address");
+}
+if (!/^0x[a-fA-F0-9]{40}$/.test(BASE_PAYOUT_ADDRESS)) {
+  throw new Error("PAL_BASE_PAYOUT_ADDRESS must be a valid public EVM address");
 }
 
 const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "128kb" }));
+
+const usdcFacilitatorClient = new HTTPFacilitatorClient(facilitator);
+const usdcResourceServer = new x402ResourceServer(usdcFacilitatorClient)
+  .register(USDC_X402_NETWORK, new ExactEvmScheme());
+
+app.use(
+  paymentMiddleware(
+    {
+      "POST /v1/usdc/catalog-audit": {
+        accepts: [
+          {
+            scheme: "exact",
+            price: USDC_X402_PRICE,
+            network: USDC_X402_NETWORK,
+            payTo: BASE_PAYOUT_ADDRESS,
+          },
+        ],
+        description:
+          "Deterministic product-feed identifier and consistency audit for 1-100 catalog records.",
+        mimeType: "application/json",
+        serviceName: "PAL Catalog Feed Identifier Audit",
+        tags: ["catalog", "product-feed", "ecommerce", "validation", "merchant-center"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              bodyType: "json",
+              bodyFields: {
+                records: {
+                  type: "array",
+                  required: true,
+                  description:
+                    "1-100 product records with fields such as id, title, link, image_link, gtin, brand, mpn, price, availability, identifier_exists.",
+                },
+              },
+            },
+            output: {
+              example: {
+                ok: true,
+                record_count: 1,
+                issue_count: 0,
+                error_count: 0,
+                warning_count: 0,
+                issues: [],
+              },
+            },
+          }),
+        },
+      },
+    },
+    usdcResourceServer,
+  ),
+);
 
 const usedPayments = new Map();
 const inFlightPayments = new Set();
@@ -411,17 +474,29 @@ app.get("/", (_req, res) => {
     description:
       "Deterministic product-catalog identifier and feed consistency audit, paid in Nano.",
     paid_endpoint: "POST /v1/audit",
+    base_usdc_paid_endpoint: "POST /v1/usdc/catalog-audit",
     agentpay_endpoint: "POST /v1/agentpay",
     free_endpoints: ["GET /health", "GET /v1/price", "GET /v1/stats"],
     limits: { records_per_audit: 100, request_body: "128kb" },
     payment: {
-      asset: "XNO",
-      network: "nano:mainnet",
-      scheme: "pal-nano-hash-v1",
-      price_nano: PRICE_NANO,
-      price_raw: PRICE_RAW,
-      pay_to: PAY_TO,
-      retry_header: "X-Nano-Payment",
+      nano: {
+        asset: "XNO",
+        network: "nano:mainnet",
+        scheme: "pal-nano-hash-v1",
+        price_nano: PRICE_NANO,
+        price_raw: PRICE_RAW,
+        pay_to: PAY_TO,
+        retry_header: "X-Nano-Payment",
+      },
+      base_usdc: {
+        asset: "USDC",
+        network: USDC_X402_NETWORK,
+        scheme: "exact",
+        price_usd: USDC_X402_PRICE,
+        pay_to: BASE_PAYOUT_ADDRESS,
+        endpoint: USDC_X402_ENDPOINT,
+        facilitator: "https://facilitator.payai.network",
+      },
     },
     source: "https://github.com/enricoaboujaoude-droid/practical-automation-lab/tree/nano-seller/nano-seller",
   });
@@ -537,6 +612,32 @@ app.get("/v1/payanagent/status", (_req, res) => {
     payout_address: BASE_PAYOUT_ADDRESS || null,
     offer_endpoint: PAYANAGENT_OFFER_ENDPOINT,
     ...payanAgentState,
+  });
+});
+
+app.post("/v1/usdc/catalog-audit", (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 100 items.",
+    });
+  }
+
+  const result = audit(records);
+  return res.json({
+    ...result,
+    payment: {
+      verified_by: "x402",
+      network: USDC_X402_NETWORK,
+      asset: "USDC",
+      price_usd: USDC_X402_PRICE,
+      pay_to: BASE_PAYOUT_ADDRESS,
+      facilitator: "PayAI",
+    },
+    generated_at: nowIso(),
+    disclaimer:
+      "Consistency audit only; not a guarantee of Merchant Center approval or regulatory compliance.",
   });
 });
 
