@@ -26,7 +26,7 @@ Separately, the verified provider portal exposes a referral program with:
 
 PAL's current referral code is:
 
-`6HDHVHZ3`
+\`6HDHVHZ3\`
 
 Referral registration link:
 
@@ -56,9 +56,9 @@ AgenticTrade's public service API shows PAL Catalog Feed Auditor as active.
 
 Observed public record:
 
-- service ID: `a995b693-1db4-4b25-95b4-512b4c4dca42`
-- provider ID: `agent_8f2276a35f26`
-- endpoint: `https://pal-nano-catalog-audit.onrender.com/v1/agentpay`
+- service ID: \`a995b693-1db4-4b25-95b4-512b4c4dca42\`
+- provider ID: \`agent_8f2276a35f26\`
+- endpoint: \`https://pal-nano-catalog-audit.onrender.com/v1/agentpay\`
 - category: data
 - price: **0.1 USDC/call**
 - payment method: x402
@@ -170,7 +170,7 @@ PAL has now placed the referral in:
 
 Referral code:
 
-`6HDHVHZ3`
+\`6HDHVHZ3\`
 
 Referral URL:
 
