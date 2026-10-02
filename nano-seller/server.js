@@ -18,6 +18,17 @@ const PUBLIC_BASE_URL = String(
 ).replace(/\/$/, "");
 const PAYANAGENT_OFFER_TITLE = "PAL Catalog Feed Identifier Audit";
 const PAYANAGENT_OFFER_ENDPOINT = `${PUBLIC_BASE_URL}/v1/payanagent/catalog-audit`;
+const X402_NETWORK = "eip155:8453";
+const X402_ASSET = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const X402_PRICE_USD = "$0.01";
+const X402_PRICE_ATOMIC = "10000";
+const X402_FACILITATOR_URL = String(
+  process.env.X402_FACILITATOR_URL || "https://facilitator.payai.network"
+).replace(/\/$/, "");
+const X402_AUDIT_PATH = "/v1/x402/catalog-audit";
+const X402_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_AUDIT_PATH}`;
+const AGENT402_BOOTSTRAP = process.env.AGENT402_BOOTSTRAP === "1";
+const AGENT402_REGISTER_URL = "https://agent402.tools/api/index/register";
 const USDC_X402_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-audit`;
 const USDC_X402_PRICE = "$0.01";
 const USDC_X402_NETWORK = "eip155:8453";
@@ -32,6 +43,31 @@ if (!/^0x[a-fA-F0-9]{40}$/.test(BASE_PAYOUT_ADDRESS)) {
 const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "128kb" }));
+
+const x402Server = new x402ResourceServer(
+  new HTTPFacilitatorClient({ url: X402_FACILITATOR_URL })
+).register(X402_NETWORK, new ExactEvmScheme());
+
+app.use(
+  paymentMiddleware(
+    {
+      [`POST ${X402_AUDIT_PATH}`]: {
+        accepts: [
+          {
+            scheme: "exact",
+            price: X402_PRICE_USD,
+            network: X402_NETWORK,
+            payTo: BASE_PAYOUT_ADDRESS,
+          },
+        ],
+        description:
+          "Deterministic product-feed identifier and consistency audit for up to 100 records.",
+        mimeType: "application/json",
+      },
+    },
+    x402Server,
+  ),
+);
 
 const usdcFacilitatorClient = new HTTPFacilitatorClient(facilitator);
 const usdcResourceServer = new x402ResourceServer(usdcFacilitatorClient)
@@ -94,6 +130,14 @@ let payanAgentState = {
   agent_id: null,
   offer_id: null,
   checked_at: null,
+  error: null,
+};
+let agent402State = {
+  enabled: AGENT402_BOOTSTRAP,
+  status: AGENT402_BOOTSTRAP ? "pending" : "disabled",
+  listed: false,
+  checked_at: null,
+  seller: null,
   error: null,
 };
 
@@ -335,6 +379,236 @@ async function startPayanAgentBootstrap() {
   }
 }
 
+function catalogAuditExample() {
+  return {
+    records: [
+      {
+        id: "sku-100",
+        title: "Example Product",
+        link: "https://example.com/products/sku-100",
+        image_link: "https://example.com/images/sku-100.jpg",
+        gtin: "4006381333931",
+        brand: "Example",
+        mpn: "SKU-100",
+        price: "19.99 USD",
+        availability: "in_stock",
+        identifier_exists: true,
+      },
+    ],
+  };
+}
+
+function x402Manifest() {
+  return {
+    spec: "agent402-service-manifest/1",
+    version: 1,
+    name: "Practical Automation Lab",
+    summary:
+      "Deterministic catalog and product-feed validation for autonomous commerce agents.",
+    homepage: PUBLIC_BASE_URL,
+    repository:
+      "https://github.com/enricoaboujaoude-droid/practical-automation-lab/tree/nano-seller/nano-seller",
+    resources: [
+      {
+        resource: X402_AUDIT_URL,
+        name: "PAL Catalog Feed Identifier Audit",
+        description:
+          "Audit 1-100 product-feed records for duplicate IDs, GTIN checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+        method: "POST",
+        price: X402_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["records"],
+          properties: {
+            records: {
+              type: "array",
+              minItems: 1,
+              maxItems: 100,
+              items: { type: "object" },
+            },
+          },
+        },
+        accepts: [
+          {
+            scheme: "exact",
+            network: X402_NETWORK,
+            asset: X402_ASSET,
+            amount: X402_PRICE_ATOMIC,
+            payTo: BASE_PAYOUT_ADDRESS,
+            maxTimeoutSeconds: 60,
+            extra: { name: "USD Coin", version: "2" },
+          },
+        ],
+      },
+    ],
+    payment: {
+      x402: {
+        version: 2,
+        currency: "USDC",
+        networks: [X402_NETWORK],
+        primaryNetwork: X402_NETWORK,
+        payTo: BASE_PAYOUT_ADDRESS,
+      },
+    },
+    capabilities: { tools: 1, categories: ["commerce", "catalog", "validation"] },
+    machineReadable: {
+      openapi: `${PUBLIC_BASE_URL}/openapi.json`,
+      status: `${PUBLIC_BASE_URL}/v1/agent402/status`,
+    },
+  };
+}
+
+function x402OpenApi() {
+  return {
+    openapi: "3.1.0",
+    info: {
+      title: "PAL Catalog Feed Identifier Audit",
+      version: "1.0.0",
+      description:
+        "Deterministic product-feed identifier and consistency audit paid per call with x402 Base USDC.",
+    },
+    servers: [{ url: PUBLIC_BASE_URL }],
+    paths: {
+      [X402_AUDIT_PATH]: {
+        post: {
+          operationId: "auditCatalogFeedIdentifiers",
+          summary: "Audit catalog feed identifiers and consistency",
+          description:
+            "Checks 1-100 product records for duplicate IDs, GTIN checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["records"],
+                  properties: {
+                    records: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 100,
+                      items: { type: "object", additionalProperties: true },
+                    },
+                  },
+                },
+                example: catalogAuditExample(),
+              },
+            },
+          },
+          responses: {
+            "200": {
+              description: "Structured audit result after successful payment.",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      ok: { type: "boolean" },
+                      record_count: { type: "integer" },
+                      issue_count: { type: "integer" },
+                      error_count: { type: "integer" },
+                      warning_count: { type: "integer" },
+                      issues: { type: "array", items: { type: "object" } },
+                    },
+                  },
+                },
+              },
+            },
+            "400": { description: "Invalid catalog payload." },
+            "402": { description: "x402 payment required." },
+          },
+          "x-payment-info": {
+            protocol: "x402",
+            version: 2,
+            scheme: "exact",
+            network: X402_NETWORK,
+            asset: X402_ASSET,
+            amount: X402_PRICE_ATOMIC,
+            price: X402_PRICE_USD,
+            payTo: BASE_PAYOUT_ADDRESS,
+          },
+        },
+      },
+    },
+  };
+}
+
+async function startAgent402Bootstrap() {
+  if (!AGENT402_BOOTSTRAP) return;
+  agent402State = {
+    enabled: true,
+    status: "preflight",
+    listed: false,
+    checked_at: nowIso(),
+    seller: null,
+    error: null,
+  };
+
+  try {
+    const probe = await fetch(X402_AUDIT_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(catalogAuditExample()),
+      signal: AbortSignal.timeout(20_000),
+    });
+    const challenge =
+      probe.headers.get("payment-required") ||
+      probe.headers.get("x-payment-required");
+    if (probe.status !== 402 || !challenge) {
+      const body = await probe.text();
+      throw new Error(
+        `x402 preflight expected HTTP 402 + PAYMENT-REQUIRED, got ${probe.status}: ${body.slice(0, 300)}`
+      );
+    }
+
+    agent402State = {
+      ...agent402State,
+      status: "registering",
+      checked_at: nowIso(),
+    };
+
+    const response = await fetch(AGENT402_REGISTER_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ origin: PUBLIC_BASE_URL }),
+      signal: AbortSignal.timeout(45_000),
+    });
+    const raw = await response.text();
+    let body = {};
+    try {
+      body = raw ? JSON.parse(raw) : {};
+    } catch {
+      body = { raw: raw.slice(0, 1000) };
+    }
+    if (!response.ok || body?.listed !== true) {
+      throw new Error(
+        `Agent402 registration HTTP ${response.status}: ${JSON.stringify(body).slice(0, 900)}`
+      );
+    }
+
+    agent402State = {
+      enabled: true,
+      status: "live",
+      listed: true,
+      checked_at: nowIso(),
+      seller: body.seller || { origin: body.origin || PUBLIC_BASE_URL },
+      error: null,
+    };
+    console.log(
+      `[agent402] listed origin=${PUBLIC_BASE_URL} tools=${body?.seller?.toolCount ?? body?.seller?.tools ?? "unknown"}`
+    );
+  } catch (error) {
+    agent402State = {
+      ...agent402State,
+      status: "failed",
+      listed: false,
+      checked_at: nowIso(),
+      error: safePayanAgentError(error),
+    };
+    console.error("[agent402] bootstrap failed:", safePayanAgentError(error));
+  }
+}
+
 function audit(records) {
   const issues = [];
   const ids = new Map();
@@ -502,6 +776,31 @@ app.get("/", (_req, res) => {
   });
 });
 
+app.get("/.well-known/x402", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.json(x402Manifest());
+});
+
+app.get("/openapi.json", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.json(x402OpenApi());
+});
+
+app.get("/v1/agent402/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    service: "PAL Catalog Feed Identifier Audit",
+    marketplace: "Agent402",
+    route: X402_AUDIT_PATH,
+    price_usd: 0.01,
+    payout_network: X402_NETWORK,
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    facilitator: X402_FACILITATOR_URL,
+    ...agent402State,
+  });
+});
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "pal-nano-catalog-identifier-audit", time: nowIso() });
 });
@@ -664,6 +963,31 @@ app.post("/v1/payanagent/catalog-audit", (req, res) => {
   });
 });
 
+app.post(X402_AUDIT_PATH, (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 100 items.",
+    });
+  }
+
+  const result = audit(records);
+  return res.json({
+    ...result,
+    payment: {
+      protocol: "x402",
+      network: X402_NETWORK,
+      asset: "USDC",
+      price_usd: 0.01,
+      pay_to: BASE_PAYOUT_ADDRESS,
+    },
+    generated_at: nowIso(),
+    disclaimer:
+      "Consistency audit only; not a guarantee of Merchant Center approval or regulatory compliance.",
+  });
+});
+
 app.post("/v1/audit", async (req, res) => {
   const records = req.body?.records;
   if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
@@ -732,4 +1056,5 @@ app.use((error, _req, res, _next) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`PAL Nano seller listening on :${PORT}; pay_to=${PAY_TO}`);
   void startPayanAgentBootstrap();
+  setTimeout(() => void startAgent402Bootstrap(), 2_000);
 });
