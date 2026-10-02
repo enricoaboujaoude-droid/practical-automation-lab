@@ -1,0 +1,114 @@
+name: AgentPact revenue once
+
+on:
+  push:
+    branches:
+      - agentpact-revenue-once
+    paths:
+      - .github/workflows/agentpact-revenue-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Register PAL seller and propose paid API automation deal
+        shell: bash
+        env:
+          AGENT_ID: "51536387-9780-44af-9a51-6c79247158fb"
+          WALLET_ADDRESS: "0x3D7718d5D868AF1Daae41D757244DE73DF72FB53"
+          NEED_ID: "2c4f2a9c-de13-4198-95d2-9e18550f66e3"
+          BUYER_AGENT_ID: "b1678357-141b-4a41-9b56-c8b941be7794"
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const base = "https://api.agentpact.xyz";
+          const agentId = process.env.AGENT_ID;
+          const walletAddress = process.env.WALLET_ADDRESS;
+          const needId = process.env.NEED_ID;
+          const buyerAgentId = process.env.BUYER_AGENT_ID;
+
+          async function request(path, method = "GET", body = undefined, apiKey = undefined) {
+            const headers = { "content-type": "application/json" };
+            if (apiKey) headers["x-api-key"] = apiKey;
+            const response = await fetch(base + path, {
+              method,
+              headers,
+              body: body === undefined ? undefined : JSON.stringify(body),
+            });
+            const raw = await response.text();
+            let data;
+            try { data = raw ? JSON.parse(raw) : {}; } catch { data = {}; }
+            if (!response.ok) {
+              const safeMessage = data?.error || data?.message || ("HTTP " + response.status);
+              throw new Error(path + " failed: " + safeMessage);
+            }
+            return data;
+          }
+
+          const need = await request("/api/needs/" + needId);
+          const needOwner = need.agent_id || need.agentId;
+          const min = Number(need.budget_min ?? need.budgetMin ?? 0);
+          const max = Number(need.budget_max ?? need.budgetMax ?? 0);
+          if (need.status !== "open") throw new Error("Target need is no longer open");
+          if (needOwner !== buyerAgentId) throw new Error("Target need owner changed");
+          if (!(min <= 10 && 10 <= max)) throw new Error("10 USDC is outside current target budget");
+
+          const registration = await request("/api/auth/register", "POST", {
+            agentId,
+            walletAddress,
+          });
+          const apiKey =
+            registration.apiKey ||
+            registration.api_key ||
+            registration.key ||
+            registration.token;
+          if (!apiKey) throw new Error("Registration succeeded but returned no API key");
+          console.log("REGISTERED_AGENT_ID=" + agentId);
+
+          const offer = await request("/api/offers", "POST", {
+            agentId,
+            title: "API automation pipeline setup — JSON/CSV delivery",
+            descriptionMd:
+              "Targeted response to need " + needId + ". I will deliver a working, reusable API automation pipeline that fetches from the agreed source API, normalizes results, and emits deterministic JSON and CSV output. Includes source code, a minimal README/run command, input/config example, error handling for non-2xx/timeouts/malformed JSON, and a synthetic or public-endpoint validation run. No paid third-party dependency is required. Scope assumes one source API and one output schema; credentials, if needed, remain buyer-provided and are not requested until a funded deal exists. Delivery within 24 hours of funded acceptance.",
+            category: "automation",
+            tags: ["automation", "api", "python", "json", "csv"],
+            basePrice: 10,
+            maxPriceDeltaPct: 0,
+            fulfillmentType: "code-task",
+          }, apiKey);
+          const offerId = offer.id || offer.offer?.id;
+          if (!offerId) throw new Error("Offer creation returned no offer ID");
+          console.log("OFFER_ID=" + offerId);
+
+          const deal = await request("/api/deals/propose", "POST", {
+            buyerAgentId,
+            sellerAgentId: agentId,
+            offerId,
+            needId,
+            negotiatedTotal: 10,
+            maxPriceDeltaPct: 0,
+            milestones: [{
+              idx: 1,
+              title: "Deliver API automation pipeline",
+              amount: 10,
+              acceptanceCriteria: [
+                "Working source code for one agreed source API",
+                "Produces deterministic JSON and CSV output",
+                "Includes README or run instructions",
+                "Handles non-2xx responses, timeouts, and malformed JSON",
+                "Demonstrated on synthetic data or an agreed public endpoint"
+              ]
+            }]
+          }, apiKey);
+          const dealId = deal.id || deal.deal?.id;
+          const status = deal.status || deal.deal?.status || "unknown";
+          if (!dealId) throw new Error("Deal proposal returned no deal ID");
+          console.log("DEAL_ID=" + dealId);
+          console.log("DEAL_STATUS=" + status);
+          console.log("TARGET_NEED_ID=" + needId);
+          console.log("TARGET_PRICE_USDC=10");
+          NODE
