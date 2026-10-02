@@ -50,6 +50,37 @@ function validHttpUrl(value) {
   }
 }
 
+function extractAgentPayRecords(messages) {
+  if (!Array.isArray(messages) || messages.length === 0) return null;
+
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const content = messages[index]?.content;
+    if (content && typeof content === "object" && !Array.isArray(content)) {
+      if (Array.isArray(content.records)) return content.records;
+      continue;
+    }
+    if (typeof content !== "string") continue;
+
+    let text = content.trim();
+    if (!text) continue;
+
+    const fenced = text.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+    if (fenced) text = fenced[1].trim();
+
+    try {
+      const parsed = JSON.parse(text);
+      if (Array.isArray(parsed)) return parsed;
+      if (parsed && typeof parsed === "object" && Array.isArray(parsed.records)) {
+        return parsed.records;
+      }
+    } catch {
+      // Keep scanning earlier messages for a structured catalog payload.
+    }
+  }
+
+  return null;
+}
+
 function gtinChecksumValid(raw) {
   const digits = cleanString(raw).replace(/\s+/g, "");
   if (!/^\d+$/.test(digits) || ![8, 12, 13, 14].includes(digits.length)) return false;
@@ -203,6 +234,7 @@ app.get("/", (_req, res) => {
     description:
       "Deterministic product-catalog identifier and feed consistency audit, paid in Nano.",
     paid_endpoint: "POST /v1/audit",
+    agentpay_endpoint: "POST /v1/agentpay",
     free_endpoints: ["GET /health", "GET /v1/price", "GET /v1/stats"],
     limits: { records_per_audit: 100, request_body: "128kb" },
     payment: {
@@ -272,6 +304,50 @@ app.get("/v1/preflight", async (_req, res) => {
   } catch (error) {
     res.status(500).json({ ok: false, error: "preflight_failed" });
   }
+});
+
+app.post("/v1/agentpay", (req, res) => {
+  const records = extractAgentPayRecords(req.body?.messages);
+
+  if (!records) {
+    return res.json({
+      ok: false,
+      ready: true,
+      service: "PAL Catalog Identifier Audit",
+      error: "catalog_payload_required",
+      detail:
+        "Send a messages array whose message content is JSON containing {\"records\":[...]} or a JSON array of records.",
+      limits: { records_per_audit: 100 },
+      example: {
+        messages: [
+          {
+            role: "user",
+            content:
+              "{\"records\":[{\"id\":\"sku-100\",\"title\":\"Example Product\",\"gtin\":\"4006381333931\",\"brand\":\"Example\",\"mpn\":\"SKU-100\",\"price\":\"19.99 USD\",\"availability\":\"in_stock\",\"identifier_exists\":true}]}",
+          },
+        ],
+      },
+    });
+  }
+
+  if (records.length < 1 || records.length > 100) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Catalog payload must contain 1 to 100 records.",
+    });
+  }
+
+  const result = audit(records);
+  return res.json({
+    ...result,
+    marketplace: {
+      provider: "AgentStore",
+      billing: "handled_upstream",
+    },
+    generated_at: nowIso(),
+    disclaimer:
+      "Consistency audit only; not a guarantee of Merchant Center approval or regulatory compliance.",
+  });
 });
 
 app.post("/v1/audit", async (req, res) => {
