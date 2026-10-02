@@ -1307,7 +1307,7 @@ async function startOpenDexterAuditionBootstrap() {
         accept: "application/json",
         "accept-encoding": "identity",
       },
-      body: JSON.stringify({ resource: X402_AUDIT_URL }),
+      body: JSON.stringify({ url: X402_AUDIT_URL }),
       signal: AbortSignal.timeout(120_000),
       redirect: "manual",
     });
@@ -1477,7 +1477,7 @@ async function startMarket402Bootstrap() {
         "content-type": "application/json",
         accept: "application/json",
       },
-      body: JSON.stringify({ url: X402_AUDIT_URL }),
+      body: JSON.stringify({ resource: X402_AUDIT_URL }),
       signal: AbortSignal.timeout(30_000),
     });
     const raw = await response.text();
