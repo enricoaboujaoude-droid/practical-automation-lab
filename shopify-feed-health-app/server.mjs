@@ -130,5 +130,6 @@ app.listen(port, host, () => {
   startSuperteamScout();
   startBasedAgentsScout();
   startTaskmarketScout();
+  startNearMarketAgent();
   startSubnanoPublisher();
 });
