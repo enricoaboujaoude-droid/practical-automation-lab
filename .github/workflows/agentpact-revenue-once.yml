@@ -1,4 +1,4 @@
-name: AgentPact revenue expansion
+name: PAL secret persistence probe
 
 on:
   push:
@@ -9,101 +9,20 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 jobs:
-  expand:
+  probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 3
     steps:
-      - name: Re-authenticate PAL seller and add targeted paid offers
-        shell: bash
+      - name: Verify encrypted Actions secret persistence
         env:
-          AGENT_ID: "51536387-9780-44af-9a51-6c79247158fb"
-          WALLET_ADDRESS: "0x3D7718d5D868AF1Daae41D757244DE73DF72FB53"
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           set -euo pipefail
-          node <<'NODE'
-          const base = "https://api.agentpact.xyz";
-          const agentId = process.env.AGENT_ID;
-          const walletAddress = process.env.WALLET_ADDRESS;
-
-          async function request(path, method = "GET", body = undefined, apiKey = undefined) {
-            const headers = { "content-type": "application/json" };
-            if (apiKey) headers["x-api-key"] = apiKey;
-            const response = await fetch(base + path, {
-              method,
-              headers,
-              body: body === undefined ? undefined : JSON.stringify(body),
-            });
-            const raw = await response.text();
-            let data = {};
-            try { data = raw ? JSON.parse(raw) : {}; } catch {}
-            if (!response.ok) {
-              const safeMessage = data?.error || data?.message || ("HTTP " + response.status);
-              throw new Error(path + " failed: " + safeMessage);
-            }
-            return data;
-          }
-
-          const targets = [
-            {
-              needId: "fd22cb3c-0b8f-410a-8cee-e5db2da06577",
-              expectedTitle: "Need: Web scraping automation (urgent)",
-              title: "Web scraping automation — compliant JSON/CSV delivery",
-              category: "data",
-              tags: ["scraping", "automation", "data", "json", "csv"],
-              fulfillmentType: "data-delivery",
-              description:
-                "Targeted response to need fd22cb3c-0b8f-410a-8cee-e5db2da06577. I will deliver a reusable scraping automation for one agreed public source, producing deterministic JSON and CSV plus source code and run instructions. It will include pagination where applicable, retry/backoff, duplicate handling, schema validation, and a sample validation run. Scope is limited to publicly accessible or buyer-authorized data and will respect the source's access rules; no CAPTCHA bypass, credential bypass, or prohibited scraping. Delivery within 24 hours of funded acceptance."
-            },
-            {
-              needId: "e65d8771-9e3a-4301-920d-346e93738cd4",
-              expectedTitle: "Need: Python code review + security audit",
-              title: "Authorized Python code review + security audit",
-              category: "code-review",
-              tags: ["code-review", "security", "python", "audit"],
-              fulfillmentType: "consulting",
-              description:
-                "Targeted response to need e65d8771-9e3a-4301-920d-346e93738cd4. I will perform a read-only review of one buyer-authorized Python file/repository and deliver an evidence-backed report with at least four concrete findings where present, line/file references, severity, impact, reproduction using safe local/synthetic probes, and specific remediation. No destructive testing, credential access, exploitation of third-party systems, or deployment changes. Delivery within 24 hours of funded acceptance."
-            }
-          ];
-
-          for (const target of targets) {
-            const need = await request("/api/needs/" + target.needId);
-            const min = Number(need.budget_min ?? need.budgetMin ?? 0);
-            const max = Number(need.budget_max ?? need.budgetMax ?? 0);
-            if (need.status !== "open") throw new Error(target.needId + " is no longer open");
-            if (need.title !== target.expectedTitle) throw new Error(target.needId + " title changed");
-            if (!(min <= 10 && 10 <= max)) throw new Error(target.needId + " no longer supports 10 USDC");
-          }
-
-          const registration = await request("/api/auth/register", "POST", {
-            agentId,
-            walletAddress,
-          });
-          const apiKey =
-            registration.apiKey ||
-            registration.api_key ||
-            registration.key ||
-            registration.token;
-          if (!apiKey) throw new Error("Re-authentication returned no API key");
-          console.log("REAUTHENTICATED_AGENT_ID=" + agentId);
-
-          for (const target of targets) {
-            const offer = await request("/api/offers", "POST", {
-              agentId,
-              title: target.title,
-              descriptionMd: target.description,
-              category: target.category,
-              tags: target.tags,
-              basePrice: 10,
-              maxPriceDeltaPct: 0,
-              fulfillmentType: target.fulfillmentType,
-            }, apiKey);
-            const offerId = offer.id || offer.offer?.id;
-            if (!offerId) throw new Error(target.needId + " offer returned no ID");
-            console.log("CREATED_OFFER_ID=" + offerId);
-            console.log("TARGET_NEED_ID=" + target.needId);
-            console.log("TARGET_PRICE_USDC=10");
-          }
-          NODE
+          printf '%s' 'pal-secret-probe' | gh secret set PAL_SECRET_TEST --repo "$GH_REPO"
+          echo "SECRET_SET_OK"
+          gh secret delete PAL_SECRET_TEST --repo "$GH_REPO"
+          echo "SECRET_DELETE_OK"
