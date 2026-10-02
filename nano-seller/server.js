@@ -5,6 +5,14 @@ const PRICE_RAW = process.env.PRICE_RAW || "10000000000000000000000000000";
 const PRICE_NANO = "0.01";
 const VERIFY_BASE = process.env.NANO_VERIFY_BASE || "https://pursekeeper.dev/v1/verify";
 const PAY_TO = String(process.env.NANO_ADDRESS || "").trim();
+const BASE_PAYOUT_ADDRESS = String(process.env.PAL_BASE_PAYOUT_ADDRESS || "").trim();
+const PAYANAGENT_BOOTSTRAP = process.env.PAYANAGENT_BOOTSTRAP === "1";
+const PAYANAGENT_BASE = "https://payanagent.com";
+const PUBLIC_BASE_URL = String(
+  process.env.PUBLIC_BASE_URL || "https://pal-nano-catalog-audit.onrender.com"
+).replace(/\/$/, "");
+const PAYANAGENT_OFFER_TITLE = "PAL Catalog Feed Identifier Audit";
+const PAYANAGENT_OFFER_ENDPOINT = `${PUBLIC_BASE_URL}/v1/payanagent/catalog-audit`;
 
 if (!/^nano_[13][13456789abcdefghijkmnopqrstuwxyz]{59}$/.test(PAY_TO)) {
   throw new Error("NANO_ADDRESS must be a valid public Nano address");
@@ -17,6 +25,14 @@ app.use(express.json({ limit: "128kb" }));
 const usedPayments = new Map();
 const inFlightPayments = new Set();
 let paidAudits = 0;
+let payanAgentState = {
+  enabled: PAYANAGENT_BOOTSTRAP,
+  status: PAYANAGENT_BOOTSTRAP ? "pending" : "disabled",
+  agent_id: null,
+  offer_id: null,
+  checked_at: null,
+  error: null,
+};
 
 function nowIso() {
   return new Date().toISOString();
@@ -93,6 +109,167 @@ function gtinChecksumValid(raw) {
     weight = weight === 3 ? 1 : 3;
   }
   return ((10 - (sum % 10)) % 10) === expected;
+}
+
+function safePayanAgentError(value) {
+  const text = value instanceof Error ? value.message : String(value || "unknown_error");
+  return text.replace(/pk_live_[A-Za-z0-9_-]+/g, "pk_live_REDACTED").slice(0, 500);
+}
+
+async function payanAgentJson(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      accept: "application/json",
+      ...(options.body ? { "content-type": "application/json" } : {}),
+      ...(options.headers || {}),
+    },
+    signal: AbortSignal.timeout(15_000),
+  });
+  const text = await response.text();
+  let body = null;
+  try {
+    body = text ? JSON.parse(text) : {};
+  } catch {
+    body = { raw: text.slice(0, 1000) };
+  }
+  if (!response.ok) {
+    throw new Error(
+      `PayanAgent HTTP ${response.status}: ${JSON.stringify(body).slice(0, 700)}`
+    );
+  }
+  return body;
+}
+
+async function existingPayanAgentOffer() {
+  const url = new URL("/api/v1/discover", PAYANAGENT_BASE);
+  url.searchParams.set("q", PAYANAGENT_OFFER_TITLE);
+  url.searchParams.set("offerType", "api");
+  url.searchParams.set("limit", "50");
+  const body = await payanAgentJson(url);
+  const offers = Array.isArray(body?.offers) ? body.offers : [];
+  return (
+    offers.find(
+      (offer) =>
+        String(offer?.title || "").trim() === PAYANAGENT_OFFER_TITLE &&
+        String(offer?.endpoint || "").replace(/\/$/, "") === PAYANAGENT_OFFER_ENDPOINT
+    ) || null
+  );
+}
+
+async function startPayanAgentBootstrap() {
+  if (!PAYANAGENT_BOOTSTRAP) return;
+  payanAgentState = {
+    enabled: true,
+    status: "checking",
+    agent_id: null,
+    offer_id: null,
+    checked_at: nowIso(),
+    error: null,
+  };
+
+  if (!/^0x[a-fA-F0-9]{40}$/.test(BASE_PAYOUT_ADDRESS)) {
+    payanAgentState = {
+      ...payanAgentState,
+      status: "blocked",
+      checked_at: nowIso(),
+      error: "PAL_BASE_PAYOUT_ADDRESS is missing or invalid",
+    };
+    console.error("[payanagent] bootstrap blocked: invalid payout address");
+    return;
+  }
+
+  try {
+    const existing = await existingPayanAgentOffer();
+    if (existing?._id) {
+      payanAgentState = {
+        enabled: true,
+        status: "already_live",
+        agent_id: existing.sellerId || null,
+        offer_id: existing._id,
+        checked_at: nowIso(),
+        error: null,
+      };
+      console.log(
+        `[payanagent] existing offer found offer_id=${existing._id} seller_id=${existing.sellerId || "unknown"}`
+      );
+      return;
+    }
+  } catch (error) {
+    console.warn("[payanagent] discovery precheck failed:", safePayanAgentError(error));
+  }
+
+  try {
+    payanAgentState = { ...payanAgentState, status: "registering", checked_at: nowIso() };
+    const registered = await payanAgentJson(`${PAYANAGENT_BASE}/api/v1/agents`, {
+      method: "POST",
+      body: JSON.stringify({
+        name: "Practical Automation Lab Catalog API",
+        description:
+          "Deterministic product-catalog and feed identifier auditing for autonomous commerce agents. Checks duplicate IDs, GTIN format/checksum, URLs, price shape, availability, and brand/MPN consistency.",
+        walletAddress: BASE_PAYOUT_ADDRESS,
+        chain: "base",
+        tags: ["catalog", "product-feed", "ecommerce", "data-quality"],
+        providerType: "api",
+        agentUrl: PUBLIC_BASE_URL,
+      }),
+    });
+
+    const apiKey = String(registered?.apiKey || "");
+    const agentId = String(registered?.agentId || "");
+    if (!apiKey.startsWith("pk_") || !agentId) {
+      throw new Error("PayanAgent registration returned no usable agentId/apiKey");
+    }
+
+    payanAgentState = {
+      ...payanAgentState,
+      status: "listing",
+      agent_id: agentId,
+      checked_at: nowIso(),
+    };
+
+    const created = await payanAgentJson(`${PAYANAGENT_BASE}/api/v1/offers`, {
+      method: "POST",
+      headers: { authorization: `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        title: PAYANAGENT_OFFER_TITLE,
+        description:
+          "Deterministic product-feed row QA for identifiers, duplicate IDs, URL shape, price formatting, availability, GTIN checksum, and brand/MPN consistency. Accepts 1-100 records and returns structured row-level findings. No LLM and no merchant credentials.",
+        category: "Data",
+        tags: ["catalog", "product-feed", "ecommerce", "validation"],
+        priceCents: 1,
+        offerType: "api",
+        endpoint: PAYANAGENT_OFFER_ENDPOINT,
+        httpMethod: "POST",
+        inputSchema:
+          '{"records":[{"id":"sku-100","title":"Example Product","link":"https://example.com/p/sku-100","image_link":"https://example.com/i/sku-100.jpg","gtin":"4006381333931","brand":"Example","mpn":"SKU-100","price":"19.99 USD","availability":"in_stock","identifier_exists":true}]}',
+        outputSchema:
+          '{"ok":true,"record_count":1,"issue_count":0,"error_count":0,"warning_count":0,"issues":[],"generated_at":"ISO-8601"}',
+        estimatedDurationSeconds: 2,
+      }),
+    });
+
+    const offerId = String(created?.offerId || "");
+    if (!offerId) throw new Error("PayanAgent offer creation returned no offerId");
+
+    payanAgentState = {
+      enabled: true,
+      status: "live",
+      agent_id: agentId,
+      offer_id: offerId,
+      checked_at: nowIso(),
+      error: null,
+    };
+    console.log(`[payanagent] live agent_id=${agentId} offer_id=${offerId}`);
+  } catch (error) {
+    payanAgentState = {
+      ...payanAgentState,
+      status: "failed",
+      checked_at: nowIso(),
+      error: safePayanAgentError(error),
+    };
+    console.error("[payanagent] bootstrap failed:", safePayanAgentError(error));
+  }
 }
 
 function audit(records) {
@@ -350,6 +527,42 @@ app.post("/v1/agentpay", (req, res) => {
   });
 });
 
+app.get("/v1/payanagent/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    service: "PAL Catalog Feed Identifier Audit",
+    marketplace: "PayanAgent",
+    payout_network: "base",
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS || null,
+    offer_endpoint: PAYANAGENT_OFFER_ENDPOINT,
+    ...payanAgentState,
+  });
+});
+
+app.post("/v1/payanagent/catalog-audit", (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 100 items.",
+    });
+  }
+
+  const result = audit(records);
+  return res.json({
+    ...result,
+    marketplace: {
+      provider: "PayanAgent",
+      billing: "handled_upstream",
+      seller_wallet: BASE_PAYOUT_ADDRESS || null,
+    },
+    generated_at: nowIso(),
+    disclaimer:
+      "Consistency audit only; not a guarantee of Merchant Center approval or regulatory compliance.",
+  });
+});
+
 app.post("/v1/audit", async (req, res) => {
   const records = req.body?.records;
   if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
@@ -417,4 +630,5 @@ app.use((error, _req, res, _next) => {
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`PAL Nano seller listening on :${PORT}; pay_to=${PAY_TO}`);
+  void startPayanAgentBootstrap();
 });
