@@ -31,6 +31,11 @@ const AGENT402_BOOTSTRAP = process.env.AGENT402_BOOTSTRAP === "1";
 const AGENT402_REGISTER_URL = "https://agent402.tools/api/index/register";
 const INDEX402_BOOTSTRAP = process.env.INDEX402_BOOTSTRAP === "1";
 const INDEX402_REGISTER_URL = "https://402index.io/api/v1/register";
+const INDEX402_CLAIM_BOOTSTRAP = process.env.INDEX402_CLAIM_BOOTSTRAP === "1";
+const INDEX402_CLAIM_URL = "https://402index.io/api/v1/claim";
+const INDEX402_CLAIM_VERIFY_URL = "https://402index.io/api/v1/claim/verify";
+const INDEX402_SERVICE_ID = "760dafd0-10d1-4db9-9688-efbd184cb46f";
+const INDEX402_DOMAIN = "pal-nano-catalog-audit.onrender.com";
 const X402SCOUT_BOOTSTRAP = process.env.X402SCOUT_BOOTSTRAP === "1";
 const X402SCOUT_REGISTER_URL = "https://x402scout.com/register";
 const AGENTTOOLS_BOOTSTRAP = process.env.AGENTTOOLS_BOOTSTRAP === "1";
@@ -147,6 +152,17 @@ let index402State = {
   checked_at: null,
   service: null,
   verification: null,
+  error: null,
+};
+let index402VerificationHash = "";
+let index402ClaimState = {
+  enabled: INDEX402_CLAIM_BOOTSTRAP,
+  status: INDEX402_CLAIM_BOOTSTRAP ? "pending" : "disabled",
+  checked_at: null,
+  domain_verified: false,
+  services_count: null,
+  service_updated: false,
+  service: null,
   error: null,
 };
 let x402ScoutState = {
@@ -752,6 +768,172 @@ async function startIndex402Bootstrap() {
   }
 }
 
+async function startIndex402ClaimBootstrap() {
+  if (!INDEX402_CLAIM_BOOTSTRAP) return;
+
+  let verificationToken = "";
+  index402ClaimState = {
+    enabled: true,
+    status: "claiming",
+    checked_at: nowIso(),
+    domain_verified: false,
+    services_count: null,
+    service_updated: false,
+    service: null,
+    error: null,
+  };
+
+  try {
+    const claimResponse = await fetch(INDEX402_CLAIM_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({
+        domain: INDEX402_DOMAIN,
+        contact_email: "enricoaboujaoude@gmail.com",
+      }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const claimRaw = await claimResponse.text();
+    let claimBody = {};
+    try {
+      claimBody = claimRaw ? JSON.parse(claimRaw) : {};
+    } catch {
+      claimBody = { raw: claimRaw.slice(0, 1200) };
+    }
+    if (!claimResponse.ok) {
+      if (claimResponse.status === 409) {
+        index402ClaimState = {
+          ...index402ClaimState,
+          status: "already_verified",
+          checked_at: nowIso(),
+          domain_verified: true,
+          error: null,
+        };
+        return;
+      }
+      throw new Error(
+        `402 Index claim HTTP ${claimResponse.status}: ${JSON.stringify(claimBody).slice(0, 1000)}`
+      );
+    }
+
+    verificationToken = String(claimBody?.verification_token || "").trim();
+    index402VerificationHash = String(claimBody?.verification_hash || "").trim();
+    if (!/^[a-fA-F0-9]{64}$/.test(verificationToken)) {
+      throw new Error("402 Index claim returned no valid verification token");
+    }
+    if (!/^[a-fA-F0-9]{64}$/.test(index402VerificationHash)) {
+      throw new Error("402 Index claim returned no valid verification hash");
+    }
+
+    index402ClaimState = {
+      ...index402ClaimState,
+      status: "verifying",
+      checked_at: nowIso(),
+    };
+
+    // Give the public edge a moment to observe the in-memory .well-known hash.
+    await new Promise((resolve) => setTimeout(resolve, 3_000));
+
+    const verifyResponse = await fetch(INDEX402_CLAIM_VERIFY_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ domain: INDEX402_DOMAIN }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const verifyRaw = await verifyResponse.text();
+    let verifyBody = {};
+    try {
+      verifyBody = verifyRaw ? JSON.parse(verifyRaw) : {};
+    } catch {
+      verifyBody = { raw: verifyRaw.slice(0, 1200) };
+    }
+    if (!verifyResponse.ok && verifyResponse.status !== 409) {
+      throw new Error(
+        `402 Index verification HTTP ${verifyResponse.status}: ${JSON.stringify(verifyBody).slice(0, 1000)}`
+      );
+    }
+
+    const verified =
+      verifyResponse.ok
+        ? String(verifyBody?.status || "").toLowerCase() === "verified"
+        : verifyResponse.status === 409;
+    if (!verified) {
+      throw new Error(
+        `402 Index verification did not confirm domain: ${JSON.stringify(verifyBody).slice(0, 1000)}`
+      );
+    }
+
+    index402ClaimState = {
+      ...index402ClaimState,
+      status: "updating_service",
+      checked_at: nowIso(),
+      domain_verified: true,
+      services_count: Number.isFinite(Number(verifyBody?.services_count))
+        ? Number(verifyBody.services_count)
+        : null,
+    };
+
+    const patchResponse = await fetch(
+      `https://402index.io/api/v1/services/${INDEX402_SERVICE_ID}`,
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json", accept: "application/json" },
+        body: JSON.stringify({
+          domain: INDEX402_DOMAIN,
+          verification_token: verificationToken,
+          name: "PAL Catalog Feed Identifier Audit",
+          description:
+            "Deterministic Google Merchant Center and product-feed identifier audit for 1-100 catalog records: duplicate IDs, GTIN format/checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+          category: "ecommerce/catalog-validation",
+          price_usd: 0.01,
+          payment_asset: "USDC",
+          payment_network: "Base",
+        }),
+        signal: AbortSignal.timeout(30_000),
+      }
+    );
+    const patchRaw = await patchResponse.text();
+    let patchBody = {};
+    try {
+      patchBody = patchRaw ? JSON.parse(patchRaw) : {};
+    } catch {
+      patchBody = { raw: patchRaw.slice(0, 1200) };
+    }
+    if (!patchResponse.ok) {
+      throw new Error(
+        `402 Index service update HTTP ${patchResponse.status}: ${JSON.stringify(patchBody).slice(0, 1000)}`
+      );
+    }
+
+    index402ClaimState = {
+      enabled: true,
+      status: "verified",
+      checked_at: nowIso(),
+      domain_verified: true,
+      services_count: Number.isFinite(Number(verifyBody?.services_count))
+        ? Number(verifyBody.services_count)
+        : null,
+      service_updated: true,
+      service: patchBody?.service || patchBody?.data || patchBody || null,
+      error: null,
+    };
+    console.log(
+      `[402index] domain verified domain=${INDEX402_DOMAIN} service=${INDEX402_SERVICE_ID}`
+    );
+  } catch (error) {
+    index402ClaimState = {
+      ...index402ClaimState,
+      status: "failed",
+      checked_at: nowIso(),
+      error: safePayanAgentError(error),
+    };
+    console.error("[402index] domain claim failed:", safePayanAgentError(error));
+  } finally {
+    // The raw token is intentionally never logged or exposed by an endpoint.
+    verificationToken = "";
+  }
+}
+
 async function startX402ScoutBootstrap() {
   if (!X402SCOUT_BOOTSTRAP) return;
   x402ScoutState = {
@@ -1159,6 +1341,24 @@ app.get("/v1/agent402/status", (_req, res) => {
   });
 });
 
+app.get("/.well-known/402index-verify.txt", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  if (!index402VerificationHash) {
+    return res.status(404).type("text/plain").send("verification_not_ready");
+  }
+  return res.type("text/plain").send(index402VerificationHash);
+});
+
+app.get("/v1/402index/claim-status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    marketplace: "402 Index",
+    domain: INDEX402_DOMAIN,
+    service_id: INDEX402_SERVICE_ID,
+    ...index402ClaimState,
+  });
+});
+
 app.get("/v1/402index/status", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({
@@ -1456,6 +1656,7 @@ app.listen(PORT, "0.0.0.0", () => {
   void startPayanAgentBootstrap();
   setTimeout(() => void startAgent402Bootstrap(), 4_000);
   setTimeout(() => void startIndex402Bootstrap(), 8_000);
+  setTimeout(() => void startIndex402ClaimBootstrap(), 20_000);
   setTimeout(() => void startX402ScoutBootstrap(), 12_000);
   setTimeout(() => void startAgentToolsBootstrap(), 16_000);
   setTimeout(() => void startOpenDexterAuditionBootstrap(), 24_000);
