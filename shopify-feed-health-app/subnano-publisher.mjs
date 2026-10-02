@@ -1,4 +1,7 @@
 const SUBNANO_BASE_URL = "https://subnano.me/api/v1";
+const SUBNANO_PROFILE_NAME = "Practical Automation Lab";
+const SUBNANO_PROFILE_HANDLE = "practicalautomationlab";
+const SUBNANO_PROFILE_FALLBACK_HANDLE = "practical_automation_lab";
 const FIRST_POST_TITLE =
   "Three Nano-Paid Commerce APIs in Production: What PAL Learned Building for x402";
 const FIRST_POST_SLUG =
@@ -466,9 +469,12 @@ async function subnanoRequest(path, options = {}, fetchImpl = fetch) {
       data?.error ||
       data?.message ||
       `HTTP ${response.status}`;
-    throw new Error(
+    const error = new Error(
       `Subnano ${path} failed (${response.status}): ${String(detail).slice(0, 240)}`,
     );
+    error.status = response.status;
+    error.data = data;
+    throw error;
   }
   return data;
 }
@@ -479,6 +485,65 @@ export async function declareSubnanoAgent(fetchImpl = fetch) {
     { method: "POST" },
     fetchImpl,
   );
+}
+
+async function patchSubnanoProfile(handle, fetchImpl = fetch) {
+  return subnanoRequest(
+    "/profile",
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: SUBNANO_PROFILE_NAME,
+        handle,
+      }),
+    },
+    fetchImpl,
+  );
+}
+
+export async function ensureSubnanoProfile(fetchImpl = fetch) {
+  const current = await subnanoRequest(
+    "/profile",
+    { method: "GET" },
+    fetchImpl,
+  );
+
+  if (
+    current?.name === SUBNANO_PROFILE_NAME &&
+    [SUBNANO_PROFILE_HANDLE, SUBNANO_PROFILE_FALLBACK_HANDLE].includes(
+      current?.handle,
+    )
+  ) {
+    return {
+      status: "already_configured",
+      name: current.name,
+      handle: current.handle,
+    };
+  }
+
+  try {
+    const updated = await patchSubnanoProfile(
+      SUBNANO_PROFILE_HANDLE,
+      fetchImpl,
+    );
+    return {
+      status: "updated",
+      name: updated?.name || SUBNANO_PROFILE_NAME,
+      handle: updated?.handle || SUBNANO_PROFILE_HANDLE,
+    };
+  } catch (error) {
+    if (error?.status !== 409) throw error;
+    const updated = await patchSubnanoProfile(
+      SUBNANO_PROFILE_FALLBACK_HANDLE,
+      fetchImpl,
+    );
+    return {
+      status: "updated_fallback",
+      name: updated?.name || SUBNANO_PROFILE_NAME,
+      handle: updated?.handle || SUBNANO_PROFILE_FALLBACK_HANDLE,
+    };
+  }
 }
 
 async function listPosts(status, fetchImpl = fetch) {
@@ -646,11 +711,18 @@ export function startSubnanoPublisher() {
     return;
   }
 
-  void Promise.all([
-    ensureFirstSubnanoPost(),
-    ensureSecondSubnanoPost(),
-  ])
-    .then(([first, second]) => {
+  void ensureSubnanoProfile()
+    .then((profile) =>
+      Promise.all([
+        Promise.resolve(profile),
+        ensureFirstSubnanoPost(),
+        ensureSecondSubnanoPost(),
+      ]),
+    )
+    .then(([profile, first, second]) => {
+      console.log(
+        `[subnano] profile state=${profile.status} name=${profile.name} handle=@${profile.handle}`,
+      );
       console.log(
         `[subnano] first paid post state=${first.status} post_id=${first.postId || "unknown"} url=${first.url || "unknown"}`,
       );
