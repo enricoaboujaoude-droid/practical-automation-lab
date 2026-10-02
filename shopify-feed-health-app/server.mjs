@@ -12,6 +12,7 @@ import { startTaskmarketScout } from "./taskmarket-scout.mjs";
 import { startNearMarketAgent } from "./near-market-agent.mjs";
 import { startSubnanoPublisher } from "./subnano-publisher.mjs";
 import { startAgenticTradeReferralPublisher } from "./agentictrade-referral-publisher.mjs";
+import { startX402ExpansionReportPublisher } from "./x402-expansion-report-publisher.mjs";
 import {
   APIHUB_AUDIT_PATH,
   APIHUB_OPENAPI_PATH,
@@ -134,4 +135,5 @@ app.listen(port, host, () => {
   startNearMarketAgent();
   startSubnanoPublisher();
   startAgenticTradeReferralPublisher();
+  startX402ExpansionReportPublisher();
 });
