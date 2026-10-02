@@ -26,7 +26,11 @@ const X402_FACILITATOR_URL = String(
   process.env.X402_FACILITATOR_URL || "https://facilitator.payai.network"
 ).replace(/\/$/, "");
 const X402_AUDIT_PATH = "/v1/usdc/catalog-audit";
+const X402_GTIN_PATH = "/v1/usdc/gtin-check";
+const X402_FEED_DIFF_PATH = "/v1/usdc/feed-diff";
 const X402_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_AUDIT_PATH}`;
+const X402_GTIN_URL = `${PUBLIC_BASE_URL}${X402_GTIN_PATH}`;
+const X402_FEED_DIFF_URL = `${PUBLIC_BASE_URL}${X402_FEED_DIFF_PATH}`;
 const AGENT402_BOOTSTRAP = process.env.AGENT402_BOOTSTRAP === "1";
 const AGENT402_REGISTER_URL = "https://agent402.tools/api/index/register";
 const INDEX402_BOOTSTRAP = process.env.INDEX402_BOOTSTRAP === "1";
@@ -70,12 +74,7 @@ app.use(
     {
       "POST /v1/usdc/catalog-audit": {
         accepts: [
-          {
-            scheme: "exact",
-            price: USDC_X402_PRICE,
-            network: USDC_X402_NETWORK,
-            payTo: BASE_PAYOUT_ADDRESS,
-          },
+          { scheme: "exact", price: USDC_X402_PRICE, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
         ],
         description:
           "Google Merchant Center and Google Shopping product-feed audit for 1-100 catalog records: duplicate IDs, GTIN validation/checksum, URLs, prices, availability, and brand/MPN consistency.",
@@ -124,6 +123,75 @@ app.use(
           }),
         },
       },
+      "POST /v1/usdc/gtin-check": {
+        accepts: [
+          { scheme: "exact", price: USDC_X402_PRICE, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
+        ],
+        description:
+          "Validate up to 100 GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 identifiers including check digits.",
+        mimeType: "application/json",
+        serviceName: "PAL GTIN Check",
+        tags: ["gtin", "upc", "ean", "identifier", "ecommerce", "validation"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: { gtins: ["4006381333931", "036000291452"] },
+            inputSchema: {
+              type: "object",
+              properties: {
+                gtins: {
+                  type: "array",
+                  minItems: 1,
+                  maxItems: 100,
+                  items: { anyOf: [{ type: "string" }, { type: "number" }] },
+                },
+              },
+              required: ["gtins"],
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL GTIN Check",
+                summary: { checked: 2, valid: 2, invalid: 0 },
+                results: [],
+              },
+            },
+          }),
+        },
+      },
+      "POST /v1/usdc/feed-diff": {
+        accepts: [
+          { scheme: "exact", price: USDC_X402_PRICE, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
+        ],
+        description:
+          "Compare two product-feed snapshots and return added, removed, and changed commerce fields for up to 100 rows per side.",
+        mimeType: "application/json",
+        serviceName: "PAL Feed Diff",
+        tags: ["catalog", "product-feed", "feed-diff", "ecommerce", "change-detection"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              before: [{ id: "sku-1", price: "19.99 USD", availability: "in_stock" }],
+              after: [{ id: "sku-1", price: "17.99 USD", availability: "in_stock" }],
+            },
+            inputSchema: {
+              type: "object",
+              properties: {
+                before: { type: "array", maxItems: 100, items: { type: "object", additionalProperties: true } },
+                after: { type: "array", maxItems: 100, items: { type: "object", additionalProperties: true } },
+              },
+              required: ["before", "after"],
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL Feed Diff",
+                summary: { before_rows: 1, after_rows: 1, added: 0, removed: 0, changed: 1, unchanged: 0 },
+                changed: [{ id: "sku-1", changes: [{ field: "price", before: "19.99 USD", after: "17.99 USD" }] }],
+              },
+            },
+          }),
+        },
+      },
     },
     usdcResourceServer,
   ),
@@ -133,6 +201,8 @@ const usedPayments = new Map();
 const inFlightPayments = new Set();
 let paidAudits = 0;
 let usdcPaidAudits = 0;
+let usdcPaidGtinChecks = 0;
+let usdcPaidFeedDiffs = 0;
 let payanAgentState = {
   enabled: PAYANAGENT_BOOTSTRAP,
   status: PAYANAGENT_BOOTSTRAP ? "pending" : "disabled",
@@ -494,16 +564,33 @@ function true402Manifest() {
       facilitator: X402_FACILITATOR_URL,
     },
     endpoint: X402_AUDIT_URL,
+    endpoints: [
+      { name: "PAL Catalog Feed Identifier Audit", endpoint: X402_AUDIT_URL, method: "POST", price: "0.01" },
+      { name: "PAL GTIN Check", endpoint: X402_GTIN_URL, method: "POST", price: "0.01" },
+      { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
+    ],
   };
 }
 
 function x402Manifest() {
+  const commonAccepts = [
+    {
+      scheme: "exact",
+      network: X402_NETWORK,
+      asset: X402_ASSET,
+      amount: X402_PRICE_ATOMIC,
+      payTo: BASE_PAYOUT_ADDRESS,
+      maxTimeoutSeconds: 60,
+      extra: { name: "USD Coin", version: "2" },
+    },
+  ];
+
   return {
     spec: "agent402-service-manifest/1",
     version: 1,
     name: "Practical Automation Lab",
     summary:
-      "Deterministic Google Merchant Center, Google Shopping, merchant-feed, product-feed, catalog and GTIN validation for autonomous commerce agents.",
+      "Deterministic commerce-data utilities for autonomous agents: product-feed audits, GTIN validation, and feed snapshot diffing.",
     homepage: PUBLIC_BASE_URL,
     repository:
       "https://github.com/enricoaboujaoude-droid/practical-automation-lab/tree/nano-seller/nano-seller",
@@ -519,25 +606,43 @@ function x402Manifest() {
           type: "object",
           required: ["records"],
           properties: {
-            records: {
-              type: "array",
-              minItems: 1,
-              maxItems: 100,
-              items: { type: "object" },
-            },
+            records: { type: "array", minItems: 1, maxItems: 100, items: { type: "object" } },
           },
         },
-        accepts: [
-          {
-            scheme: "exact",
-            network: X402_NETWORK,
-            asset: X402_ASSET,
-            amount: X402_PRICE_ATOMIC,
-            payTo: BASE_PAYOUT_ADDRESS,
-            maxTimeoutSeconds: 60,
-            extra: { name: "USD Coin", version: "2" },
+        accepts: commonAccepts,
+      },
+      {
+        resource: X402_GTIN_URL,
+        name: "PAL GTIN Check",
+        description:
+          "Validate up to 100 GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 identifiers including check digits.",
+        method: "POST",
+        price: X402_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["gtins"],
+          properties: {
+            gtins: { type: "array", minItems: 1, maxItems: 100, items: {} },
           },
-        ],
+        },
+        accepts: commonAccepts,
+      },
+      {
+        resource: X402_FEED_DIFF_URL,
+        name: "PAL Feed Diff",
+        description:
+          "Compare two product-feed snapshots and return added, removed, and changed commerce fields for up to 100 rows per side.",
+        method: "POST",
+        price: X402_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["before", "after"],
+          properties: {
+            before: { type: "array", maxItems: 100, items: { type: "object" } },
+            after: { type: "array", maxItems: 100, items: { type: "object" } },
+          },
+        },
+        accepts: commonAccepts,
       },
     ],
     payment: {
@@ -549,7 +654,17 @@ function x402Manifest() {
         payTo: BASE_PAYOUT_ADDRESS,
       },
     },
-    capabilities: { tools: 1, categories: ["commerce", "merchant-feed", "product-feed", "catalog-validation", "gtin"] },
+    capabilities: {
+      tools: 3,
+      categories: [
+        "commerce",
+        "merchant-feed",
+        "product-feed",
+        "catalog-validation",
+        "gtin",
+        "feed-diff",
+      ],
+    },
     machineReadable: {
       openapi: `${PUBLIC_BASE_URL}/openapi.json`,
       status: `${PUBLIC_BASE_URL}/v1/agent402/status`,
@@ -558,13 +673,24 @@ function x402Manifest() {
 }
 
 function x402OpenApi() {
+  const paymentInfo = {
+    protocol: "x402",
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_PRICE_ATOMIC,
+    price: X402_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
+
   return {
     openapi: "3.1.0",
     info: {
-      title: "PAL Catalog Feed Identifier Audit",
-      version: "1.0.0",
+      title: "PAL Commerce Data x402 API",
+      version: "1.1.0",
       description:
-        "Deterministic Google Merchant Center / Google Shopping product-feed and catalog validation paid per call with x402 Base USDC.",
+        "Deterministic commerce-data utilities paid per call with x402 Base USDC: catalog audit, GTIN validation, and product-feed diff.",
     },
     servers: [{ url: PUBLIC_BASE_URL }],
     paths: {
@@ -572,8 +698,6 @@ function x402OpenApi() {
         post: {
           operationId: "auditCatalogFeedIdentifiers",
           summary: "Google Merchant Center and product feed audit",
-          description:
-            "Validate 1-100 merchant/catalog feed records before Google Merchant Center or Google Shopping submission: duplicate IDs, GTIN validation/checksum, URLs, price formatting, availability, and brand/MPN consistency.",
           tags: ["ecommerce", "merchant-feed", "google-shopping", "catalog-validation", "gtin"],
           requestBody: {
             required: true,
@@ -596,37 +720,76 @@ function x402OpenApi() {
             },
           },
           responses: {
-            "200": {
-              description: "Structured audit result after successful payment.",
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "object",
-                    properties: {
-                      ok: { type: "boolean" },
-                      record_count: { type: "integer" },
-                      issue_count: { type: "integer" },
-                      error_count: { type: "integer" },
-                      warning_count: { type: "integer" },
-                      issues: { type: "array", items: { type: "object" } },
-                    },
-                  },
-                },
-              },
-            },
+            "200": { description: "Structured audit result after successful payment." },
             "400": { description: "Invalid catalog payload." },
             "402": { description: "x402 payment required." },
           },
-          "x-payment-info": {
-            protocol: "x402",
-            version: 2,
-            scheme: "exact",
-            network: X402_NETWORK,
-            asset: X402_ASSET,
-            amount: X402_PRICE_ATOMIC,
-            price: X402_PRICE_USD,
-            payTo: BASE_PAYOUT_ADDRESS,
+          "x-payment-info": paymentInfo,
+        },
+      },
+      [X402_GTIN_PATH]: {
+        post: {
+          operationId: "validateGtins",
+          summary: "Validate GTIN/UPC/EAN identifiers",
+          tags: ["ecommerce", "gtin", "upc", "ean", "validation"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["gtins"],
+                  properties: {
+                    gtins: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 100,
+                      items: { anyOf: [{ type: "string" }, { type: "number" }] },
+                    },
+                  },
+                },
+                example: { gtins: ["4006381333931", "036000291452"] },
+              },
+            },
           },
+          responses: {
+            "200": { description: "GTIN validation result after successful payment." },
+            "400": { description: "Invalid GTIN payload." },
+            "402": { description: "x402 payment required." },
+          },
+          "x-payment-info": paymentInfo,
+        },
+      },
+      [X402_FEED_DIFF_PATH]: {
+        post: {
+          operationId: "diffProductFeedSnapshots",
+          summary: "Compare product-feed snapshots",
+          tags: ["ecommerce", "product-feed", "change-detection"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["before", "after"],
+                  properties: {
+                    before: { type: "array", maxItems: 100, items: { type: "object", additionalProperties: true } },
+                    after: { type: "array", maxItems: 100, items: { type: "object", additionalProperties: true } },
+                  },
+                },
+                example: {
+                  before: [{ id: "sku-1", price: "19.99 USD", availability: "in_stock" }],
+                  after: [{ id: "sku-1", price: "17.99 USD", availability: "in_stock" }],
+                },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "Feed diff after successful payment." },
+            "400": { description: "Invalid feed-diff payload." },
+            "402": { description: "x402 payment required." },
+          },
+          "x-payment-info": paymentInfo,
         },
       },
     },
@@ -1370,6 +1533,131 @@ async function startMarket402Bootstrap() {
 }
 
 
+const FEED_DIFF_FIELDS = [
+  "title",
+  "link",
+  "image_link",
+  "price",
+  "availability",
+  "brand",
+  "gtin",
+  "mpn",
+];
+
+function gtinCheckDigit(digitsWithoutCheck) {
+  let sum = 0;
+  let positionFromRight = 0;
+  for (let index = digitsWithoutCheck.length - 1; index >= 0; index -= 1) {
+    const weight = positionFromRight % 2 === 0 ? 3 : 1;
+    sum += Number(digitsWithoutCheck[index]) * weight;
+    positionFromRight += 1;
+  }
+  return String((10 - (sum % 10)) % 10);
+}
+
+function inspectGtin(input) {
+  const normalized = String(input).trim().replace(/[\s-]+/g, "");
+  const numeric = /^\d+$/.test(normalized);
+  const validLength = [8, 12, 13, 14].includes(normalized.length);
+  if (!numeric || !validLength) {
+    return {
+      input: String(input),
+      normalized,
+      length: normalized.length,
+      valid_length: validLength,
+      checksum_valid: false,
+      valid: false,
+      reason: !numeric
+        ? "GTIN must contain digits only (spaces and hyphens are ignored)."
+        : "GTIN length must be 8, 12, 13, or 14 digits.",
+    };
+  }
+  const expected = gtinCheckDigit(normalized.slice(0, -1));
+  const actual = normalized.at(-1);
+  const checksumValid = expected === actual;
+  return {
+    input: String(input),
+    normalized,
+    length: normalized.length,
+    valid_length: true,
+    check_digit_expected: expected,
+    check_digit_actual: actual,
+    checksum_valid: checksumValid,
+    valid: checksumValid,
+    reason: checksumValid ? null : "GTIN check digit does not match.",
+  };
+}
+
+function gtinCheck(gtins) {
+  const results = gtins.map(inspectGtin);
+  const valid = results.filter((item) => item.valid).length;
+  return {
+    service: "PAL GTIN Check",
+    generated_at: nowIso(),
+    summary: { checked: results.length, valid, invalid: results.length - valid },
+    results,
+  };
+}
+
+function feedRowError(rows, label) {
+  if (!Array.isArray(rows) || rows.length > 100) {
+    return `${label} must be an array with at most 100 rows.`;
+  }
+  const seen = new Set();
+  for (let index = 0; index < rows.length; index += 1) {
+    const row = rows[index];
+    if (!row || typeof row !== "object" || Array.isArray(row)) {
+      return `${label}[${index}] must be an object.`;
+    }
+    const id = String(row.id ?? "").trim();
+    if (!id) return `${label}[${index}].id is required.`;
+    if (seen.has(id)) return `${label} contains duplicate id "${id}".`;
+    seen.add(id);
+  }
+  return null;
+}
+
+function feedFieldValue(row, field) {
+  if (!(field in row) || row[field] === null || row[field] === undefined) return null;
+  if (typeof row[field] === "string") return row[field].trim();
+  if (typeof row[field] === "number" || typeof row[field] === "boolean") return row[field];
+  return JSON.stringify(row[field]);
+}
+
+function feedDiff(beforeRows, afterRows) {
+  const before = new Map(beforeRows.map((row) => [String(row.id).trim(), row]));
+  const after = new Map(afterRows.map((row) => [String(row.id).trim(), row]));
+  const added = [...after.keys()].filter((id) => !before.has(id)).sort();
+  const removed = [...before.keys()].filter((id) => !after.has(id)).sort();
+  const changed = [];
+
+  for (const id of [...before.keys()].filter((key) => after.has(key)).sort()) {
+    const changes = [];
+    for (const field of FEED_DIFF_FIELDS) {
+      const oldValue = feedFieldValue(before.get(id), field);
+      const newValue = feedFieldValue(after.get(id), field);
+      if (oldValue !== newValue) changes.push({ field, before: oldValue, after: newValue });
+    }
+    if (changes.length) changed.push({ id, changes });
+  }
+
+  return {
+    service: "PAL Feed Diff",
+    generated_at: nowIso(),
+    summary: {
+      before_rows: beforeRows.length,
+      after_rows: afterRows.length,
+      added: added.length,
+      removed: removed.length,
+      changed: changed.length,
+      unchanged: [...before.keys()].filter((id) => after.has(id)).length - changed.length,
+    },
+    added_ids: added,
+    removed_ids: removed,
+    changed,
+  };
+}
+
 function audit(records) {
   const issues = [];
   const ids = new Map();
@@ -1509,7 +1797,11 @@ app.get("/", (_req, res) => {
     description:
       "Deterministic product-catalog identifier and feed consistency audit, paid in Nano.",
     paid_endpoint: "POST /v1/audit",
-    base_usdc_paid_endpoint: "POST /v1/usdc/catalog-audit",
+    base_usdc_paid_endpoints: [
+      "POST /v1/usdc/catalog-audit",
+      "POST /v1/usdc/gtin-check",
+      "POST /v1/usdc/feed-diff",
+    ],
     agentpay_endpoint: "POST /v1/agentpay",
     free_endpoints: ["GET /health", "GET /v1/price", "GET /v1/stats"],
     limits: { records_per_audit: 100, request_body: "128kb" },
@@ -1693,6 +1985,8 @@ app.get("/v1/stats", (_req, res) => {
   res.json({
     paid_audits_since_process_start: paidAudits,
     usdc_x402_paid_audits_since_process_start: usdcPaidAudits,
+    usdc_x402_paid_gtin_checks_since_process_start: usdcPaidGtinChecks,
+    usdc_x402_paid_feed_diffs_since_process_start: usdcPaidFeedDiffs,
     payment_hashes_consumed_since_process_start: usedPayments.size,
     uptime_seconds: Math.floor(process.uptime()),
   });
@@ -1816,6 +2110,72 @@ app.post("/v1/usdc/catalog-audit", (req, res) => {
     generated_at: nowIso(),
     disclaimer:
       "Consistency audit only; not a guarantee of Merchant Center approval or regulatory compliance.",
+  });
+});
+
+app.post("/v1/usdc/gtin-check", (req, res) => {
+  const gtins = req.body?.gtins;
+  if (!Array.isArray(gtins) || gtins.length < 1 || gtins.length > 100) {
+    return res.status(400).json({
+      error: "invalid_gtins",
+      detail: "Body must contain gtins as an array with 1 to 100 values.",
+    });
+  }
+  for (let index = 0; index < gtins.length; index += 1) {
+    const value = gtins[index];
+    if (!["string", "number"].includes(typeof value) || String(value).trim() === "") {
+      return res.status(400).json({
+        error: "invalid_gtins",
+        detail: `gtins[${index}] must be a non-empty string or number.`,
+      });
+    }
+  }
+
+  usdcPaidGtinChecks += 1;
+  console.log(
+    `[revenue] usdc_x402_gtin_check served price_usd=0.01 network=${USDC_X402_NETWORK} count=${usdcPaidGtinChecks}`
+  );
+
+  return res.json({
+    ...gtinCheck(gtins),
+    payment: {
+      verified_by: "x402",
+      network: USDC_X402_NETWORK,
+      asset: "USDC",
+      price_usd: USDC_X402_PRICE,
+      pay_to: BASE_PAYOUT_ADDRESS,
+      facilitator: "PayAI",
+    },
+  });
+});
+
+app.post("/v1/usdc/feed-diff", (req, res) => {
+  const beforeError = feedRowError(req.body?.before, "before");
+  if (beforeError) return res.status(400).json({ error: "invalid_feed", detail: beforeError });
+  const afterError = feedRowError(req.body?.after, "after");
+  if (afterError) return res.status(400).json({ error: "invalid_feed", detail: afterError });
+  if (req.body.before.length + req.body.after.length < 1) {
+    return res.status(400).json({
+      error: "invalid_feed",
+      detail: "At least one feed snapshot must contain a row.",
+    });
+  }
+
+  usdcPaidFeedDiffs += 1;
+  console.log(
+    `[revenue] usdc_x402_feed_diff served price_usd=0.01 network=${USDC_X402_NETWORK} count=${usdcPaidFeedDiffs}`
+  );
+
+  return res.json({
+    ...feedDiff(req.body.before, req.body.after),
+    payment: {
+      verified_by: "x402",
+      network: USDC_X402_NETWORK,
+      asset: "USDC",
+      price_usd: USDC_X402_PRICE,
+      pay_to: BASE_PAYOUT_ADDRESS,
+      facilitator: "PayAI",
+    },
   });
 });
 
