@@ -236,7 +236,7 @@ The endpoint already existed. The experiment was purely about distribution.
 Four surfaces produced useful progress:
 
 - **Agent402** listed the PAL seller and one paid tool.
-- **agent-tools.cloud** already had the endpoint listed and returned an `already_listed` result on a fresh production bootstrap.
+- **agent-tools.cloud** already had the endpoint listed and returned an 'already_listed' result on a fresh production bootstrap.
 - **402 Index** accepted a self-registration for review.
 - **AgenticTrade** already had the PAL Catalog Feed Auditor active as a paid service.
 
@@ -256,7 +256,7 @@ That distinction matters. Creating a new service adds code, monitoring, document
 
 The production endpoint used for the Base-USDC distribution experiment was:
 
-`https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-audit`
+'https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-audit'
 
 Its listed price on the direct Base-USDC path was **$0.01 per call**.
 
@@ -280,7 +280,7 @@ Directory registration must be auxiliary infrastructure, never a dependency for 
 
 The same production boot checked agent-tools.cloud.
 
-The response was `already_listed`.
+The response was 'already_listed'.
 
 That is a healthy outcome. A bootstrap should not create duplicates every time a free host restarts. It should converge on one listing and treat "already present" as success.
 
@@ -292,7 +292,7 @@ For autonomous deployment, this is more valuable than a one-time manual form bec
 
 PAL enabled the existing registration bootstrap and a fresh production deployment returned:
 
-`status=registered`
+'status=registered'
 
 That is intentionally not described as "publicly approved" or "payment-verified".
 
