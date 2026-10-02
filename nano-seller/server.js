@@ -25,7 +25,7 @@ const X402_PRICE_ATOMIC = "10000";
 const X402_FACILITATOR_URL = String(
   process.env.X402_FACILITATOR_URL || "https://facilitator.payai.network"
 ).replace(/\/$/, "");
-const X402_AUDIT_PATH = "/v1/x402/catalog-audit";
+const X402_AUDIT_PATH = "/v1/usdc/catalog-audit";
 const X402_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_AUDIT_PATH}`;
 const AGENT402_BOOTSTRAP = process.env.AGENT402_BOOTSTRAP === "1";
 const AGENT402_REGISTER_URL = "https://agent402.tools/api/index/register";
@@ -43,31 +43,6 @@ if (!/^0x[a-fA-F0-9]{40}$/.test(BASE_PAYOUT_ADDRESS)) {
 const app = express();
 app.disable("x-powered-by");
 app.use(express.json({ limit: "128kb" }));
-
-const x402Server = new x402ResourceServer(
-  new HTTPFacilitatorClient({ url: X402_FACILITATOR_URL })
-).register(X402_NETWORK, new ExactEvmScheme());
-
-app.use(
-  paymentMiddleware(
-    {
-      [`POST ${X402_AUDIT_PATH}`]: {
-        accepts: [
-          {
-            scheme: "exact",
-            price: X402_PRICE_USD,
-            network: X402_NETWORK,
-            payTo: BASE_PAYOUT_ADDRESS,
-          },
-        ],
-        description:
-          "Deterministic product-feed identifier and consistency audit for up to 100 records.",
-        mimeType: "application/json",
-      },
-    },
-    x402Server,
-  ),
-);
 
 const usdcFacilitatorClient = new HTTPFacilitatorClient(facilitator);
 const usdcResourceServer = new x402ResourceServer(usdcFacilitatorClient)
@@ -93,16 +68,32 @@ app.use(
         extensions: {
           ...declareDiscoveryExtension({
             input: {
-              bodyType: "json",
-              bodyFields: {
+              records: [
+                {
+                  id: "sku-100",
+                  title: "Example Product",
+                  gtin: "4006381333931",
+                  brand: "Example",
+                  mpn: "SKU-100",
+                  price: "19.99 USD",
+                  availability: "in_stock",
+                  identifier_exists: true,
+                },
+              ],
+            },
+            inputSchema: {
+              type: "object",
+              properties: {
                 records: {
                   type: "array",
-                  required: true,
-                  description:
-                    "1-100 product records with fields such as id, title, link, image_link, gtin, brand, mpn, price, availability, identifier_exists.",
+                  minItems: 1,
+                  maxItems: 100,
+                  items: { type: "object", additionalProperties: true },
                 },
               },
+              required: ["records"],
             },
+            bodyType: "json",
             output: {
               example: {
                 ok: true,
@@ -545,7 +536,8 @@ async function startAgent402Bootstrap() {
   };
 
   try {
-    const probe = await fetch(X402_AUDIT_URL, {
+    const localProbeUrl = `http://127.0.0.1:${PORT}${X402_AUDIT_PATH}`;
+    const probe = await fetch(localProbeUrl, {
       method: "POST",
       headers: { "content-type": "application/json", accept: "application/json" },
       body: JSON.stringify(catalogAuditExample()),
@@ -557,8 +549,39 @@ async function startAgent402Bootstrap() {
     if (probe.status !== 402 || !challenge) {
       const body = await probe.text();
       throw new Error(
-        `x402 preflight expected HTTP 402 + PAYMENT-REQUIRED, got ${probe.status}: ${body.slice(0, 300)}`
+        `x402 local preflight expected HTTP 402 + PAYMENT-REQUIRED, got ${probe.status}: ${body.slice(0, 300)}`
       );
+    }
+
+    agent402State = {
+      ...agent402State,
+      status: "waiting_public",
+      checked_at: nowIso(),
+    };
+
+    let publicReady = false;
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 4_000));
+      try {
+        const manifestResponse = await fetch(`${PUBLIC_BASE_URL}/.well-known/x402`, {
+          headers: { accept: "application/json" },
+          signal: AbortSignal.timeout(10_000),
+        });
+        const manifest = manifestResponse.ok ? await manifestResponse.json() : null;
+        publicReady =
+          manifestResponse.ok &&
+          Array.isArray(manifest?.resources) &&
+          manifest.resources.some(
+            (resource) =>
+              String(resource?.resource || resource?.url || "") === X402_AUDIT_URL
+          );
+        if (publicReady) break;
+      } catch {
+        // Render may still be switching the public hostname to this instance.
+      }
+    }
+    if (!publicReady) {
+      throw new Error("public x402 manifest did not become ready before registration");
     }
 
     agent402State = {
@@ -963,31 +986,6 @@ app.post("/v1/payanagent/catalog-audit", (req, res) => {
   });
 });
 
-app.post(X402_AUDIT_PATH, (req, res) => {
-  const records = req.body?.records;
-  if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
-    return res.status(400).json({
-      error: "invalid_records",
-      detail: "Body must contain records as an array with 1 to 100 items.",
-    });
-  }
-
-  const result = audit(records);
-  return res.json({
-    ...result,
-    payment: {
-      protocol: "x402",
-      network: X402_NETWORK,
-      asset: "USDC",
-      price_usd: 0.01,
-      pay_to: BASE_PAYOUT_ADDRESS,
-    },
-    generated_at: nowIso(),
-    disclaimer:
-      "Consistency audit only; not a guarantee of Merchant Center approval or regulatory compliance.",
-  });
-});
-
 app.post("/v1/audit", async (req, res) => {
   const records = req.body?.records;
   if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
@@ -1056,5 +1054,5 @@ app.use((error, _req, res, _next) => {
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`PAL Nano seller listening on :${PORT}; pay_to=${PAY_TO}`);
   void startPayanAgentBootstrap();
-  setTimeout(() => void startAgent402Bootstrap(), 2_000);
+  setTimeout(() => void startAgent402Bootstrap(), 4_000);
 });
