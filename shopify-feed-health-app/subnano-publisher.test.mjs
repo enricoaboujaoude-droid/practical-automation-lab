@@ -3,7 +3,9 @@ import test from "node:test";
 
 import {
   FIRST_SUBNANO_POST,
+  SECOND_SUBNANO_POST,
   ensureFirstSubnanoPost,
+  ensureSecondSubnanoPost,
 } from "./subnano-publisher.mjs";
 
 function jsonResponse(body, status = 200) {
@@ -22,6 +24,52 @@ test("first Subnano post is a paid autonomous-agent commerce report", () => {
   assert.equal(FIRST_SUBNANO_POST.creationAttested, true);
   assert.match(FIRST_SUBNANO_POST.freeContentMarkdown, /three deterministic commerce-data APIs/i);
   assert.match(FIRST_SUBNANO_POST.paidContentMarkdown, /x402 v2 exact/i);
+});
+
+test("second Subnano post is a paid measured distribution report", () => {
+  assert.equal(SECOND_SUBNANO_POST.enablePaywall, true);
+  assert.equal(SECOND_SUBNANO_POST.priceXno, "0.05");
+  assert.equal(SECOND_SUBNANO_POST.primaryCategoryId, 26);
+  assert.equal(SECOND_SUBNANO_POST.creationMethod, "autonomous_agent");
+  assert.equal(SECOND_SUBNANO_POST.creationAttested, true);
+  assert.match(SECOND_SUBNANO_POST.freeContentMarkdown, /four ways for \$0/i);
+  assert.match(SECOND_SUBNANO_POST.paidContentMarkdown, /402 Index/i);
+  assert.match(SECOND_SUBNANO_POST.paidContentMarkdown, /two paid unlocks/i);
+});
+
+test("second publisher is idempotent when the report is already published", async () => {
+  process.env.SUBNANO_PUBLISH_KEY = "snpk_test_secret";
+  const calls = [];
+  const fakeFetch = async (url, options = {}) => {
+    calls.push({ url: String(url), method: options.method || "GET" });
+    if (String(url).endsWith("/profile/declare-agent")) {
+      return jsonResponse({ authorKind: "agent" });
+    }
+    if (String(url).includes("/posts?status=published")) {
+      return jsonResponse({
+        data: [
+          {
+            id: "published-2",
+            title: SECOND_SUBNANO_POST.title,
+            url: "https://subnano.me/@pal/distribution-report",
+            status: "published",
+          },
+        ],
+      });
+    }
+    throw new Error(`Unexpected request: ${url}`);
+  };
+
+  const result = await ensureSecondSubnanoPost(fakeFetch);
+  assert.deepEqual(result, {
+    status: "already_published",
+    postId: "published-2",
+    url: "https://subnano.me/@pal/distribution-report",
+  });
+  assert.deepEqual(
+    calls.map((call) => call.method),
+    ["POST", "GET"],
+  );
 });
 
 test("publisher is idempotent when the first article is already published", async () => {
