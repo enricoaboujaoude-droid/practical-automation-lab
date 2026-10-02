@@ -10,7 +10,7 @@ import { startSuperteamScout } from "./superteam-agent.mjs";
 import { startBasedAgentsScout } from "./basedagents-scout.mjs";
 import { startTaskmarketScout } from "./taskmarket-scout.mjs";
 import { startNearMarketAgent } from "./near-market-agent.mjs";
-import { startSubnanoPublisher } from "./subnano-publisher.mjs";
+import { startSubnanoPublisher } from "./subnano-publisher.mjs";\nimport { startAgenticTradeReferralPublisher } from "./agentictrade-referral-publisher.mjs";
 import {
   APIHUB_AUDIT_PATH,
   APIHUB_OPENAPI_PATH,
@@ -131,5 +131,5 @@ app.listen(port, host, () => {
   startBasedAgentsScout();
   startTaskmarketScout();
   startNearMarketAgent();
-  startSubnanoPublisher();
+  startSubnanoPublisher();\n  startAgenticTradeReferralPublisher();
 });
