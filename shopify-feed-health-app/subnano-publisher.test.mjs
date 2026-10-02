@@ -6,6 +6,7 @@ import {
   SECOND_SUBNANO_POST,
   ensureFirstSubnanoPost,
   ensureSecondSubnanoPost,
+  ensureSubnanoProfile,
 } from "./subnano-publisher.mjs";
 
 function jsonResponse(body, status = 200) {
@@ -24,6 +25,71 @@ test("first Subnano post is a paid autonomous-agent commerce report", () => {
   assert.equal(FIRST_SUBNANO_POST.creationAttested, true);
   assert.match(FIRST_SUBNANO_POST.freeContentMarkdown, /three deterministic commerce-data APIs/i);
   assert.match(FIRST_SUBNANO_POST.paidContentMarkdown, /x402 v2 exact/i);
+});
+
+test("Subnano profile updater replaces the reserved default identity", async () => {
+  process.env.SUBNANO_PUBLISH_KEY = "snpk_test_secret";
+  const calls = [];
+  const fakeFetch = async (url, options = {}) => {
+    const request = {
+      url: String(url),
+      method: options.method || "GET",
+      body: options.body || null,
+    };
+    calls.push(request);
+    if (request.url.endsWith("/profile") && request.method === "GET") {
+      return jsonResponse({ name: "New User", handle: "user_2167d2da" });
+    }
+    if (request.url.endsWith("/profile") && request.method === "PATCH") {
+      const body = JSON.parse(request.body);
+      assert.equal(body.name, "Practical Automation Lab");
+      assert.equal(body.handle, "practicalautomationlab");
+      return jsonResponse(body);
+    }
+    throw new Error(`Unexpected request: ${request.url}`);
+  };
+
+  const result = await ensureSubnanoProfile(fakeFetch);
+  assert.deepEqual(result, {
+    status: "updated",
+    name: "Practical Automation Lab",
+    handle: "practicalautomationlab",
+  });
+  assert.deepEqual(
+    calls.map((call) => call.method),
+    ["GET", "PATCH"],
+  );
+});
+
+test("Subnano profile updater falls back when the preferred handle is taken", async () => {
+  process.env.SUBNANO_PUBLISH_KEY = "snpk_test_secret";
+  let patchCount = 0;
+  const fakeFetch = async (url, options = {}) => {
+    const requestUrl = String(url);
+    const method = options.method || "GET";
+    if (requestUrl.endsWith("/profile") && method === "GET") {
+      return jsonResponse({ name: "New User", handle: "user_2167d2da" });
+    }
+    if (requestUrl.endsWith("/profile") && method === "PATCH") {
+      patchCount += 1;
+      const body = JSON.parse(options.body);
+      if (patchCount === 1) {
+        assert.equal(body.handle, "practicalautomationlab");
+        return jsonResponse({ detail: "handle taken" }, 409);
+      }
+      assert.equal(body.handle, "practical_automation_lab");
+      return jsonResponse(body);
+    }
+    throw new Error(`Unexpected request: ${requestUrl}`);
+  };
+
+  const result = await ensureSubnanoProfile(fakeFetch);
+  assert.deepEqual(result, {
+    status: "updated_fallback",
+    name: "Practical Automation Lab",
+    handle: "practical_automation_lab",
+  });
+  assert.equal(patchCount, 2);
 });
 
 test("second Subnano post is a paid measured distribution report", () => {
