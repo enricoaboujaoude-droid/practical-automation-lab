@@ -35,6 +35,8 @@ const X402SCOUT_BOOTSTRAP = process.env.X402SCOUT_BOOTSTRAP === "1";
 const X402SCOUT_REGISTER_URL = "https://x402scout.com/register";
 const AGENTTOOLS_BOOTSTRAP = process.env.AGENTTOOLS_BOOTSTRAP === "1";
 const AGENTTOOLS_REGISTER_URL = "https://agent-tools.cloud/api/v1/submit";
+const OPENDEXTER_AUDITION_BOOTSTRAP = process.env.OPENDEXTER_AUDITION_BOOTSTRAP === "1";
+const OPENDEXTER_AUDITION_URL = "https://x402.dexter.cash/api/public/discoverable";
 const USDC_X402_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-audit`;
 const USDC_X402_PRICE = "$0.01";
 const USDC_X402_NETWORK = "eip155:8453";
@@ -161,6 +163,15 @@ let agentToolsState = {
   registered: false,
   checked_at: null,
   service: null,
+  error: null,
+};
+let openDexterAuditionState = {
+  enabled: OPENDEXTER_AUDITION_BOOTSTRAP,
+  status: OPENDEXTER_AUDITION_BOOTSTRAP ? "pending" : "disabled",
+  checked_at: null,
+  ok: false,
+  summary: null,
+  routes: [],
   error: null,
 };
 
@@ -879,6 +890,83 @@ async function startAgentToolsBootstrap() {
   }
 }
 
+async function startOpenDexterAuditionBootstrap() {
+  if (!OPENDEXTER_AUDITION_BOOTSTRAP) return;
+
+  openDexterAuditionState = {
+    enabled: true,
+    status: "auditioning",
+    checked_at: nowIso(),
+    ok: false,
+    summary: null,
+    routes: [],
+    error: null,
+  };
+
+  try {
+    // A specific endpoint URL requests OpenDexter's immediate server-funded
+    // paid verification. This does not use PAL's payout wallet as a payer.
+    const response = await fetch(OPENDEXTER_AUDITION_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+        "accept-encoding": "identity",
+      },
+      body: JSON.stringify({ url: X402_AUDIT_URL }),
+      signal: AbortSignal.timeout(120_000),
+      redirect: "manual",
+    });
+
+    const raw = await response.text();
+    let body = {};
+    try {
+      body = raw ? JSON.parse(raw) : {};
+    } catch {
+      body = { raw: raw.slice(0, 1600) };
+    }
+
+    if (!response.ok || body?.ok !== true) {
+      throw new Error(
+        `OpenDexter audition HTTP ${response.status}: ${JSON.stringify(body).slice(0, 1400)}`
+      );
+    }
+
+    openDexterAuditionState = {
+      enabled: true,
+      status: "completed",
+      checked_at: nowIso(),
+      ok: true,
+      summary: body?.summary || null,
+      routes: Array.isArray(body?.routes)
+        ? body.routes.map((route) => ({
+            url: route?.url || null,
+            registered: route?.registered ?? null,
+            auditOutcome: route?.auditOutcome || null,
+            score: Number.isFinite(route?.score) ? route.score : null,
+            verdict: route?.verdict || null,
+            shareUrl: route?.shareUrl || null,
+            incompleteReason: route?.incompleteReason || null,
+          }))
+        : [],
+      error: null,
+    };
+
+    console.log(
+      `[opendexter] audition route=${X402_AUDIT_URL} ok=true scored=${openDexterAuditionState.routes.filter((r) => Number.isFinite(r.score)).length}`
+    );
+  } catch (error) {
+    openDexterAuditionState = {
+      ...openDexterAuditionState,
+      status: "failed",
+      checked_at: nowIso(),
+      ok: false,
+      error: safePayanAgentError(error),
+    };
+    console.error("[opendexter] audition failed:", safePayanAgentError(error));
+  }
+}
+
 function audit(records) {
   const issues = [];
   const ids = new Map();
@@ -1113,6 +1201,20 @@ app.get("/v1/agenttools/status", (_req, res) => {
     payout_address: BASE_PAYOUT_ADDRESS,
     directory: "https://agent-tools.cloud",
     ...agentToolsState,
+  });
+});
+
+app.get("/v1/opendexter/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    service: "PAL Catalog Feed Identifier Audit",
+    marketplace: "x402gle / OpenDexter",
+    route: X402_AUDIT_PATH,
+    price_usd: 0.01,
+    payout_network: X402_NETWORK,
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    ...openDexterAuditionState,
   });
 });
 
@@ -1356,4 +1458,5 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startIndex402Bootstrap(), 8_000);
   setTimeout(() => void startX402ScoutBootstrap(), 12_000);
   setTimeout(() => void startAgentToolsBootstrap(), 16_000);
+  setTimeout(() => void startOpenDexterAuditionBootstrap(), 24_000);
 });
