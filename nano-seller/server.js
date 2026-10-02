@@ -29,6 +29,8 @@ const X402_AUDIT_PATH = "/v1/usdc/catalog-audit";
 const X402_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_AUDIT_PATH}`;
 const AGENT402_BOOTSTRAP = process.env.AGENT402_BOOTSTRAP === "1";
 const AGENT402_REGISTER_URL = "https://agent402.tools/api/index/register";
+const INDEX402_BOOTSTRAP = process.env.INDEX402_BOOTSTRAP === "1";
+const INDEX402_REGISTER_URL = "https://402index.io/api/v1/register";
 const USDC_X402_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-audit`;
 const USDC_X402_PRICE = "$0.01";
 const USDC_X402_NETWORK = "eip155:8453";
@@ -130,6 +132,15 @@ let agent402State = {
   listed: false,
   checked_at: null,
   seller: null,
+  error: null,
+};
+let index402State = {
+  enabled: INDEX402_BOOTSTRAP,
+  status: INDEX402_BOOTSTRAP ? "pending" : "disabled",
+  registered: false,
+  checked_at: null,
+  service: null,
+  verification: null,
   error: null,
 };
 
@@ -634,6 +645,82 @@ async function startAgent402Bootstrap() {
   }
 }
 
+async function startIndex402Bootstrap() {
+  if (!INDEX402_BOOTSTRAP) return;
+  index402State = {
+    enabled: true,
+    status: "registering",
+    registered: false,
+    checked_at: nowIso(),
+    service: null,
+    verification: null,
+    error: null,
+  };
+
+  try {
+    const payload = {
+      url: X402_AUDIT_URL,
+      name: "PAL Catalog Feed Identifier Audit",
+      protocol: "x402",
+      http_method: "POST",
+      probe_body: JSON.stringify(catalogAuditExample()),
+      description:
+        "Deterministic product-feed identifier and consistency audit for 1-100 catalog records: duplicate IDs, GTIN checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+      price_usd: 0.01,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      category: "ecommerce/data-quality",
+      provider: "Practical Automation Lab",
+    };
+
+    const response = await fetch(INDEX402_REGISTER_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(45_000),
+    });
+
+    const raw = await response.text();
+    let body = {};
+    try {
+      body = raw ? JSON.parse(raw) : {};
+    } catch {
+      body = { raw: raw.slice(0, 1200) };
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `402 Index registration HTTP ${response.status}: ${JSON.stringify(body).slice(0, 1000)}`
+      );
+    }
+
+    index402State = {
+      enabled: true,
+      status: body?.status || "registered",
+      registered: true,
+      checked_at: nowIso(),
+      service: body?.service || body?.listing || body?.data || null,
+      verification: body?.probe || body?.verification || null,
+      error: null,
+    };
+    console.log(
+      `[402index] registered route=${X402_AUDIT_URL} status=${index402State.status}`
+    );
+  } catch (error) {
+    index402State = {
+      ...index402State,
+      status: "failed",
+      registered: false,
+      checked_at: nowIso(),
+      error: safePayanAgentError(error),
+    };
+    console.error("[402index] bootstrap failed:", safePayanAgentError(error));
+  }
+}
+
 function audit(records) {
   const issues = [];
   const ids = new Map();
@@ -823,6 +910,21 @@ app.get("/v1/agent402/status", (_req, res) => {
     payout_address: BASE_PAYOUT_ADDRESS,
     facilitator: X402_FACILITATOR_URL,
     ...agent402State,
+  });
+});
+
+app.get("/v1/402index/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    service: "PAL Catalog Feed Identifier Audit",
+    marketplace: "402 Index",
+    route: X402_AUDIT_PATH,
+    price_usd: 0.01,
+    payout_network: X402_NETWORK,
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    directory: "https://402index.io",
+    ...index402State,
   });
 });
 
@@ -1063,4 +1165,5 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(`PAL Nano seller listening on :${PORT}; pay_to=${PAY_TO}`);
   void startPayanAgentBootstrap();
   setTimeout(() => void startAgent402Bootstrap(), 4_000);
+  setTimeout(() => void startIndex402Bootstrap(), 8_000);
 });
