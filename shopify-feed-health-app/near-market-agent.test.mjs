@@ -5,6 +5,7 @@ import {
   parseNearMarketAutoBidJobIds,
   resolveNearMarketIntervalMs,
   runNearMarketAgent,
+  selectNearMarketObservedJobs,
   selectNearMarketPaidJobs,
 } from "./near-market-agent.mjs";
 
@@ -16,6 +17,40 @@ test("parseNearMarketAutoBidJobIds keeps only explicit job ids", () => {
     ` ${SAFE_JOB_A},,${SAFE_JOB_B} `,
   );
   assert.deepEqual([...ids], [SAFE_JOB_A, SAFE_JOB_B]);
+});
+
+test("selectNearMarketObservedJobs surfaces open zero-spend jobs without allowlisting", () => {
+  const observed = selectNearMarketObservedJobs(
+    [
+      {
+        jobId: "ordinary-paid-job",
+        title: "Build a deterministic report",
+        description: "Return a JSON report from public data.",
+        budgetAmount: "75",
+        budgetToken: "USD",
+        status: "open",
+      },
+      {
+        jobId: "spend-risk",
+        title: "Purchase a product and review it",
+        description: "Buy the item first.",
+        budgetAmount: "100",
+        budgetToken: "USD",
+        status: "open",
+      },
+      {
+        jobId: "closed-job",
+        title: "Closed work",
+        description: "No longer available.",
+        budgetAmount: "200",
+        budgetToken: "USD",
+        status: "closed",
+      },
+    ],
+    { minUsd: "5" },
+  );
+
+  assert.deepEqual(observed.map((job) => job.id), ["ordinary-paid-job"]);
 });
 
 test("selectNearMarketPaidJobs requires allowlist, floor, open status, and no spend risk", () => {
@@ -126,6 +161,7 @@ test("runNearMarketAgent submits only missing approved bids", async () => {
   });
 
   assert.equal(result.status, "ready");
+  assert.equal(result.observed.length, 2);
   assert.equal(result.candidates.length, 2);
   assert.deepEqual(
     result.bids.map((bid) => [bid.jobId, bid.status]),
