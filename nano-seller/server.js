@@ -42,6 +42,8 @@ const AGENTTOOLS_BOOTSTRAP = process.env.AGENTTOOLS_BOOTSTRAP === "1";
 const AGENTTOOLS_REGISTER_URL = "https://agent-tools.cloud/api/v1/submit";
 const OPENDEXTER_AUDITION_BOOTSTRAP = process.env.OPENDEXTER_AUDITION_BOOTSTRAP === "1";
 const OPENDEXTER_AUDITION_URL = "https://x402.dexter.cash/api/public/discoverable";
+const TRUE402_BOOTSTRAP = process.env.TRUE402_BOOTSTRAP === "1";
+const TRUE402_SERVICES_URL = "https://true402.dev/api/v1/services";
 const USDC_X402_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-audit`;
 const USDC_X402_PRICE = "$0.01";
 const USDC_X402_NETWORK = "eip155:8453";
@@ -188,6 +190,14 @@ let openDexterAuditionState = {
   ok: false,
   summary: null,
   routes: [],
+  error: null,
+};
+let true402State = {
+  enabled: TRUE402_BOOTSTRAP,
+  status: TRUE402_BOOTSTRAP ? "pending" : "disabled",
+  registered: false,
+  checked_at: null,
+  listing: null,
   error: null,
 };
 
@@ -445,6 +455,35 @@ function catalogAuditExample() {
         identifier_exists: true,
       },
     ],
+  };
+}
+
+function true402Manifest() {
+  return {
+    x402: "1.0",
+    name: "PAL Catalog Feed Identifier Audit",
+    description:
+      "Deterministic Google Merchant Center and product-feed audit for 1-100 catalog records: duplicate IDs, GTIN format/checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+    capabilities: [
+      "catalog",
+      "product-feed",
+      "merchant-center",
+      "google-shopping",
+      "gtin",
+      "validation",
+      "ecommerce",
+    ],
+    pricing: {
+      currency: "USDC",
+      base: "0.01",
+      unit: "request",
+    },
+    payment: {
+      address: BASE_PAYOUT_ADDRESS,
+      chain: "base-mainnet",
+      facilitator: X402_FACILITATOR_URL,
+    },
+    endpoint: X402_AUDIT_URL,
   };
 }
 
@@ -1149,6 +1188,103 @@ async function startOpenDexterAuditionBootstrap() {
   }
 }
 
+async function startTrue402Bootstrap() {
+  if (!TRUE402_BOOTSTRAP) return;
+
+  true402State = {
+    enabled: true,
+    status: "checking",
+    registered: false,
+    checked_at: nowIso(),
+    listing: null,
+    error: null,
+  };
+
+  try {
+    const listResponse = await fetch(TRUE402_SERVICES_URL, {
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!listResponse.ok) {
+      throw new Error(`true402 catalog HTTP ${listResponse.status}`);
+    }
+    const listBody = await listResponse.json();
+    const listings = Array.isArray(listBody?.data) ? listBody.data : [];
+    const existing =
+      listings.find(
+        (item) =>
+          String(item?.url || "").replace(/\/$/, "") === X402_AUDIT_URL ||
+          String(item?.manifest?.endpoint || "").replace(/\/$/, "") === X402_AUDIT_URL
+      ) || null;
+
+    if (existing) {
+      true402State = {
+        enabled: true,
+        status: "already_listed",
+        registered: true,
+        checked_at: nowIso(),
+        listing: existing,
+        error: null,
+      };
+      console.log(
+        `[true402] already listed route=${X402_AUDIT_URL} id=${existing.id || "unknown"}`
+      );
+      return;
+    }
+
+    true402State = {
+      ...true402State,
+      status: "registering",
+      checked_at: nowIso(),
+    };
+
+    const registerResponse = await fetch(TRUE402_SERVICES_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({ url: PUBLIC_BASE_URL }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const raw = await registerResponse.text();
+    let body = {};
+    try {
+      body = raw ? JSON.parse(raw) : {};
+    } catch {
+      body = { raw: raw.slice(0, 1200) };
+    }
+
+    if (!registerResponse.ok) {
+      throw new Error(
+        `true402 registration HTTP ${registerResponse.status}: ${JSON.stringify(body).slice(0, 1000)}`
+      );
+    }
+
+    true402State = {
+      enabled: true,
+      status: "registered",
+      registered: true,
+      checked_at: nowIso(),
+      listing: body?.service || body?.data || body || null,
+      error: null,
+    };
+    console.log(
+      `[true402] registered route=${X402_AUDIT_URL} id=${body?.id || body?.service?.id || body?.data?.id || "unknown"}`
+    );
+  } catch (error) {
+    true402State = {
+      ...true402State,
+      status: "failed",
+      registered: false,
+      checked_at: nowIso(),
+      error: safePayanAgentError(error),
+    };
+    console.error("[true402] bootstrap failed:", safePayanAgentError(error));
+  }
+}
+
+
 function audit(records) {
   const issues = [];
   const ids = new Map();
@@ -1321,6 +1457,11 @@ app.get("/.well-known/x402", (_req, res) => {
   res.json(x402Manifest());
 });
 
+app.get("/.well-known/x402-service.json", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.json(true402Manifest());
+});
+
 app.get("/openapi.json", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.json(x402OpenApi());
@@ -1415,6 +1556,21 @@ app.get("/v1/opendexter/status", (_req, res) => {
     payout_asset: "USDC",
     payout_address: BASE_PAYOUT_ADDRESS,
     ...openDexterAuditionState,
+  });
+});
+
+app.get("/v1/true402/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    service: "PAL Catalog Feed Identifier Audit",
+    marketplace: "true402",
+    route: X402_AUDIT_PATH,
+    price_usd: 0.01,
+    payout_network: X402_NETWORK,
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    directory: "https://true402.dev/catalog",
+    ...true402State,
   });
 });
 
@@ -1660,4 +1816,5 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startX402ScoutBootstrap(), 12_000);
   setTimeout(() => void startAgentToolsBootstrap(), 16_000);
   setTimeout(() => void startOpenDexterAuditionBootstrap(), 24_000);
+  setTimeout(() => void startTrue402Bootstrap(), 28_000);
 });
