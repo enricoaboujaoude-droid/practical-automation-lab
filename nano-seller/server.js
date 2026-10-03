@@ -2923,6 +2923,92 @@ app.post("/v1/gigsoul/catalog-audit", (req, res) => {
   });
 });
 
+app.post("/v1/gigsoul/gtin-check", (req, res) => {
+  const gtins = req.body?.gtins;
+  if (!Array.isArray(gtins) || gtins.length < 1 || gtins.length > 100) {
+    return res.status(400).json({
+      error: "invalid_gtins",
+      detail: "Body must contain gtins as an array with 1 to 100 values.",
+      example: { gtins: ["4006381333931", "036000291452"] },
+    });
+  }
+  for (let index = 0; index < gtins.length; index += 1) {
+    const value = gtins[index];
+    if (!["string", "number"].includes(typeof value) || String(value).trim() === "") {
+      return res.status(400).json({
+        error: "invalid_gtins",
+        detail: `gtins[${index}] must be a non-empty string or number.`,
+      });
+    }
+  }
+
+  const result = gtinCheck(gtins);
+  console.log(
+    `[revenue] gigsoul_gtin_check served billing=handled_upstream gtins=${gtins.length}`
+  );
+
+  return res.json({
+    ...result,
+    marketplace: {
+      provider: "GigSoul Agent Depot",
+      billing: "handled_upstream",
+      listed_price_usdc: "0.10",
+      seller_wallet: BASE_PAYOUT_ADDRESS,
+    },
+  });
+});
+
+app.post("/v1/gigsoul/feed-diff", (req, res) => {
+  const beforeError = feedRowError(req.body?.before, "before");
+  if (beforeError) return res.status(400).json({ error: "invalid_feed", detail: beforeError });
+  const afterError = feedRowError(req.body?.after, "after");
+  if (afterError) return res.status(400).json({ error: "invalid_feed", detail: afterError });
+  if (req.body.before.length + req.body.after.length < 1) {
+    return res.status(400).json({
+      error: "invalid_feed",
+      detail: "At least one feed snapshot must contain a row.",
+    });
+  }
+
+  const result = feedDiff(req.body.before, req.body.after);
+  console.log(
+    `[revenue] gigsoul_feed_diff served billing=handled_upstream before=${req.body.before.length} after=${req.body.after.length}`
+  );
+
+  return res.json({
+    ...result,
+    marketplace: {
+      provider: "GigSoul Agent Depot",
+      billing: "handled_upstream",
+      listed_price_usdc: "0.10",
+      seller_wallet: BASE_PAYOUT_ADDRESS,
+    },
+  });
+});
+
+app.post("/v1/gigsoul/x402-validate", (req, res) => {
+  const validation = validateX402DeclarationBody(req.body);
+  if (!validation.ok) {
+    return res.status(400).json({
+      error: "invalid_declaration",
+      detail: validation.error,
+    });
+  }
+
+  const result = inspectX402Declaration(req.body);
+  console.log("[revenue] gigsoul_x402_validate served billing=handled_upstream");
+
+  return res.json({
+    ...result,
+    marketplace: {
+      provider: "GigSoul Agent Depot",
+      billing: "handled_upstream",
+      listed_price_usdc: "0.10",
+      seller_wallet: BASE_PAYOUT_ADDRESS,
+    },
+  });
+});
+
 app.get("/v1/gigsoul/status", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({
@@ -2937,6 +3023,43 @@ app.get("/v1/gigsoul/status", (_req, res) => {
     payout_address: BASE_PAYOUT_ADDRESS,
     limits: { records_per_call: 100 },
     sample_input: catalogAuditExample(),
+    additional_services_ready_for_review: [
+      {
+        service: "PAL GTIN Check",
+        endpoint: `${PUBLIC_BASE_URL}/v1/gigsoul/gtin-check`,
+        method: "POST",
+        listed_price_usdc: "0.10",
+        sample_input: { gtins: ["4006381333931", "036000291452"] },
+      },
+      {
+        service: "PAL Feed Diff",
+        endpoint: `${PUBLIC_BASE_URL}/v1/gigsoul/feed-diff`,
+        method: "POST",
+        listed_price_usdc: "0.10",
+        sample_input: {
+          before: [{ id: "sku-1", price: "19.99 USD", availability: "in_stock" }],
+          after: [{ id: "sku-1", price: "17.99 USD", availability: "in_stock" }],
+        },
+      },
+      {
+        service: "PAL x402 Declaration Validator",
+        endpoint: `${PUBLIC_BASE_URL}/v1/gigsoul/x402-validate`,
+        method: "POST",
+        listed_price_usdc: "0.10",
+        sample_input: {
+          x402Version: 2,
+          resource: { url: `${PUBLIC_BASE_URL}/v1/usdc/catalog-audit` },
+          accepts: [{
+            scheme: "exact",
+            network: "eip155:8453",
+            amount: "10000",
+            asset: X402_ASSET,
+            payTo: BASE_PAYOUT_ADDRESS,
+            maxTimeoutSeconds: 60,
+          }],
+        },
+      },
+    ],
   });
 });
 
