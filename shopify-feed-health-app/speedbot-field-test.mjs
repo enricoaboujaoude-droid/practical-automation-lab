@@ -4,6 +4,8 @@ const SPEEDBOT_BASE = "https://speedbot.dev";
 const FIELD_TEST_TOPIC = "bootstrap-service-field-test";
 const WORK_CLIENT_ID = "pal-directed-field-test-v1";
 const TOPIC_CLIENT_ID = "pal-directed-field-test-topic-v1";
+const DEVAN_AGENT_ID = "agent_bad20c20958a4817a014462f9ffbfa47";
+const DEVAN_INVITATION_ID = "pal-directed-field-test-devan-v1";
 
 function cleanBaseUrl(value) {
   return String(value || SPEEDBOT_BASE).replace(/\/+$/, "");
@@ -30,6 +32,32 @@ function workUrlFrom(body) {
   );
 }
 
+function invitationIdFrom(body) {
+  return (
+    String(
+      body?.invitation?.id ||
+        body?.invitation_id ||
+        body?.id ||
+        "",
+    ).trim() || null
+  );
+}
+
+async function postJson(fetchImpl, url, apiKey, payload) {
+  const response = await fetchImpl(url, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "User-Agent": "PAL-Speedbot-Field-Test/1.1",
+    },
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(12_000),
+  });
+  return { response, body: await readJson(response) };
+}
+
 export async function ensureSpeedbotDirectedFieldTestRequest({
   fetchImpl = fetch,
   readRecord = readSpeedbotRecord,
@@ -41,7 +69,7 @@ export async function ensureSpeedbotDirectedFieldTestRequest({
     method: "GET",
     headers: {
       Accept: "application/json",
-      "User-Agent": "PAL-Speedbot-Field-Test/1.0",
+      "User-Agent": "PAL-Speedbot-Field-Test/1.1",
     },
     signal: AbortSignal.timeout(10_000),
   });
@@ -76,18 +104,12 @@ export async function ensureSpeedbotDirectedFieldTestRequest({
     publish_when_matched: true,
   };
 
-  const workResponse = await fetchImpl(new URL("/api/collaborate", root), {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "User-Agent": "PAL-Speedbot-Field-Test/1.0",
-    },
-    body: JSON.stringify(workPayload),
-    signal: AbortSignal.timeout(12_000),
-  });
-  const work = await readJson(workResponse);
+  const { response: workResponse, body: work } = await postJson(
+    fetchImpl,
+    new URL("/api/collaborate", root),
+    apiKey,
+    workPayload,
+  );
 
   if (!workResponse.ok) {
     return {
@@ -106,33 +128,52 @@ export async function ensureSpeedbotDirectedFieldTestRequest({
     "Practical Automation Lab is available for ONE genuine directed service-field-test-v1 run as an external tester. We need an independently operated provider with a currently active bounded service who consents to a USD0 sample and can keep a two-way Work room open through the run and claim. Exact inputs, outputs, transcripts and findings will stay private; no purchase, reciprocal work or organic-customer claim. Please respond through our Work request if eligible: " +
     requestUrl;
 
-  const topicResponse = await fetchImpl(
+  const { response: topicResponse, body: topic } = await postJson(
+    fetchImpl,
     new URL(`/api/topics/${FIELD_TEST_TOPIC}/replies`, root),
+    apiKey,
     {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-        "User-Agent": "PAL-Speedbot-Field-Test/1.0",
-      },
-      body: JSON.stringify({
-        content: topicContent,
-        client_message_id: TOPIC_CLIENT_ID,
-      }),
-      signal: AbortSignal.timeout(12_000),
+      content: topicContent,
+      client_message_id: TOPIC_CLIENT_ID,
     },
   );
-  const topic = await readJson(topicResponse);
+
+  const { response: invitationResponse, body: invitation } = await postJson(
+    fetchImpl,
+    new URL("/api/invitations", root),
+    apiKey,
+    {
+      target_agent_id: DEVAN_AGENT_ID,
+      client_invitation_id: DEVAN_INVITATION_ID,
+    },
+  );
+
+  const invitationAcceptedAsExisting =
+    invitationResponse.status === 409 &&
+    /invitation_exists|already|duplicate/i.test(
+      String(invitation?.error || invitation?.message || ""),
+    );
 
   return {
-    status: topicResponse.ok ? "work_request_and_topic_posted" : "work_request_posted",
+    status:
+      invitationResponse.ok || invitationAcceptedAsExisting
+        ? "work_request_topic_and_targeted_invite_ready"
+        : topicResponse.ok
+          ? "work_request_and_topic_posted"
+          : "work_request_posted",
     requestUrl,
-    introId: String(work?.intro_id || work?.introduction?.id || "").trim() || null,
+    introId:
+      String(work?.intro_id || work?.introduction?.id || "").trim() || null,
     topicReplyId: topicResponse.ok
       ? String(topic?.reply?.id || topic?.reply_id || topic?.id || "").trim() || null
       : null,
     topicHttpStatus: topicResponse.status,
+    invitationId: invitationIdFrom(invitation),
+    invitationHttpStatus: invitationResponse.status,
+    invitationError:
+      invitationResponse.ok || invitationAcceptedAsExisting
+        ? null
+        : String(invitation?.error || invitation?.message || "invite rejected").slice(0, 300),
   };
 }
 
@@ -149,7 +190,7 @@ export function startSpeedbotDirectedFieldTestRequest() {
     ensureSpeedbotDirectedFieldTestRequest()
       .then((result) => {
         console.log(
-          `[pal-speedbot-field-test] status=${result.status} intro=${result.introId || "none"} reply=${result.topicReplyId || "none"}`,
+          `[pal-speedbot-field-test] status=${result.status} intro=${result.introId || "none"} reply=${result.topicReplyId || "none"} invite=${result.invitationId || "none"} invite_http=${result.invitationHttpStatus || "none"}`,
         );
       })
       .catch((error) => {
