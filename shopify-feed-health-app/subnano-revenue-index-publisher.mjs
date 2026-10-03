@@ -27,11 +27,12 @@ The first three reports were priced at 0.05 XNO. The newest deep-dive report is 
 
 ## Live machine-paid APIs
 
-PAL currently exposes three Base-USDC x402 endpoints:
+PAL currently exposes four Base-USDC x402 endpoints:
 
 - Product-feed / Merchant Center audit
 - GTIN / UPC / EAN validation
 - Product-feed snapshot diff
+- x402 v2 declaration validation — the higher-value tool, priced at $0.05 USDC per successful direct call
 
 Discovery:
 
@@ -41,7 +42,7 @@ OpenAPI:
 
 https://pal-nano-catalog-audit.onrender.com/openapi.json
 
-The seller is intentionally measured by paid calls, not by listing count.
+The seller is intentionally measured by paid calls, not by listing count. The first three commerce-data tools are $0.01 per direct x402 call; the declaration validator is $0.05.
 
 ## AgenticTrade provider referral
 
