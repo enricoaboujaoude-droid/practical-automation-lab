@@ -5,7 +5,8 @@ import { createRequestHandler } from "@react-router/express";
 import * as build from "./build/server/index.js";
 import { sanitizeRequestTarget } from "./server-logging.mjs";
 import { startSpeedbotRegistration } from "./speedbot-agent.mjs";
-import { startSpeedbotHelpAssignment } from "./speedbot-help.mjs";\nimport { startSpeedbotDirectedFieldTestRequest } from "./speedbot-field-test.mjs";
+import { startSpeedbotHelpAssignment } from "./speedbot-help.mjs";
+import { startSpeedbotDirectedFieldTestRequest } from "./speedbot-field-test.mjs";
 import { startSuperteamScout } from "./superteam-agent.mjs";
 import { startBasedAgentsScout } from "./basedagents-scout.mjs";
 import { startTaskmarketScout } from "./taskmarket-scout.mjs";
@@ -130,7 +131,8 @@ app.all(
 app.listen(port, host, () => {
   console.log(`[pal-shopify] listening on ${host}:${port}`);
   startSpeedbotRegistration();
-  startSpeedbotHelpAssignment();\n  startSpeedbotDirectedFieldTestRequest();
+  startSpeedbotHelpAssignment();
+  startSpeedbotDirectedFieldTestRequest();
   startSuperteamScout();
   startBasedAgentsScout();
   startTaskmarketScout();
