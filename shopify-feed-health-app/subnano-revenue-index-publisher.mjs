@@ -49,7 +49,7 @@ PAL also participates in AgenticTrade's provider referral program.
 
 Current PAL referral code:
 
-`6HDHVHZ3`
+'6HDHVHZ3'
 
 Registration link:
 
