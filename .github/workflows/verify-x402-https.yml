@@ -1,0 +1,55 @@
+name: Verify x402 HTTPS resource metadata
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [nano-seller]
+    paths:
+      - "nano-seller/server.js"
+      - ".github/workflows/verify-x402-https.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install seller dependencies
+        run: npm install --prefix nano-seller --ignore-scripts
+      - name: Start seller behind forwarded HTTPS proxy metadata
+        shell: bash
+        env:
+          PORT: "10000"
+          NANO_ADDRESS: "nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr"
+          PAL_BASE_PAYOUT_ADDRESS: "0x3D7718d5D868AF1Daae41D757244DE73DF72FB53"
+          PUBLIC_BASE_URL: "https://pal-nano-catalog-audit.onrender.com"
+        run: |
+          set -euo pipefail
+          node nano-seller/server.js > /tmp/pal-seller.log 2>&1 &
+          echo $! > /tmp/pal-seller.pid
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:10000/health >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+      - name: Assert x402 resource URL stays HTTPS
+        shell: bash
+        run: |
+          set -euo pipefail
+          headers="$(mktemp)"
+          body="$(mktemp)"
+          code="$(curl -sS -D "$headers" -o "$body" -w '%{http_code}'             -X POST "http://127.0.0.1:10000/v1/usdc/catalog-audit"             -H "Host: pal-nano-catalog-audit.onrender.com"             -H "X-Forwarded-Proto: https"             -H "Content-Type: application/json"             --data '{"records":[{"id":"sku-100","title":"Example Product","gtin":"4006381333931","brand":"Example","mpn":"SKU-100","price":"19.99 USD","availability":"in_stock","identifier_exists":true}]}')"
+          test "$code" = "402"
+          payment="$(awk 'BEGIN{IGNORECASE=1} /^PAYMENT-REQUIRED:/ {sub(/^[^:]+:[[:space:]]*/, ""); gsub(/\r/,""); print; exit}' "$headers")"
+          test -n "$payment"
+          PAYMENT_REQUIRED="$payment" python3 - <<'PY'
+          import base64, json, os
+          raw=os.environ["PAYMENT_REQUIRED"]
+          raw += "=" * (-len(raw) % 4)
+          data=json.loads(base64.b64decode(raw).decode())
+          url=data["resource"]["url"]
+          print("resource.url=", url)
+          assert url == "https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-audit", url
+          PY
