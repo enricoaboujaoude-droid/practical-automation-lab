@@ -1,11 +1,7 @@
 name: Register PAL on ClawMerchants
 
 on:
-  push:
-    branches:
-      - nano-seller
-    paths:
-      - ".github/workflows/register-clawmerchants.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
