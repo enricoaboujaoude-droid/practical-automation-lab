@@ -131,12 +131,13 @@ export async function ensureSubnanoRevenueIndex(fetchImpl = fetch) {
   const published = await listPosts("published", fetchImpl);
   const existing = findByTitle(published);
   if (existing) {
+    const { slug: _publishedSlug, ...publishedPatch } = POST;
     const updated = await request(
       `/posts/${encodeURIComponent(existing.id)}`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(POST),
+        body: JSON.stringify(publishedPatch),
       },
       fetchImpl,
     );
