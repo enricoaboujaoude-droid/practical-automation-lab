@@ -272,6 +272,7 @@ app.use(
             },
           }),
         },
+      },
     },
     usdcResourceServer,
   ),
