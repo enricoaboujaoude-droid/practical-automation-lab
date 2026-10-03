@@ -1,0 +1,36 @@
+name: Register PAL on x402dash
+
+on:
+  push:
+    paths:
+      - ".github/workflows/register-x402dash.yml"
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Register PAL x402 endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          register() {
+            local url="$1"
+            local name="$2"
+            local description="$3"
+            local category="$4"
+            local tags="$5"
+
+            payload="$(jq -nc               --arg url "$url"               --arg name "$name"               --arg description "$description"               --arg category "$category"               --arg tags "$tags"               '{url:$url,name:$name,description:$description,category:$category,tags:($tags|split(",")),contact:"enricoaboujaoude@gmail.com"}')"
+
+            response="$(curl --fail-with-body --silent --show-error               --retry 2 --retry-delay 2               -X POST "https://api.x402dash.com/v1/register"               -H "Content-Type: application/json"               --data "$payload")"
+
+            echo "$name => $response"
+          }
+
+          register             "https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-audit"             "PAL Catalog Feed Identifier Audit"             "Deterministic Google Merchant Center and product-feed identifier audit for up to 100 records."             "ecommerce"             "catalog,product-feed,merchant-center,gtin,ecommerce"
+
+          register             "https://pal-nano-catalog-audit.onrender.com/v1/usdc/gtin-check"             "PAL GTIN Check"             "Validate GTIN-8, UPC/GTIN-12, GTIN-13 and GTIN-14 identifiers including checksums."             "ecommerce"             "gtin,upc,ean,ecommerce,validation"
+
+          register             "https://pal-nano-catalog-audit.onrender.com/v1/usdc/feed-diff"             "PAL Product Feed Diff"             "Compare two product-feed snapshots and return added, removed and changed commerce fields."             "ecommerce"             "product-feed,diff,ecommerce,change-detection"
+
+          register             "https://pal-nano-catalog-audit.onrender.com/v1/usdc/x402-validate"             "PAL x402 Declaration Validator"             "Statically validate x402 v2 payment declarations for protocol shape and Base-USDC readiness."             "developer-tools"             "x402,payments,validation,developer-tools,base"
