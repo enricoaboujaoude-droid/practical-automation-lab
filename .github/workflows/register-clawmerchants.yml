@@ -37,7 +37,7 @@ jobs:
               -H 'content-type: application/json' \
               --data "$body" || true)"
             echo "$name HTTP $code"
-            cat "$out"
+            jq 'if type == "object" then del(.apiKey) else . end' "$out" 2>/dev/null || cat "$out"
             echo
             if [[ "$code" != "200" && "$code" != "201" && "$code" != "409" ]]; then
               echo "$name failed with HTTP $code" >&2
