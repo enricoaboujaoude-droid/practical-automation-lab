@@ -34,3 +34,5 @@ jobs:
           register             "https://pal-nano-catalog-audit.onrender.com/v1/usdc/feed-diff"             "PAL Product Feed Diff"             "Compare two product-feed snapshots and return added, removed and changed commerce fields."             "ecommerce"             "product-feed,diff,ecommerce,change-detection"
 
           register             "https://pal-nano-catalog-audit.onrender.com/v1/usdc/x402-validate"             "PAL x402 Declaration Validator"             "Statically validate x402 v2 payment declarations for protocol shape and Base-USDC readiness."             "developer-tools"             "x402,payments,validation,developer-tools,base"
+
+# execute registration
