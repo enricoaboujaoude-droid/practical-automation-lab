@@ -747,6 +747,7 @@ function x402Manifest() {
         price: X402_VALIDATE_PRICE_USD,
         inputSchema: { type: "object", additionalProperties: true },
         accepts: validatorAccepts,
+      },
     ],
     payment: {
       x402: {
@@ -943,6 +944,7 @@ function x402OpenApi() {
           },
           "x-payment-info": validatorPaymentInfo,
         },
+      },
     },
   };
 }
@@ -2336,6 +2338,7 @@ app.get("/.well-known/agent.json", (_req, res) => {
         method: "POST",
         url: X402_VALIDATE_URL,
         price_usd: 0.05,
+      },
     ],
   });
 });
@@ -2850,6 +2853,7 @@ app.get("/v1/upstream/status", (_req, res) => {
         method: "POST",
         url: `${PUBLIC_BASE_URL}/v1/upstream/x402-validate`,
         scope: "static x402 v2 declaration validation",
+      },
     ],
   });
 });
