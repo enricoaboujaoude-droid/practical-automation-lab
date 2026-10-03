@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>PAL MiniA2A Wallet Signature</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:760px;margin:48px auto;padding:0 18px;line-height:1.55;color:#18181b}
+.card{border:1px solid #e4e4e7;border-radius:16px;padding:22px;margin:18px 0}
+button{font:inherit;font-weight:700;padding:11px 15px;border-radius:10px;border:1px solid #18181b;background:#18181b;color:#fff;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+code,textarea{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+textarea{width:100%;box-sizing:border-box;min-height:120px;padding:12px;border:1px solid #d4d4d8;border-radius:10px;resize:vertical}
+.status{padding:10px 12px;border-radius:10px;background:#f4f4f5;margin-top:12px;white-space:pre-wrap}
+.warn{font-weight:700}
+.small{font-size:.92rem;opacity:.75}
+</style>
+</head>
+<body>
+<h1>MiniA2A seller authorization</h1>
+<p>This page signs one fixed message with your existing PAL Base wallet. It does not request a transaction, move funds, ask for a private key, or send the signature anywhere.</p>
+<div class="card">
+<p><strong>Required wallet</strong><br><code id="wallet">0x3D7718d5D868AF1Daae41D757244DE73DF72FB53</code></p>
+<p><strong>Exact message</strong></p>
+<textarea id="message" readonly>minia2a publish: 0x3D7718d5D868AF1Daae41D757244DE73DF72FB53</textarea>
+<button id="sign">Connect wallet & sign</button>
+<div id="status" class="status">Ready.</div>
+</div>
+<div class="card">
+<p><strong>Signature</strong></p>
+<textarea id="signature" readonly placeholder="Your 0x… signature will appear here after signing."></textarea>
+<button id="copy" disabled>Copy signature</button>
+<p class="small">Send only this public signature back to ChatGPT. Never send your seed phrase or private key.</p>
+</div>
+<script>
+const expected="0x3D7718d5D868AF1Daae41D757244DE73DF72FB53";
+const message="minia2a publish: "+expected;
+const status=document.getElementById("status");
+const sigBox=document.getElementById("signature");
+const signBtn=document.getElementById("sign");
+const copyBtn=document.getElementById("copy");
+function setStatus(t){status.textContent=t;}
+signBtn.addEventListener("click", async()=>{
+  try{
+    if(!window.ethereum) throw new Error("No EVM wallet extension detected. Open this page in a browser with MetaMask or a compatible wallet.");
+    setStatus("Requesting wallet connection…");
+    const accounts=await window.ethereum.request({method:"eth_requestAccounts"});
+    const account=String(accounts?.[0]||"");
+    if(!account) throw new Error("No wallet account returned.");
+    if(account.toLowerCase()!==expected.toLowerCase()){
+      throw new Error("Wrong wallet selected. Switch to "+expected+" and try again. Selected: "+account);
+    }
+    setStatus("Wallet matched. Review the message in your wallet and sign it. This is a message signature only, not a transaction.");
+    const signature=await window.ethereum.request({
+      method:"personal_sign",
+      params:[message,account]
+    });
+    if(!/^0x[0-9a-fA-F]{130}$/.test(String(signature))){
+      throw new Error("Wallet returned an unexpected signature format.");
+    }
+    sigBox.value=signature;
+    copyBtn.disabled=false;
+    setStatus("Signed successfully. Copy the signature below and send only that signature back to ChatGPT.");
+  }catch(err){
+    setStatus("Not signed: "+(err?.message||String(err)));
+  }
+});
+copyBtn.addEventListener("click",async()=>{
+  if(!sigBox.value)return;
+  await navigator.clipboard.writeText(sigBox.value);
+  setStatus("Signature copied. Paste only the 0x… signature into ChatGPT.");
+});
+</script>
+</body>
+</html>
