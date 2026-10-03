@@ -28,9 +28,13 @@ const X402_FACILITATOR_URL = String(
 const X402_AUDIT_PATH = "/v1/usdc/catalog-audit";
 const X402_GTIN_PATH = "/v1/usdc/gtin-check";
 const X402_FEED_DIFF_PATH = "/v1/usdc/feed-diff";
+const X402_VALIDATE_PATH = "/v1/usdc/x402-validate";
+const X402_VALIDATE_PRICE_USD = "$0.05";
+const X402_VALIDATE_PRICE_ATOMIC = "50000";
 const X402_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_AUDIT_PATH}`;
 const X402_GTIN_URL = `${PUBLIC_BASE_URL}${X402_GTIN_PATH}`;
 const X402_FEED_DIFF_URL = `${PUBLIC_BASE_URL}${X402_FEED_DIFF_PATH}`;
+const X402_VALIDATE_URL = `${PUBLIC_BASE_URL}${X402_VALIDATE_PATH}`;
 const AGENT402_BOOTSTRAP = process.env.AGENT402_BOOTSTRAP === "1";
 const AGENT402_REGISTER_URL = "https://agent402.tools/api/index/register";
 const INDEX402_BOOTSTRAP = process.env.INDEX402_BOOTSTRAP === "1";
@@ -69,6 +73,7 @@ const USDC_X402_PATHS = new Set([
   X402_AUDIT_PATH,
   X402_GTIN_PATH,
   X402_FEED_DIFF_PATH,
+  X402_VALIDATE_PATH,
 ]);
 
 function mirrorX402PaymentRequiredBody(req, res, next) {
@@ -227,6 +232,46 @@ app.use(
           }),
         },
       },
+      "POST /v1/usdc/x402-validate": {
+        accepts: [
+          { scheme: "exact", price: X402_VALIDATE_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
+        ],
+        description:
+          "Statically validate x402 v2 payment declarations and report protocol-shape, EVM/Base, amount, asset, recipient, timeout, and duplicate-accept findings without fetching or paying the declared resource.",
+        mimeType: "application/json",
+        serviceName: "PAL x402 Declaration Validator",
+        tags: ["x402", "payments", "validation", "developer-tools", "base", "usdc"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              x402Version: 2,
+              resource: { url: "https://example.com/api/data" },
+              accepts: [
+                {
+                  scheme: "exact",
+                  network: "eip155:8453",
+                  amount: "10000",
+                  asset: X402_ASSET,
+                  payTo: BASE_PAYOUT_ADDRESS,
+                  maxTimeoutSeconds: 60,
+                },
+              ],
+            },
+            inputSchema: {
+              type: "object",
+              additionalProperties: true,
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL x402 Declaration Validator",
+                verdict: "valid",
+                summary: { valid: true, errors: 0, warnings: 0, accepts_checked: 1, base_mainnet_accepts: 1 },
+                findings: [],
+              },
+            },
+          }),
+        },
     },
     usdcResourceServer,
   ),
@@ -238,6 +283,7 @@ let paidAudits = 0;
 let usdcPaidAudits = 0;
 let usdcPaidGtinChecks = 0;
 let usdcPaidFeedDiffs = 0;
+let usdcPaidX402Validations = 0;
 let payanAgentState = {
   enabled: PAYANAGENT_BOOTSTRAP,
   status: PAYANAGENT_BOOTSTRAP ? "pending" : "disabled",
@@ -603,6 +649,7 @@ function true402Manifest() {
       { name: "PAL Catalog Feed Identifier Audit", endpoint: X402_AUDIT_URL, method: "POST", price: "0.01" },
       { name: "PAL GTIN Check", endpoint: X402_GTIN_URL, method: "POST", price: "0.01" },
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
+      { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
     ],
   };
 }
@@ -619,13 +666,24 @@ function x402Manifest() {
       extra: { name: "USD Coin", version: "2" },
     },
   ];
+  const validatorAccepts = [
+    {
+      scheme: "exact",
+      network: X402_NETWORK,
+      asset: X402_ASSET,
+      amount: X402_VALIDATE_PRICE_ATOMIC,
+      payTo: BASE_PAYOUT_ADDRESS,
+      maxTimeoutSeconds: 60,
+      extra: { name: "USD Coin", version: "2" },
+    },
+  ];
 
   return {
     spec: "agent402-service-manifest/1",
     version: 1,
     name: "Practical Automation Lab",
     summary:
-      "Deterministic commerce-data utilities for autonomous agents: product-feed audits, GTIN validation, and feed snapshot diffing.",
+      "Deterministic paid utilities for autonomous agents: commerce-data validation plus x402 declaration diagnostics.",
     homepage: PUBLIC_BASE_URL,
     repository:
       "https://github.com/enricoaboujaoude-droid/practical-automation-lab/tree/nano-seller/nano-seller",
@@ -679,6 +737,15 @@ function x402Manifest() {
         },
         accepts: commonAccepts,
       },
+      {
+        resource: X402_VALIDATE_URL,
+        name: "PAL x402 Declaration Validator",
+        description:
+          "Statically validate x402 v2 declarations for protocol shape, payment requirements, Base/EVM address fields, atomic amounts, timeouts, duplicate accepts, and Base-USDC readiness.",
+        method: "POST",
+        price: X402_VALIDATE_PRICE_USD,
+        inputSchema: { type: "object", additionalProperties: true },
+        accepts: validatorAccepts,
     ],
     payment: {
       x402: {
@@ -690,7 +757,7 @@ function x402Manifest() {
       },
     },
     capabilities: {
-      tools: 3,
+      tools: 4,
       categories: [
         "commerce",
         "merchant-feed",
@@ -698,6 +765,9 @@ function x402Manifest() {
         "catalog-validation",
         "gtin",
         "feed-diff",
+        "x402",
+        "payments",
+        "developer-tools",
       ],
     },
     machineReadable: {
@@ -719,13 +789,24 @@ function x402OpenApi() {
     payTo: BASE_PAYOUT_ADDRESS,
   };
 
+  const validatorPaymentInfo = {
+    protocol: "x402",
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_VALIDATE_PRICE_ATOMIC,
+    price: X402_VALIDATE_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
+
   return {
     openapi: "3.1.0",
     info: {
       title: "PAL Commerce Data x402 API",
-      version: "1.1.0",
+      version: "1.2.0",
       description:
-        "Deterministic commerce-data utilities paid per call with x402 Base USDC: catalog audit, GTIN validation, and product-feed diff.",
+        "Deterministic utilities paid per call with x402 Base USDC: catalog audit, GTIN validation, product-feed diff, and x402 declaration validation.",
     },
     servers: [{ url: PUBLIC_BASE_URL }],
     paths: {
@@ -827,6 +908,40 @@ function x402OpenApi() {
           "x-payment-info": paymentInfo,
         },
       },
+      [X402_VALIDATE_PATH]: {
+        post: {
+          operationId: "validateX402Declaration",
+          summary: "Validate an x402 v2 payment declaration",
+          tags: ["x402", "payments", "developer-tools", "validation"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { type: "object", additionalProperties: true },
+                example: {
+                  x402Version: 2,
+                  resource: { url: "https://example.com/api/data" },
+                  accepts: [
+                    {
+                      scheme: "exact",
+                      network: "eip155:8453",
+                      amount: "10000",
+                      asset: X402_ASSET,
+                      payTo: BASE_PAYOUT_ADDRESS,
+                      maxTimeoutSeconds: 60,
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "Static x402 declaration findings after successful payment." },
+            "400": { description: "Invalid request wrapper." },
+            "402": { description: "x402 payment required." },
+          },
+          "x-payment-info": validatorPaymentInfo,
+        },
     },
   };
 }
@@ -1693,6 +1808,233 @@ function feedDiff(beforeRows, afterRows) {
   };
 }
 
+
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function x402Finding(findings, severity, code, path, message) {
+  findings.push({ severity, code, path, message });
+}
+
+function validateX402DeclarationBody(body) {
+  if (!isPlainObject(body)) {
+    return { ok: false, error: "Body must be a JSON object." };
+  }
+  if ("declaration" in body && !isPlainObject(body.declaration)) {
+    return { ok: false, error: "declaration must be a JSON object when supplied." };
+  }
+  if ("payment_required" in body && !isPlainObject(body.payment_required)) {
+    return { ok: false, error: "payment_required must be a JSON object when supplied." };
+  }
+  return { ok: true };
+}
+
+function inspectX402Declaration(body) {
+  const declaration = isPlainObject(body.declaration)
+    ? body.declaration
+    : isPlainObject(body.payment_required)
+      ? body.payment_required
+      : body;
+  const findings = [];
+
+  if (declaration.x402Version !== 2) {
+    x402Finding(
+      findings,
+      "error",
+      "x402_version",
+      "x402Version",
+      "x402Version must be the number 2.",
+    );
+  }
+
+  const resource = declaration.resource;
+  if (!isPlainObject(resource)) {
+    x402Finding(findings, "error", "resource_missing", "resource", "resource must be an object.");
+  } else if (!validHttpUrl(resource.url)) {
+    x402Finding(
+      findings,
+      "error",
+      "resource_url",
+      "resource.url",
+      "resource.url must be an absolute http(s) URL.",
+    );
+  }
+
+  const accepts = declaration.accepts;
+  if (!Array.isArray(accepts) || accepts.length < 1) {
+    x402Finding(
+      findings,
+      "error",
+      "accepts_missing",
+      "accepts",
+      "accepts must be a non-empty array.",
+    );
+  } else if (accepts.length > 20) {
+    x402Finding(
+      findings,
+      "error",
+      "accepts_too_large",
+      "accepts",
+      "accepts may contain at most 20 entries for this validator.",
+    );
+  }
+
+  let baseMainnetAccepts = 0;
+  let baseUsdcAccepts = 0;
+  const seen = new Set();
+
+  if (Array.isArray(accepts)) {
+    accepts.slice(0, 20).forEach((accept, index) => {
+      const path = "accepts[" + index + "]";
+      if (!isPlainObject(accept)) {
+        x402Finding(findings, "error", "accept_not_object", path, "accept entry must be an object.");
+        return;
+      }
+
+      const scheme = String(accept.scheme || "").trim();
+      const network = String(accept.network || "").trim();
+      const asset = String(accept.asset || "").trim();
+      const payTo = String(accept.payTo || "").trim();
+      const amount = String(accept.amount ?? "").trim();
+
+      if (!scheme) {
+        x402Finding(findings, "error", "scheme_missing", path + ".scheme", "scheme is required.");
+      } else if (scheme !== "exact") {
+        x402Finding(
+          findings,
+          "warning",
+          "non_exact_scheme",
+          path + ".scheme",
+          'This validator is optimized for fixed-price "exact" declarations.',
+        );
+      }
+
+      if (!network) {
+        x402Finding(findings, "error", "network_missing", path + ".network", "network is required.");
+      }
+
+      if (!/^[1-9]\d*$/.test(amount)) {
+        x402Finding(
+          findings,
+          "error",
+          "amount_invalid",
+          path + ".amount",
+          "amount must be a positive base-10 integer in atomic units.",
+        );
+      }
+
+      const evm = /^eip155:\d+$/.test(network);
+      if (evm) {
+        if (!/^0x[a-fA-F0-9]{40}$/.test(asset)) {
+          x402Finding(
+            findings,
+            "error",
+            "evm_asset_invalid",
+            path + ".asset",
+            "EVM asset must be a 20-byte 0x-prefixed token address.",
+          );
+        }
+        if (!/^0x[a-fA-F0-9]{40}$/.test(payTo)) {
+          x402Finding(
+            findings,
+            "error",
+            "evm_pay_to_invalid",
+            path + ".payTo",
+            "EVM payTo must be a 20-byte 0x-prefixed address.",
+          );
+        }
+      } else {
+        if (!asset) {
+          x402Finding(findings, "error", "asset_missing", path + ".asset", "asset is required.");
+        }
+        if (!payTo) {
+          x402Finding(findings, "error", "pay_to_missing", path + ".payTo", "payTo is required.");
+        }
+      }
+
+      if (!Number.isInteger(accept.maxTimeoutSeconds) || accept.maxTimeoutSeconds <= 0) {
+        x402Finding(
+          findings,
+          "error",
+          "timeout_invalid",
+          path + ".maxTimeoutSeconds",
+          "maxTimeoutSeconds must be a positive integer.",
+        );
+      }
+
+      if ("extra" in accept && !isPlainObject(accept.extra)) {
+        x402Finding(
+          findings,
+          "warning",
+          "extra_shape",
+          path + ".extra",
+          "extra should be an object when supplied.",
+        );
+      }
+
+      if (network === X402_NETWORK) {
+        baseMainnetAccepts += 1;
+        if (asset.toLowerCase() === X402_ASSET.toLowerCase()) {
+          baseUsdcAccepts += 1;
+        }
+      }
+
+      const duplicateKey = [scheme, network, amount, asset.toLowerCase(), payTo.toLowerCase()].join("|");
+      if (seen.has(duplicateKey)) {
+        x402Finding(
+          findings,
+          "warning",
+          "duplicate_accept",
+          path,
+          "This payment requirement duplicates an earlier scheme/network/amount/asset/payTo tuple.",
+        );
+      }
+      seen.add(duplicateKey);
+    });
+  }
+
+  if (Array.isArray(accepts) && accepts.length > 0 && baseMainnetAccepts === 0) {
+    x402Finding(
+      findings,
+      "warning",
+      "base_mainnet_missing",
+      "accepts",
+      "No Base mainnet (eip155:8453) payment requirement is declared.",
+    );
+  } else if (baseMainnetAccepts > 0 && baseUsdcAccepts === 0) {
+    x402Finding(
+      findings,
+      "warning",
+      "base_usdc_missing",
+      "accepts",
+      "Base mainnet is declared, but no requirement uses the canonical Base USDC asset.",
+    );
+  }
+
+  const errors = findings.filter((item) => item.severity === "error").length;
+  const warnings = findings.filter((item) => item.severity === "warning").length;
+
+  return {
+    service: "PAL x402 Declaration Validator",
+    generated_at: nowIso(),
+    scope:
+      "Static x402 v2 declaration validation only. No declared resource is fetched, no payment is made, and liveness or funding is not established.",
+    verdict: errors > 0 ? "invalid" : warnings > 0 ? "valid_with_warnings" : "valid",
+    summary: {
+      valid: errors === 0,
+      errors,
+      warnings,
+      accepts_checked: Array.isArray(accepts) ? Math.min(accepts.length, 20) : 0,
+      base_mainnet_accepts: baseMainnetAccepts,
+      base_usdc_accepts: baseUsdcAccepts,
+    },
+    resource_url:
+      isPlainObject(resource) && typeof resource.url === "string" ? resource.url : null,
+    findings,
+  };
+}
+
 function audit(records) {
   const issues = [];
   const ids = new Map();
@@ -1836,6 +2178,7 @@ app.get("/", (_req, res) => {
       "POST /v1/usdc/catalog-audit",
       "POST /v1/usdc/gtin-check",
       "POST /v1/usdc/feed-diff",
+      "POST /v1/usdc/x402-validate",
     ],
     agentpay_endpoint: "POST /v1/agentpay",
     free_endpoints: ["GET /health", "GET /v1/price", "GET /v1/stats"],
@@ -1894,6 +2237,12 @@ Price: $0.01 USDC per successful call
 Input: {"before":[...],"after":[...]} with up to 100 rows per snapshot.
 Returns added IDs, removed IDs and structured field-level changes.
 
+### PAL x402 Declaration Validator
+POST ${PUBLIC_BASE_URL}/v1/usdc/x402-validate
+Price: $0.05 USDC per successful call
+Input: an x402 v2 PaymentRequired object directly, or wrap it as {"declaration":{...}} or {"payment_required":{...}}.
+Returns deterministic protocol-shape findings, Base/EVM readiness, amount/address/asset checks, duplicate accepts, and warnings. It never fetches or pays the declared resource.
+
 ## Buyer flow
 1. POST valid JSON without payment.
 2. Read HTTP 402 and PAYMENT-REQUIRED.
@@ -1929,6 +2278,12 @@ Cost: $0.01 USDC
 Body: {"before":[...],"after":[...]}
 Use to detect product additions/removals and changes to title, link, image, price, availability, brand, GTIN and MPN.
 
+## validate_x402_declaration
+POST ${PUBLIC_BASE_URL}/v1/usdc/x402-validate
+Cost: $0.05 USDC
+Body: an x402 v2 PaymentRequired object or a wrapper containing declaration/payment_required.
+Use to statically validate protocol shape, payment requirements, Base/EVM fields, amounts, timeouts and duplicate accepts without paying or fetching the declared resource.
+
 Payment protocol: x402 v2 exact, Base mainnet USDC.
 Discovery: ${PUBLIC_BASE_URL}/.well-known/x402
 OpenAPI: ${PUBLIC_BASE_URL}/openapi.json
@@ -1940,8 +2295,8 @@ app.get("/.well-known/agent.json", (_req, res) => {
   res.json({
     name: "Practical Automation Lab Commerce Data",
     description:
-      "Deterministic pay-per-call commerce-data validation for AI agents: catalog audit, GTIN validation, and product-feed diff.",
-    version: "1.1.0",
+      "Deterministic pay-per-call utilities for AI agents: commerce-data validation and x402 declaration diagnostics.",
+    version: "1.2.0",
     homepage: PUBLIC_BASE_URL,
     docs: `${PUBLIC_BASE_URL}/llms.txt`,
     skill: `${PUBLIC_BASE_URL}/skill.md`,
@@ -1975,6 +2330,11 @@ app.get("/.well-known/agent.json", (_req, res) => {
         url: X402_FEED_DIFF_URL,
         price_usd: 0.01,
       },
+      {
+        name: "validate_x402_declaration",
+        method: "POST",
+        url: X402_VALIDATE_URL,
+        price_usd: 0.05,
     ],
   });
 });
@@ -2137,6 +2497,7 @@ app.get("/v1/stats", (_req, res) => {
     usdc_x402_paid_audits_since_process_start: usdcPaidAudits,
     usdc_x402_paid_gtin_checks_since_process_start: usdcPaidGtinChecks,
     usdc_x402_paid_feed_diffs_since_process_start: usdcPaidFeedDiffs,
+    usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
     payment_hashes_consumed_since_process_start: usedPayments.size,
     uptime_seconds: Math.floor(process.uptime()),
   });
@@ -2329,6 +2690,33 @@ app.post("/v1/usdc/feed-diff", (req, res) => {
   });
 });
 
+app.post("/v1/usdc/x402-validate", (req, res) => {
+  const validation = validateX402DeclarationBody(req.body);
+  if (!validation.ok) {
+    return res.status(400).json({ error: "invalid_declaration", detail: validation.error });
+  }
+
+  usdcPaidX402Validations += 1;
+  console.log(
+    "[revenue] usdc_x402_declaration_validation served price_usd=0.05 network=" +
+      USDC_X402_NETWORK +
+      " count=" +
+      usdcPaidX402Validations,
+  );
+
+  return res.json({
+    ...inspectX402Declaration(req.body),
+    payment: {
+      verified_by: "x402",
+      network: USDC_X402_NETWORK,
+      asset: "USDC",
+      price_usd: X402_VALIDATE_PRICE_USD,
+      pay_to: BASE_PAYOUT_ADDRESS,
+      facilitator: "PayAI",
+    },
+  });
+});
+
 app.post("/v1/upstream/catalog-audit", (req, res) => {
   const records = req.body?.records;
   if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
@@ -2412,6 +2800,23 @@ app.post("/v1/upstream/feed-diff", (req, res) => {
   });
 });
 
+app.post("/v1/upstream/x402-validate", (req, res) => {
+  const validation = validateX402DeclarationBody(req.body);
+  if (!validation.ok) {
+    return res.status(400).json({ error: "invalid_declaration", detail: validation.error });
+  }
+
+  console.log("[revenue] marketplace_upstream x402-validate served");
+
+  return res.json({
+    ...inspectX402Declaration(req.body),
+    provider_upstream: {
+      service: "PAL x402 Declaration Validator",
+      billing: "handled_by_marketplace",
+    },
+  });
+});
+
 app.get("/v1/upstream/status", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({
@@ -2439,6 +2844,11 @@ app.get("/v1/upstream/status", (_req, res) => {
         url: `${PUBLIC_BASE_URL}/v1/upstream/feed-diff`,
         max_rows_per_snapshot: 100,
       },
+      {
+        name: "PAL x402 Declaration Validator",
+        method: "POST",
+        url: `${PUBLIC_BASE_URL}/v1/upstream/x402-validate`,
+        scope: "static x402 v2 declaration validation",
     ],
   });
 });
