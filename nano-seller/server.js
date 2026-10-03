@@ -1611,6 +1611,45 @@ async function startTrue402Bootstrap() {
 }
 
 
+async function submitMarket402Resource(resource) {
+  const response = await fetch(MARKET402_SUBMIT_URL, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      accept: "application/json",
+    },
+    body: JSON.stringify({ resource }),
+    signal: AbortSignal.timeout(30_000),
+  });
+
+  const raw = await response.text();
+  let body = {};
+  try {
+    body = raw ? JSON.parse(raw) : {};
+  } catch {
+    body = { raw: raw.slice(0, 1600) };
+  }
+
+  const duplicate =
+    response.status === 409 ||
+    body?.already_listed === true ||
+    /already|duplicate|exists|submitted/i.test(JSON.stringify(body));
+
+  if (!response.ok && !duplicate) {
+    throw new Error(
+      `Market402 submission HTTP ${response.status} for ${resource}: ${JSON.stringify(body).slice(0, 1200)}`
+    );
+  }
+
+  return {
+    resource,
+    submitted: response.ok || duplicate,
+    duplicate,
+    status: response.status,
+    result: body,
+  };
+}
+
 async function startMarket402Bootstrap() {
   if (!MARKET402_BOOTSTRAP) return;
 
@@ -1623,62 +1662,59 @@ async function startMarket402Bootstrap() {
     error: null,
   };
 
+  const resources = [X402_AUDIT_URL, X402_VALIDATE_URL];
+  const results = [];
+
   try {
-    const response = await fetch(MARKET402_SUBMIT_URL, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        accept: "application/json",
-      },
-      body: JSON.stringify({ resource: X402_AUDIT_URL }),
-      signal: AbortSignal.timeout(30_000),
-    });
-    const raw = await response.text();
-    let body = {};
-    try {
-      body = raw ? JSON.parse(raw) : {};
-    } catch {
-      body = { raw: raw.slice(0, 1600) };
+    for (const resource of resources) {
+      try {
+        const outcome = await submitMarket402Resource(resource);
+        results.push(outcome);
+        console.log(
+          `[market402] resource=${resource} submitted=${outcome.submitted} duplicate=${outcome.duplicate} status=${outcome.status}`
+        );
+      } catch (error) {
+        results.push({
+          resource,
+          submitted: false,
+          duplicate: false,
+          status: null,
+          error: safePayanAgentError(error),
+        });
+        console.error("[market402] resource submission failed:", safePayanAgentError(error));
+      }
     }
 
-    if (!response.ok) {
-      const duplicate =
-        response.status === 409 ||
-        /already|duplicate|exists|submitted/i.test(JSON.stringify(body));
-      if (!duplicate) {
-        throw new Error(
-          `Market402 submission HTTP ${response.status}: ${JSON.stringify(body).slice(0, 1200)}`
-        );
-      }
-      market402State = {
-        enabled: true,
-        status: "already_submitted",
-        submitted: true,
-        checked_at: nowIso(),
-        result: body,
-        error: null,
-      };
-      console.log(`[market402] already submitted route=${X402_AUDIT_URL}`);
-      return;
+    const submittedCount = results.filter((item) => item.submitted).length;
+    if (submittedCount === 0) {
+      throw new Error("Market402 rejected or failed all PAL resources");
     }
 
     market402State = {
       enabled: true,
-      status: "submitted",
+      status: submittedCount === resources.length ? "submitted" : "partial",
       submitted: true,
       checked_at: nowIso(),
-      result: body,
-      error: null,
+      result: {
+        resources_total: resources.length,
+        resources_submitted: submittedCount,
+        resources: results,
+      },
+      error:
+        submittedCount === resources.length
+          ? null
+          : "One or more PAL resources could not be submitted.",
     };
     console.log(
-      `[market402] submitted route=${X402_AUDIT_URL} result=${JSON.stringify(body).slice(0, 500)}`
+      `[market402] bootstrap complete submitted=${submittedCount}/${resources.length}`
     );
   } catch (error) {
     market402State = {
-      ...market402State,
+      enabled: true,
       status: "failed",
       submitted: false,
       checked_at: nowIso(),
+      result: { resources: results },
       error: safePayanAgentError(error),
     };
     console.error("[market402] bootstrap failed:", safePayanAgentError(error));
