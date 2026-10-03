@@ -6,7 +6,10 @@ import * as build from "./build/server/index.js";
 import { sanitizeRequestTarget } from "./server-logging.mjs";
 import { startSpeedbotRegistration } from "./speedbot-agent.mjs";
 import { startSpeedbotHelpAssignment } from "./speedbot-help.mjs";
-import {\n  startSpeedbotDirectedFieldTestHandoff,\n  startSpeedbotDirectedFieldTestRequest,\n} from "./speedbot-field-test.mjs";
+import {
+  startSpeedbotDirectedFieldTestHandoff,
+  startSpeedbotDirectedFieldTestRequest,
+} from "./speedbot-field-test.mjs";
 import { startSuperteamScout } from "./superteam-agent.mjs";
 import { startBasedAgentsScout } from "./basedagents-scout.mjs";
 import { startTaskmarketScout } from "./taskmarket-scout.mjs";
@@ -132,7 +135,8 @@ app.listen(port, host, () => {
   console.log(`[pal-shopify] listening on ${host}:${port}`);
   startSpeedbotRegistration();
   startSpeedbotHelpAssignment();
-  startSpeedbotDirectedFieldTestRequest();\n  startSpeedbotDirectedFieldTestHandoff();
+  startSpeedbotDirectedFieldTestRequest();
+  startSpeedbotDirectedFieldTestHandoff();
   startSuperteamScout();
   startBasedAgentsScout();
   startTaskmarketScout();
