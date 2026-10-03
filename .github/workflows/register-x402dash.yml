@@ -1,38 +1,43 @@
-name: Register PAL on x402dash
+name: Check PAL x402dash compatibility
 
 on:
   push:
     paths:
       - ".github/workflows/register-x402dash.yml"
+  workflow_dispatch:
 
 jobs:
-  register:
+  check:
     runs-on: ubuntu-latest
     steps:
-      - name: Register PAL x402 endpoints
+      - name: Check whether PAL endpoints are directly registerable
         shell: bash
         run: |
           set -euo pipefail
-          register() {
+
+          check_endpoint() {
             local url="$1"
             local name="$2"
-            local description="$3"
-            local category="$4"
-            local tags="$5"
 
-            payload="$(jq -nc               --arg url "$url"               --arg name "$name"               --arg description "$description"               --arg category "$category"               --arg tags "$tags"               '{url:$url,name:$name,description:$description,category:$category,tags:($tags|split(",")),contact:"enricoaboujaoude@gmail.com"}')"
+            status="$(curl --silent --show-error --output /tmp/pal-body.txt --write-out "%{http_code}" "$url" || true)"
 
-            response="$(curl --fail-with-body --silent --show-error               --retry 2 --retry-delay 2               -X POST "https://api.x402dash.com/v1/register"               -H "Content-Type: application/json"               --data "$payload")"
+            if [ "$status" = "402" ]; then
+              echo "$name returns HTTP 402 to GET; attempting x402dash registration."
+              payload="$(jq -nc --arg url "$url" '{url:$url}')"
+              reg_status="$(curl --silent --show-error --output /tmp/x402dash-body.txt --write-out "%{http_code}"                 -X POST "https://api.x402dash.com/v1/register"                 -H "Content-Type: application/json"                 --data "$payload" || true)"
+              echo "x402dash HTTP $reg_status"
+              cat /tmp/x402dash-body.txt || true
+              if [ "$reg_status" -ge 200 ] && [ "$reg_status" -lt 300 ]; then
+                return 0
+              fi
+              echo "::warning::$name was not accepted by x402dash (HTTP $reg_status)."
+              return 0
+            fi
 
-            echo "$name => $response"
+            echo "::notice::$name is POST-only and returns HTTP $status to GET; x402dash live verification requires a URL that itself returns HTTP 402, so registration is intentionally skipped."
           }
 
-          register             "https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-audit"             "PAL Catalog Feed Identifier Audit"             "Deterministic Google Merchant Center and product-feed identifier audit for up to 100 records."             "ecommerce"             "catalog,product-feed,merchant-center,gtin,ecommerce"
-
-          register             "https://pal-nano-catalog-audit.onrender.com/v1/usdc/gtin-check"             "PAL GTIN Check"             "Validate GTIN-8, UPC/GTIN-12, GTIN-13 and GTIN-14 identifiers including checksums."             "ecommerce"             "gtin,upc,ean,ecommerce,validation"
-
-          register             "https://pal-nano-catalog-audit.onrender.com/v1/usdc/feed-diff"             "PAL Product Feed Diff"             "Compare two product-feed snapshots and return added, removed and changed commerce fields."             "ecommerce"             "product-feed,diff,ecommerce,change-detection"
-
-          register             "https://pal-nano-catalog-audit.onrender.com/v1/usdc/x402-validate"             "PAL x402 Declaration Validator"             "Statically validate x402 v2 payment declarations for protocol shape and Base-USDC readiness."             "developer-tools"             "x402,payments,validation,developer-tools,base"
-
-# execute registration
+          check_endpoint "https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-audit" "PAL Catalog Feed Identifier Audit"
+          check_endpoint "https://pal-nano-catalog-audit.onrender.com/v1/usdc/gtin-check" "PAL GTIN Check"
+          check_endpoint "https://pal-nano-catalog-audit.onrender.com/v1/usdc/feed-diff" "PAL Product Feed Diff"
+          check_endpoint "https://pal-nano-catalog-audit.onrender.com/v1/usdc/x402-validate" "PAL x402 Declaration Validator"
