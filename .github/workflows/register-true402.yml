@@ -1,0 +1,33 @@
+name: Register PAL seller on true402
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/register-true402.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Register existing PAL x402 seller
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(curl --fail-with-body --silent --show-error             -X POST "https://true402.dev/api/v1/services"             -H "content-type: application/json"             --data '{"url":"https://pal-nano-catalog-audit.onrender.com"}')"
+          echo "$response"
+
+      - name: Verify PAL is discoverable
+        shell: bash
+        run: |
+          set -euo pipefail
+          catalog="$(curl --fail-with-body --silent --show-error "https://true402.dev/api/v1/services")"
+          if ! printf '%s' "$catalog" | grep -Fq "pal-nano-catalog-audit.onrender.com"; then
+            echo "PAL seller was not found in the true402 catalog after registration." >&2
+            exit 1
+          fi
+          echo "PAL seller is present in the true402 catalog."
