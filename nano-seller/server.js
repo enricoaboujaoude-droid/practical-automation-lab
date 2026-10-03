@@ -127,8 +127,8 @@ app.use(
         description:
           "Google Merchant Center and Google Shopping product-feed audit for 1-100 catalog records: duplicate IDs, GTIN validation/checksum, URLs, prices, availability, and brand/MPN consistency.",
         mimeType: "application/json",
-        serviceName: "PAL Catalog Feed Identifier Audit",
-        tags: ["catalog", "product-feed", "merchant-feed", "ecommerce", "validation", "merchant-center", "google-shopping", "gtin"],
+        serviceName: "PAL Catalog Feed Audit",
+        tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "gtin"],
         extensions: {
           ...declareDiscoveryExtension({
             input: {
@@ -179,7 +179,7 @@ app.use(
           "Validate up to 100 GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 identifiers including check digits.",
         mimeType: "application/json",
         serviceName: "PAL GTIN Check",
-        tags: ["gtin", "upc", "ean", "identifier", "ecommerce", "validation"],
+        tags: ["gtin", "upc", "ean", "ecommerce", "validation"],
         extensions: {
           ...declareDiscoveryExtension({
             input: { gtins: ["4006381333931", "036000291452"] },
@@ -248,7 +248,7 @@ app.use(
           "Statically validate x402 v2 payment declarations and report protocol-shape, EVM/Base, amount, asset, recipient, timeout, and duplicate-accept findings without fetching or paying the declared resource.",
         mimeType: "application/json",
         serviceName: "PAL x402 Declaration Validator",
-        tags: ["x402", "payments", "validation", "developer-tools", "base", "usdc"],
+        tags: ["x402", "payments", "validation", "developer-tools", "usdc"],
         extensions: {
           ...declareDiscoveryExtension({
             input: {
