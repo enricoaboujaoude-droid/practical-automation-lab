@@ -700,8 +700,8 @@ async function patchSubnanoProfile(handle, fetchImpl = fetch) {
         name: SUBNANO_PROFILE_NAME,
         handle,
         tipping: {
-          buttonLabel: "Support PAL experiments",
-          amounts: [0.1, 0.25, 0.5],
+          buttonLabel: "Tip PAL if this saved you time",
+          amounts: [0.25, 0.5, 1],
         },
       }),
     },
@@ -717,9 +717,9 @@ export async function ensureSubnanoProfile(fetchImpl = fetch) {
   );
 
   const tippingConfigured =
-    current?.tipping?.buttonLabel === "Support PAL experiments" &&
+    current?.tipping?.buttonLabel === "Tip PAL if this saved you time" &&
     Array.isArray(current?.tipping?.amounts) &&
-    current.tipping.amounts.join(",") === "0.1,0.25,0.5";
+    current.tipping.amounts.join(",") === "0.25,0.5,1";
 
   if (
     current?.name === SUBNANO_PROFILE_NAME &&
