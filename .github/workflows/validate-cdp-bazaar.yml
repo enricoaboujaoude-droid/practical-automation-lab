@@ -1,0 +1,33 @@
+name: Validate PAL x402 endpoint for CDP Bazaar
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/validate-cdp-bazaar.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate live PAL catalog audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          response="$(curl --fail-with-body --silent --show-error             -X POST "https://api.cdp.coinbase.com/platform/v2/x402/validate"             -H "Content-Type: application/json"             --data '{"resource":"https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-audit","method":"POST"}')"
+          printf '%s\n' "$response"
+          RESPONSE="$response" python3 - <<'PY'
+          import json, os
+          data=json.loads(os.environ["RESPONSE"])
+          print("valid=", data.get("valid"))
+          simulation=data.get("simulation") or {}
+          print("outcome=", simulation.get("outcome"))
+          if not data.get("valid"):
+              raise SystemExit("PAL endpoint is not yet Bazaar-valid")
+          if simulation.get("outcome") != "accepted":
+              raise SystemExit("PAL endpoint simulation was not accepted")
+          PY
