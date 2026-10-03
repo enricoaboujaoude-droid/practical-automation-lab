@@ -2214,6 +2214,120 @@ app.post("/v1/usdc/feed-diff", (req, res) => {
   });
 });
 
+app.post("/v1/upstream/catalog-audit", (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 100 items.",
+      example: catalogAuditExample(),
+    });
+  }
+
+  const result = audit(records);
+  console.log(
+    `[revenue] marketplace_upstream catalog-audit served records=${records.length}`
+  );
+
+  return res.json({
+    ...result,
+    provider_upstream: {
+      service: "PAL Catalog Feed Identifier Audit",
+      billing: "handled_by_marketplace",
+    },
+    generated_at: nowIso(),
+    disclaimer:
+      "Consistency audit only; not a guarantee of Merchant Center approval or regulatory compliance.",
+  });
+});
+
+app.post("/v1/upstream/gtin-check", (req, res) => {
+  const gtins = req.body?.gtins;
+  if (!Array.isArray(gtins) || gtins.length < 1 || gtins.length > 100) {
+    return res.status(400).json({
+      error: "invalid_gtins",
+      detail: "Body must contain gtins as an array with 1 to 100 values.",
+    });
+  }
+  for (let index = 0; index < gtins.length; index += 1) {
+    const value = gtins[index];
+    if (!["string", "number"].includes(typeof value) || String(value).trim() === "") {
+      return res.status(400).json({
+        error: "invalid_gtins",
+        detail: `gtins[${index}] must be a non-empty string or number.`,
+      });
+    }
+  }
+
+  console.log(
+    `[revenue] marketplace_upstream gtin-check served count=${gtins.length}`
+  );
+
+  return res.json({
+    ...gtinCheck(gtins),
+    provider_upstream: {
+      service: "PAL GTIN Check",
+      billing: "handled_by_marketplace",
+    },
+  });
+});
+
+app.post("/v1/upstream/feed-diff", (req, res) => {
+  const beforeError = feedRowError(req.body?.before, "before");
+  if (beforeError) return res.status(400).json({ error: "invalid_feed", detail: beforeError });
+  const afterError = feedRowError(req.body?.after, "after");
+  if (afterError) return res.status(400).json({ error: "invalid_feed", detail: afterError });
+  if (req.body.before.length + req.body.after.length < 1) {
+    return res.status(400).json({
+      error: "invalid_feed",
+      detail: "At least one feed snapshot must contain a row.",
+    });
+  }
+
+  console.log(
+    `[revenue] marketplace_upstream feed-diff served before=${req.body.before.length} after=${req.body.after.length}`
+  );
+
+  return res.json({
+    ...feedDiff(req.body.before, req.body.after),
+    provider_upstream: {
+      service: "PAL Feed Diff",
+      billing: "handled_by_marketplace",
+    },
+  });
+});
+
+app.get("/v1/upstream/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    ok: true,
+    provider: "Practical Automation Lab",
+    payout_network: "Base",
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    endpoints: [
+      {
+        name: "PAL Catalog Feed Identifier Audit",
+        method: "POST",
+        url: `${PUBLIC_BASE_URL}/v1/upstream/catalog-audit`,
+        max_items: 100,
+      },
+      {
+        name: "PAL GTIN Check",
+        method: "POST",
+        url: `${PUBLIC_BASE_URL}/v1/upstream/gtin-check`,
+        max_items: 100,
+      },
+      {
+        name: "PAL Feed Diff",
+        method: "POST",
+        url: `${PUBLIC_BASE_URL}/v1/upstream/feed-diff`,
+        max_rows_per_snapshot: 100,
+      },
+    ],
+  });
+});
+
 app.post("/v1/gigsoul/catalog-audit", (req, res) => {
   const records = req.body?.records;
   if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
