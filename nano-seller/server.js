@@ -2857,6 +2857,220 @@ app.post("/v1/upstream/x402-validate", (req, res) => {
   });
 });
 
+
+function minia2aJsonParam(req, name, fallback = null) {
+  if (req.method === "POST") {
+    const value = req.body?.[name];
+    return value === undefined ? fallback : value;
+  }
+  const raw = req.query?.[name];
+  if (raw === undefined) return fallback;
+  if (Array.isArray(raw)) return raw;
+  try {
+    return JSON.parse(String(raw));
+  } catch {
+    return String(raw);
+  }
+}
+
+function minia2aCatalogPayload(req) {
+  const records = minia2aJsonParam(req, "records", null);
+  if (Array.isArray(records)) return records;
+  const input = minia2aJsonParam(req, "input", null);
+  return input && typeof input === "object" && Array.isArray(input.records)
+    ? input.records
+    : null;
+}
+
+function minia2aGtins(req) {
+  const direct = minia2aJsonParam(req, "gtins", null);
+  if (Array.isArray(direct)) return direct;
+  if (typeof direct === "string") {
+    return direct.split(",").map((value) => value.trim()).filter(Boolean);
+  }
+  const input = minia2aJsonParam(req, "input", null);
+  if (input && typeof input === "object" && Array.isArray(input.gtins)) return input.gtins;
+  const gtin = String(req.query?.gtin || "").trim();
+  return gtin ? [gtin] : null;
+}
+
+function minia2aFeedPayload(req) {
+  if (req.method === "POST") {
+    return { before: req.body?.before, after: req.body?.after };
+  }
+  const input = minia2aJsonParam(req, "input", null);
+  if (input && typeof input === "object") {
+    return { before: input.before, after: input.after };
+  }
+  return {
+    before: minia2aJsonParam(req, "before", null),
+    after: minia2aJsonParam(req, "after", null),
+  };
+}
+
+function minia2aDeclarationPayload(req) {
+  if (req.method === "POST") return req.body;
+  const input = minia2aJsonParam(req, "input", null);
+  if (input && typeof input === "object") return input;
+  const declaration = minia2aJsonParam(req, "declaration", null);
+  if (declaration && typeof declaration === "object") return { declaration };
+  return null;
+}
+
+function miniCatalogAudit(req, res) {
+  const records = minia2aCatalogPayload(req);
+  if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
+    return res.status(400).json({
+      ok: false,
+      error: "invalid_records",
+      detail:
+        "Provide 1-100 records as POST JSON {records:[...]} or GET ?records=<urlencoded JSON array>.",
+      example: catalogAuditExample(),
+    });
+  }
+
+  const result = audit(records);
+  console.log(`[revenue] minia2a_catalog_audit upstream served records=${records.length}`);
+  return res.json({
+    ok: true,
+    result,
+    provider: "Practical Automation Lab",
+    billing: "handled_by_minia2a",
+  });
+}
+
+function miniGtinCheck(req, res) {
+  const gtins = minia2aGtins(req);
+  if (!Array.isArray(gtins) || gtins.length < 1 || gtins.length > 100) {
+    return res.status(400).json({
+      ok: false,
+      error: "invalid_gtins",
+      detail:
+        "Provide 1-100 GTINs as POST JSON {gtins:[...]} or GET ?gtins=<comma-separated values>.",
+      example: { gtins: ["4006381333931", "036000291452"] },
+    });
+  }
+  for (let index = 0; index < gtins.length; index += 1) {
+    const value = gtins[index];
+    if (!["string", "number"].includes(typeof value) || String(value).trim() === "") {
+      return res.status(400).json({
+        ok: false,
+        error: "invalid_gtins",
+        detail: `gtins[${index}] must be a non-empty string or number.`,
+      });
+    }
+  }
+
+  console.log(`[revenue] minia2a_gtin_check upstream served gtins=${gtins.length}`);
+  return res.json({
+    ok: true,
+    result: gtinCheck(gtins),
+    provider: "Practical Automation Lab",
+    billing: "handled_by_minia2a",
+  });
+}
+
+function miniFeedDiff(req, res) {
+  const payload = minia2aFeedPayload(req);
+  const beforeError = feedRowError(payload.before, "before");
+  if (beforeError) return res.status(400).json({ ok: false, error: "invalid_feed", detail: beforeError });
+  const afterError = feedRowError(payload.after, "after");
+  if (afterError) return res.status(400).json({ ok: false, error: "invalid_feed", detail: afterError });
+  if (payload.before.length + payload.after.length < 1) {
+    return res.status(400).json({
+      ok: false,
+      error: "invalid_feed",
+      detail: "At least one feed snapshot must contain a row.",
+    });
+  }
+
+  console.log(
+    `[revenue] minia2a_feed_diff upstream served before=${payload.before.length} after=${payload.after.length}`
+  );
+  return res.json({
+    ok: true,
+    result: feedDiff(payload.before, payload.after),
+    provider: "Practical Automation Lab",
+    billing: "handled_by_minia2a",
+  });
+}
+
+function miniX402Validate(req, res) {
+  const payload = minia2aDeclarationPayload(req);
+  const validation = validateX402DeclarationBody(payload);
+  if (!validation.ok) {
+    return res.status(400).json({
+      ok: false,
+      error: "invalid_declaration",
+      detail: validation.error,
+    });
+  }
+
+  console.log("[revenue] minia2a_x402_validate upstream served");
+  return res.json({
+    ok: true,
+    result: inspectX402Declaration(payload),
+    provider: "Practical Automation Lab",
+    billing: "handled_by_minia2a",
+  });
+}
+
+app.get("/v1/minia2a/catalog-audit", miniCatalogAudit);
+app.post("/v1/minia2a/catalog-audit", miniCatalogAudit);
+app.get("/v1/minia2a/gtin-check", miniGtinCheck);
+app.post("/v1/minia2a/gtin-check", miniGtinCheck);
+app.get("/v1/minia2a/feed-diff", miniFeedDiff);
+app.post("/v1/minia2a/feed-diff", miniFeedDiff);
+app.get("/v1/minia2a/x402-validate", miniX402Validate);
+app.post("/v1/minia2a/x402-validate", miniX402Validate);
+
+app.get("/v1/minia2a/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    ok: true,
+    marketplace: "MiniA2A",
+    provider: "Practical Automation Lab",
+    payout_network: "Base",
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    platform_fee_2026: "0%",
+    listings_ready: [
+      {
+        name: "PAL Catalog Feed Audit",
+        endpoint: `${PUBLIC_BASE_URL}/v1/minia2a/catalog-audit`,
+        price_cents: 3,
+        category: "data",
+        description:
+          "Audit product-feed records for duplicate IDs, GTIN checksums, URL shape, price formatting, availability, and identifier consistency.",
+      },
+      {
+        name: "PAL GTIN Check",
+        endpoint: `${PUBLIC_BASE_URL}/v1/minia2a/gtin-check`,
+        price_cents: 1,
+        category: "tools",
+        description:
+          "Validate batches of GTIN-8, UPC/GTIN-12, GTIN-13, and GTIN-14 identifiers including check digits.",
+      },
+      {
+        name: "PAL Product Feed Diff",
+        endpoint: `${PUBLIC_BASE_URL}/v1/minia2a/feed-diff`,
+        price_cents: 3,
+        category: "data",
+        description:
+          "Compare two product-feed snapshots and report added, removed, and changed commerce fields by product ID.",
+      },
+      {
+        name: "PAL x402 Declaration Validator",
+        endpoint: `${PUBLIC_BASE_URL}/v1/minia2a/x402-validate`,
+        price_cents: 5,
+        category: "tools",
+        description:
+          "Validate x402 v2 PaymentRequired declarations for resource, payment scheme, network, amount, asset, payTo, and timeout consistency.",
+      },
+    ],
+  });
+});
+
 app.get("/v1/upstream/status", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({
