@@ -346,6 +346,7 @@ let agentToolsState = {
   claim_id: null,
   listing_slug: null,
   verification_persisted: Boolean(AGENTTOOLS_VERIFY_TOKEN),
+  additional_services: [],
   checked_at: null,
   service: null,
   error: null,
@@ -1444,6 +1445,85 @@ async function startAgentToolsBootstrap() {
       cleanString(body?.slug) ||
       "pal-nano-catalog-audit-onrender-com-sub1069";
 
+    const additionalListings = [
+      {
+        url: X402_GTIN_URL,
+        name: "PAL GTIN Check",
+        description:
+          "Validate up to 100 GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 identifiers including check digits. Live x402 v2 endpoint; $0.01 USDC per request on Base.",
+        category: "ecommerce",
+        price: 0.01,
+      },
+      {
+        url: X402_FEED_DIFF_URL,
+        name: "PAL Feed Diff",
+        description:
+          "Compare two product-feed snapshots and return added, removed, and changed commerce fields for up to 100 rows per side. Live x402 v2 endpoint; $0.01 USDC per request on Base.",
+        category: "ecommerce",
+        price: 0.01,
+      },
+      {
+        url: X402_VALIDATE_URL,
+        name: "PAL x402 Declaration Validator",
+        description:
+          "Statically validate x402 v2 payment declarations for protocol shape, Base network, amount, asset, recipient, timeout, and duplicate accepts. Live endpoint; $0.05 USDC per request on Base.",
+        category: "developer-tools",
+        price: 0.05,
+      },
+    ];
+
+    const submitAdditionalListings = async () => {
+      const results = [];
+      for (const listing of additionalListings) {
+        try {
+          const extraResponse = await fetch(AGENTTOOLS_REGISTER_URL, {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              accept: "application/json",
+            },
+            body: JSON.stringify({
+              url: listing.url,
+              name: listing.name,
+              description: listing.description,
+              category: listing.category,
+              chains: ["base"],
+              price_min_usdc: listing.price,
+              price_max_usdc: listing.price,
+              contact: "enricoaboujaoude@gmail.com",
+            }),
+            signal: AbortSignal.timeout(45_000),
+          });
+          const extraBody = await readJson(extraResponse);
+          if (!extraResponse.ok) {
+            results.push({
+              name: listing.name,
+              url: listing.url,
+              status: "failed",
+              error: `HTTP ${extraResponse.status}`,
+            });
+            continue;
+          }
+          const extraService = extraBody?.service || extraBody?.data || extraBody;
+          results.push({
+            name: listing.name,
+            url: listing.url,
+            status: cleanString(extraBody?.status) || "submitted",
+            slug: cleanString(extraService?.slug) || cleanString(extraBody?.slug) || null,
+            error: null,
+          });
+        } catch (error) {
+          results.push({
+            name: listing.name,
+            url: listing.url,
+            status: "failed",
+            error: safePayanAgentError(error),
+          });
+        }
+      }
+      return results;
+    };
+
     agentToolsState = {
       ...agentToolsState,
       status: cleanString(body?.status) || "registered",
@@ -1458,15 +1538,17 @@ async function startAgentToolsBootstrap() {
     // ownership flow. Keeping the public proof in place is required because
     // agent-tools.cloud re-checks claimed hosts daily.
     if (agentToolsVerificationToken) {
+      const additionalServices = await submitAdditionalListings();
       agentToolsState = {
         ...agentToolsState,
         status: "owner_verified",
         owner_verified: true,
         verification_persisted: true,
+        additional_services: additionalServices,
         checked_at: nowIso(),
       };
       console.log(
-        `[agenttools] owner proof persisted host=${AGENTTOOLS_HOST} listing=${listingSlug}`
+        `[agenttools] owner proof persisted host=${AGENTTOOLS_HOST} listing=${listingSlug} additional=${additionalServices.filter((item) => item.status !== "failed").length}`
       );
       return;
     }
@@ -1569,6 +1651,7 @@ async function startAgentToolsBootstrap() {
       );
     }
 
+    const additionalServices = await submitAdditionalListings();
     agentToolsState = {
       ...agentToolsState,
       status: "owner_verified",
@@ -1577,6 +1660,7 @@ async function startAgentToolsBootstrap() {
       claim_id: claimId,
       listing_slug: listingSlug,
       verification_persisted: false,
+      additional_services: additionalServices,
       checked_at: nowIso(),
       service: patchBody?.listing || patchBody?.service || patchBody?.data || patchBody || service,
       error: null,
