@@ -2214,6 +2214,52 @@ app.post("/v1/usdc/feed-diff", (req, res) => {
   });
 });
 
+app.post("/v1/gigsoul/catalog-audit", (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 100 items.",
+      example: catalogAuditExample(),
+    });
+  }
+
+  const result = audit(records);
+  console.log(
+    `[revenue] gigsoul_catalog_audit served billing=handled_upstream records=${records.length}`
+  );
+
+  return res.json({
+    ...result,
+    marketplace: {
+      provider: "GigSoul Agent Depot",
+      billing: "handled_upstream",
+      listed_price_usdc: "0.10",
+      seller_wallet: BASE_PAYOUT_ADDRESS,
+    },
+    generated_at: nowIso(),
+    disclaimer:
+      "Consistency audit only; not a guarantee of Merchant Center approval or regulatory compliance.",
+  });
+});
+
+app.get("/v1/gigsoul/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    ok: true,
+    marketplace: "GigSoul Agent Depot",
+    service: "PAL Catalog Feed Auditor",
+    endpoint: `${PUBLIC_BASE_URL}/v1/gigsoul/catalog-audit`,
+    method: "POST",
+    listed_price_usdc: "0.10",
+    payout_network: "Base",
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    limits: { records_per_call: 100 },
+    sample_input: catalogAuditExample(),
+  });
+});
+
 app.post("/v1/payanagent/catalog-audit", (req, res) => {
   const records = req.body?.records;
   if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
