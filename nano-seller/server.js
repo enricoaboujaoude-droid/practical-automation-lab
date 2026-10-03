@@ -1864,6 +1864,121 @@ app.get("/", (_req, res) => {
   });
 });
 
+app.get("/llms.txt", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.type("text/plain").send(`# Practical Automation Lab — paid commerce-data tools
+
+Base URL: ${PUBLIC_BASE_URL}
+Payment: x402 v2 exact on Base mainnet (eip155:8453), USDC
+Seller wallet: ${BASE_PAYOUT_ADDRESS}
+OpenAPI: ${PUBLIC_BASE_URL}/openapi.json
+x402 manifest: ${PUBLIC_BASE_URL}/.well-known/x402
+
+## Paid tools
+
+### PAL Catalog Feed Identifier Audit
+POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-audit
+Price: $0.01 USDC per successful call
+Input: {"records":[...]} with 1-100 product records.
+Use for deterministic checks of duplicate IDs, GTIN format/checksum, URL shape, price formatting, availability, brand/MPN consistency.
+
+### PAL GTIN Check
+POST ${PUBLIC_BASE_URL}/v1/usdc/gtin-check
+Price: $0.01 USDC per successful call
+Input: {"gtins":[...]} with 1-100 GTIN/UPC/EAN values.
+Returns normalized identifier, supported length, expected/actual check digit and validity.
+
+### PAL Feed Diff
+POST ${PUBLIC_BASE_URL}/v1/usdc/feed-diff
+Price: $0.01 USDC per successful call
+Input: {"before":[...],"after":[...]} with up to 100 rows per snapshot.
+Returns added IDs, removed IDs and structured field-level changes.
+
+## Buyer flow
+1. POST valid JSON without payment.
+2. Read HTTP 402 and PAYMENT-REQUIRED.
+3. Satisfy one exact Base-USDC requirement.
+4. Retry the identical request with PAYMENT-SIGNATURE.
+5. Read the JSON result and PAYMENT-RESPONSE.
+
+These are deterministic commerce-data utilities. They do not modify stores, require merchant credentials, or use an LLM.
+`);
+});
+
+app.get("/skill.md", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.type("text/markdown").send(`# PAL Commerce Data Tools
+
+Use these tools when an agent needs cheap deterministic validation of ecommerce catalog data.
+
+## audit_catalog_feed
+POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-audit
+Cost: $0.01 USDC
+Body: {"records":[product,...]}
+Use before Google Merchant Center / shopping-feed submission or when checking identifier, price, URL, availability and variant-readiness issues.
+
+## validate_gtins
+POST ${PUBLIC_BASE_URL}/v1/usdc/gtin-check
+Cost: $0.01 USDC
+Body: {"gtins":["4006381333931",...]}
+Use to validate GTIN-8, GTIN-12/UPC, GTIN-13/EAN and GTIN-14 lengths and check digits.
+
+## diff_product_feeds
+POST ${PUBLIC_BASE_URL}/v1/usdc/feed-diff
+Cost: $0.01 USDC
+Body: {"before":[...],"after":[...]}
+Use to detect product additions/removals and changes to title, link, image, price, availability, brand, GTIN and MPN.
+
+Payment protocol: x402 v2 exact, Base mainnet USDC.
+Discovery: ${PUBLIC_BASE_URL}/.well-known/x402
+OpenAPI: ${PUBLIC_BASE_URL}/openapi.json
+`);
+});
+
+app.get("/.well-known/agent.json", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.json({
+    name: "Practical Automation Lab Commerce Data",
+    description:
+      "Deterministic pay-per-call commerce-data validation for AI agents: catalog audit, GTIN validation, and product-feed diff.",
+    version: "1.1.0",
+    homepage: PUBLIC_BASE_URL,
+    docs: `${PUBLIC_BASE_URL}/llms.txt`,
+    skill: `${PUBLIC_BASE_URL}/skill.md`,
+    openapi: `${PUBLIC_BASE_URL}/openapi.json`,
+    x402: `${PUBLIC_BASE_URL}/.well-known/x402`,
+    payment: {
+      protocol: "x402",
+      version: 2,
+      scheme: "exact",
+      network: X402_NETWORK,
+      asset: "USDC",
+      asset_address: X402_ASSET,
+      pay_to: BASE_PAYOUT_ADDRESS,
+    },
+    tools: [
+      {
+        name: "audit_catalog_feed",
+        method: "POST",
+        url: X402_AUDIT_URL,
+        price_usd: 0.01,
+      },
+      {
+        name: "validate_gtins",
+        method: "POST",
+        url: X402_GTIN_URL,
+        price_usd: 0.01,
+      },
+      {
+        name: "diff_product_feeds",
+        method: "POST",
+        url: X402_FEED_DIFF_URL,
+        price_usd: 0.01,
+      },
+    ],
+  });
+});
+
 app.get("/.well-known/x402", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.json(x402Manifest());
