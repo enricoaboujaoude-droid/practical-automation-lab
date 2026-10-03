@@ -2573,11 +2573,59 @@ OpenAPI: ${PUBLIC_BASE_URL}/openapi.json
 
 app.get("/.well-known/agent.json", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
-  res.json({
-    name: "Practical Automation Lab Commerce Data",
+  res.type("application/json").json({
+    version: "1.3",
+    origin: new URL(PUBLIC_BASE_URL).host,
+    display_name: "Practical Automation Lab Commerce Data",
     description:
-      "Deterministic pay-per-call utilities for AI agents: commerce-data validation and x402 declaration diagnostics.",
-    version: "1.2.0",
+      "Deterministic pay-per-call commerce-data validation and x402 diagnostics for autonomous agents.",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    payments: {
+      x402: {
+        networks: [
+          {
+            network: "base",
+            asset: "USDC",
+            contract: X402_ASSET,
+          },
+        ],
+      },
+    },
+    intents: [
+      {
+        name: "catalog_audit",
+        description:
+          "Audit 1-100 Google Merchant Center and product-feed records for duplicate IDs, GTIN validity, URLs, prices, availability, and brand/MPN consistency.",
+        endpoint: X402_AUDIT_PATH,
+        method: "POST",
+        price: { amount: 0.01, currency: "USDC" },
+      },
+      {
+        name: "gtin_check",
+        description:
+          "Validate up to 100 GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 identifiers including check digits.",
+        endpoint: X402_GTIN_PATH,
+        method: "POST",
+        price: { amount: 0.01, currency: "USDC" },
+      },
+      {
+        name: "feed_diff",
+        description:
+          "Compare two product-feed snapshots and report added, removed, and changed commerce fields.",
+        endpoint: X402_FEED_DIFF_PATH,
+        method: "POST",
+        price: { amount: 0.01, currency: "USDC" },
+      },
+      {
+        name: "x402_validate",
+        description:
+          "Statically validate x402 v2 payment declarations for protocol shape, Base/USDC fields, amounts, recipient, timeout, and duplicate accepts.",
+        endpoint: X402_VALIDATE_PATH,
+        method: "POST",
+        price: { amount: 0.05, currency: "USDC" },
+      },
+    ],
+    service_version: "1.2.0",
     homepage: PUBLIC_BASE_URL,
     docs: `${PUBLIC_BASE_URL}/llms.txt`,
     skill: `${PUBLIC_BASE_URL}/skill.md`,
