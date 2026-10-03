@@ -66,6 +66,10 @@ if (!/^0x[a-fA-F0-9]{40}$/.test(BASE_PAYOUT_ADDRESS)) {
 }
 
 const app = express();
+// Render terminates TLS at its reverse proxy. Trust the forwarded protocol so
+// x402 middleware advertises the public HTTPS resource URL instead of the
+// internal HTTP hop seen by the Node process.
+app.set("trust proxy", true);
 app.disable("x-powered-by");
 app.use(express.json({ limit: "128kb" }));
 
