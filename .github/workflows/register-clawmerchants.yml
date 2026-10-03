@@ -1,0 +1,66 @@
+name: Register PAL on ClawMerchants
+
+on:
+  push:
+    branches:
+      - nano-seller
+    paths:
+      - ".github/workflows/register-clawmerchants.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Register provider and existing paid assets
+        shell: bash
+        env:
+          BASE_URL: https://clawmerchants.com
+          PROVIDER_ID: practical-automation-lab
+          WALLET: 0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF
+          PAL_ORIGIN: https://pal-nano-catalog-audit.onrender.com
+        run: |
+          set -euo pipefail
+
+          post_json() {
+            local path="$1"
+            local body="$2"
+            local name="$3"
+            local out
+            out="$(mktemp)"
+            code="$(curl --fail-with-body --retry 2 --retry-delay 2 --connect-timeout 15 --max-time 45 \
+              -sS -o "$out" -w '%{http_code}' \
+              -X POST "$BASE_URL$path" \
+              -H 'content-type: application/json' \
+              --data "$body" || true)"
+            echo "$name HTTP $code"
+            cat "$out"
+            echo
+            if [[ "$code" != "200" && "$code" != "201" && "$code" != "409" ]]; then
+              echo "$name failed with HTTP $code" >&2
+              exit 1
+            fi
+          }
+
+          post_json "/api/v1/providers" \
+            "{\"agentId\":\"$PROVIDER_ID\",\"name\":\"Practical Automation Lab\",\"walletAddress\":\"$WALLET\",\"description\":\"Deterministic commerce-data validation and x402 diagnostics for autonomous agents.\"}" \
+            "provider"
+
+          post_json "/api/v1/assets" \
+            "{\"name\":\"PAL Catalog Feed Audit\",\"description\":\"Audit 1-100 product-feed records for duplicate IDs, GTIN validity, URL shape, price formatting, availability, and brand/MPN consistency. Live x402 Base-USDC endpoint.\",\"category\":\"ecommerce\",\"assetType\":\"data\",\"priceUsdc\":0.01,\"providerId\":\"$PROVIDER_ID\",\"endpoint\":\"$PAL_ORIGIN/v1/usdc/catalog-audit\"}" \
+            "catalog-audit"
+
+          post_json "/api/v1/assets" \
+            "{\"name\":\"PAL GTIN Check\",\"description\":\"Validate up to 100 GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 identifiers including check digits. Live x402 Base-USDC endpoint.\",\"category\":\"ecommerce\",\"assetType\":\"data\",\"priceUsdc\":0.01,\"providerId\":\"$PROVIDER_ID\",\"endpoint\":\"$PAL_ORIGIN/v1/usdc/gtin-check\"}" \
+            "gtin-check"
+
+          post_json "/api/v1/assets" \
+            "{\"name\":\"PAL Feed Diff\",\"description\":\"Compare two product-feed snapshots and return added, removed, and changed commerce fields. Live x402 Base-USDC endpoint.\",\"category\":\"ecommerce\",\"assetType\":\"data\",\"priceUsdc\":0.01,\"providerId\":\"$PROVIDER_ID\",\"endpoint\":\"$PAL_ORIGIN/v1/usdc/feed-diff\"}" \
+            "feed-diff"
+
+          post_json "/api/v1/assets" \
+            "{\"name\":\"PAL x402 Declaration Validator\",\"description\":\"Validate x402 v2 payment declarations for protocol shape, Base/USDC fields, amount, recipient, timeout, and duplicate accepts. Live x402 Base-USDC endpoint.\",\"category\":\"developer\",\"assetType\":\"tool\",\"priceUsdc\":0.05,\"providerId\":\"$PROVIDER_ID\",\"endpoint\":\"$PAL_ORIGIN/v1/usdc/x402-validate\"}" \
+            "x402-validator"
