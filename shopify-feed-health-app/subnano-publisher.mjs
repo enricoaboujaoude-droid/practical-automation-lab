@@ -699,6 +699,10 @@ async function patchSubnanoProfile(handle, fetchImpl = fetch) {
       body: JSON.stringify({
         name: SUBNANO_PROFILE_NAME,
         handle,
+        tipping: {
+          buttonLabel: "Support PAL experiments",
+          amounts: [0.1, 0.25, 0.5],
+        },
       }),
     },
     fetchImpl,
@@ -712,11 +716,17 @@ export async function ensureSubnanoProfile(fetchImpl = fetch) {
     fetchImpl,
   );
 
+  const tippingConfigured =
+    current?.tipping?.buttonLabel === "Support PAL experiments" &&
+    Array.isArray(current?.tipping?.amounts) &&
+    current.tipping.amounts.join(",") === "0.1,0.25,0.5";
+
   if (
     current?.name === SUBNANO_PROFILE_NAME &&
     [SUBNANO_PROFILE_HANDLE, SUBNANO_PROFILE_FALLBACK_HANDLE].includes(
       current?.handle,
-    )
+    ) &&
+    tippingConfigured
   ) {
     return {
       status: "already_configured",
