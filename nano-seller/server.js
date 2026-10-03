@@ -2621,6 +2621,49 @@ app.get("/.well-known/agent.json", (_req, res) => {
   });
 });
 
+app.get("/discovery/resources", (req, res) => {
+  const manifestResources = x402Manifest().resources;
+  const payTo = typeof req.query.payTo === "string" ? req.query.payTo.toLowerCase() : null;
+  const scheme = typeof req.query.scheme === "string" ? req.query.scheme : null;
+  const network = typeof req.query.network === "string" ? req.query.network : null;
+  const requestedLimit = Number.parseInt(String(req.query.limit || "20"), 10);
+  const requestedOffset = Number.parseInt(String(req.query.offset || "0"), 10);
+  const limit = Number.isFinite(requestedLimit) ? Math.min(100, Math.max(1, requestedLimit)) : 20;
+  const offset = Number.isFinite(requestedOffset) ? Math.max(0, requestedOffset) : 0;
+
+  const items = manifestResources
+    .map((entry) => ({
+      resource: entry.resource,
+      type: "http",
+      x402Version: 2,
+      accepts: entry.accepts,
+      lastUpdated: new Date().toISOString(),
+    }))
+    .filter((entry) => {
+      if (payTo && !entry.accepts.some((accept) => String(accept.payTo || "").toLowerCase() === payTo)) {
+        return false;
+      }
+      if (scheme && !entry.accepts.some((accept) => accept.scheme === scheme)) {
+        return false;
+      }
+      if (network && !entry.accepts.some((accept) => accept.network === network)) {
+        return false;
+      }
+      return true;
+    });
+
+  res.set("Cache-Control", "public, max-age=300");
+  res.json({
+    x402Version: 2,
+    items: items.slice(offset, offset + limit),
+    pagination: {
+      limit,
+      offset,
+      total: items.length,
+    },
+  });
+});
+
 app.get("/.well-known/x402", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.json(x402Manifest());
