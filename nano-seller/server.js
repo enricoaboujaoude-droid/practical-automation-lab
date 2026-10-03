@@ -48,6 +48,10 @@ const X402SCOUT_BOOTSTRAP = process.env.X402SCOUT_BOOTSTRAP === "1";
 const X402SCOUT_REGISTER_URL = "https://x402scout.com/register";
 const AGENTTOOLS_BOOTSTRAP = process.env.AGENTTOOLS_BOOTSTRAP === "1";
 const AGENTTOOLS_REGISTER_URL = "https://agent-tools.cloud/api/v1/submit";
+const AGENTTOOLS_KEYS_URL = "https://agent-tools.cloud/api/v1/keys";
+const AGENTTOOLS_CLAIMS_URL = "https://agent-tools.cloud/api/v1/claims";
+const AGENTTOOLS_HOST = new URL(PUBLIC_BASE_URL).hostname;
+const AGENTTOOLS_VERIFY_TOKEN = String(process.env.AGENTTOOLS_VERIFY_TOKEN || "").trim();
 const OPENDEXTER_AUDITION_BOOTSTRAP = process.env.OPENDEXTER_AUDITION_BOOTSTRAP === "1";
 const OPENDEXTER_AUDITION_URL = "https://x402.dexter.cash/api/public/discoverable";
 const TRUE402_BOOTSTRAP = process.env.TRUE402_BOOTSTRAP === "1";
@@ -333,10 +337,15 @@ let x402ScoutState = {
   service_id: null,
   error: null,
 };
+let agentToolsVerificationToken = AGENTTOOLS_VERIFY_TOKEN;
 let agentToolsState = {
   enabled: AGENTTOOLS_BOOTSTRAP,
   status: AGENTTOOLS_BOOTSTRAP ? "pending" : "disabled",
   registered: false,
+  owner_verified: Boolean(AGENTTOOLS_VERIFY_TOKEN),
+  claim_id: null,
+  listing_slug: null,
+  verification_persisted: Boolean(AGENTTOOLS_VERIFY_TOKEN),
   checked_at: null,
   service: null,
   error: null,
@@ -1374,7 +1383,25 @@ async function startX402ScoutBootstrap() {
 
 async function startAgentToolsBootstrap() {
   if (!AGENTTOOLS_BOOTSTRAP) return;
+
+  const readJson = async (response, limit = 1400) => {
+    const raw = await response.text();
+    if (!raw) return {};
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return { raw: raw.slice(0, limit) };
+    }
+  };
+
+  const bearerHeaders = (apiKey) => ({
+    authorization: `Bearer ${apiKey}`,
+    "content-type": "application/json",
+    accept: "application/json",
+  });
+
   agentToolsState = {
+    ...agentToolsState,
     enabled: true,
     status: "registering",
     registered: false,
@@ -1404,36 +1431,163 @@ async function startAgentToolsBootstrap() {
       signal: AbortSignal.timeout(45_000),
     });
 
-    const raw = await response.text();
-    let body = {};
-    try {
-      body = raw ? JSON.parse(raw) : {};
-    } catch {
-      body = { raw: raw.slice(0, 1200) };
-    }
-
+    const body = await readJson(response);
     if (!response.ok) {
       throw new Error(
         `agent-tools.cloud registration HTTP ${response.status}: ${JSON.stringify(body).slice(0, 1000)}`
       );
     }
 
+    const service = body?.service || body?.data || body;
+    const listingSlug =
+      cleanString(service?.slug) ||
+      cleanString(body?.slug) ||
+      "pal-nano-catalog-audit-onrender-com-sub1069";
+
     agentToolsState = {
-      enabled: true,
-      status: body?.status || "registered",
+      ...agentToolsState,
+      status: cleanString(body?.status) || "registered",
       registered: true,
+      listing_slug: listingSlug,
       checked_at: nowIso(),
-      service: body?.service || body?.data || body,
+      service,
+      error: null,
+    };
+
+    // A persisted verification token means this host has already completed the
+    // ownership flow. Keeping the public proof in place is required because
+    // agent-tools.cloud re-checks claimed hosts daily.
+    if (agentToolsVerificationToken) {
+      agentToolsState = {
+        ...agentToolsState,
+        status: "owner_verified",
+        owner_verified: true,
+        verification_persisted: true,
+        checked_at: nowIso(),
+      };
+      console.log(
+        `[agenttools] owner proof persisted host=${AGENTTOOLS_HOST} listing=${listingSlug}`
+      );
+      return;
+    }
+
+    agentToolsState = {
+      ...agentToolsState,
+      status: "claiming",
+      checked_at: nowIso(),
+    };
+
+    // Keys are intentionally held only in this function's local scope. They are
+    // never written to logs, status endpoints, source control, or response data.
+    const keyResponse = await fetch(AGENTTOOLS_KEYS_URL, {
+      method: "POST",
+      headers: { accept: "application/json" },
+      signal: AbortSignal.timeout(30_000),
+    });
+    const keyBody = await readJson(keyResponse);
+    const apiKey = cleanString(keyBody?.api_key);
+    if (!keyResponse.ok || !apiKey) {
+      throw new Error(
+        `agent-tools.cloud key mint HTTP ${keyResponse.status}: key_unavailable`
+      );
+    }
+
+    const claimResponse = await fetch(AGENTTOOLS_CLAIMS_URL, {
+      method: "POST",
+      headers: bearerHeaders(apiKey),
+      body: JSON.stringify({
+        host: AGENTTOOLS_HOST,
+        method: "wellknown_file",
+      }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const claimBody = await readJson(claimResponse);
+    const claimId = claimBody?.claim_id;
+    const token = cleanString(claimBody?.token);
+    if (!claimResponse.ok || !claimId || !/^atc_[A-Za-z0-9_-]+$/.test(token)) {
+      throw new Error(
+        `agent-tools.cloud claim HTTP ${claimResponse.status}: claim_or_token_unavailable`
+      );
+    }
+
+    // The token is public proof by design. It is kept only in memory until the
+    // operator persists it as AGENTTOOLS_VERIFY_TOKEN after successful verify.
+    agentToolsVerificationToken = token;
+    agentToolsState = {
+      ...agentToolsState,
+      status: "verifying",
+      claim_id: claimId,
+      verification_persisted: false,
+      checked_at: nowIso(),
+    };
+
+    // Allow the public edge to observe /.well-known/agent-tools-verify.txt.
+    await new Promise((resolve) => setTimeout(resolve, 3_000));
+
+    const verifyResponse = await fetch(
+      `${AGENTTOOLS_CLAIMS_URL}/${encodeURIComponent(String(claimId))}/verify`,
+      {
+        method: "POST",
+        headers: bearerHeaders(apiKey),
+        body: JSON.stringify({ token }),
+        signal: AbortSignal.timeout(45_000),
+      }
+    );
+    const verifyBody = await readJson(verifyResponse, 1800);
+    if (!verifyResponse.ok) {
+      throw new Error(
+        `agent-tools.cloud verify HTTP ${verifyResponse.status}: ${JSON.stringify(verifyBody).slice(0, 900)}`
+      );
+    }
+
+    agentToolsState = {
+      ...agentToolsState,
+      status: "updating_listing",
+      owner_verified: true,
+      checked_at: nowIso(),
+    };
+
+    const patchResponse = await fetch(
+      `https://agent-tools.cloud/api/v1/listings/x402/${encodeURIComponent(listingSlug)}`,
+      {
+        method: "PATCH",
+        headers: bearerHeaders(apiKey),
+        body: JSON.stringify({
+          name: "PAL Catalog Feed Identifier Audit",
+          description:
+            "Deterministic Google Merchant Center and product-feed audit for 1-100 catalog records. Checks duplicate IDs, GTIN format/checksum, URL shape, prices, availability, and brand/MPN consistency. Live x402 v2 endpoint; $0.01 USDC per request on Base.",
+          category: "ecommerce",
+          url: X402_AUDIT_URL,
+        }),
+        signal: AbortSignal.timeout(30_000),
+      }
+    );
+    const patchBody = await readJson(patchResponse, 1800);
+    if (!patchResponse.ok) {
+      throw new Error(
+        `agent-tools.cloud listing update HTTP ${patchResponse.status}: ${JSON.stringify(patchBody).slice(0, 900)}`
+      );
+    }
+
+    agentToolsState = {
+      ...agentToolsState,
+      status: "owner_verified",
+      registered: true,
+      owner_verified: true,
+      claim_id: claimId,
+      listing_slug: listingSlug,
+      verification_persisted: false,
+      checked_at: nowIso(),
+      service: patchBody?.listing || patchBody?.service || patchBody?.data || patchBody || service,
       error: null,
     };
     console.log(
-      `[agenttools] submitted route=${X402_AUDIT_URL} status=${agentToolsState.status}`
+      `[agenttools] owner verified host=${AGENTTOOLS_HOST} listing=${listingSlug}`
     );
   } catch (error) {
     agentToolsState = {
       ...agentToolsState,
       status: "failed",
-      registered: false,
       checked_at: nowIso(),
       error: safePayanAgentError(error),
     };
@@ -2459,6 +2613,14 @@ app.get("/v1/x402scout/status", (_req, res) => {
     directory: "https://x402scout.com",
     ...x402ScoutState,
   });
+});
+
+app.get("/.well-known/agent-tools-verify.txt", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  if (!agentToolsVerificationToken) {
+    return res.status(404).type("text/plain").send("verification_not_ready");
+  }
+  return res.type("text/plain").send(agentToolsVerificationToken);
 });
 
 app.get("/v1/agenttools/status", (_req, res) => {
