@@ -4,7 +4,7 @@ function config() {
   return {
     token: String(process.env.SHOPIFY_PARTNER_API_ACCESS_TOKEN || "").trim(),
     orgId: String(process.env.SHOPIFY_PARTNER_ORG_ID || "236215501").trim(),
-    appGid: String(process.env.SHOPIFY_APP_GID || "").trim(),
+    appGid: String(process.env.SHOPIFY_APP_GID || "").trim().replace(/^gid:\/\/shopify\//, "gid://partners/"),
   };
 }
 
