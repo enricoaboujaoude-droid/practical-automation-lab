@@ -120,16 +120,55 @@ export async function fetchPartnerRevenueProbe(createdAtMin = "2026-09-22T00:00:
   };
 }
 
+export async function fetchPalPaymentLedger() {
+  const response = await fetch(
+    "https://pal-feed-auditor-events.onrender.com/metrics/payments",
+    {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(15000),
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`PAL payment ledger probe failed status=${response.status}`);
+  }
+
+  const body = await response.json();
+  return {
+    completedTransactions: Number(body?.completed_transactions || 0),
+    firstCompletedAt: body?.first_completed_at || null,
+    lastCompletedAt: body?.last_completed_at || null,
+    activeSubscriptions: Number(body?.active_subscriptions || 0),
+    grossCompletedByCurrency: body?.gross_completed_by_currency || {},
+    completedByProvider: body?.completed_by_provider || {},
+  };
+}
+
 export function startPartnerRevenueProbe() {
-  void fetchPartnerRevenueProbe()
-    .then((summary) => {
+  void Promise.allSettled([
+    fetchPartnerRevenueProbe(),
+    fetchPalPaymentLedger(),
+  ]).then(([shopify, ledger]) => {
+    if (shopify.status === "fulfilled") {
+      const summary = shopify.value;
       console.log(
-        `[pal-revenue-probe] configured=${summary.configured} sale_count=${summary.saleCount} gross_usd=${summary.grossUsd.toFixed(2)} net_usd=${summary.netUsd.toFixed(2)} non_usd_sales=${summary.nonUsdSaleCount || 0} latest=${summary.latestCreatedAt || "none"} types=${JSON.stringify(summary.byType)}`,
+        `[pal-revenue-probe] shopify configured=${summary.configured} sale_count=${summary.saleCount} gross_usd=${summary.grossUsd.toFixed(2)} net_usd=${summary.netUsd.toFixed(2)} non_usd_sales=${summary.nonUsdSaleCount || 0} latest=${summary.latestCreatedAt || "none"} types=${JSON.stringify(summary.byType)}`,
       );
-    })
-    .catch((error) => {
+    } else {
       console.error(
-        `[pal-revenue-probe] failed message=${String(error?.message || error).replace(/\s+/g, " ").slice(0, 240)}`,
+        `[pal-revenue-probe] shopify_failed message=${String(shopify.reason?.message || shopify.reason).replace(/\s+/g, " ").slice(0, 240)}`,
       );
-    });
+    }
+
+    if (ledger.status === "fulfilled") {
+      const summary = ledger.value;
+      console.log(
+        `[pal-revenue-probe] ledger completed_transactions=${summary.completedTransactions} active_subscriptions=${summary.activeSubscriptions} gross=${JSON.stringify(summary.grossCompletedByCurrency)} providers=${JSON.stringify(summary.completedByProvider)} first=${summary.firstCompletedAt || "none"} last=${summary.lastCompletedAt || "none"}`,
+      );
+    } else {
+      console.error(
+        `[pal-revenue-probe] ledger_failed message=${String(ledger.reason?.message || ledger.reason).replace(/\s+/g, " ").slice(0, 240)}`,
+      );
+    }
+  });
 }
