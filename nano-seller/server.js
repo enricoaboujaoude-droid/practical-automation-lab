@@ -2362,63 +2362,243 @@ async function startNoHumansBootstrap() {
     error: null,
   };
 
-  const payload = {
-    name: "PAL Single GTIN Check",
-    description:
-      "Deterministic GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 checksum validation for ecommerce agents. One query parameter, JSON result, paid per call over x402 Base USDC.",
-    endpoint_url: `${X402_GTIN_ONE_URL}?gtin=4006381333931`,
-    category: "infra.validation",
-    price_amount: 0.01,
-    chains: ["base"],
-  };
+  const claimToken = String(process.env.NOHUMANS_CLAIM_TOKEN || "").trim();
+  const claimedListingId = String(process.env.NOHUMANS_LISTING_ID || "").trim();
+  const sampleUrl = `${PUBLIC_BASE_URL}/v1/sample/gtin-check?gtin=4006381333931`;
+
+  const listings = [
+    {
+      name: "PAL Single GTIN Check",
+      description:
+        "Deterministic GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 checksum validation for ecommerce agents. One query parameter, JSON result, paid per call over x402 Base USDC.",
+      endpoint_url: `${X402_GTIN_ONE_URL}?gtin=4006381333931`,
+      category: "infra.validation",
+      price_amount: 0.01,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          gtin: {
+            type: "string",
+            description: "GTIN, UPC, or EAN identifier.",
+            default: "4006381333931",
+          },
+        },
+        required: ["gtin"],
+      },
+      sample_query: sampleUrl,
+    },
+    {
+      name: "PAL Catalog Feed Audit",
+      description:
+        "Deterministic ecommerce product-feed audit for duplicate IDs, GTIN checksums, URLs, prices, availability, and brand/MPN consistency across 1-100 records.",
+      endpoint_url: X402_AUDIT_URL,
+      category: "infra.validation",
+      price_amount: 0.01,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          records: {
+            type: "array",
+            minItems: 1,
+            maxItems: 100,
+            default: [
+              {
+                id: "sku-100",
+                title: "Example Product",
+                link: "https://example.com/products/sku-100",
+                image_link: "https://example.com/images/sku-100.jpg",
+                gtin: "4006381333931",
+                brand: "Example",
+                mpn: "SKU-100",
+                price: "19.99 USD",
+                availability: "in_stock",
+                identifier_exists: true,
+              },
+            ],
+            items: { type: "object", additionalProperties: true },
+          },
+        },
+        required: ["records"],
+      },
+    },
+    {
+      name: "PAL Batch GTIN Check",
+      description:
+        "Validate 1-100 GTIN, UPC, or EAN identifiers in one deterministic call, including normalized value, length, check digit, and checksum validity.",
+      endpoint_url: X402_GTIN_URL,
+      category: "infra.validation",
+      price_amount: 0.01,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          gtins: {
+            type: "array",
+            minItems: 1,
+            maxItems: 100,
+            default: ["4006381333931"],
+            items: { type: ["string", "number"] },
+          },
+        },
+        required: ["gtins"],
+      },
+    },
+    {
+      name: "PAL Product Feed Diff",
+      description:
+        "Compare before/after ecommerce feed snapshots and report added, removed, changed, and unchanged products with field-level changes for deterministic catalog QA.",
+      endpoint_url: X402_FEED_DIFF_URL,
+      category: "infra.validation",
+      price_amount: 0.01,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          before: {
+            type: "array",
+            maxItems: 100,
+            default: [{ id: "sku-100", title: "Example Product", price: "19.99 USD" }],
+            items: { type: "object", additionalProperties: true },
+          },
+          after: {
+            type: "array",
+            maxItems: 100,
+            default: [{ id: "sku-100", title: "Example Product", price: "17.99 USD" }],
+            items: { type: "object", additionalProperties: true },
+          },
+        },
+        required: ["before", "after"],
+      },
+    },
+  ];
+
+  const results = [];
+  let patchResult = null;
 
   try {
-    const response = await fetch(NOHUMANS_LISTINGS_URL, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        accept: "application/json",
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(30_000),
-    });
-
-    const raw = await response.text();
-    let body = {};
-    try {
-      body = raw ? JSON.parse(raw) : {};
-    } catch {
-      body = { raw: raw.slice(0, 1600) };
+    if (claimToken && claimedListingId) {
+      const patchResponse = await fetch(`${NOHUMANS_LISTINGS_URL}/${encodeURIComponent(claimedListingId)}`, {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+          accept: "application/json",
+          "x-claim-token": claimToken,
+        },
+        body: JSON.stringify({
+          request_schema: listings[0].request_schema,
+          sample_query: listings[0].sample_query,
+        }),
+        signal: AbortSignal.timeout(30_000),
+      });
+      const patchRaw = await patchResponse.text();
+      let patchBody = {};
+      try {
+        patchBody = patchRaw ? JSON.parse(patchRaw) : {};
+      } catch {
+        patchBody = { raw: patchRaw.slice(0, 1200) };
+      }
+      patchResult = {
+        ok: patchResponse.ok,
+        status: patchResponse.status,
+        result: patchBody,
+      };
+      if (!patchResponse.ok) {
+        console.warn(
+          `[nohumans] metadata patch failed listing=${claimedListingId} status=${patchResponse.status}`
+        );
+      } else {
+        console.log(
+          `[nohumans] metadata patched listing=${claimedListingId} sample=true schema=true`
+        );
+      }
     }
 
-    const duplicate =
-      response.status === 409 ||
-      /already|duplicate|exists/i.test(JSON.stringify(body));
+    for (const payload of listings) {
+      const response = await fetch(NOHUMANS_LISTINGS_URL, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(30_000),
+      });
 
-    if (!response.ok && !duplicate) {
-      throw new Error(
-        `nohumans listing HTTP ${response.status}: ${JSON.stringify(body).slice(0, 1200)}`
+      const raw = await response.text();
+      let body = {};
+      try {
+        body = raw ? JSON.parse(raw) : {};
+      } catch {
+        body = { raw: raw.slice(0, 1600) };
+      }
+
+      const duplicate =
+        response.status === 409 ||
+        /already|duplicate|exists/i.test(JSON.stringify(body));
+
+      if (!response.ok && !duplicate) {
+        results.push({
+          name: payload.name,
+          endpoint_url: payload.endpoint_url,
+          ok: false,
+          status: response.status,
+          error: JSON.stringify(body).slice(0, 1000),
+        });
+        continue;
+      }
+
+      const publicListing = body && typeof body === "object" ? { ...body } : body;
+      if (publicListing && typeof publicListing === "object") {
+        delete publicListing.claim_token;
+        delete publicListing.edit_token;
+        delete publicListing.token;
+      }
+      results.push({
+        name: payload.name,
+        endpoint_url: payload.endpoint_url,
+        ok: true,
+        duplicate,
+        status: response.status,
+        listing: publicListing,
+      });
+      console.log(
+        `[nohumans] ${duplicate ? "existing" : "submitted"} name=${payload.name} status=${response.status}`
       );
     }
 
-    const publicListing = body && typeof body === "object" ? { ...body } : body;
-    if (publicListing && typeof publicListing === "object") {
-      delete publicListing.claim_token;
-      delete publicListing.edit_token;
-      delete publicListing.token;
+    const successes = results.filter((item) => item.ok);
+    const failures = results.filter((item) => !item.ok);
+    const publicPatch =
+      patchResult && patchResult.result && typeof patchResult.result === "object"
+        ? { ...patchResult, result: { ...patchResult.result } }
+        : patchResult;
+    if (publicPatch?.result && typeof publicPatch.result === "object") {
+      delete publicPatch.result.claim_token;
+      delete publicPatch.result.edit_token;
+      delete publicPatch.result.token;
     }
 
     noHumansState = {
       enabled: true,
-      status: duplicate ? "already_listed" : "submitted",
-      submitted: true,
+      status:
+        successes.length === listings.length
+          ? "submitted"
+          : successes.length > 0
+            ? "partial"
+            : "failed",
+      submitted: successes.length > 0,
       checked_at: nowIso(),
-      listing: publicListing,
-      error: null,
+      listing: {
+        metadata_patch: publicPatch,
+        listings: results,
+      },
+      error:
+        failures.length === 0
+          ? null
+          : `${failures.length} nohumans listing(s) failed`,
     };
-    console.log(
-      `[nohumans] listing ${duplicate ? "already exists" : "submitted"} route=${payload.endpoint_url} status=${response.status}`
-    );
   } catch (error) {
     noHumansState = {
       ...noHumansState,
