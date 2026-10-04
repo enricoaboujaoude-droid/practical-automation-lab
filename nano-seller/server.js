@@ -3636,6 +3636,18 @@ app.post("/v1/usdc/catalog-audit", (req, res) => {
   });
 });
 
+app.get("/v1/sample/gtin-check", (req, res) => {
+  const gtin = String(req.query?.gtin || "4006381333931").trim();
+  res.set("Cache-Control", "public, max-age=300");
+  return res.json({
+    service: "PAL Single GTIN Check",
+    sample: true,
+    result: inspectGtin(gtin),
+    paid_endpoint: `${X402_GTIN_ONE_URL}?gtin=${encodeURIComponent(gtin)}`,
+    paid_price_usd: USDC_X402_PRICE,
+  });
+});
+
 app.get("/v1/usdc/gtin-check-one", (req, res) => {
   const gtin = String(req.query?.gtin || "").trim();
   if (!gtin) {
