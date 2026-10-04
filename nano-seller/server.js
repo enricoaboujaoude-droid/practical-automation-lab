@@ -62,6 +62,7 @@ const TRUE402_BOOTSTRAP = process.env.TRUE402_BOOTSTRAP === "1";
 const TRUE402_SERVICES_URL = "https://true402.dev/api/v1/services";
 const MARKET402_BOOTSTRAP = process.env.MARKET402_BOOTSTRAP === "1";
 const MARKET402_SUBMIT_URL = "https://market402.com/submit";
+const X402DASH_REGISTER_URL = "https://api.x402dash.com/v1/register";
 const USDC_X402_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-audit`;
 const USDC_X402_PRICE = "$0.01";
 const USDC_X402_NETWORK = "eip155:8453";
@@ -431,6 +432,14 @@ let market402State = {
   submitted: false,
   checked_at: null,
   result: null,
+  error: null,
+};
+let x402DashState = {
+  enabled: true,
+  status: "pending",
+  registered: false,
+  checked_at: null,
+  listings: [],
   error: null,
 };
 
@@ -2167,6 +2176,104 @@ async function startMarket402Bootstrap() {
 }
 
 
+async function startX402DashBootstrap() {
+  x402DashState = {
+    enabled: true,
+    status: "registering",
+    registered: false,
+    checked_at: nowIso(),
+    listings: [],
+    error: null,
+  };
+
+  const listings = [
+    {
+      url: X402_AUDIT_URL,
+      name: "PAL Catalog Feed Identifier Audit",
+      description:
+        "Google Merchant Center and ecommerce product-feed audit for duplicate IDs, GTIN format/checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+      category: "Data",
+      tags: ["ecommerce", "product-feed", "merchant-center", "gtin", "validation"],
+    },
+    {
+      url: X402_REMEDIATE_URL,
+      name: "PAL Catalog Remediation Plan",
+      description:
+        "Prioritized Merchant Center and product-feed remediation plan with concrete corrective actions, severity, and affected products for 1-100 catalog records.",
+      category: "Data",
+      tags: ["ecommerce", "product-feed", "merchant-center", "remediation", "google-shopping"],
+    },
+  ];
+
+  const results = [];
+  try {
+    for (const listing of listings) {
+      const response = await fetch(X402DASH_REGISTER_URL, {
+        method: "POST",
+        headers: { "content-type": "application/json", accept: "application/json" },
+        body: JSON.stringify(listing),
+        signal: AbortSignal.timeout(30_000),
+      });
+      const raw = await response.text();
+      let body = {};
+      try {
+        body = raw ? JSON.parse(raw) : {};
+      } catch {
+        body = { raw: raw.slice(0, 1400) };
+      }
+
+      const duplicate =
+        response.status === 409 ||
+        /already|duplicate|exists/i.test(JSON.stringify(body));
+      if (!response.ok && !duplicate) {
+        results.push({
+          url: listing.url,
+          name: listing.name,
+          ok: false,
+          status: response.status,
+          error: JSON.stringify(body).slice(0, 900),
+        });
+        continue;
+      }
+
+      results.push({
+        url: listing.url,
+        name: listing.name,
+        ok: true,
+        status: response.status,
+        duplicate,
+        result: body,
+      });
+      console.log(
+        `[x402dash] registered route=${listing.url} status=${response.status} duplicate=${duplicate}`
+      );
+    }
+
+    const success = results.filter((item) => item.ok);
+    x402DashState = {
+      enabled: true,
+      status: success.length === listings.length ? "registered" : success.length ? "partial" : "failed",
+      registered: success.length > 0,
+      checked_at: nowIso(),
+      listings: results,
+      error:
+        success.length === listings.length
+          ? null
+          : `${listings.length - success.length} x402dash listing(s) failed`,
+    };
+  } catch (error) {
+    x402DashState = {
+      ...x402DashState,
+      status: "failed",
+      registered: false,
+      checked_at: nowIso(),
+      listings: results,
+      error: safePayanAgentError(error),
+    };
+    console.error("[x402dash] bootstrap failed:", safePayanAgentError(error));
+  }
+}
+
 const FEED_DIFF_FIELDS = [
   "title",
   "link",
@@ -3186,6 +3293,18 @@ app.get("/v1/market402/status", (_req, res) => {
   });
 });
 
+app.get("/v1/x402dash/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    marketplace: "x402dash",
+    directory: "https://x402dash.com",
+    payout_network: X402_NETWORK,
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    ...x402DashState,
+  });
+});
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "pal-nano-catalog-identifier-audit", time: nowIso() });
 });
@@ -4074,4 +4193,5 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startOpenDexterAuditionBootstrap(), 24_000);
   setTimeout(() => void startTrue402Bootstrap(), 28_000);
   setTimeout(() => void startMarket402Bootstrap(), 32_000);
+  setTimeout(() => void startX402DashBootstrap(), 36_000);
 });
