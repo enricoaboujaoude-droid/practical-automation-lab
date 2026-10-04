@@ -61,7 +61,7 @@ function partnerEndpoint(orgId: string) {
   return `https://partners.shopify.com/${encodeURIComponent(orgId)}/api/${PARTNER_API_VERSION}/graphql.json`;
 }
 
-function numericAmount(value: MoneyValue) {
+function numericAmount(value: MoneyValue | undefined) {
   const amount = Number(value?.amount ?? 0);
   return Number.isFinite(amount) ? amount : 0;
 }
