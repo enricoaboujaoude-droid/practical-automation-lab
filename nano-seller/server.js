@@ -1213,8 +1213,8 @@ async function startIndex402Bootstrap() {
     error: null,
   };
 
-  try {
-    const payload = {
+  const listings = [
+    {
       url: X402_AUDIT_URL,
       name: "PAL Catalog Feed Identifier Audit",
       protocol: "x402",
@@ -1227,44 +1227,109 @@ async function startIndex402Bootstrap() {
       payment_network: "Base",
       category: "ecommerce/data-quality",
       provider: "Practical Automation Lab",
-    };
+    },
+    {
+      url: X402_REMEDIATE_URL,
+      name: "PAL Catalog Remediation Plan",
+      protocol: "x402",
+      http_method: "POST",
+      probe_body: JSON.stringify(catalogAuditExample()),
+      description:
+        "Prioritized Merchant Center and product-feed remediation plan for 1-100 catalog records, including concrete corrective actions, issue severity, and affected products.",
+      price_usd: 1.0,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      category: "ecommerce/catalog-remediation",
+      provider: "Practical Automation Lab",
+    },
+  ];
 
-    const response = await fetch(INDEX402_REGISTER_URL, {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        accept: "application/json",
-      },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(45_000),
-    });
+  const registrationResults = [];
 
-    const raw = await response.text();
-    let body = {};
-    try {
-      body = raw ? JSON.parse(raw) : {};
-    } catch {
-      body = { raw: raw.slice(0, 1200) };
+  try {
+    for (const payload of listings) {
+      const response = await fetch(INDEX402_REGISTER_URL, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(45_000),
+      });
+
+      const raw = await response.text();
+      let body = {};
+      try {
+        body = raw ? JSON.parse(raw) : {};
+      } catch {
+        body = { raw: raw.slice(0, 1200) };
+      }
+
+      if (!response.ok && response.status !== 409) {
+        registrationResults.push({
+          url: payload.url,
+          name: payload.name,
+          ok: false,
+          status: response.status,
+          error: JSON.stringify(body).slice(0, 1000),
+        });
+        continue;
+      }
+
+      registrationResults.push({
+        url: payload.url,
+        name: payload.name,
+        ok: true,
+        status: response.status,
+        service: body?.service || body?.listing || body?.data || body || null,
+        verification: body?.probe || body?.verification || null,
+      });
+      console.log(
+        `[402index] registered route=${payload.url} status=${body?.status || response.status}`
+      );
     }
 
-    if (!response.ok) {
+    const successful = registrationResults.filter((item) => item.ok);
+    const failed = registrationResults.filter((item) => !item.ok);
+    if (successful.length === 0) {
       throw new Error(
-        `402 Index registration HTTP ${response.status}: ${JSON.stringify(body).slice(0, 1000)}`
+        `402 Index rejected all PAL listings: ${JSON.stringify(registrationResults).slice(0, 1800)}`
       );
     }
 
     index402State = {
       enabled: true,
-      status: body?.status || "registered",
+      status: failed.length === 0 ? "registered" : "partial",
       registered: true,
       checked_at: nowIso(),
-      service: body?.service || body?.listing || body?.data || null,
-      verification: body?.probe || body?.verification || null,
-      error: null,
+      service: {
+        primary: successful.find((item) => item.url === X402_AUDIT_URL)?.service || null,
+        additional: successful
+          .filter((item) => item.url !== X402_AUDIT_URL)
+          .map((item) => ({
+            url: item.url,
+            name: item.name,
+            service: item.service,
+          })),
+      },
+      verification: {
+        primary: successful.find((item) => item.url === X402_AUDIT_URL)?.verification || null,
+        additional: successful
+          .filter((item) => item.url !== X402_AUDIT_URL)
+          .map((item) => ({
+            url: item.url,
+            name: item.name,
+            verification: item.verification,
+          })),
+      },
+      error:
+        failed.length === 0
+          ? null
+          : `${failed.length} 402 Index listing(s) failed: ${failed
+              .map((item) => `${item.name} HTTP ${item.status}`)
+              .join(", ")}`,
     };
-    console.log(
-      `[402index] registered route=${X402_AUDIT_URL} status=${index402State.status}`
-    );
   } catch (error) {
     index402State = {
       ...index402State,
