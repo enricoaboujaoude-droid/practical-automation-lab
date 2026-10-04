@@ -20,6 +20,7 @@ import { startX402ExpansionReportPublisher } from "./x402-expansion-report-publi
 import { startSubnanoRevenueIndexPublisher } from "./subnano-revenue-index-publisher.mjs";
 import { startTrue402ReportPublisher } from "./true402-report-publisher.mjs";
 import { startPartnerRevenueProbe } from "./partner-revenue-probe.mjs";
+import { startBrickScout } from "./brick-scout.mjs";
 import {
   APIHUB_AUDIT_PATH,
   APIHUB_OPENAPI_PATH,
@@ -148,4 +149,5 @@ app.listen(port, host, () => {
   startSubnanoRevenueIndexPublisher();
   startTrue402ReportPublisher();
   startPartnerRevenueProbe();
+  startBrickScout();
 });
