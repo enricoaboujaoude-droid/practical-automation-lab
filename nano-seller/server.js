@@ -473,6 +473,7 @@ let market402State = {
   result: null,
   error: null,
 };
+let x402DashRetryScheduled = false;
 let x402DashState = {
   enabled: true,
   status: "pending",
@@ -2347,6 +2348,16 @@ async function startX402DashBootstrap() {
           ? null
           : `${listings.length - success.length} x402dash listing(s) failed`,
     };
+
+    const rateLimited = results.some((item) => item.status === 429);
+    if (rateLimited && !x402DashRetryScheduled) {
+      x402DashRetryScheduled = true;
+      setTimeout(() => {
+        x402DashRetryScheduled = false;
+        void startX402DashBootstrap();
+      }, 65 * 60_000);
+      console.log("[x402dash] rate limited; one retry scheduled after 65 minutes");
+    }
   } catch (error) {
     x402DashState = {
       ...x402DashState,
@@ -2510,41 +2521,6 @@ async function startNoHumansBootstrap() {
           },
         },
         required: ["x402Version", "accepts"],
-      },
-    },
-    {
-      name: "PAL Catalog Remediation Plan",
-      description:
-        "Turn 1-100 ecommerce catalog records into a prioritized Merchant Center and product-feed remediation plan with concrete corrective actions, severity, and affected products.",
-      endpoint_url: X402_REMEDIATE_URL,
-      category: "infra.validation",
-      price_amount: 1.0,
-      chains: ["base"],
-      request_schema: {
-        type: "object",
-        properties: {
-          records: {
-            type: "array",
-            minItems: 1,
-            maxItems: 100,
-            default: [
-              {
-                id: "sku-100",
-                title: "Example Product",
-                link: "https://example.com/products/sku-100",
-                image_link: "https://example.com/images/sku-100.jpg",
-                gtin: "4006381333931",
-                brand: "Example",
-                mpn: "SKU-100",
-                price: "19.99 USD",
-                availability: "in_stock",
-                identifier_exists: true,
-              },
-            ],
-            items: { type: "object", additionalProperties: true },
-          },
-        },
-        required: ["records"],
       },
     },
   ];
