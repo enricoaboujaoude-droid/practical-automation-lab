@@ -1650,12 +1650,76 @@ async function startX402ScoutBootstrap() {
       );
     }
 
+    let remediation = null;
+    try {
+      const remediationResponse = await fetch(X402SCOUT_REGISTER_URL, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify({
+          name: "PAL Catalog Remediation Plan",
+          url: X402_REMEDIATE_URL,
+          price_usd: 1.0,
+          category: "data",
+          description:
+            "Prioritized Merchant Center and product-feed remediation plan for 1-100 catalog records with concrete corrective actions, severity, and affected products.",
+          network: "base-mainnet",
+          wallet: BASE_PAYOUT_ADDRESS,
+          wallet_address: BASE_PAYOUT_ADDRESS,
+          tags: ["catalog", "ecommerce", "merchant-center", "product-feed", "remediation"],
+        }),
+        signal: AbortSignal.timeout(45_000),
+      });
+      const remediationRaw = await remediationResponse.text();
+      let remediationBody = {};
+      try {
+        remediationBody = remediationRaw ? JSON.parse(remediationRaw) : {};
+      } catch {
+        remediationBody = { raw: remediationRaw.slice(0, 1200) };
+      }
+      remediation = {
+        ok: remediationResponse.ok,
+        status: remediationResponse.status,
+        service_id:
+          remediationBody?.service_id ||
+          remediationBody?.id ||
+          remediationBody?.service?.id ||
+          null,
+        result: remediationBody,
+      };
+      if (remediationResponse.ok) {
+        console.log(
+          `[x402scout] registered remediation route=${X402_REMEDIATE_URL} service_id=${remediation.service_id || "unknown"}`
+        );
+      } else {
+        console.warn(
+          `[x402scout] remediation registration HTTP ${remediationResponse.status}: ${JSON.stringify(remediationBody).slice(0, 700)}`
+        );
+      }
+    } catch (remediationError) {
+      remediation = {
+        ok: false,
+        status: null,
+        service_id: null,
+        error: safePayanAgentError(remediationError),
+      };
+      console.warn(
+        "[x402scout] remediation registration failed:",
+        safePayanAgentError(remediationError)
+      );
+    }
+
     x402ScoutState = {
       enabled: true,
       status: body?.status || "registered",
       registered: true,
       checked_at: nowIso(),
       service_id: body?.service_id || body?.id || body?.service?.id || null,
+      additional_services: remediation
+        ? [{ name: "PAL Catalog Remediation Plan", url: X402_REMEDIATE_URL, ...remediation }]
+        : [],
       error: null,
     };
     console.log(
