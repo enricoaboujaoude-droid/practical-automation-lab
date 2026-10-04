@@ -65,6 +65,7 @@ const TRUE402_SERVICES_URL = "https://true402.dev/api/v1/services";
 const MARKET402_BOOTSTRAP = process.env.MARKET402_BOOTSTRAP === "1";
 const MARKET402_SUBMIT_URL = "https://market402.com/submit";
 const X402DASH_REGISTER_URL = "https://api.x402dash.com/v1/register";
+const NOHUMANS_LISTINGS_URL = "https://nohumans.directory/v1/listings";
 const USDC_X402_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-audit`;
 const USDC_X402_PRICE = "$0.01";
 const USDC_X402_NETWORK = "eip155:8453";
@@ -478,6 +479,14 @@ let x402DashState = {
   registered: false,
   checked_at: null,
   listings: [],
+  error: null,
+};
+let noHumansState = {
+  enabled: true,
+  status: "pending",
+  submitted: false,
+  checked_at: null,
+  listing: null,
   error: null,
 };
 
@@ -2343,6 +2352,78 @@ async function startX402DashBootstrap() {
   }
 }
 
+async function startNoHumansBootstrap() {
+  noHumansState = {
+    enabled: true,
+    status: "submitting",
+    submitted: false,
+    checked_at: nowIso(),
+    listing: null,
+    error: null,
+  };
+
+  const payload = {
+    name: "PAL Single GTIN Check",
+    description:
+      "Deterministic GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 checksum validation for ecommerce agents. One query parameter, JSON result, paid per call over x402 Base USDC.",
+    endpoint_url: `${X402_GTIN_ONE_URL}?gtin=4006381333931`,
+    category: "infra.validation",
+    price_amount: 0.01,
+    chains: ["base"],
+  };
+
+  try {
+    const response = await fetch(NOHUMANS_LISTINGS_URL, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(30_000),
+    });
+
+    const raw = await response.text();
+    let body = {};
+    try {
+      body = raw ? JSON.parse(raw) : {};
+    } catch {
+      body = { raw: raw.slice(0, 1600) };
+    }
+
+    const duplicate =
+      response.status === 409 ||
+      /already|duplicate|exists/i.test(JSON.stringify(body));
+
+    if (!response.ok && !duplicate) {
+      throw new Error(
+        `nohumans listing HTTP ${response.status}: ${JSON.stringify(body).slice(0, 1200)}`
+      );
+    }
+
+    noHumansState = {
+      enabled: true,
+      status: duplicate ? "already_listed" : "submitted",
+      submitted: true,
+      checked_at: nowIso(),
+      listing: body,
+      error: null,
+    };
+    console.log(
+      `[nohumans] listing ${duplicate ? "already exists" : "submitted"} route=${payload.endpoint_url} status=${response.status}`
+    );
+  } catch (error) {
+    noHumansState = {
+      ...noHumansState,
+      status: "failed",
+      submitted: false,
+      checked_at: nowIso(),
+      error: safePayanAgentError(error),
+    };
+    console.error("[nohumans] bootstrap failed:", safePayanAgentError(error));
+  }
+}
+
 const FEED_DIFF_FIELDS = [
   "title",
   "link",
@@ -3374,6 +3455,18 @@ app.get("/v1/market402/status", (_req, res) => {
   });
 });
 
+app.get("/v1/nohumans/status", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json({
+    marketplace: "nohumans.directory",
+    directory: "https://nohumans.directory",
+    payout_network: X402_NETWORK,
+    payout_asset: "USDC",
+    payout_address: BASE_PAYOUT_ADDRESS,
+    ...noHumansState,
+  });
+});
+
 app.get("/v1/x402dash/status", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({
@@ -4306,4 +4399,5 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startTrue402Bootstrap(), 28_000);
   setTimeout(() => void startMarket402Bootstrap(), 32_000);
   setTimeout(() => void startX402DashBootstrap(), 36_000);
+  setTimeout(() => void startNoHumansBootstrap(), 40_000);
 });
