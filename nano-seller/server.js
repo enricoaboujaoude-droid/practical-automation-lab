@@ -2484,6 +2484,7 @@ async function startNoHumansBootstrap() {
         "Deterministic ecommerce product-feed audit for duplicate IDs, GTIN checksums, URLs, prices, availability, and brand/MPN consistency across 1-100 records.",
       endpoint_url: X402_AUDIT_URL,
       category: "infra.validation",
+      sample_query: `${PUBLIC_BASE_URL}/v1/sample/catalog-audit`,
       price_amount: 0.01,
       chains: ["base"],
       request_schema: {
@@ -2519,6 +2520,7 @@ async function startNoHumansBootstrap() {
         "Validate 1-100 GTIN, UPC, or EAN identifiers in one deterministic call, including normalized value, length, check digit, and checksum validity.",
       endpoint_url: X402_GTIN_URL,
       category: "infra.validation",
+      sample_query: `${PUBLIC_BASE_URL}/v1/sample/gtin-batch`,
       price_amount: 0.01,
       chains: ["base"],
       request_schema: {
@@ -2541,6 +2543,7 @@ async function startNoHumansBootstrap() {
         "Compare before/after ecommerce feed snapshots and report added, removed, changed, and unchanged products with field-level changes for deterministic catalog QA.",
       endpoint_url: X402_FEED_DIFF_URL,
       category: "infra.validation",
+      sample_query: `${PUBLIC_BASE_URL}/v1/sample/feed-diff`,
       price_amount: 0.01,
       chains: ["base"],
       request_schema: {
@@ -2568,6 +2571,7 @@ async function startNoHumansBootstrap() {
         "Deterministically validate an x402 v2 PaymentRequired declaration for protocol shape, Base network, USDC asset, payTo address, amount, timeout, and duplicate payment options without making the declared payment.",
       endpoint_url: X402_VALIDATE_URL,
       category: "infra.validation",
+      sample_query: `${PUBLIC_BASE_URL}/v1/sample/x402-validate`,
       price_amount: 0.05,
       chains: ["base"],
       request_schema: {
@@ -3947,6 +3951,84 @@ app.get("/v1/sample/gtin-check", (req, res) => {
     result: inspectGtin(gtin),
     paid_endpoint: `${X402_GTIN_ONE_URL}?gtin=${encodeURIComponent(gtin)}`,
     paid_price_usd: USDC_X402_PRICE,
+  });
+});
+
+app.get("/v1/sample/catalog-audit", (_req, res) => {
+  const input = catalogAuditExample();
+  res.set("Cache-Control", "public, max-age=300");
+  return res.json({
+    service: "PAL Catalog Feed Audit",
+    sample: true,
+    input,
+    result: audit(input.records),
+    paid_endpoint: X402_AUDIT_URL,
+    paid_price_usd: USDC_X402_PRICE,
+  });
+});
+
+app.get("/v1/sample/gtin-batch", (_req, res) => {
+  const gtins = ["4006381333931", "036000291452"];
+  res.set("Cache-Control", "public, max-age=300");
+  return res.json({
+    service: "PAL GTIN Check",
+    sample: true,
+    input: { gtins },
+    result: gtinCheck(gtins),
+    paid_endpoint: X402_GTIN_URL,
+    paid_price_usd: USDC_X402_PRICE,
+  });
+});
+
+app.get("/v1/sample/feed-diff", (_req, res) => {
+  const before = [{ id: "sku-1", price: "19.99 USD", availability: "in_stock" }];
+  const after = [{ id: "sku-1", price: "17.99 USD", availability: "in_stock" }];
+  res.set("Cache-Control", "public, max-age=300");
+  return res.json({
+    service: "PAL Feed Diff",
+    sample: true,
+    input: { before, after },
+    result: feedDiff(before, after),
+    paid_endpoint: X402_FEED_DIFF_URL,
+    paid_price_usd: USDC_X402_PRICE,
+  });
+});
+
+app.get("/v1/sample/x402-validate", (_req, res) => {
+  const declaration = {
+    x402Version: 2,
+    resource: { url: X402_AUDIT_URL },
+    accepts: [{
+      scheme: "exact",
+      network: USDC_X402_NETWORK,
+      amount: X402_PRICE_ATOMIC,
+      asset: X402_ASSET,
+      payTo: BASE_PAYOUT_ADDRESS,
+      maxTimeoutSeconds: 300,
+      extra: { name: "USD Coin", version: "2" },
+    }],
+  };
+  res.set("Cache-Control", "public, max-age=300");
+  return res.json({
+    service: "PAL x402 Declaration Validator",
+    sample: true,
+    input: declaration,
+    result: inspectX402Declaration(declaration),
+    paid_endpoint: X402_VALIDATE_URL,
+    paid_price_usd: X402_VALIDATE_PRICE_USD,
+  });
+});
+
+app.get("/v1/sample/catalog-remediation", (_req, res) => {
+  const input = catalogAuditExample();
+  res.set("Cache-Control", "public, max-age=300");
+  return res.json({
+    service: "PAL Catalog Remediation Plan",
+    sample: true,
+    input,
+    result: catalogRemediationPlan(input.records),
+    paid_endpoint: X402_REMEDIATE_URL,
+    paid_price_usd: X402_REMEDIATE_PRICE_USD,
   });
 });
 
