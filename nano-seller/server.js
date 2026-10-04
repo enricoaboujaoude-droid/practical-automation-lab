@@ -2202,7 +2202,7 @@ async function startMarket402Bootstrap() {
     error: null,
   };
 
-  const resources = [X402_AUDIT_URL, X402_VALIDATE_URL, X402_REMEDIATE_URL];
+  const resources = [\n    X402_AUDIT_URL,\n    X402_GTIN_ONE_URL,\n    X402_GTIN_URL,\n    X402_FEED_DIFF_URL,\n    X402_VALIDATE_URL,\n    X402_REMEDIATE_URL,\n  ];
   const results = [];
 
   try {
