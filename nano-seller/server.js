@@ -2401,12 +2401,19 @@ async function startNoHumansBootstrap() {
       );
     }
 
+    const publicListing = body && typeof body === "object" ? { ...body } : body;
+    if (publicListing && typeof publicListing === "object") {
+      delete publicListing.claim_token;
+      delete publicListing.edit_token;
+      delete publicListing.token;
+    }
+
     noHumansState = {
       enabled: true,
       status: duplicate ? "already_listed" : "submitted",
       submitted: true,
       checked_at: nowIso(),
-      listing: body,
+      listing: publicListing,
       error: null,
     };
     console.log(
