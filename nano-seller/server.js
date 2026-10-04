@@ -2472,6 +2472,38 @@ async function startNoHumansBootstrap() {
         required: ["before", "after"],
       },
     },
+    {
+      name: "PAL x402 Declaration Validator",
+      description:
+        "Deterministically validate an x402 v2 PaymentRequired declaration for protocol shape, Base network, USDC asset, payTo address, amount, timeout, and duplicate payment options without making the declared payment.",
+      endpoint_url: X402_VALIDATE_URL,
+      category: "infra.validation",
+      price_amount: 0.05,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          x402Version: { type: "integer", default: 2 },
+          accepts: {
+            type: "array",
+            minItems: 1,
+            default: [
+              {
+                scheme: "exact",
+                network: "eip155:8453",
+                asset: X402_ASSET,
+                amount: "10000",
+                payTo: BASE_PAYOUT_ADDRESS,
+                maxTimeoutSeconds: 60,
+                extra: { name: "USD Coin", version: "2" },
+              },
+            ],
+            items: { type: "object", additionalProperties: true },
+          },
+        },
+        required: ["x402Version", "accepts"],
+      },
+    },
   ];
 
   const results = [];
