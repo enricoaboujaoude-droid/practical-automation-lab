@@ -27,6 +27,7 @@ const X402_FACILITATOR_URL = String(
 ).replace(/\/$/, "");
 const X402_AUDIT_PATH = "/v1/usdc/catalog-audit";
 const X402_GTIN_PATH = "/v1/usdc/gtin-check";
+const X402_GTIN_ONE_PATH = "/v1/usdc/gtin-check-one";
 const X402_FEED_DIFF_PATH = "/v1/usdc/feed-diff";
 const X402_VALIDATE_PATH = "/v1/usdc/x402-validate";
 const X402_VALIDATE_PRICE_USD = "$0.05";
@@ -36,6 +37,7 @@ const X402_REMEDIATE_PRICE_USD = "$1.00";
 const X402_REMEDIATE_PRICE_ATOMIC = "1000000";
 const X402_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_AUDIT_PATH}`;
 const X402_GTIN_URL = `${PUBLIC_BASE_URL}${X402_GTIN_PATH}`;
+const X402_GTIN_ONE_URL = `${PUBLIC_BASE_URL}${X402_GTIN_ONE_PATH}`;
 const X402_FEED_DIFF_URL = `${PUBLIC_BASE_URL}${X402_FEED_DIFF_PATH}`;
 const X402_VALIDATE_URL = `${PUBLIC_BASE_URL}${X402_VALIDATE_PATH}`;
 const X402_REMEDIATE_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_PATH}`;
@@ -85,13 +87,14 @@ app.use(express.json({ limit: "128kb" }));
 const USDC_X402_PATHS = new Set([
   X402_AUDIT_PATH,
   X402_GTIN_PATH,
+  X402_GTIN_ONE_PATH,
   X402_FEED_DIFF_PATH,
   X402_VALIDATE_PATH,
   X402_REMEDIATE_PATH,
 ]);
 
 function mirrorX402PaymentRequiredBody(req, res, next) {
-  if (req.method !== "POST" || !USDC_X402_PATHS.has(req.path)) {
+  if (!["GET", "POST"].includes(req.method) || !USDC_X402_PATHS.has(req.path)) {
     next();
     return;
   }
@@ -172,6 +175,40 @@ app.use(
                 error_count: 0,
                 warning_count: 0,
                 issues: [],
+              },
+            },
+          }),
+        },
+      },
+      "GET /v1/usdc/gtin-check-one": {
+        accepts: [
+          { scheme: "exact", price: USDC_X402_PRICE, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
+        ],
+        description:
+          "Validate one GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 identifier including its check digit. Pass ?gtin=...",
+        mimeType: "application/json",
+        serviceName: "PAL Single GTIN Check",
+        tags: ["gtin", "upc", "ean", "ecommerce", "validation"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: { gtin: "4006381333931" },
+            inputSchema: {
+              type: "object",
+              properties: {
+                gtin: { type: "string", description: "GTIN/UPC/EAN identifier to validate." },
+              },
+              required: ["gtin"],
+            },
+            output: {
+              example: {
+                service: "PAL Single GTIN Check",
+                result: {
+                  input: "4006381333931",
+                  normalized: "4006381333931",
+                  length: 13,
+                  checksum_valid: true,
+                  valid: true,
+                },
               },
             },
           }),
@@ -348,6 +385,7 @@ const inFlightPayments = new Set();
 let paidAudits = 0;
 let usdcPaidAudits = 0;
 let usdcPaidGtinChecks = 0;
+let usdcPaidSingleGtinChecks = 0;
 let usdcPaidFeedDiffs = 0;
 let usdcPaidX402Validations = 0;
 let usdcPaidCatalogRemediations = 0;
@@ -729,6 +767,7 @@ function true402Manifest() {
     endpoints: [
       { name: "PAL Catalog Feed Identifier Audit", endpoint: X402_AUDIT_URL, method: "POST", price: "0.01" },
       { name: "PAL GTIN Check", endpoint: X402_GTIN_URL, method: "POST", price: "0.01" },
+      { name: "PAL Single GTIN Check", endpoint: X402_GTIN_ONE_URL, method: "GET", price: "0.01" },
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
       { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
@@ -793,6 +832,22 @@ function x402Manifest() {
           required: ["records"],
           properties: {
             records: { type: "array", minItems: 1, maxItems: 100, items: { type: "object" } },
+          },
+        },
+        accepts: commonAccepts,
+      },
+      {
+        resource: X402_GTIN_ONE_URL,
+        name: "PAL Single GTIN Check",
+        description:
+          "Validate one GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 product identifier including its check digit using a simple GET query.",
+        method: "GET",
+        price: X402_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["gtin"],
+          properties: {
+            gtin: { type: "string" },
           },
         },
         accepts: commonAccepts,
@@ -867,7 +922,7 @@ function x402Manifest() {
       },
     },
     capabilities: {
-      tools: 5,
+      tools: 6,
       categories: [
         "commerce",
         "merchant-feed",
@@ -960,6 +1015,28 @@ function x402OpenApi() {
           responses: {
             "200": { description: "Structured audit result after successful payment." },
             "400": { description: "Invalid catalog payload." },
+            "402": { description: "x402 payment required." },
+          },
+          "x-payment-info": paymentInfo,
+        },
+      },
+      [X402_GTIN_ONE_PATH]: {
+        get: {
+          operationId: "validateSingleGtin",
+          summary: "Validate one GTIN/UPC/EAN identifier",
+          tags: ["ecommerce", "gtin", "upc", "ean", "validation"],
+          parameters: [
+            {
+              name: "gtin",
+              in: "query",
+              required: true,
+              schema: { type: "string" },
+              example: "4006381333931",
+            },
+          ],
+          responses: {
+            "200": { description: "Single GTIN validation result after successful payment." },
+            "400": { description: "Missing or invalid GTIN query." },
             "402": { description: "x402 payment required." },
           },
           "x-payment-info": paymentInfo,
@@ -2188,20 +2265,12 @@ async function startX402DashBootstrap() {
 
   const listings = [
     {
-      url: X402_AUDIT_URL,
-      name: "PAL Catalog Feed Identifier Audit",
+      url: X402_GTIN_ONE_URL,
+      name: "PAL Single GTIN Check",
       description:
-        "Google Merchant Center and ecommerce product-feed audit for duplicate IDs, GTIN format/checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+        "Validate one GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 product identifier including its check digit through a one-parameter paid GET endpoint.",
       category: "Data",
-      tags: ["ecommerce", "product-feed", "merchant-center", "gtin", "validation"],
-    },
-    {
-      url: X402_REMEDIATE_URL,
-      name: "PAL Catalog Remediation Plan",
-      description:
-        "Prioritized Merchant Center and product-feed remediation plan with concrete corrective actions, severity, and affected products for 1-100 catalog records.",
-      category: "Data",
-      tags: ["ecommerce", "product-feed", "merchant-center", "remediation", "google-shopping"],
+      tags: ["ecommerce", "gtin", "upc", "ean", "validation"],
     },
   ];
 
@@ -2881,6 +2950,7 @@ app.get("/", (_req, res) => {
     base_usdc_paid_endpoints: [
       "POST /v1/usdc/catalog-audit",
       "POST /v1/usdc/gtin-check",
+      "GET /v1/usdc/gtin-check-one?gtin=...",
       "POST /v1/usdc/feed-diff",
       "POST /v1/usdc/x402-validate",
       "POST /v1/usdc/catalog-remediation",
@@ -2930,6 +3000,12 @@ Price: $0.01 USDC per successful call
 Input: {"records":[...]} with 1-100 product records.
 Use for deterministic checks of duplicate IDs, GTIN format/checksum, URL shape, price formatting, availability, brand/MPN consistency.
 
+### PAL Single GTIN Check
+GET ${PUBLIC_BASE_URL}/v1/usdc/gtin-check-one?gtin=4006381333931
+Price: $0.01 USDC per successful call
+Input: one GTIN/UPC/EAN identifier in the gtin query parameter.
+Returns normalized identifier, length, expected/actual check digit and validity.
+
 ### PAL GTIN Check
 POST ${PUBLIC_BASE_URL}/v1/usdc/gtin-check
 Price: $0.01 USDC per successful call
@@ -2976,6 +3052,11 @@ POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-audit
 Cost: $0.01 USDC
 Body: {"records":[product,...]}
 Use before Google Merchant Center / shopping-feed submission or when checking identifier, price, URL, availability and variant-readiness issues.
+
+## validate_single_gtin
+GET ${PUBLIC_BASE_URL}/v1/usdc/gtin-check-one?gtin=4006381333931
+Cost: $0.01 USDC
+Use for a single GTIN/UPC/EAN lookup with no JSON body.
 
 ## validate_gtins
 POST ${PUBLIC_BASE_URL}/v1/usdc/gtin-check
@@ -3325,6 +3406,7 @@ app.get("/v1/stats", (_req, res) => {
     paid_audits_since_process_start: paidAudits,
     usdc_x402_paid_audits_since_process_start: usdcPaidAudits,
     usdc_x402_paid_gtin_checks_since_process_start: usdcPaidGtinChecks,
+    usdc_x402_paid_single_gtin_checks_since_process_start: usdcPaidSingleGtinChecks,
     usdc_x402_paid_feed_diffs_since_process_start: usdcPaidFeedDiffs,
     usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
     usdc_x402_paid_catalog_remediations_since_process_start: usdcPaidCatalogRemediations,
@@ -3451,6 +3533,36 @@ app.post("/v1/usdc/catalog-audit", (req, res) => {
     generated_at: nowIso(),
     disclaimer:
       "Consistency audit only; not a guarantee of Merchant Center approval or regulatory compliance.",
+  });
+});
+
+app.get("/v1/usdc/gtin-check-one", (req, res) => {
+  const gtin = String(req.query?.gtin || "").trim();
+  if (!gtin) {
+    return res.status(400).json({
+      error: "invalid_gtin",
+      detail: "Query parameter gtin is required.",
+      example: { gtin: "4006381333931" },
+    });
+  }
+
+  usdcPaidSingleGtinChecks += 1;
+  console.log(
+    `[revenue] usdc_x402_single_gtin_check served price_usd=0.01 network=${USDC_X402_NETWORK} count=${usdcPaidSingleGtinChecks}`
+  );
+
+  return res.json({
+    service: "PAL Single GTIN Check",
+    generated_at: nowIso(),
+    result: inspectGtin(gtin),
+    payment: {
+      verified_by: "x402",
+      network: USDC_X402_NETWORK,
+      asset: "USDC",
+      price_usd: USDC_X402_PRICE,
+      pay_to: BASE_PAYOUT_ADDRESS,
+      facilitator: "PayAI",
+    },
   });
 });
 
