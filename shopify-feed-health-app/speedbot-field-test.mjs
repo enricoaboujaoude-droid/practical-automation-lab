@@ -4,8 +4,24 @@ const SPEEDBOT_BASE = "https://speedbot.dev";
 const FIELD_TEST_TOPIC = "bootstrap-service-field-test";
 const WORK_CLIENT_ID = "pal-directed-field-test-v1";
 const TOPIC_CLIENT_ID = "pal-directed-field-test-topic-v1";
-const DEVAN_AGENT_ID = "agent_bad20c20958a4817a014462f9ffbfa47";
-const DEVAN_INVITATION_ID = "pal-directed-field-test-devan-v1";
+const DIRECTED_FIELD_TEST_TARGETS = Object.freeze([
+  {
+    agentId: "agent_bad20c20958a4817a014462f9ffbfa47",
+    invitationId: "pal-directed-field-test-devan-v1",
+  },
+  {
+    agentId: "agent_782e751b57734a1f824814e2ffe5cbf9",
+    invitationId: "pal-directed-field-test-codex-same-day-v1",
+  },
+  {
+    agentId: "agent_992dde97edd9466b9c0c5ceb654be9d1",
+    invitationId: "pal-directed-field-test-sourcelens-v1",
+  },
+  {
+    agentId: "agent_984bf872aeeb4c799d7b853b907d76bd",
+    invitationId: "pal-directed-field-test-proofparcel-v1",
+  },
+]);
 
 function cleanBaseUrl(value) {
   return String(value || SPEEDBOT_BASE).replace(/\/+$/, "");
@@ -138,26 +154,40 @@ export async function ensureSpeedbotDirectedFieldTestRequest({
     },
   );
 
-  const { response: invitationResponse, body: invitation } = await postJson(
-    fetchImpl,
-    new URL("/api/invitations", root),
-    apiKey,
-    {
-      target_agent_id: DEVAN_AGENT_ID,
-      client_invitation_id: DEVAN_INVITATION_ID,
-    },
-  );
-
-  const invitationAcceptedAsExisting =
-    invitationResponse.status === 409 &&
-    /invitation_exists|already|duplicate/i.test(
-      String(invitation?.error || invitation?.message || ""),
+  const invitationResults = [];
+  for (const target of DIRECTED_FIELD_TEST_TARGETS) {
+    const { response, body } = await postJson(
+      fetchImpl,
+      new URL("/api/invitations", root),
+      apiKey,
+      {
+        target_agent_id: target.agentId,
+        client_invitation_id: target.invitationId,
+      },
     );
+    const acceptedAsExisting =
+      response.status === 409 &&
+      /invitation_exists|already|duplicate/i.test(
+        String(body?.error || body?.message || ""),
+      );
+    invitationResults.push({
+      agentId: target.agentId,
+      invitationId: invitationIdFrom(body),
+      httpStatus: response.status,
+      ready: response.ok || acceptedAsExisting,
+      error:
+        response.ok || acceptedAsExisting
+          ? null
+          : String(body?.error || body?.message || "invite rejected").slice(0, 300),
+    });
+  }
+
+  const readyInvitations = invitationResults.filter((item) => item.ready);
 
   return {
     status:
-      invitationResponse.ok || invitationAcceptedAsExisting
-        ? "work_request_topic_and_targeted_invite_ready"
+      readyInvitations.length > 0
+        ? "work_request_topic_and_targeted_invites_ready"
         : topicResponse.ok
           ? "work_request_and_topic_posted"
           : "work_request_posted",
@@ -168,12 +198,18 @@ export async function ensureSpeedbotDirectedFieldTestRequest({
       ? String(topic?.reply?.id || topic?.reply_id || topic?.id || "").trim() || null
       : null,
     topicHttpStatus: topicResponse.status,
-    invitationId: invitationIdFrom(invitation),
-    invitationHttpStatus: invitationResponse.status,
-    invitationError:
-      invitationResponse.ok || invitationAcceptedAsExisting
-        ? null
-        : String(invitation?.error || invitation?.message || "invite rejected").slice(0, 300),
+    invitationCount: invitationResults.length,
+    readyInvitationCount: readyInvitations.length,
+    invitationIds: readyInvitations
+      .map((item) => item.invitationId)
+      .filter(Boolean),
+    invitationErrors: invitationResults
+      .filter((item) => item.error)
+      .map((item) => ({
+        agentId: item.agentId,
+        httpStatus: item.httpStatus,
+        error: item.error,
+      })),
   };
 }
 
@@ -190,7 +226,7 @@ export function startSpeedbotDirectedFieldTestRequest() {
     ensureSpeedbotDirectedFieldTestRequest()
       .then((result) => {
         console.log(
-          `[pal-speedbot-field-test] status=${result.status} intro=${result.introId || "none"} reply=${result.topicReplyId || "none"} invite=${result.invitationId || "none"} invite_http=${result.invitationHttpStatus || "none"}`,
+          `[pal-speedbot-field-test] status=${result.status} intro=${result.introId || "none"} reply=${result.topicReplyId || "none"} invites=${result.readyInvitationCount ?? 0}/${result.invitationCount ?? 0}`,
         );
       })
       .catch((error) => {
@@ -387,9 +423,12 @@ export async function advanceSpeedbotDirectedFieldTestHandoff({
     if (!response.ok) continue;
 
     const participants = participantIds(body);
+    const hasEligibleTarget = DIRECTED_FIELD_TEST_TARGETS.some((target) =>
+      participants.has(target.agentId.toLowerCase()),
+    );
     if (
       participants.has(PAL_AGENT_ID) &&
-      participants.has(DEVAN_AGENT_ID)
+      hasEligibleTarget
     ) {
       matchingRooms.push({
         roomId,
