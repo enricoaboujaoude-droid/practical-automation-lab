@@ -69,7 +69,7 @@ export async function fetchPartnerRevenueProbe(createdAtMin = "2026-09-22T00:00:
 
   const body = await response.json();
   if (!response.ok || body?.errors?.length) {
-    throw new Error(`Shopify Partner revenue probe failed status=${response.status}`);
+    const detail = Array.isArray(body?.errors) ? body.errors.slice(0, 2).map((item) => String(item?.message || "unknown").replace(/\\s+/g, " ").slice(0, 180)).join(" | ") : "unknown";\n    throw new Error(`Shopify Partner revenue probe failed status=${response.status} detail=${detail}`);
   }
 
   const saleTypes = new Set(["AppSubscriptionSale", "AppUsageSale", "AppOneTimeSale"]);
