@@ -10,6 +10,7 @@ import {
   startSpeedbotDirectedFieldTestHandoff,
   startSpeedbotDirectedFieldTestRequest,
 } from "./speedbot-field-test.mjs";
+import { startSpeedbotCommercialService } from "./speedbot-commercial-service.mjs";
 import { startSuperteamScout } from "./superteam-agent.mjs";
 import { startBasedAgentsScout } from "./basedagents-scout.mjs";
 import { startTaskmarketScout } from "./taskmarket-scout.mjs";
@@ -139,6 +140,7 @@ app.listen(port, host, () => {
   startSpeedbotHelpAssignment();
   startSpeedbotDirectedFieldTestRequest();
   startSpeedbotDirectedFieldTestHandoff();
+  startSpeedbotCommercialService();
   startSuperteamScout();
   startBasedAgentsScout();
   startTaskmarketScout();
