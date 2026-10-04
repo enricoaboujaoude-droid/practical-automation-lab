@@ -2281,6 +2281,14 @@ async function startX402DashBootstrap() {
       category: "Data",
       tags: ["ecommerce", "gtin", "upc", "ean", "validation"],
     },
+    {
+      url: X402_REMEDIATE_URL,
+      name: "PAL Catalog Remediation Plan",
+      description:
+        "Generate a prioritized Merchant Center and product-feed remediation plan for 1-100 catalog records with concrete fixes, issue severity, and affected product IDs. Paid directly over x402 Base USDC.",
+      category: "Data",
+      tags: ["ecommerce", "catalog", "merchant-center", "product-feed", "remediation"],
+    },
   ];
 
   const results = [];
@@ -2502,6 +2510,41 @@ async function startNoHumansBootstrap() {
           },
         },
         required: ["x402Version", "accepts"],
+      },
+    },
+    {
+      name: "PAL Catalog Remediation Plan",
+      description:
+        "Turn 1-100 ecommerce catalog records into a prioritized Merchant Center and product-feed remediation plan with concrete corrective actions, severity, and affected products.",
+      endpoint_url: X402_REMEDIATE_URL,
+      category: "infra.validation",
+      price_amount: 1.0,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          records: {
+            type: "array",
+            minItems: 1,
+            maxItems: 100,
+            default: [
+              {
+                id: "sku-100",
+                title: "Example Product",
+                link: "https://example.com/products/sku-100",
+                image_link: "https://example.com/images/sku-100.jpg",
+                gtin: "4006381333931",
+                brand: "Example",
+                mpn: "SKU-100",
+                price: "19.99 USD",
+                availability: "in_stock",
+                identifier_exists: true,
+              },
+            ],
+            items: { type: "object", additionalProperties: true },
+          },
+        },
+        required: ["records"],
       },
     },
   ];
