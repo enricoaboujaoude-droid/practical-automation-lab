@@ -66,6 +66,7 @@ const MARKET402_BOOTSTRAP = process.env.MARKET402_BOOTSTRAP === "1";
 const MARKET402_SUBMIT_URL = "https://market402.com/submit";
 const X402DASH_REGISTER_URL = "https://api.x402dash.com/v1/register";
 const NOHUMANS_LISTINGS_URL = "https://nohumans.directory/v1/listings";
+const NOHUMANS_API_LISTINGS_URL = "https://api.nohumans.directory/v1/listings";
 const USDC_X402_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-audit`;
 const USDC_X402_PRICE = "$0.01";
 const USDC_X402_NETWORK = "eip155:8453";
@@ -122,6 +123,12 @@ function mirrorX402PaymentRequiredBody(req, res, next) {
 }
 
 app.use(mirrorX402PaymentRequiredBody);
+
+app.use((req, res, next) => {
+  const challenge = noHumansClaimChallenges.get(req.path);
+  if (challenge) res.set("x-nohumans-claim", challenge);
+  next();
+});
 
 const usdcFacilitatorClient = new HTTPFacilitatorClient(facilitator);
 const usdcResourceServer = new x402ResourceServer(usdcFacilitatorClient)
@@ -488,8 +495,10 @@ let noHumansState = {
   submitted: false,
   checked_at: null,
   listing: null,
+  improvements: [],
   error: null,
 };
+const noHumansClaimChallenges = new Map();
 
 function nowIso() {
   return new Date().toISOString();
@@ -2442,6 +2451,190 @@ async function startX402DashBootstrap() {
   }
 }
 
+async function improveNoHumansListing({ id, path, metadata }) {
+  let editToken = "";
+  try {
+    const challengeResponse = await fetch(
+      `${NOHUMANS_API_LISTINGS_URL}/${encodeURIComponent(id)}/claim/challenge`,
+      {
+        method: "POST",
+        headers: { accept: "application/json", "content-type": "application/json" },
+        signal: AbortSignal.timeout(30_000),
+      }
+    );
+    const challengeRaw = await challengeResponse.text();
+    let challengeBody = {};
+    try {
+      challengeBody = challengeRaw ? JSON.parse(challengeRaw) : {};
+    } catch {
+      challengeBody = { raw: challengeRaw.slice(0, 800) };
+    }
+    if (!challengeResponse.ok) {
+      throw new Error(
+        `challenge HTTP ${challengeResponse.status}: ${JSON.stringify(challengeBody).slice(0, 700)}`
+      );
+    }
+
+    const challenge =
+      cleanString(challengeBody?.challenge) ||
+      cleanString(challengeBody?.token) ||
+      cleanString(challengeBody?.challenge_token) ||
+      cleanString(challengeBody?.verification_token);
+    if (!challenge) throw new Error("claim challenge returned no token");
+    noHumansClaimChallenges.set(path, challenge);
+
+    const claimResponse = await fetch(
+      `${NOHUMANS_API_LISTINGS_URL}/${encodeURIComponent(id)}/claim`,
+      {
+        method: "POST",
+        headers: { accept: "application/json", "content-type": "application/json" },
+        body: JSON.stringify({ email: "enricoaboujaoude@gmail.com" }),
+        signal: AbortSignal.timeout(30_000),
+      }
+    );
+    const claimRaw = await claimResponse.text();
+    let claimBody = {};
+    try {
+      claimBody = claimRaw ? JSON.parse(claimRaw) : {};
+    } catch {
+      claimBody = { raw: claimRaw.slice(0, 800) };
+    }
+    if (!claimResponse.ok) {
+      throw new Error(
+        `claim HTTP ${claimResponse.status}: ${JSON.stringify(claimBody).slice(0, 700)}`
+      );
+    }
+
+    editToken =
+      cleanString(claimBody?.claim_token) ||
+      cleanString(claimBody?.edit_token) ||
+      cleanString(claimBody?.token);
+    if (!editToken) throw new Error("claim succeeded but returned no edit token");
+
+    const patchResponse = await fetch(
+      `${NOHUMANS_LISTINGS_URL}/${encodeURIComponent(id)}`,
+      {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          "x-claim-token": editToken,
+        },
+        body: JSON.stringify(metadata),
+        signal: AbortSignal.timeout(30_000),
+      }
+    );
+    const patchRaw = await patchResponse.text();
+    let patchBody = {};
+    try {
+      patchBody = patchRaw ? JSON.parse(patchRaw) : {};
+    } catch {
+      patchBody = { raw: patchRaw.slice(0, 800) };
+    }
+    if (!patchResponse.ok) {
+      throw new Error(
+        `patch HTTP ${patchResponse.status}: ${JSON.stringify(patchBody).slice(0, 700)}`
+      );
+    }
+
+    return {
+      id,
+      ok: true,
+      status: patchResponse.status,
+      updated: patchBody?.updated || patchBody?.applied || null,
+    };
+  } catch (error) {
+    return { id, ok: false, error: safePayanAgentError(error) };
+  } finally {
+    noHumansClaimChallenges.delete(path);
+    editToken = "";
+  }
+}
+
+async function improveNoHumansExistingListings() {
+  const targets = [
+    {
+      id: "1ad8d20b-edd",
+      path: X402_AUDIT_PATH,
+      metadata: {
+        request_schema: {
+          type: "object",
+          properties: {
+            records: {
+              type: "array",
+              minItems: 1,
+              maxItems: 100,
+              items: { type: "object", additionalProperties: true },
+            },
+          },
+          required: ["records"],
+        },
+        sample_query: `${PUBLIC_BASE_URL}/v1/sample/catalog-audit`,
+      },
+    },
+    {
+      id: "28cd4eed-15a",
+      path: X402_GTIN_PATH,
+      metadata: {
+        request_schema: {
+          type: "object",
+          properties: {
+            gtins: {
+              type: "array",
+              minItems: 1,
+              maxItems: 100,
+              items: { anyOf: [{ type: "string" }, { type: "number" }] },
+            },
+          },
+          required: ["gtins"],
+        },
+        sample_query: `${PUBLIC_BASE_URL}/v1/sample/gtin-batch`,
+      },
+    },
+    {
+      id: "ca4df19d-ba5",
+      path: X402_FEED_DIFF_PATH,
+      metadata: {
+        request_schema: {
+          type: "object",
+          properties: {
+            before: { type: "array", maxItems: 100, items: { type: "object", additionalProperties: true } },
+            after: { type: "array", maxItems: 100, items: { type: "object", additionalProperties: true } },
+          },
+          required: ["before", "after"],
+        },
+        sample_query: `${PUBLIC_BASE_URL}/v1/sample/feed-diff`,
+      },
+    },
+    {
+      id: "134f5620-b62",
+      path: X402_VALIDATE_PATH,
+      metadata: {
+        request_schema: {
+          type: "object",
+          properties: {
+            x402Version: { type: "integer", default: 2 },
+            resource: { type: "object", additionalProperties: true },
+            accepts: {
+              type: "array",
+              minItems: 1,
+              items: { type: "object", additionalProperties: true },
+            },
+          },
+          required: ["x402Version", "accepts"],
+        },
+        sample_query: `${PUBLIC_BASE_URL}/v1/sample/x402-validate`,
+      },
+    },
+  ];
+
+  const results = [];
+  for (const target of targets) {
+    results.push(await improveNoHumansListing(target));
+  }
+  return results;
+}
+
 async function startNoHumansBootstrap() {
   noHumansState = {
     enabled: true,
@@ -2720,6 +2913,7 @@ async function startNoHumansBootstrap() {
         metadata_patch: publicPatch,
         listings: results,
       },
+      improvements: await improveNoHumansExistingListings(),
       error:
         failures.length === 0
           ? null
