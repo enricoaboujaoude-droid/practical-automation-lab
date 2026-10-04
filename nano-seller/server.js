@@ -31,10 +31,14 @@ const X402_FEED_DIFF_PATH = "/v1/usdc/feed-diff";
 const X402_VALIDATE_PATH = "/v1/usdc/x402-validate";
 const X402_VALIDATE_PRICE_USD = "$0.05";
 const X402_VALIDATE_PRICE_ATOMIC = "50000";
+const X402_REMEDIATE_PATH = "/v1/usdc/catalog-remediation";
+const X402_REMEDIATE_PRICE_USD = "$1.00";
+const X402_REMEDIATE_PRICE_ATOMIC = "1000000";
 const X402_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_AUDIT_PATH}`;
 const X402_GTIN_URL = `${PUBLIC_BASE_URL}${X402_GTIN_PATH}`;
 const X402_FEED_DIFF_URL = `${PUBLIC_BASE_URL}${X402_FEED_DIFF_PATH}`;
 const X402_VALIDATE_URL = `${PUBLIC_BASE_URL}${X402_VALIDATE_PATH}`;
+const X402_REMEDIATE_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_PATH}`;
 const AGENT402_BOOTSTRAP = process.env.AGENT402_BOOTSTRAP === "1";
 const AGENT402_REGISTER_URL = "https://agent402.tools/api/index/register";
 const INDEX402_BOOTSTRAP = process.env.INDEX402_BOOTSTRAP === "1";
@@ -82,6 +86,7 @@ const USDC_X402_PATHS = new Set([
   X402_GTIN_PATH,
   X402_FEED_DIFF_PATH,
   X402_VALIDATE_PATH,
+  X402_REMEDIATE_PATH,
 ]);
 
 function mirrorX402PaymentRequiredBody(req, res, next) {
@@ -240,6 +245,57 @@ app.use(
           }),
         },
       },
+      "POST /v1/usdc/catalog-remediation": {
+        accepts: [
+          { scheme: "exact", price: X402_REMEDIATE_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
+        ],
+        description:
+          "Generate a prioritized Merchant Center and product-feed remediation plan from 1-100 catalog records, grouping issues by business impact and returning concrete fix actions and affected product IDs.",
+        mimeType: "application/json",
+        serviceName: "PAL Catalog Remediation Plan",
+        tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "remediation", "google-shopping"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              records: [
+                {
+                  id: "sku-100",
+                  title: "Example Product",
+                  link: "https://example.com/products/sku-100",
+                  image_link: "https://example.com/images/sku-100.jpg",
+                  gtin: "4006381333931",
+                  brand: "Example",
+                  mpn: "SKU-100",
+                  price: "19.99 USD",
+                  availability: "in_stock",
+                  identifier_exists: true,
+                },
+              ],
+            },
+            inputSchema: {
+              type: "object",
+              properties: {
+                records: {
+                  type: "array",
+                  minItems: 1,
+                  maxItems: 100,
+                  items: { type: "object", additionalProperties: true },
+                },
+              },
+              required: ["records"],
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL Catalog Remediation Plan",
+                readiness: "ready",
+                summary: { records: 1, errors: 0, warnings: 0, actions: 0 },
+                prioritized_actions: [],
+              },
+            },
+          }),
+        },
+      },
       "POST /v1/usdc/x402-validate": {
         accepts: [
           { scheme: "exact", price: X402_VALIDATE_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
@@ -293,6 +349,7 @@ let usdcPaidAudits = 0;
 let usdcPaidGtinChecks = 0;
 let usdcPaidFeedDiffs = 0;
 let usdcPaidX402Validations = 0;
+let usdcPaidCatalogRemediations = 0;
 let payanAgentState = {
   enabled: PAYANAGENT_BOOTSTRAP,
   status: PAYANAGENT_BOOTSTRAP ? "pending" : "disabled",
@@ -665,6 +722,7 @@ function true402Manifest() {
       { name: "PAL GTIN Check", endpoint: X402_GTIN_URL, method: "POST", price: "0.01" },
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
+      { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
     ],
   };
 }
@@ -687,6 +745,17 @@ function x402Manifest() {
       network: X402_NETWORK,
       asset: X402_ASSET,
       amount: X402_VALIDATE_PRICE_ATOMIC,
+      payTo: BASE_PAYOUT_ADDRESS,
+      maxTimeoutSeconds: 60,
+      extra: { name: "USD Coin", version: "2" },
+    },
+  ];
+  const remediationAccepts = [
+    {
+      scheme: "exact",
+      network: X402_NETWORK,
+      asset: X402_ASSET,
+      amount: X402_REMEDIATE_PRICE_ATOMIC,
       payTo: BASE_PAYOUT_ADDRESS,
       maxTimeoutSeconds: 60,
       extra: { name: "USD Coin", version: "2" },
@@ -762,6 +831,22 @@ function x402Manifest() {
         inputSchema: { type: "object", additionalProperties: true },
         accepts: validatorAccepts,
       },
+      {
+        resource: X402_REMEDIATE_URL,
+        name: "PAL Catalog Remediation Plan",
+        description:
+          "Generate a prioritized Merchant Center and product-feed remediation plan for 1-100 catalog records, including concrete corrective actions and affected products.",
+        method: "POST",
+        price: X402_REMEDIATE_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["records"],
+          properties: {
+            records: { type: "array", minItems: 1, maxItems: 100, items: { type: "object" } },
+          },
+        },
+        accepts: remediationAccepts,
+      },
     ],
     payment: {
       x402: {
@@ -773,12 +858,13 @@ function x402Manifest() {
       },
     },
     capabilities: {
-      tools: 4,
+      tools: 5,
       categories: [
         "commerce",
         "merchant-feed",
         "product-feed",
         "catalog-validation",
+        "catalog-remediation",
         "gtin",
         "feed-diff",
         "x402",
@@ -816,13 +902,24 @@ function x402OpenApi() {
     payTo: BASE_PAYOUT_ADDRESS,
   };
 
+  const remediationPaymentInfo = {
+    protocol: "x402",
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_REMEDIATE_PRICE_ATOMIC,
+    price: X402_REMEDIATE_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
+
   return {
     openapi: "3.1.0",
     info: {
       title: "PAL Commerce Data x402 API",
-      version: "1.2.0",
+      version: "1.3.0",
       description:
-        "Deterministic utilities paid per call with x402 Base USDC: catalog audit, GTIN validation, product-feed diff, and x402 declaration validation.",
+        "Deterministic utilities paid per call with x402 Base USDC: catalog audit, GTIN validation, product-feed diff, x402 declaration validation, and prioritized catalog remediation.",
     },
     servers: [{ url: PUBLIC_BASE_URL }],
     paths: {
@@ -922,6 +1019,39 @@ function x402OpenApi() {
             "402": { description: "x402 payment required." },
           },
           "x-payment-info": paymentInfo,
+        },
+      },
+      [X402_REMEDIATE_PATH]: {
+        post: {
+          operationId: "remediateCatalogFeed",
+          summary: "Generate a prioritized catalog remediation plan",
+          tags: ["ecommerce", "merchant-feed", "google-shopping", "catalog-remediation"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["records"],
+                  properties: {
+                    records: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 100,
+                      items: { type: "object", additionalProperties: true },
+                    },
+                  },
+                },
+                example: catalogAuditExample(),
+              },
+            },
+          },
+          responses: {
+            "200": { description: "Prioritized remediation plan after successful payment." },
+            "400": { description: "Invalid catalog payload." },
+            "402": { description: "x402 payment required." },
+          },
+          "x-payment-info": remediationPaymentInfo,
         },
       },
       [X402_VALIDATE_PATH]: {
@@ -1470,6 +1600,14 @@ async function startAgentToolsBootstrap() {
         category: "developer-tools",
         price: 0.05,
       },
+      {
+        url: X402_REMEDIATE_URL,
+        name: "PAL Catalog Remediation Plan",
+        description:
+          "Turn a 1-100 record ecommerce catalog into a prioritized Merchant Center/product-feed remediation plan with concrete fixes, issue counts, affected products, and the underlying deterministic audit. Live x402 endpoint; $1.00 USDC per request on Base.",
+        category: "ecommerce",
+        price: 1.0,
+      },
     ];
 
     const submitAdditionalListings = async () => {
@@ -1904,7 +2042,7 @@ async function startMarket402Bootstrap() {
     error: null,
   };
 
-  const resources = [X402_AUDIT_URL, X402_VALIDATE_URL];
+  const resources = [X402_AUDIT_URL, X402_VALIDATE_URL, X402_REMEDIATE_URL];
   const results = [];
 
   try {
@@ -2411,6 +2549,119 @@ function audit(records) {
   };
 }
 
+function catalogRemediationPlan(records) {
+  const auditResult = audit(records);
+  const rules = {
+    ID_MISSING: {
+      priority: "critical",
+      action: "Assign a stable, unique product id before feed submission; do not reuse IDs across variants.",
+    },
+    ID_DUPLICATE: {
+      priority: "critical",
+      action: "Deduplicate product IDs and preserve one stable ID per sellable item or variant.",
+    },
+    IDENTIFIER_MISSING: {
+      priority: "high",
+      action: "Supply a valid GTIN when available, otherwise provide brand plus MPN and set identifier_exists consistently.",
+    },
+    GTIN_FORMAT_INVALID: {
+      priority: "high",
+      action: "Replace malformed GTIN values with a valid 8, 12, 13, or 14 digit identifier or remove the invalid identifier.",
+    },
+    GTIN_CHECKSUM_INVALID: {
+      priority: "high",
+      action: "Correct the GTIN using the manufacturer-issued identifier; do not generate or guess a replacement GTIN.",
+    },
+    TITLE_MISSING: {
+      priority: "high",
+      action: "Add a clear product title that identifies the product and differentiates the variant.",
+    },
+    LINK_INVALID: {
+      priority: "high",
+      action: "Replace the product link with a public absolute HTTPS product URL.",
+    },
+    IMAGE_LINK_INVALID: {
+      priority: "high",
+      action: "Replace the image link with a public absolute HTTPS image URL.",
+    },
+    PRICE_FORMAT_INVALID: {
+      priority: "high",
+      action: "Normalize price to a numeric amount followed by an uppercase ISO-4217 currency code, for example 19.99 USD.",
+    },
+    BRAND_MISSING_FOR_MPN: {
+      priority: "medium",
+      action: "Add the product brand whenever an MPN is supplied so the identifier pair is complete.",
+    },
+    AVAILABILITY_UNRECOGNIZED: {
+      priority: "medium",
+      action: "Normalize availability to in_stock, out_of_stock, preorder, or backorder.",
+    },
+  };
+  const priorityRank = { critical: 0, high: 1, medium: 2, low: 3 };
+  const grouped = new Map();
+
+  for (const issue of auditResult.issues) {
+    const rule = rules[issue.code] || {
+      priority: issue.severity === "error" ? "high" : "medium",
+      action: issue.message,
+    };
+    const current = grouped.get(issue.code) || {
+      code: issue.code,
+      priority: rule.priority,
+      action: rule.action,
+      occurrences: 0,
+      affected_product_ids: new Set(),
+      affected_rows: new Set(),
+    };
+    current.occurrences += 1;
+    if (issue.id) current.affected_product_ids.add(issue.id);
+    current.affected_rows.add(issue.index);
+    grouped.set(issue.code, current);
+  }
+
+  const prioritizedActions = [...grouped.values()]
+    .map((item) => ({
+      code: item.code,
+      priority: item.priority,
+      action: item.action,
+      occurrences: item.occurrences,
+      affected_product_ids: [...item.affected_product_ids].slice(0, 100),
+      affected_rows: [...item.affected_rows].sort((a, b) => a - b),
+    }))
+    .sort(
+      (a, b) =>
+        (priorityRank[a.priority] ?? 9) - (priorityRank[b.priority] ?? 9) ||
+        b.occurrences - a.occurrences ||
+        a.code.localeCompare(b.code),
+    );
+
+  const readiness =
+    auditResult.error_count > 0
+      ? "needs_remediation"
+      : auditResult.warning_count > 0
+        ? "ready_with_warnings"
+        : "ready";
+
+  return {
+    service: "PAL Catalog Remediation Plan",
+    generated_at: nowIso(),
+    readiness,
+    summary: {
+      records: auditResult.record_count,
+      issues: auditResult.issue_count,
+      errors: auditResult.error_count,
+      warnings: auditResult.warning_count,
+      actions: prioritizedActions.length,
+      critical_actions: prioritizedActions.filter((item) => item.priority === "critical").length,
+      high_actions: prioritizedActions.filter((item) => item.priority === "high").length,
+    },
+    prioritized_actions: prioritizedActions,
+    audit: auditResult,
+    disclaimer:
+      "Deterministic feed remediation guidance only; not a guarantee of Google Merchant Center approval or regulatory compliance.",
+  };
+}
+
 async function verifyPayment(hash) {
   const url = new URL(VERIFY_BASE);
   url.searchParams.set("hash", hash);
@@ -2460,6 +2711,7 @@ app.get("/", (_req, res) => {
       "POST /v1/usdc/gtin-check",
       "POST /v1/usdc/feed-diff",
       "POST /v1/usdc/x402-validate",
+      "POST /v1/usdc/catalog-remediation",
     ],
     agentpay_endpoint: "POST /v1/agentpay",
     free_endpoints: ["GET /health", "GET /v1/price", "GET /v1/stats"],
@@ -2524,6 +2776,12 @@ Price: $0.05 USDC per successful call
 Input: an x402 v2 PaymentRequired object directly, or wrap it as {"declaration":{...}} or {"payment_required":{...}}.
 Returns deterministic protocol-shape findings, Base/EVM readiness, amount/address/asset checks, duplicate accepts, and warnings. It never fetches or pays the declared resource.
 
+### PAL Catalog Remediation Plan
+POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation
+Price: $1.00 USDC per successful call
+Input: {"records":[...]} with 1-100 product records.
+Returns the base audit plus a prioritized Merchant Center/product-feed remediation plan, grouped by issue code and business impact, with concrete corrective actions and affected product IDs.
+
 ## Buyer flow
 1. POST valid JSON without payment.
 2. Read HTTP 402 and PAYMENT-REQUIRED.
@@ -2564,6 +2822,12 @@ POST ${PUBLIC_BASE_URL}/v1/usdc/x402-validate
 Cost: $0.05 USDC
 Body: an x402 v2 PaymentRequired object or a wrapper containing declaration/payment_required.
 Use to statically validate protocol shape, payment requirements, Base/EVM fields, amounts, timeouts and duplicate accepts without paying or fetching the declared resource.
+
+## remediate_catalog_feed
+POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation
+Cost: $1.00 USDC
+Body: {"records":[product,...]} with 1-100 records.
+Use when an agent needs a prioritized, machine-readable remediation plan rather than only raw validation findings.
 
 Payment protocol: x402 v2 exact, Base mainnet USDC.
 Discovery: ${PUBLIC_BASE_URL}/.well-known/x402
@@ -2879,6 +3143,7 @@ app.get("/v1/stats", (_req, res) => {
     usdc_x402_paid_gtin_checks_since_process_start: usdcPaidGtinChecks,
     usdc_x402_paid_feed_diffs_since_process_start: usdcPaidFeedDiffs,
     usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
+    usdc_x402_paid_catalog_remediations_since_process_start: usdcPaidCatalogRemediations,
     payment_hashes_consumed_since_process_start: usedPayments.size,
     uptime_seconds: Math.floor(process.uptime()),
   });
@@ -3065,6 +3330,33 @@ app.post("/v1/usdc/feed-diff", (req, res) => {
       network: USDC_X402_NETWORK,
       asset: "USDC",
       price_usd: USDC_X402_PRICE,
+      pay_to: BASE_PAYOUT_ADDRESS,
+      facilitator: "PayAI",
+    },
+  });
+});
+
+app.post("/v1/usdc/catalog-remediation", (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 100 items.",
+    });
+  }
+
+  usdcPaidCatalogRemediations += 1;
+  console.log(
+    `[revenue] usdc_x402_catalog_remediation served price_usd=1.00 network=${USDC_X402_NETWORK} count=${usdcPaidCatalogRemediations}`
+  );
+
+  return res.json({
+    ...catalogRemediationPlan(records),
+    payment: {
+      verified_by: "x402",
+      network: USDC_X402_NETWORK,
+      asset: "USDC",
+      price_usd: X402_REMEDIATE_PRICE_USD,
       pay_to: BASE_PAYOUT_ADDRESS,
       facilitator: "PayAI",
     },
