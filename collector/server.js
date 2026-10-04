@@ -3296,10 +3296,69 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+async function logCompletedRevenueSnapshot() {
+  const { rows } = await pool.query(`
+    with completed as (
+      select 'paddle'::text as provider, occurred_at, currency_code, amount_minor
+        from pal_paddle_webhook_events
+       where event_type = 'transaction.completed'
+         and lower(coalesce(status, '')) = 'completed'
+         and is_simulation = false
+      union all
+      select 'fastspring', coalesce(occurred_at, processed_at), currency_code, amount_minor
+        from pal_fastspring_webhook_events
+       where event_type = 'order.completed' and live = true
+      union all
+      select 'creem', coalesce(occurred_at, processed_at), currency_code, amount_minor
+        from pal_creem_webhook_events
+       where event_type = 'subscription.paid' and live = true
+      union all
+      select 'paypro', coalesce(occurred_at, processed_at), currency_code, amount_minor
+        from pal_paypro_webhook_events
+       where event_type in ('OrderCharged', 'SubscriptionChargeSucceed')
+         and test_mode = false
+      union all
+      select 'stripe', coalesce(occurred_at, processed_at), currency_code, amount_minor
+        from pal_stripe_webhook_events
+       where event_type = 'invoice.paid' and live = true
+      union all
+      select 'montypay', processed_at, currency_code, amount_minor
+        from pal_montypay_webhook_events
+       where event_type in ('sale', 'recurring')
+         and event_status = 'success'
+         and order_status = 'settled'
+         and live = true
+    )
+    select count(*)::bigint as completed_transactions,
+           min(occurred_at) as first_completed_at,
+           max(occurred_at) as last_completed_at,
+           coalesce(
+             jsonb_object_agg(currency_code, gross_minor)
+               filter (where currency_code is not null),
+             '{}'::jsonb
+           ) as gross_completed_by_currency
+      from (
+        select currency_code,
+               sum(amount_minor)::bigint as gross_minor,
+               min(occurred_at) as occurred_at
+          from completed
+         group by currency_code
+      ) totals
+  `);
+
+  const row = rows[0] || {};
+  console.log(
+    `[pal-payment-ledger] completed_transactions=${Number(row.completed_transactions || 0)} gross=${JSON.stringify(row.gross_completed_by_currency || {})} first=${row.first_completed_at || "none"} last=${row.last_completed_at || "none"}`
+  );
+}
+
 initialize()
   .then(() => {
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`Feed-auditor event collector listening on port ${PORT}`);
+      void logCompletedRevenueSnapshot().catch(error => {
+        console.error('[pal-payment-ledger] failed:', error.message);
+      });
     });
   })
   .catch(error => {
