@@ -62,6 +62,7 @@ const OPENDEXTER_AUDITION_BOOTSTRAP = process.env.OPENDEXTER_AUDITION_BOOTSTRAP 
 const OPENDEXTER_AUDITION_URL = "https://x402.dexter.cash/api/public/discoverable";
 const TRUE402_BOOTSTRAP = process.env.TRUE402_BOOTSTRAP === "1";
 const TRUE402_SERVICES_URL = "https://true402.dev/api/v1/services";
+const TRUE402_REGISTER_URL = "https://true402.dev/api/v1/services/register";
 const MARKET402_BOOTSTRAP = process.env.MARKET402_BOOTSTRAP === "1";
 const MARKET402_SUBMIT_URL = "https://market402.com/submit";
 const X402DASH_REGISTER_URL = "https://api.x402dash.com/v1/register";
@@ -760,21 +761,21 @@ function catalogAuditExample() {
 function true402Manifest() {
   return {
     x402: "1.0",
-    name: "PAL Catalog Feed Identifier Audit",
+    name: "PAL Catalog Remediation Plan",
     description:
-      "Deterministic Google Merchant Center and product-feed audit for 1-100 catalog records: duplicate IDs, GTIN format/checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+      "Turn 1-100 ecommerce catalog records into a prioritized Google Merchant Center and product-feed remediation plan with concrete corrective actions, issue severity, and affected products.",
     capabilities: [
-      "catalog",
-      "product-feed",
+      "catalog-remediation",
       "merchant-center",
-      "google-shopping",
+      "product-feed",
+      "ecommerce",
+      "catalog",
       "gtin",
       "validation",
-      "ecommerce",
     ],
     pricing: {
       currency: "USDC",
-      base: "0.01",
+      base: "1.00",
       unit: "request",
     },
     payment: {
@@ -782,7 +783,7 @@ function true402Manifest() {
       chain: "base-mainnet",
       facilitator: X402_FACILITATOR_URL,
     },
-    endpoint: X402_AUDIT_URL,
+    endpoint: X402_REMEDIATE_URL,
     endpoints: [
       { name: "PAL Catalog Feed Identifier Audit", endpoint: X402_AUDIT_URL, method: "POST", price: "0.01" },
       { name: "PAL GTIN Check", endpoint: X402_GTIN_URL, method: "POST", price: "0.01" },
@@ -2157,28 +2158,15 @@ async function startTrue402Bootstrap() {
           String(item?.manifest?.endpoint || "").replace(/\/$/, "") === X402_AUDIT_URL
       ) || null;
 
-    if (existing) {
-      true402State = {
-        enabled: true,
-        status: "already_listed",
-        registered: true,
-        checked_at: nowIso(),
-        listing: existing,
-        error: null,
-      };
-      console.log(
-        `[true402] already listed route=${X402_AUDIT_URL} id=${existing.id || "unknown"}`
-      );
-      return;
-    }
-
     true402State = {
       ...true402State,
-      status: "registering",
+      status: existing ? "refreshing" : "registering",
+      registered: Boolean(existing),
       checked_at: nowIso(),
+      listing: existing,
     };
 
-    const registerResponse = await fetch(TRUE402_SERVICES_URL, {
+    const registerResponse = await fetch(TRUE402_REGISTER_URL, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -2210,7 +2198,7 @@ async function startTrue402Bootstrap() {
       error: null,
     };
     console.log(
-      `[true402] registered route=${X402_AUDIT_URL} id=${body?.id || body?.service?.id || body?.data?.id || "unknown"}`
+      `[true402] registered/refreshed primary=${X402_REMEDIATE_URL} id=${body?.id || body?.service?.id || body?.data?.id || "unknown"}`
     );
   } catch (error) {
     true402State = {
