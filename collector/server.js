@@ -3329,21 +3329,20 @@ async function logCompletedRevenueSnapshot() {
          and order_status = 'settled'
          and live = true
     )
-    select count(*)::bigint as completed_transactions,
-           min(occurred_at) as first_completed_at,
-           max(occurred_at) as last_completed_at,
+    , currency_totals as (
+        select currency_code,
+               sum(amount_minor)::bigint as gross_minor
+          from completed
+         where currency_code is not null
+         group by currency_code
+      )
+    select (select count(*)::bigint from completed) as completed_transactions,
+           (select min(occurred_at) from completed) as first_completed_at,
+           (select max(occurred_at) from completed) as last_completed_at,
            coalesce(
-             jsonb_object_agg(currency_code, gross_minor)
-               filter (where currency_code is not null),
+             (select jsonb_object_agg(currency_code, gross_minor) from currency_totals),
              '{}'::jsonb
            ) as gross_completed_by_currency
-      from (
-        select currency_code,
-               sum(amount_minor)::bigint as gross_minor,
-               min(occurred_at) as occurred_at
-          from completed
-         group by currency_code
-      ) totals
   `);
 
   const row = rows[0] || {};
