@@ -1562,9 +1562,9 @@ function x402Manifest() {
     resources: [
       {
         resource: X402_AUDIT_URL,
-        name: "PAL Merchant Center Product Feed Audit",
+        name: "PAL Shopify Merchant Center Product Feed Audit",
         description:
-          "Audit 1-100 Google Merchant Center / Google Shopping product-feed records for duplicate IDs, GTIN validation/checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+          "Audit 1-100 Shopify, Google Merchant Center, and Google Shopping product-feed records for duplicate IDs, GTIN/UPC/EAN validation and checksum errors, malformed product or image URLs, price formatting, availability, and brand/MPN identifier consistency.",
         method: "POST",
         price: X402_PRICE_USD,
         inputSchema: {
@@ -2189,7 +2189,7 @@ async function startIndex402Bootstrap() {
       http_method: "POST",
       probe_body: JSON.stringify(catalogAuditExample()),
       description:
-        "Deterministic product-feed identifier and consistency audit for 1-100 catalog records: duplicate IDs, GTIN checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+        "Deterministic Shopify and Google Merchant Center product-feed audit for 1-100 catalog records: duplicate IDs, GTIN/UPC/EAN checksum errors, product and image URL shape, price formatting, availability, and brand/MPN identifier consistency.",
       price_usd: 0.01,
       payment_asset: "USDC",
       payment_network: "Base",
@@ -2439,7 +2439,7 @@ async function startIndex402ClaimBootstrap() {
           verification_token: verificationToken,
           name: "PAL Catalog Feed Identifier Audit",
           description:
-            "Deterministic Google Merchant Center and product-feed identifier audit for 1-100 catalog records: duplicate IDs, GTIN format/checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+            "Deterministic Shopify, Google Merchant Center, and Google Shopping product-feed audit for 1-100 catalog records: duplicate IDs, GTIN/UPC/EAN format and checksum errors, URL shape, price formatting, availability, and brand/MPN consistency.",
           category: "ecommerce/catalog-validation",
           price_usd: 0.01,
           payment_asset: "USDC",
@@ -2514,7 +2514,7 @@ async function startX402ScoutBootstrap() {
         price_usd: 0.01,
         category: "data",
         description:
-          "Deterministic product-feed identifier and consistency audit for 1-100 catalog records: duplicate IDs, GTIN checksum, URL shape, price formatting, availability, and brand/MPN consistency.",
+          "Deterministic Shopify and Google Merchant Center product-feed audit for 1-100 catalog records: duplicate IDs, GTIN/UPC/EAN checksum errors, product and image URL shape, price formatting, availability, and brand/MPN identifier consistency.",
         network: "base-mainnet",
         wallet: BASE_PAYOUT_ADDRESS,
         wallet_address: BASE_PAYOUT_ADDRESS,
