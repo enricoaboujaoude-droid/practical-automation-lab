@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence",
   "title": "PAL Commerce Catalog Intelligence",
-  "description": "Paid catalog remediation, audits, GTIN checks and feed diffs via Base USDC; batch calls up to $5.",
+  "description": "Paid Merchant Center audits, prioritized remediation, GTIN checks and feed diffs via Base USDC, including a $5 batch remediation tool for up to 500 products.",
   "websiteUrl": "https://pal-nano-catalog-audit.onrender.com/marketplace",
   "repository": {
     "url": "https://github.com/enricoaboujaoude-droid/practical-automation-lab",
