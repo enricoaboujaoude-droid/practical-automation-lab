@@ -3,6 +3,7 @@ export const APP_EVENTS = [
   "scan_started",
   "scan_completed",
   "remediation_viewed",
+  "pro_upgrade_viewed",
   "pro_monitoring_enabled",
   "pro_monitoring_disabled",
   "pro_report_generated",

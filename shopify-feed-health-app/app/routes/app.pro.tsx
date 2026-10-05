@@ -19,6 +19,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const { admin, session } = await authenticate.admin(request);
   const entitlement = await getEntitlementForShop(session.shop, admin);
 
+  if (entitlement.plan !== "pro") {
+    trackAppEvent("pro_upgrade_viewed");
+  }
+
   return {
     entitlement,
     planSelectionUrl: getPlanSelectionUrl(session.shop),
@@ -37,7 +41,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return {
       ok: false,
       message:
-        "Pro is not active for this shop yet. Billing will remain disabled until Shopify App Pricing is configured and tested.",
+        "Pro is not active for this shop. Choose a Pro plan in Shopify to enable monitoring, history, alerts, exports, and scheduled reports.",
       export: null,
     };
   }
@@ -285,12 +289,35 @@ export default function ProMonitoringDashboard() {
   if (data.entitlement.plan !== "pro" || !data.dashboard) {
     return (
       <s-page heading="Monitoring & reports">
-        <s-banner tone="info" heading="Pro capability is installed but not activated">
-          The Pro feature layer is being built before launch. This shop remains on the Free entitlement until Shopify App Pricing is configured or the shop is explicitly enabled for development preview.
+        <s-banner tone="info" heading="Free is active — Pro adds continuous monitoring">
+          Your current Free plan remains available for on-demand catalog checks.
+          Pro adds recurring scans, saved history, change detection, health alerts,
+          scheduled reports, CSV exports, 2027 image-readiness monitoring, and
+          higher scan limits.
         </s-banner>
-        <s-section heading="Pro capabilities">
+
+        <s-section heading="Turn a one-time scan into ongoing catalog monitoring">
           <s-paragraph>
-            Automatic recurring scans, saved history, change detection, health-drop alerts, 2027 image-readiness monitoring, higher scan limits, exportable remediation reports, and scheduled reports are implemented behind the Pro entitlement boundary.
+            Use Pro when you want PAL to keep a history of catalog health,
+            compare new scans with earlier results, surface regressions, and
+            generate reports without changing Shopify product data.
+          </s-paragraph>
+
+          <div className="pal-actions-row">
+            {data.planSelectionUrl ? (
+              <s-link href={data.planSelectionUrl}>
+                Compare Free and Pro in Shopify
+              </s-link>
+            ) : (
+              <s-link href="/app">Return to the catalog check</s-link>
+            )}
+          </div>
+        </s-section>
+
+        <s-section heading="What stays the same">
+          <s-paragraph>
+            PAL remains read-only on every plan. Pro monitoring, history,
+            alerts, and reports never edit products or variants.
           </s-paragraph>
         </s-section>
       </s-page>

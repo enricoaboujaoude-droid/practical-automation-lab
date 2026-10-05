@@ -193,6 +193,31 @@ export default function CatalogCheckDashboard() {
         </div>
       </div>
 
+      {!pro ? (
+        <s-section heading="Keep catalog health from drifting">
+          <s-paragraph>
+            Free gives you an on-demand snapshot. Pro adds automatic recurring
+            scans, saved history, change detection, health alerts, scheduled
+            reports, CSV exports, 2027 image-readiness monitoring, and higher
+            scan limits.
+          </s-paragraph>
+          <div className="pal-actions-row">
+            {data.planSelectionUrl ? (
+              <a
+                className="pal-link-button"
+                href={data.planSelectionUrl}
+                target="_top"
+                rel="noopener"
+              >
+                Compare Free and Pro in Shopify
+              </a>
+            ) : (
+              <s-link href="/app/pro">See Pro monitoring capabilities</s-link>
+            )}
+          </div>
+        </s-section>
+      ) : null}
+
       {data.productPaginationCapped ? (
         <s-banner tone="warning" heading="Catalog scan limit reached">
           This {pro ? "Pro" : "Free"} scan checks up to{" "}
