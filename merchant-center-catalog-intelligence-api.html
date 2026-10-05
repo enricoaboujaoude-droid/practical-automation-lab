@@ -33,9 +33,9 @@ pre{background:#f4f4f5;border-radius:14px;padding:16px;overflow:auto;font-size:.
 <h1>Audit and remediate product feeds before Merchant Center problems become expensive.</h1>
 <p class="lead">PAL Commerce Catalog Intelligence is a deterministic API for ecommerce catalog QA: product-feed audits, prioritized remediation plans, GTIN / UPC / EAN validation, feed-change detection and x402 declaration validation. It is built for developers, agencies, feed-management systems and AI agents.</p>
 <div class="actions">
-<a class="button" href="https://pal-nano-catalog-audit.onrender.com/openapi.json" rel="noopener noreferrer" data-pal-event="commerce_api_openapi_clicked">Open x402 API spec</a>
-<a class="button secondary" href="https://pal-nano-catalog-audit.onrender.com/marketplace-openapi.json" rel="noopener noreferrer" data-pal-event="commerce_api_marketplace_spec_clicked">Marketplace OpenAPI</a>
-<a class="button secondary" href="https://pal-nano-catalog-audit.onrender.com/v1/upstream/status" rel="noopener noreferrer">Live status</a>
+<a class="button" href="https://pal-nano-catalog-audit.onrender.com/v1/sample/catalog-remediation" rel="noopener noreferrer" data-pal-event="commerce_api_remediation_sample_clicked">See a free remediation result</a>
+<a class="button secondary" href="https://pal-nano-catalog-audit.onrender.com/marketplace-openapi.json" rel="noopener noreferrer" data-pal-event="commerce_api_marketplace_spec_clicked">Import marketplace OpenAPI</a>
+<a class="button secondary" href="https://pal-nano-catalog-audit.onrender.com/openapi.json" rel="noopener noreferrer" data-pal-event="commerce_api_openapi_clicked">Direct x402 API</a>
 </div>
 
 <h2>Paid operations</h2>
@@ -48,6 +48,7 @@ pre{background:#f4f4f5;border-radius:14px;padding:16px;overflow:auto;font-size:.
 
 <h2>Why use the remediation endpoint?</h2>
 <p>A plain validator tells you what is wrong. The remediation endpoint groups findings by priority and issue code, explains business impact, and returns concrete corrective actions so downstream automation can decide what to fix first.</p>
+<p><a href="https://pal-nano-catalog-audit.onrender.com/v1/sample/catalog-remediation" rel="noopener noreferrer"><strong>Open the free JSON example before paying →</strong></a></p>
 
 <h2>Example request</h2>
 <pre>curl -X POST https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-remediation \
