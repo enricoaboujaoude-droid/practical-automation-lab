@@ -3998,6 +3998,13 @@ app.get("/marketplace", (_req, res) => {
   <p><a href="/v1/sample/catalog-remediation"><strong>See a free remediation result →</strong></a> &nbsp; <a href="/v1/sample/catalog-audit">See audit sample</a> &nbsp; <a href="/v1/sample/gtin-check">See GTIN sample</a></p>
 
   <div class="card">
+    <h2>Use it from an AI agent</h2>
+    <p>PAL is published in the <a href="https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence" rel="noopener noreferrer">Official MCP Registry</a> and exposes a production Streamable HTTP server.</p>
+    <p><strong>Remote MCP:</strong> <code>${PUBLIC_BASE_URL}/mcp</code></p>
+    <p>The MCP server exposes two free discovery/demo tools and six x402-paid commerce tools. Paid MCP calls return the live Base-USDC payment requirement before any paid result is delivered.</p>
+  </div>
+
+  <div class="card">
     <h2>Catalog Remediation Plan <span class="price">$1.00 / call</span></h2>
     <p>Turn 1-100 product records into a prioritized Merchant Center and product-feed remediation plan with concrete corrective actions and affected product IDs.</p>
     <code>POST /v1/usdc/catalog-remediation</code>
@@ -4034,7 +4041,8 @@ app.get("/marketplace", (_req, res) => {
     <a href="/openapi.json">x402 OpenAPI</a> ·
     <a href="/marketplace-openapi.json">marketplace OpenAPI</a> ·
     <a href="/llms.txt">llms.txt</a> ·
-    <a href="/skill.md">agent skill</a>
+    <a href="/skill.md">agent skill</a> ·
+    <a href="https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence" rel="noopener noreferrer">Official MCP Registry</a>
   </p>
   <p class="muted">Payment: x402 v2 exact · USDC on Base mainnet · no account or API key required for direct paid calls.</p>
 </body>
