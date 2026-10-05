@@ -1,0 +1,90 @@
+{
+  "title": "PAL Commerce Catalog Intelligence",
+  "description": "Audit and remediate ecommerce product feeds, validate GTINs, compare feed snapshots, or validate x402 declarations.",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "operation": {
+      "title": "Operation",
+      "type": "string",
+      "description": "Choose the commerce-data operation to run.",
+      "enum": [
+        "catalog-remediation",
+        "catalog-audit",
+        "gtin-check",
+        "feed-diff",
+        "x402-validate"
+      ],
+      "enumTitles": [
+        "Catalog remediation plan",
+        "Catalog feed audit",
+        "GTIN / UPC / EAN validation",
+        "Product feed diff",
+        "x402 declaration validation"
+      ],
+      "default": "catalog-remediation"
+    },
+    "records": {
+      "title": "Product records",
+      "type": "array",
+      "description": "Used by catalog-remediation and catalog-audit. Supply 1-100 product objects.",
+      "maxItems": 100,
+      "items": {
+        "type": "object"
+      },
+      "default": [
+        {
+          "id": "sku-100",
+          "title": "Example Product",
+          "link": "https://example.com/products/sku-100",
+          "image_link": "https://example.com/images/sku-100.jpg",
+          "gtin": "4006381333931",
+          "brand": "Example",
+          "mpn": "SKU-100",
+          "price": "19.99 USD",
+          "availability": "in_stock",
+          "identifier_exists": true
+        }
+      ]
+    },
+    "gtins": {
+      "title": "GTINs",
+      "type": "array",
+      "description": "Used by gtin-check. Supply 1-100 GTIN/UPC/EAN values.",
+      "maxItems": 100,
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "4006381333931",
+        "036000291452"
+      ]
+    },
+    "before": {
+      "title": "Feed snapshot before",
+      "type": "array",
+      "description": "Used by feed-diff.",
+      "maxItems": 100,
+      "items": {
+        "type": "object"
+      }
+    },
+    "after": {
+      "title": "Feed snapshot after",
+      "type": "array",
+      "description": "Used by feed-diff.",
+      "maxItems": 100,
+      "items": {
+        "type": "object"
+      }
+    },
+    "declaration": {
+      "title": "x402 declaration",
+      "type": "object",
+      "description": "Used by x402-validate. Provide an x402 v2 PaymentRequired declaration."
+    }
+  },
+  "required": [
+    "operation"
+  ]
+}
