@@ -3589,6 +3589,117 @@ app.get("/favicon.svg", (_req, res) => {
   res.type("image/svg+xml").send(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#111827"/><path d="M17 45V19h8v10l13-10h10L33 31l16 14H38L25 33v12z" fill="#fff"/></svg>`);
 });
 
+app.get("/a308e807eac54897f390bd401091a89b.txt", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=86400");
+  res.type("text/plain").send("a308e807eac54897f390bd401091a89b");
+});
+
+app.get("/robots.txt", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=3600");
+  res.type("text/plain").send(`User-agent: *
+Allow: /
+Sitemap: ${PUBLIC_BASE_URL}/sitemap.xml
+`);
+});
+
+app.get("/sitemap.xml", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=3600");
+  res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${PUBLIC_BASE_URL}/marketplace</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>${PUBLIC_BASE_URL}/llms.txt</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>${PUBLIC_BASE_URL}/skill.md</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>${PUBLIC_BASE_URL}/openapi.json</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>${PUBLIC_BASE_URL}/marketplace-openapi.json</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>${PUBLIC_BASE_URL}/.well-known/x402</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+</urlset>`);
+});
+
+app.get("/marketplace", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.type("text/html").send(`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Google Merchant Center Product Feed Audit API | PAL Commerce Catalog Intelligence</title>
+  <meta name="description" content="Pay-per-call ecommerce catalog intelligence for Google Merchant Center feed audits, prioritized remediation, GTIN/UPC/EAN validation, feed diffs, and x402 diagnostics.">
+  <link rel="canonical" href="${PUBLIC_BASE_URL}/marketplace">
+  <link rel="icon" href="${PUBLIC_BASE_URL}/favicon.svg" type="image/svg+xml">
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:920px;margin:0 auto;padding:48px 24px;color:#111827;line-height:1.6}
+    h1{font-size:2.4rem;line-height:1.15;margin-bottom:.6rem}
+    h2{margin-top:2rem}.lead{font-size:1.15rem;color:#374151}
+    .card{border:1px solid #e5e7eb;border-radius:14px;padding:18px;margin:14px 0}
+    code{background:#f3f4f6;padding:.15rem .35rem;border-radius:6px}
+    a{color:#0f62fe}.price{font-weight:700}.muted{color:#6b7280}
+  </style>
+  <script type="application/ld+json">
+  ${JSON.stringify({
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    name:"PAL Commerce Catalog Intelligence API",
+    applicationCategory:"DeveloperApplication",
+    operatingSystem:"Web API",
+    description:"Pay-per-call ecommerce catalog intelligence for Merchant Center feed audits, catalog remediation, GTIN validation, feed comparison, and x402 diagnostics.",
+    offers:{
+      "@type":"AggregateOffer",
+      lowPrice:"0.01",
+      highPrice:"1.00",
+      priceCurrency:"USD"
+    },
+    url:`${PUBLIC_BASE_URL}/marketplace`
+  })}
+  </script>
+</head>
+<body>
+  <h1>PAL Commerce Catalog Intelligence API</h1>
+  <p class="lead">Deterministic, agent-ready ecommerce catalog intelligence for Google Merchant Center, shopping feeds, marketplaces, and automated commerce workflows.</p>
+
+  <div class="card">
+    <h2>Catalog Remediation Plan <span class="price">$1.00 / call</span></h2>
+    <p>Turn 1-100 product records into a prioritized Merchant Center and product-feed remediation plan with concrete corrective actions and affected product IDs.</p>
+    <code>POST /v1/usdc/catalog-remediation</code>
+  </div>
+
+  <div class="card">
+    <h2>Catalog Feed Audit <span class="price">$0.01 / call</span></h2>
+    <p>Check duplicate IDs, GTIN format and checksum, URL shape, price formatting, availability, and brand/MPN consistency.</p>
+    <code>POST /v1/usdc/catalog-audit</code>
+  </div>
+
+  <div class="card">
+    <h2>GTIN / UPC / EAN Validation <span class="price">$0.01 / call</span></h2>
+    <p>Validate one or up to 100 GTIN-8, UPC/GTIN-12, GTIN-13, and GTIN-14 identifiers including check digits.</p>
+    <code>POST /v1/usdc/gtin-check</code>
+  </div>
+
+  <div class="card">
+    <h2>Product Feed Diff <span class="price">$0.01 / call</span></h2>
+    <p>Compare two feed snapshots and return added, removed, and changed commerce fields.</p>
+    <code>POST /v1/usdc/feed-diff</code>
+  </div>
+
+  <div class="card">
+    <h2>x402 Declaration Validator <span class="price">$0.05 / call</span></h2>
+    <p>Statically validate x402 v2 payment declarations for Base/USDC readiness without paying the referenced resource.</p>
+    <code>POST /v1/usdc/x402-validate</code>
+  </div>
+
+  <h2>Machine-readable discovery</h2>
+  <p>
+    <a href="/.well-known/x402">x402 manifest</a> ·
+    <a href="/.well-known/agent.json">agent card</a> ·
+    <a href="/openapi.json">x402 OpenAPI</a> ·
+    <a href="/marketplace-openapi.json">marketplace OpenAPI</a> ·
+    <a href="/llms.txt">llms.txt</a> ·
+    <a href="/skill.md">agent skill</a>
+  </p>
+  <p class="muted">Payment: x402 v2 exact · USDC on Base mainnet · no account or API key required for direct paid calls.</p>
+</body>
+</html>`);
+});
+
 app.get("/llms.txt", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.type("text/plain").send(`# Practical Automation Lab — paid commerce-data tools
