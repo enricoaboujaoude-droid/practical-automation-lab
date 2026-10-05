@@ -1,0 +1,32 @@
+name: Verify PAL marketplace upstream access
+
+on:
+  push:
+    branches:
+      - nano-seller
+    paths:
+      - .github/workflows/verify-pal-upstream-access.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe marketplace upstream
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error             --output response.json             --write-out '%{http_code}'             --request POST             --header 'Content-Type: application/json'             --data '{"records":[{"id":"probe-1","title":"Probe","price":"19.99 USD","availability":"in_stock"}]}'             https://pal-nano-catalog-audit.onrender.com/v1/upstream/catalog-audit)"
+          echo "HTTP $code"
+          cat response.json
+          echo
+          if [ "$code" = "200" ]; then
+            echo "UPSTREAM_PUBLIC=true"
+          elif [ "$code" = "401" ] || [ "$code" = "403" ] || [ "$code" = "503" ]; then
+            echo "UPSTREAM_PUBLIC=false"
+          else
+            echo "::error::Unexpected upstream status $code"
+            exit 1
+          fi
