@@ -17,7 +17,6 @@ async function runScan(request: Request, persistHistory: boolean) {
   const result = await scanCatalog(admin, entitlement.limits);
 
   let shouldPersist = entitlement.plan === "pro" && persistHistory;
-  let persistenceSource: "manual" | "pro-activation-baseline" = "manual";
 
   if (entitlement.plan === "pro" && !persistHistory) {
     const existingBaseline = await prisma.catalogScan.findFirst({
@@ -27,7 +26,6 @@ async function runScan(request: Request, persistHistory: boolean) {
 
     if (!existingBaseline) {
       shouldPersist = true;
-      persistenceSource = "pro-activation-baseline";
     }
   }
 
@@ -35,7 +33,7 @@ async function runScan(request: Request, persistHistory: boolean) {
     shouldPersist
       ? await persistProScan({
           shop: session.shop,
-          source: persistenceSource,
+          source: "manual",
           result,
         })
       : null;
