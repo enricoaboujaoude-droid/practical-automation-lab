@@ -194,12 +194,22 @@ export default function CatalogCheckDashboard() {
       </div>
 
       {!pro ? (
-        <s-section heading="Keep catalog health from drifting">
+        <s-section
+          heading={
+            report.errors || report.warnings
+              ? `Keep tracking these ${report.errors + report.warnings} findings`
+              : "Keep catalog health from drifting"
+          }
+        >
           <s-paragraph>
-            Free gives you an on-demand snapshot. Pro adds automatic recurring
-            scans, saved history, change detection, health alerts, scheduled
-            reports, CSV exports, 2027 image-readiness monitoring, and higher
-            scan limits.
+            {report.errors || report.warnings
+              ? `This scan found ${report.errors} critical issue${report.errors === 1 ? "" : "s"} and ${report.warnings} warning${report.warnings === 1 ? "" : "s"}. Pro saves scan history and automatically shows what is new, resolved, or getting worse.`
+              : "Free gives you an on-demand snapshot. Pro saves scan history and monitors for regressions as the catalog changes."}
+          </s-paragraph>
+          <s-paragraph>
+            Pro also adds recurring scans, health alerts, scheduled reports,
+            CSV exports, 2027 image-readiness monitoring, and higher scan
+            limits. $19/month or $199/year.
           </s-paragraph>
           <div className="pal-actions-row">
             {data.planSelectionUrl ? (
@@ -209,7 +219,7 @@ export default function CatalogCheckDashboard() {
                 target="_top"
                 rel="noopener"
               >
-                Compare Free and Pro in Shopify
+                Upgrade to Pro in Shopify
               </a>
             ) : (
               <s-link href="/app/pro">See Pro monitoring capabilities</s-link>
@@ -328,7 +338,7 @@ export default function CatalogCheckDashboard() {
               target="_top"
               rel="noopener"
             >
-              View Free and Pro plans in Shopify
+              Upgrade to Pro — $19/month or $199/year
             </a>
           ) : null}
 
