@@ -40,6 +40,9 @@ const X402_REMEDIATE_PRICE_ATOMIC = "1000000";
 const X402_REMEDIATE_BATCH_PATH = "/v1/usdc/catalog-remediation-batch";
 const X402_REMEDIATE_BATCH_PRICE_USD = "$5.00";
 const X402_REMEDIATE_BATCH_PRICE_ATOMIC = "5000000";
+const X402_REMEDIATE_CANARY_PATH = "/v1/usdc/catalog-remediation-canary";
+const X402_REMEDIATE_CANARY_PRICE_USD = "$0.10";
+const X402_REMEDIATE_CANARY_PRICE_ATOMIC = "100000";
 const X402_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_AUDIT_PATH}`;
 const X402_GTIN_URL = `${PUBLIC_BASE_URL}${X402_GTIN_PATH}`;
 const X402_GTIN_ONE_URL = `${PUBLIC_BASE_URL}${X402_GTIN_ONE_PATH}`;
@@ -47,6 +50,7 @@ const X402_FEED_DIFF_URL = `${PUBLIC_BASE_URL}${X402_FEED_DIFF_PATH}`;
 const X402_VALIDATE_URL = `${PUBLIC_BASE_URL}${X402_VALIDATE_PATH}`;
 const X402_REMEDIATE_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_PATH}`;
 const X402_REMEDIATE_BATCH_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BATCH_PATH}`;
+const X402_REMEDIATE_CANARY_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_CANARY_PATH}`;
 const AGENT402_BOOTSTRAP = process.env.AGENT402_BOOTSTRAP === "1";
 const AGENT402_REGISTER_URL = "https://agent402.tools/api/index/register";
 const INDEX402_BOOTSTRAP = process.env.INDEX402_BOOTSTRAP === "1";
@@ -215,6 +219,7 @@ function buildPalMcpServer() {
         paid_tools: [
           { name: "catalog_remediation", price_usd: 1.0 },
           { name: "catalog_remediation_batch", price_usd: 5.0 },
+          { name: "catalog_remediation_canary", price_usd: 0.10, max_products: 1, purpose: "settlement-tested premium-offer preview" },
           { name: "catalog_audit", price_usd: 0.01 },
           { name: "gtin_check", price_usd: 0.01 },
           { name: "single_gtin_check", price_usd: 0.01 },
@@ -595,6 +600,7 @@ const USDC_X402_PATHS = new Set([
   X402_VALIDATE_PATH,
   X402_REMEDIATE_PATH,
   X402_REMEDIATE_BATCH_PATH,
+  X402_REMEDIATE_CANARY_PATH,
 ]);
 
 function mirrorX402PaymentRequiredBody(req, res, next) {
@@ -789,6 +795,57 @@ app.use(
                 service: "PAL Feed Diff",
                 summary: { before_rows: 1, after_rows: 1, added: 0, removed: 0, changed: 1, unchanged: 0 },
                 changed: [{ id: "sku-1", changes: [{ field: "price", before: "19.99 USD", after: "17.99 USD" }] }],
+              },
+            },
+          }),
+        },
+      },
+      "POST /v1/usdc/catalog-remediation-canary": {
+        accepts: [
+          { scheme: "exact", price: X402_REMEDIATE_CANARY_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
+        ],
+        description:
+          "Settlement-test the PAL premium remediation product on exactly one product record. Returns the real prioritized Merchant Center/product-feed remediation result used by the $5 batch service.",
+        mimeType: "application/json",
+        serviceName: "PAL Batch Remediation Canary",
+        tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "remediation", "canary", "x402"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              records: [
+                {
+                  id: "sku-canary",
+                  title: "Canary Product",
+                  link: "https://example.com/products/sku-canary",
+                  image_link: "https://example.com/images/sku-canary.jpg",
+                  gtin: "4006381333931",
+                  brand: "Example",
+                  mpn: "SKU-CANARY",
+                  price: "19.99 USD",
+                  availability: "in_stock",
+                  identifier_exists: true,
+                },
+              ],
+            },
+            inputSchema: {
+              type: "object",
+              properties: {
+                records: {
+                  type: "array",
+                  minItems: 1,
+                  maxItems: 1,
+                  items: { type: "object", additionalProperties: true },
+                },
+              },
+              required: ["records"],
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL Catalog Remediation Plan",
+                readiness: "ready",
+                summary: { records: 1, issues: 0, errors: 0, warnings: 0 },
+                prioritized_actions: [],
               },
             },
           }),
@@ -4150,6 +4207,7 @@ app.get("/", (_req, res) => {
       "POST /v1/usdc/feed-diff",
       "POST /v1/usdc/x402-validate",
       "POST /v1/usdc/catalog-remediation",
+      "POST /v1/usdc/catalog-remediation-canary",
       "POST /v1/usdc/catalog-remediation-batch",
     ],
     agentpay_endpoint: "POST /v1/agentpay",
@@ -5206,6 +5264,39 @@ app.post("/v1/usdc/feed-diff", (req, res) => {
       network: USDC_X402_NETWORK,
       asset: "USDC",
       price_usd: USDC_X402_PRICE,
+      pay_to: BASE_PAYOUT_ADDRESS,
+      facilitator: "PayAI",
+    },
+  });
+});
+
+app.post("/v1/usdc/catalog-remediation-canary", (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length !== 1) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with exactly 1 product record.",
+    });
+  }
+
+  console.log(
+    `[revenue] usdc_x402_catalog_remediation_canary served price_usd=0.10 network=${USDC_X402_NETWORK}`
+  );
+
+  return res.json({
+    ...catalogRemediationPlan(records),
+    offer: {
+      product: "PAL Batch Catalog Remediation",
+      canary: true,
+      premium_endpoint: X402_REMEDIATE_BATCH_URL,
+      premium_price_usd: X402_REMEDIATE_BATCH_PRICE_USD,
+      premium_max_records: 500,
+    },
+    payment: {
+      verified_by: "x402",
+      network: USDC_X402_NETWORK,
+      asset: "USDC",
+      price_usd: X402_REMEDIATE_CANARY_PRICE_USD,
       pay_to: BASE_PAYOUT_ADDRESS,
       facilitator: "PayAI",
     },
