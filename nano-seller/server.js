@@ -5910,6 +5910,58 @@ app.post("/v1/upstream/catalog-remediation", requireMarketplaceGateway, (req, re
   });
 });
 
+app.post("/v1/upstream/catalog-remediation-batch", requireMarketplaceGateway, (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 500) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 500 items.",
+    });
+  }
+
+  console.log(
+    `[revenue] marketplace_upstream catalog-remediation-batch served records=${records.length}`
+  );
+
+  return res.json({
+    ...catalogRemediationPlan(records),
+    provider_upstream: {
+      service: "PAL Batch Catalog Remediation",
+      billing: "handled_by_marketplace",
+      recommended_tier: "premium",
+    },
+    generated_at: nowIso(),
+    disclaimer:
+      "Deterministic catalog remediation guidance; not a guarantee of Merchant Center approval or regulatory compliance.",
+  });
+});
+
+app.post("/v1/upstream/catalog-remediation-bulk", requireMarketplaceGateway, (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 2000) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 2000 items.",
+    });
+  }
+
+  console.log(
+    `[revenue] marketplace_upstream catalog-remediation-bulk served records=${records.length}`
+  );
+
+  return res.json({
+    ...catalogRemediationPlan(records),
+    provider_upstream: {
+      service: "PAL Full Catalog Remediation",
+      billing: "handled_by_marketplace",
+      recommended_tier: "enterprise",
+    },
+    generated_at: nowIso(),
+    disclaimer:
+      "Deterministic catalog remediation guidance; not a guarantee of Merchant Center approval or regulatory compliance.",
+  });
+});
+
 app.post("/v1/upstream/gtin-check", requireMarketplaceGateway, (req, res) => {
   const gtins = req.body?.gtins;
   if (!Array.isArray(gtins) || gtins.length < 1 || gtins.length > 100) {
@@ -6052,6 +6104,66 @@ app.get("/marketplace-openapi.json", (_req, res) => {
           },
           responses: {
             200: { description: "Prioritized remediation plan with concrete corrective actions" },
+            400: { description: "Invalid request payload" },
+          },
+        },
+      },
+      "/v1/upstream/catalog-remediation-batch": {
+        post: {
+          operationId: "remediateCatalogFeedBatch",
+          summary: "Generate prioritized remediation for up to 500 products",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["records"],
+                  properties: {
+                    records: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 500,
+                      items: { type: "object", additionalProperties: true },
+                    },
+                  },
+                },
+                example: catalogAuditExample(),
+              },
+            },
+          },
+          responses: {
+            200: { description: "Prioritized batch remediation plan" },
+            400: { description: "Invalid request payload" },
+          },
+        },
+      },
+      "/v1/upstream/catalog-remediation-bulk": {
+        post: {
+          operationId: "remediateFullCatalog",
+          summary: "Generate one remediation plan for up to 2,000 products",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["records"],
+                  properties: {
+                    records: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 2000,
+                      items: { type: "object", additionalProperties: true },
+                    },
+                  },
+                },
+                example: catalogAuditExample(),
+              },
+            },
+          },
+          responses: {
+            200: { description: "Full-catalog prioritized remediation plan" },
             400: { description: "Invalid request payload" },
           },
         },
@@ -6381,6 +6493,20 @@ app.get("/v1/upstream/status", (_req, res) => {
         url: `${PUBLIC_BASE_URL}/v1/upstream/catalog-remediation`,
         max_items: 100,
         recommended_marketplace_tier: "premium",
+      },
+      {
+        name: "PAL Batch Catalog Remediation",
+        method: "POST",
+        url: `${PUBLIC_BASE_URL}/v1/upstream/catalog-remediation-batch`,
+        max_items: 500,
+        recommended_marketplace_tier: "premium",
+      },
+      {
+        name: "PAL Full Catalog Remediation",
+        method: "POST",
+        url: `${PUBLIC_BASE_URL}/v1/upstream/catalog-remediation-bulk`,
+        max_items: 2000,
+        recommended_marketplace_tier: "enterprise",
       },
       {
         name: "PAL GTIN Check",
