@@ -5427,15 +5427,65 @@ const MARKETPLACE_UPSTREAM_TOKEN = String(
   process.env.MARKETPLACE_UPSTREAM_TOKEN || "",
 ).trim();
 
+const MARKETPLACE_BOOTSTRAP_WINDOW_MS = 60_000;
+const MARKETPLACE_BOOTSTRAP_LIMIT = 60;
+const marketplaceBootstrapBuckets = new Map();
+
+function marketplaceClientKey(req) {
+  const forwarded = String(req.get("x-forwarded-for") || "")
+    .split(",")[0]
+    .trim();
+  return forwarded || req.ip || req.socket?.remoteAddress || "unknown";
+}
+
+function allowMarketplaceBootstrapRequest(req, res) {
+  const now = Date.now();
+  const windowStart =
+    Math.floor(now / MARKETPLACE_BOOTSTRAP_WINDOW_MS) *
+    MARKETPLACE_BOOTSTRAP_WINDOW_MS;
+  const key = `${marketplaceClientKey(req)}:${windowStart}`;
+  const count = (marketplaceBootstrapBuckets.get(key) || 0) + 1;
+  marketplaceBootstrapBuckets.set(key, count);
+
+  if (marketplaceBootstrapBuckets.size > 5_000) {
+    const cutoff = windowStart - MARKETPLACE_BOOTSTRAP_WINDOW_MS;
+    for (const bucketKey of marketplaceBootstrapBuckets.keys()) {
+      const bucketStart = Number(bucketKey.slice(bucketKey.lastIndexOf(":") + 1));
+      if (Number.isFinite(bucketStart) && bucketStart < cutoff) {
+        marketplaceBootstrapBuckets.delete(bucketKey);
+      }
+    }
+  }
+
+  const remaining = Math.max(0, MARKETPLACE_BOOTSTRAP_LIMIT - count);
+  res.set("X-RateLimit-Limit", String(MARKETPLACE_BOOTSTRAP_LIMIT));
+  res.set("X-RateLimit-Remaining", String(remaining));
+  res.set(
+    "X-RateLimit-Reset",
+    String(Math.ceil((windowStart + MARKETPLACE_BOOTSTRAP_WINDOW_MS) / 1000)),
+  );
+  res.set("X-PAL-Marketplace-Gateway", "bootstrap");
+
+  return count <= MARKETPLACE_BOOTSTRAP_LIMIT;
+}
+
 function requireMarketplaceGateway(req, res, next) {
+  // Launch mode: until a marketplace proxy secret is configured, keep the
+  // marketplace-billed routes usable behind a conservative per-IP cap.
+  // As soon as MARKETPLACE_UPSTREAM_TOKEN is set, this automatically switches
+  // to strict constant-time token validation without changing endpoint URLs.
   if (!MARKETPLACE_UPSTREAM_TOKEN) {
-    return res.status(503).json({
-      error: "marketplace_gateway_not_configured",
-      detail:
-        "Direct marketplace-upstream access is disabled until a billing marketplace injects the private gateway token.",
-      direct_paid_api: `${PUBLIC_BASE_URL}/openapi.json`,
-      mcp: `${PUBLIC_BASE_URL}/mcp`,
-    });
+    if (!allowMarketplaceBootstrapRequest(req, res)) {
+      return res.status(429).json({
+        error: "marketplace_bootstrap_rate_limited",
+        detail:
+          "Marketplace bootstrap access is temporarily rate limited. Retry after the current one-minute window or use the direct paid API.",
+        direct_paid_api: `${PUBLIC_BASE_URL}/openapi.json`,
+        mcp: `${PUBLIC_BASE_URL}/mcp`,
+      });
+    }
+
+    return next();
   }
 
   const supplied = String(req.get("x-pal-marketplace-token") || "");
