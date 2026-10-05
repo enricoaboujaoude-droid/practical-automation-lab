@@ -1,0 +1,50 @@
+name: Probe Postman publishing readiness
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/probe-postman.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+    steps:
+      - name: Check Postman API access
+        shell: bash
+        run: |
+          if [ -z "${POSTMAN_API_KEY:-}" ]; then
+            echo "POSTMAN_CONFIGURED=false"
+            exit 0
+          fi
+
+          echo "POSTMAN_CONFIGURED=true"
+          status="$(curl --silent --show-error --output /tmp/workspaces.json --write-out '%{http_code}' \
+            -H "x-api-key: $POSTMAN_API_KEY" \
+            "https://api.getpostman.com/workspaces?limit=100")"
+
+          echo "POSTMAN_API_HTTP=${status}"
+          if [ "$status" != "200" ]; then
+            exit 0
+          fi
+
+          python3 - <<'PY'
+          import json
+          with open('/tmp/workspaces.json', encoding='utf-8') as f:
+              body=json.load(f)
+          rows=[]
+          for w in body.get('workspaces', []):
+              rows.append({
+                  'id': w.get('id'),
+                  'name': w.get('name'),
+                  'visibility': w.get('visibility'),
+                  'type': w.get('type'),
+              })
+          print('POSTMAN_WORKSPACES=' + json.dumps(rows, separators=(',',':')))
+          PY
