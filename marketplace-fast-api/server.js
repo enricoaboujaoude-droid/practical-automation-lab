@@ -78,7 +78,7 @@ const server=http.createServer(async (req,res)=>{
     if(path==="/api/agentpay" && req.method==="GET"){
       return send(res,200,{
         ok:true,ready:true,service:"PAL Catalog Feed Auditor",marketplace:"AgenticTrade",
-        method:"POST",price_per_call_usdc:"0.1",
+        method:"POST",price_per_call_usdc:"5",
         capabilities:["catalog-audit","gtin-validation","duplicate-id-detection","merchant-center-readiness"],
         limits:{records_per_audit:100}
       });
