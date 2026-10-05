@@ -305,14 +305,9 @@ export default function ProMonitoringDashboard() {
 
           <div className="pal-actions-row">
             {data.planSelectionUrl ? (
-              <a
-                className="pal-link-button"
-                href={data.planSelectionUrl}
-                target="_top"
-                rel="noopener"
-              >
+              <s-link href={data.planSelectionUrl}>
                 Compare Free and Pro in Shopify
-              </a>
+              </s-link>
             ) : (
               <s-link href="/app">Return to the catalog check</s-link>
             )}
