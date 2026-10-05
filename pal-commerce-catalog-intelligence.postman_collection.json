@@ -1,0 +1,180 @@
+{
+  "info": {
+    "name": "PAL Commerce Catalog Intelligence API",
+    "description": "Paid ecommerce catalog intelligence: Merchant Center feed audits, remediation, GTIN validation, feed diffs, and x402 validation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://pal-nano-catalog-audit.onrender.com"
+    }
+  ],
+  "item": [
+    {
+      "name": "Catalog Remediation Plan",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"records\": [\n    {\n      \"id\": \"sku-100\",\n      \"title\": \"Example Product\",\n      \"link\": \"https://example.com/products/sku-100\",\n      \"image_link\": \"https://example.com/images/sku-100.jpg\",\n      \"gtin\": \"4006381333931\",\n      \"brand\": \"Example\",\n      \"mpn\": \"SKU-100\",\n      \"price\": \"19.99 USD\",\n      \"availability\": \"in_stock\",\n      \"identifier_exists\": true\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/usdc/catalog-remediation",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "usdc",
+            "catalog-remediation"
+          ]
+        },
+        "description": "Paid x402 Base-USDC endpoint. Returns HTTP 402 first, then a prioritized remediation plan after settlement."
+      }
+    },
+    {
+      "name": "Catalog Feed Audit",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"records\": [\n    {\n      \"id\": \"sku-100\",\n      \"title\": \"Example Product\",\n      \"link\": \"https://example.com/products/sku-100\",\n      \"image_link\": \"https://example.com/images/sku-100.jpg\",\n      \"gtin\": \"4006381333931\",\n      \"brand\": \"Example\",\n      \"mpn\": \"SKU-100\",\n      \"price\": \"19.99 USD\",\n      \"availability\": \"in_stock\",\n      \"identifier_exists\": true\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/usdc/catalog-audit",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "usdc",
+            "catalog-audit"
+          ]
+        },
+        "description": "Paid x402 Base-USDC catalog audit."
+      }
+    },
+    {
+      "name": "GTIN Check",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"gtins\": [\n    \"4006381333931\",\n    \"036000291452\"\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/usdc/gtin-check",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "usdc",
+            "gtin-check"
+          ]
+        },
+        "description": "Paid x402 Base-USDC GTIN/UPC/EAN validation."
+      }
+    },
+    {
+      "name": "Feed Diff",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"before\": [\n    {\n      \"id\": \"sku-1\",\n      \"price\": \"19.99 USD\",\n      \"availability\": \"in_stock\"\n    }\n  ],\n  \"after\": [\n    {\n      \"id\": \"sku-1\",\n      \"price\": \"17.99 USD\",\n      \"availability\": \"in_stock\"\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/usdc/feed-diff",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "usdc",
+            "feed-diff"
+          ]
+        },
+        "description": "Paid x402 Base-USDC product-feed change detection."
+      }
+    },
+    {
+      "name": "x402 Declaration Validate",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"x402Version\": 2,\n  \"resource\": {\n    \"url\": \"https://example.com/api/data\"\n  },\n  \"accepts\": [\n    {\n      \"scheme\": \"exact\",\n      \"network\": \"eip155:8453\",\n      \"amount\": \"10000\",\n      \"asset\": \"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\",\n      \"payTo\": \"0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF\",\n      \"maxTimeoutSeconds\": 60\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/v1/usdc/x402-validate",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "v1",
+            "usdc",
+            "x402-validate"
+          ]
+        },
+        "description": "Paid x402 Base-USDC declaration validation."
+      }
+    }
+  ]
+}
