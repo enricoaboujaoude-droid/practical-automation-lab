@@ -28,7 +28,7 @@ The first three reports were priced at 0.05 XNO. PAL later tested 0.20 XNO and i
 
 ## Live machine-paid APIs
 
-PAL currently exposes seven Base-USDC x402 operations:
+PAL currently exposes eight Base-USDC x402 operations:
 
 - Product-feed / Merchant Center audit — $0.01
 - GTIN / UPC / EAN validation — $0.01
@@ -37,6 +37,19 @@ PAL currently exposes seven Base-USDC x402 operations:
 - x402 v2 declaration validation — $0.05
 - Prioritized catalog remediation for up to 100 products — $1.00
 - Batch catalog remediation for up to 500 products — $5.00
+- Full-catalog remediation for up to 2,000 products — **$20.00**
+
+The $20 route is:
+
+https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-remediation-bulk
+
+Agent Tools independently verified and indexed that live $20 endpoint:
+
+https://agent-tools.cloud/services/pal-nano-catalog-audit-onrender-com-sub1146
+
+PAL is also published through the Official MCP Registry and exposes a remote MCP server:
+
+https://pal-nano-catalog-audit.onrender.com/mcp
 
 Discovery:
 
@@ -46,9 +59,13 @@ OpenAPI:
 
 https://pal-nano-catalog-audit.onrender.com/openapi.json
 
-The seller is intentionally measured by paid calls, not by listing count. PAL has now received its first wallet-confirmed Base-USDC payment: **0.01 USDC** from a successful paid catalog-audit execution. The exact payer is not attributed unless independently confirmed.
+The seller is intentionally measured by settled money, not listing count. PAL's Base wallet currently contains **0.11 USDC of verified incoming revenue**: the original $0.01 PayAPI settlement-verification call plus a later $0.10 verification payment for the premium remediation listing.
 
-The next experiment is revenue density: preserve the cheap discovery tools, but route larger remediation workloads to the $1 and $5 tiers.
+PayAPI now has two PAL listings marked payment-verified, including the premium remediation listing:
+
+https://payapi.market/api/pal-batch-catalog-remediation
+
+The next revenue-density experiment is to preserve cheap discovery tools while routing full-store workloads to the $1, $5 and $20 remediation tiers.
 
 ## Shopify merchant channel
 
@@ -61,6 +78,41 @@ https://apps.shopify.com/pal-catalog-check
 - Pro annual: $199/year
 
 The Shopify app is not counted as revenue until earnings or settlement is confirmed.
+
+## RapidAPI paid plans
+
+PAL Catalog Feed Auditor is public on RapidAPI with paid plans now enabled:
+
+https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor/pricing
+
+Current public plans:
+
+- BASIC — $0/month, 10 requests
+- PRO — $25/month, 500 requests, recommended
+- ULTRA — $75/month, 2,500 requests
+- MEGA — $150/month, 7,500 requests
+
+PAL does not count RapidAPI as revenue until a paid transaction appears in the provider ledger.
+
+## Afterlink partner revenue
+
+PAL is an approved Afterlink partner.
+
+Tracked referral:
+
+https://afterlink.io/?via=Enricoaj
+
+Observed partner terms from Afterlink:
+
+- 50% of referred-customer payments,
+- recurring on renewals for up to 36 months,
+- 30-day attribution window,
+- no minimum payout,
+- and a free audit that preserves referral attribution if the visitor later upgrades in the same browser within the attribution window.
+
+At current plan economics, Afterlink stated PAL's commission can be $14.50, $39.50 or $74.50 per referred customer per month depending on plan.
+
+**Disclosure:** this is PAL's affiliate link. PAL may earn recurring commission if a qualifying referred visitor becomes a paying Afterlink customer.
 
 ## AgenticTrade provider referral
 
