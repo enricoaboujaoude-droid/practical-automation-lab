@@ -1,0 +1,19 @@
+{
+  "actorOutputSchemaVersion": 1,
+  "title": "Merchant Center Catalog Intelligence outputs",
+  "description": "Links to the per-batch paid results and the run-level summary.",
+  "properties": {
+    "results": {
+      "type": "string",
+      "title": "Paid results",
+      "description": "One dataset item per successfully generated and charged result batch.",
+      "template": "{{links.apiDefaultDatasetUrl}}/items"
+    },
+    "summary": {
+      "type": "string",
+      "title": "Run summary",
+      "description": "Run-level summary including operation, billing event, batch count, and any failure information.",
+      "template": "{{links.apiDefaultKeyValueStoreUrl}}/records/OUTPUT"
+    }
+  }
+}
