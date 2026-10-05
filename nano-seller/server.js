@@ -3519,10 +3519,16 @@ async function verifyPayment(hash) {
 
 app.get("/", (_req, res) => {
   res.json({
-    service: "PAL Catalog Identifier Audit",
-    version: "1.0.0",
+    service: "PAL Commerce Catalog Intelligence",
+    version: "1.3.0",
     description:
-      "Deterministic product-catalog identifier and feed consistency audit, paid in Nano.",
+      "Agent-ready ecommerce catalog intelligence for Merchant Center feed auditing, prioritized remediation, GTIN validation, feed change detection, and x402 diagnostics. Pay per call in USDC on Base; Nano remains available as a legacy rail.",
+    primary_offer: {
+      name: "PAL Catalog Remediation Plan",
+      endpoint: "POST /v1/usdc/catalog-remediation",
+      price_usd: 1.0,
+      payment: "x402 v2 exact, USDC on Base",
+    },
     paid_endpoint: "POST /v1/audit",
     base_usdc_paid_endpoints: [
       "POST /v1/usdc/catalog-audit",
@@ -3555,8 +3561,32 @@ app.get("/", (_req, res) => {
         facilitator: "https://facilitator.payai.network",
       },
     },
+    discovery: {
+      x402: `${PUBLIC_BASE_URL}/.well-known/x402`,
+      agent: `${PUBLIC_BASE_URL}/.well-known/agent.json`,
+      openapi: `${PUBLIC_BASE_URL}/openapi.json`,
+      marketplace_openapi: `${PUBLIC_BASE_URL}/marketplace-openapi.json`,
+      llms: `${PUBLIC_BASE_URL}/llms.txt`,
+      skill: `${PUBLIC_BASE_URL}/skill.md`,
+    },
+    categories: [
+      "ecommerce",
+      "commerce",
+      "google-shopping",
+      "merchant-center",
+      "product-feed",
+      "catalog-remediation",
+      "gtin",
+      "developer-tools",
+      "x402",
+    ],
     source: "https://github.com/enricoaboujaoude-droid/practical-automation-lab/tree/nano-seller/nano-seller",
   });
+});
+
+app.get("/favicon.svg", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=86400");
+  res.type("image/svg+xml").send(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#111827"/><path d="M17 45V19h8v10l13-10h10L33 31l16 14H38L25 33v12z" fill="#fff"/></svg>`);
 });
 
 app.get("/llms.txt", (_req, res) => {
@@ -3670,9 +3700,9 @@ app.get("/.well-known/agent.json", (_req, res) => {
   res.type("application/json").json({
     version: "1.3",
     origin: new URL(PUBLIC_BASE_URL).host,
-    display_name: "Practical Automation Lab Commerce Data",
+    display_name: "PAL Commerce Catalog Intelligence",
     description:
-      "Deterministic pay-per-call commerce-data validation and x402 diagnostics for autonomous agents.",
+      "Six deterministic pay-per-call commerce tools for autonomous agents: Merchant Center feed audit, prioritized catalog remediation, GTIN validation, feed diff, and x402 diagnostics.",
     payout_address: BASE_PAYOUT_ADDRESS,
     payments: {
       x402: {
@@ -3692,6 +3722,22 @@ app.get("/.well-known/agent.json", (_req, res) => {
           "Audit 1-100 Google Merchant Center and product-feed records for duplicate IDs, GTIN validity, URLs, prices, availability, and brand/MPN consistency.",
         endpoint: X402_AUDIT_PATH,
         method: "POST",
+        price: { amount: 0.01, currency: "USDC" },
+      },
+      {
+        name: "catalog_remediation",
+        description:
+          "Generate a prioritized Merchant Center and product-feed remediation plan for 1-100 catalog records with concrete corrective actions and affected product IDs.",
+        endpoint: X402_REMEDIATE_PATH,
+        method: "POST",
+        price: { amount: 1.0, currency: "USDC" },
+      },
+      {
+        name: "single_gtin_check",
+        description:
+          "Validate one GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 identifier including its check digit.",
+        endpoint: X402_GTIN_ONE_PATH,
+        method: "GET",
         price: { amount: 0.01, currency: "USDC" },
       },
       {
@@ -3719,7 +3765,7 @@ app.get("/.well-known/agent.json", (_req, res) => {
         price: { amount: 0.05, currency: "USDC" },
       },
     ],
-    service_version: "1.2.0",
+    service_version: "1.3.0",
     homepage: PUBLIC_BASE_URL,
     docs: `${PUBLIC_BASE_URL}/llms.txt`,
     skill: `${PUBLIC_BASE_URL}/skill.md`,
@@ -3739,6 +3785,18 @@ app.get("/.well-known/agent.json", (_req, res) => {
         name: "audit_catalog_feed",
         method: "POST",
         url: X402_AUDIT_URL,
+        price_usd: 0.01,
+      },
+      {
+        name: "remediate_catalog_feed",
+        method: "POST",
+        url: X402_REMEDIATE_URL,
+        price_usd: 1.0,
+      },
+      {
+        name: "validate_single_gtin",
+        method: "GET",
+        url: X402_GTIN_ONE_URL,
         price_usd: 0.01,
       },
       {
