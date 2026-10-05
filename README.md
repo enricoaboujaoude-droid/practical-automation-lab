@@ -30,6 +30,15 @@ Paid operations include:
 
 Direct calls use **x402 v2 exact settlement in USDC on Base**. No PAL account or API key is required for direct paid calls.
 
+### API provider revenue channel
+
+API providers that want agent-native distribution can join AgenticTrade through PAL's referral link:
+
+https://agentictrade.io/portal/register?ref=6HDHVHZ3
+
+PAL earns **20% of AgenticTrade's platform commission from referred provider usage for the lifetime of the active referral**. The current referral dashboard shows one pending provider and no realized referral revenue yet.
+
+
 
 ## PAL Catalog Check for Shopify
 
