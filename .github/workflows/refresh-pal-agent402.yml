@@ -15,6 +15,7 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
+      # Refresh after discovery metadata update.
       - name: Re-register PAL origin
         run: |
           set -euo pipefail
