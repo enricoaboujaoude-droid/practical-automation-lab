@@ -2,14 +2,14 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence",
   "title": "PAL Commerce Catalog Intelligence",
-  "description": "Merchant feed audits and $5 batch remediation via Base USDC.",
+  "description": "Paid Google Merchant Center catalog intelligence: $5 batch remediation for up to 500 products, feed audits, GTIN checks and feed diffs via Base USDC.",
   "websiteUrl": "https://pal-nano-catalog-audit.onrender.com/marketplace",
   "repository": {
     "url": "https://github.com/enricoaboujaoude-droid/practical-automation-lab",
     "source": "github",
     "subfolder": "nano-seller"
   },
-  "version": "1.1.0",
+  "version": "1.0.2",
   "remotes": [
     {
       "type": "streamable-http",
@@ -38,7 +38,43 @@
         "openapi": "https://pal-nano-catalog-audit.onrender.com/openapi.json",
         "x402": "https://pal-nano-catalog-audit.onrender.com/.well-known/x402",
         "agentCard": "https://pal-nano-catalog-audit.onrender.com/.well-known/agent.json"
-      }
+      },
+      "offers": [
+        {
+          "name": "Batch Catalog Remediation",
+          "price": "5.00",
+          "unit": "call",
+          "maxRecords": 500
+        },
+        {
+          "name": "Catalog Remediation Plan",
+          "price": "1.00",
+          "unit": "call",
+          "maxRecords": 100
+        },
+        {
+          "name": "Catalog Audit",
+          "price": "0.01",
+          "unit": "call",
+          "maxRecords": 100
+        },
+        {
+          "name": "GTIN Validation",
+          "price": "0.01",
+          "unit": "call",
+          "maxRecords": 100
+        },
+        {
+          "name": "Feed Diff",
+          "price": "0.01",
+          "unit": "call"
+        },
+        {
+          "name": "x402 Declaration Validation",
+          "price": "0.05",
+          "unit": "call"
+        }
+      ]
     }
   }
 }
