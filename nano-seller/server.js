@@ -596,10 +596,10 @@ app.get("/mcp/server-card", (_req, res) => {
   res.type("application/mcp-server-card+json").json({
     $schema: "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
     name: "io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence",
-    version: "1.1.0",
+    version: "1.1.1",
     title: "PAL Commerce Catalog Intelligence",
     description:
-      "Paid Merchant Center audits, remediation, GTIN checks and feed diffs via Base USDC.",
+      "$20 full-catalog Merchant Center remediation for up to 2,000 products, plus $5 batch, $1 remediation, feed audits, GTIN checks and feed diffs via Base USDC.",
     websiteUrl: `${PUBLIC_BASE_URL}/marketplace`,
     repository: {
       url: "https://github.com/enricoaboujaoude-droid/practical-automation-lab",
