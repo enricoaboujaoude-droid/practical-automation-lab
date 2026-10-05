@@ -1718,54 +1718,64 @@ function x402Manifest() {
 function x402OpenApi() {
   const paymentInfo = {
     protocol: "x402",
+    protocols: ["x402"],
     version: 2,
     scheme: "exact",
     network: X402_NETWORK,
     asset: X402_ASSET,
     amount: X402_PRICE_ATOMIC,
-    price: X402_PRICE_USD,
+    price: { mode: "fixed", currency: "USD", amount: X402_PRICE_USD.replace("$", "") },
+    priceDisplay: X402_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
 
   const validatorPaymentInfo = {
     protocol: "x402",
+    protocols: ["x402"],
     version: 2,
     scheme: "exact",
     network: X402_NETWORK,
     asset: X402_ASSET,
     amount: X402_VALIDATE_PRICE_ATOMIC,
-    price: X402_VALIDATE_PRICE_USD,
+    price: { mode: "fixed", currency: "USD", amount: X402_VALIDATE_PRICE_USD.replace("$", "") },
+    priceDisplay: X402_VALIDATE_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
 
   const remediationPaymentInfo = {
     protocol: "x402",
+    protocols: ["x402"],
     version: 2,
     scheme: "exact",
     network: X402_NETWORK,
     asset: X402_ASSET,
     amount: X402_REMEDIATE_PRICE_ATOMIC,
-    price: X402_REMEDIATE_PRICE_USD,
+    price: { mode: "fixed", currency: "USD", amount: X402_REMEDIATE_PRICE_USD.replace("$", "") },
+    priceDisplay: X402_REMEDIATE_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
   const remediationBatchPaymentInfo = {
     protocol: "x402",
+    protocols: ["x402"],
     version: 2,
     scheme: "exact",
     network: X402_NETWORK,
     asset: X402_ASSET,
     amount: X402_REMEDIATE_BATCH_PRICE_ATOMIC,
-    price: X402_REMEDIATE_BATCH_PRICE_USD,
+    price: { mode: "fixed", currency: "USD", amount: X402_REMEDIATE_BATCH_PRICE_USD.replace("$", "") },
+    priceDisplay: X402_REMEDIATE_BATCH_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
   const remediationBulkPaymentInfo = {
     protocol: "x402",
+    protocols: ["x402"],
     version: 2,
     scheme: "exact",
     network: X402_NETWORK,
     asset: X402_ASSET,
     amount: X402_REMEDIATE_BULK_PRICE_ATOMIC,
-    price: X402_REMEDIATE_BULK_PRICE_USD,
+    price: { mode: "fixed", currency: "USD", amount: X402_REMEDIATE_BULK_PRICE_USD.replace("$", "") },
+    priceDisplay: X402_REMEDIATE_BULK_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
 
