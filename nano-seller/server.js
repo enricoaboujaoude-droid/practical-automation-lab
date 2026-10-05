@@ -7063,23 +7063,45 @@ async function startAgenticTradeFullCatalogOnboard() {
           "gtin",
           "product-feed",
           "full-catalog"
-        ],
-        payment_method: "x402",
-        free_tier_calls: 0,
-        wallet_address: BASE_PAYOUT_ADDRESS,
-        role: "provider"
+        ]
       })
     });
 
     if (!result.response.ok) {
       console.log(
-        `[agentictrade-onboard] failed status=${result.response.status} detail=${String(result.payload?.detail || result.payload?.message || "unknown").slice(0, 180)}`
+        `[agentictrade-onboard] failed status=${result.response.status} payload=${JSON.stringify(result.payload || {}).slice(0, 500)}`
+      );
+      return;
+    }
+
+    const agentId = String(result.payload?.agent_id || "");
+    const serviceId = String(result.payload?.service_id || "");
+    const apiKey = String(result.payload?.api_key || "");
+    if (!agentId || !serviceId || !apiKey) {
+      console.log(
+        `[agentictrade-onboard] incomplete success payload agent_id=${Boolean(agentId)} service_id=${Boolean(serviceId)} api_key=${Boolean(apiKey)}`
+      );
+      return;
+    }
+
+    const walletUpdate = await agenticTradeRequest(
+      `/agents/${encodeURIComponent(agentId)}`,
+      {
+        method: "PATCH",
+        headers: { authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({ wallet_address: BASE_PAYOUT_ADDRESS })
+      }
+    );
+
+    if (!walletUpdate.response.ok) {
+      console.log(
+        `[agentictrade-onboard] created service_id=${serviceId} but wallet_bind_failed status=${walletUpdate.response.status} payload=${JSON.stringify(walletUpdate.payload || {}).slice(0, 400)}`
       );
       return;
     }
 
     console.log(
-      `[agentictrade-onboard] created agent_id=${result.payload?.agent_id || "unknown"} service_id=${result.payload?.service_id || "unknown"} price=20 wallet_bound=${Boolean(BASE_PAYOUT_ADDRESS)}`
+      `[agentictrade-onboard] created agent_id=${agentId} service_id=${serviceId} price=20 wallet_bound=true`
     );
   } catch (error) {
     console.log(
