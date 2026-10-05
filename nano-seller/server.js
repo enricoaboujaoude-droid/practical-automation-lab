@@ -4604,6 +4604,13 @@ app.get("/marketplace", (_req, res) => {
   <p><a href="/v1/sample/catalog-remediation"><strong>See a free remediation result →</strong></a> &nbsp; <a href="/v1/sample/catalog-audit">See audit sample</a> &nbsp; <a href="/v1/sample/gtin-check">See GTIN sample</a></p>
 
   <div class="card">
+    <h2>Buy through a marketplace</h2>
+    <p><a href="https://payapi.market/api/pal-batch-catalog-remediation" rel="noopener noreferrer"><strong>PayAPI — settlement-verified premium remediation ($0.10–$5.00) →</strong></a></p>
+    <p><a href="https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor" rel="noopener noreferrer"><strong>RapidAPI — public PAL Catalog Feed Auditor →</strong></a></p>
+    <p class="muted">For full-store jobs, the direct x402 Full Catalog Remediation route below handles up to 2,000 products for $20.00 USDC on Base.</p>
+  </div>
+
+  <div class="card">
     <h2>Use it from an AI agent</h2>
     <p>PAL is published in the <a href="https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence" rel="noopener noreferrer">Official MCP Registry</a> and exposes a production Streamable HTTP server.</p>
     <p><strong>Remote MCP:</strong> <code>${PUBLIC_BASE_URL}/mcp</code></p>
