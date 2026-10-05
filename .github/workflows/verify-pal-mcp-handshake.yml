@@ -1,0 +1,29 @@
+name: Verify PAL remote MCP handshake
+
+on:
+  push:
+    branches:
+      - nano-seller
+    paths:
+      - .github/workflows/verify-pal-mcp-handshake.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Initialize remote MCP
+        run: |
+          set -euo pipefail
+          headers="$(mktemp)"
+          body="$(mktemp)"
+          status="$(curl --silent --show-error             --output "$body"             --dump-header "$headers"             --write-out '%{http_code}'             --request POST             --header 'Content-Type: application/json'             --header 'Accept: application/json, text/event-stream'             --data '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"pal-ci-probe","version":"1.0.0"}}}'             https://pal-nano-catalog-audit.onrender.com/mcp)"
+          echo "HTTP $status"
+          cat "$headers"
+          cat "$body"
+          test "$status" = "200"
+          grep -q '"jsonrpc"' "$body"
+          grep -q '"serverInfo"' "$body"
