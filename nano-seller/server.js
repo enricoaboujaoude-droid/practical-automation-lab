@@ -3246,6 +3246,32 @@ async function improveNoHumansListing({ id, path, metadata }) {
 async function improveNoHumansExistingListings() {
   const targets = [
     {
+      id: "1c8b1145-935",
+      path: X402_GTIN_ONE_PATH,
+      metadata: {
+        name: "PAL Batch Catalog Remediation",
+        description:
+          "Premium Google Merchant Center and ecommerce product-feed remediation for 1-500 records, returning prioritized corrective actions, issue severity, and affected product IDs. Paid $5 USDC per call over x402 on Base.",
+        endpoint_url: X402_REMEDIATE_BATCH_URL,
+        category: "commerce.remediation",
+        price_amount: 5.0,
+        chains: ["base"],
+        request_schema: {
+          type: "object",
+          properties: {
+            records: {
+              type: "array",
+              minItems: 1,
+              maxItems: 500,
+              items: { type: "object", additionalProperties: true },
+            },
+          },
+          required: ["records"],
+        },
+        sample_query: `${PUBLIC_BASE_URL}/v1/sample/catalog-audit`,
+      },
+    },
+    {
       id: "1ad8d20b-edd",
       path: X402_AUDIT_PATH,
       metadata: {
@@ -3342,27 +3368,6 @@ async function startNoHumansBootstrap() {
   const sampleUrl = `${PUBLIC_BASE_URL}/v1/sample/gtin-check?gtin=4006381333931`;
 
   const listings = [
-    {
-      name: "PAL Single GTIN Check",
-      description:
-        "Deterministic GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 checksum validation for ecommerce agents. One query parameter, JSON result, paid per call over x402 Base USDC.",
-      endpoint_url: `${X402_GTIN_ONE_URL}?gtin=4006381333931`,
-      category: "infra.validation",
-      price_amount: 0.01,
-      chains: ["base"],
-      request_schema: {
-        type: "object",
-        properties: {
-          gtin: {
-            type: "string",
-            description: "GTIN, UPC, or EAN identifier.",
-            default: "4006381333931",
-          },
-        },
-        required: ["gtin"],
-      },
-      sample_query: sampleUrl,
-    },
     {
       name: "PAL Catalog Feed Audit",
       description:
@@ -3481,42 +3486,6 @@ async function startNoHumansBootstrap() {
           },
         },
         required: ["x402Version", "accepts"],
-      },
-    },
-    {
-      name: "PAL Batch Catalog Remediation",
-      description:
-        "Premium Google Merchant Center and ecommerce product-feed remediation for 1-500 records, returning prioritized corrective actions, issue severity, and affected product IDs. Paid $5 USDC per call over x402 on Base.",
-      endpoint_url: X402_REMEDIATE_BATCH_URL,
-      category: "commerce.remediation",
-      sample_query: `${PUBLIC_BASE_URL}/v1/sample/catalog-audit`,
-      price_amount: 5.0,
-      chains: ["base"],
-      request_schema: {
-        type: "object",
-        properties: {
-          records: {
-            type: "array",
-            minItems: 1,
-            maxItems: 500,
-            default: [
-              {
-                id: "sku-100",
-                title: "Example Product",
-                link: "https://example.com/products/sku-100",
-                image_link: "https://example.com/images/sku-100.jpg",
-                gtin: "4006381333931",
-                brand: "Example",
-                mpn: "SKU-100",
-                price: "19.99 USD",
-                availability: "in_stock",
-                identifier_exists: true,
-              },
-            ],
-            items: { type: "object", additionalProperties: true },
-          },
-        },
-        required: ["records"],
       },
     },
   ];
