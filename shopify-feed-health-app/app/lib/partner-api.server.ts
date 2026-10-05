@@ -50,10 +50,12 @@ const CONFIRMED_PRO_CACHE_MS = 5 * 60 * 1000;
 const confirmedProUntil = new Map<string, number>();
 
 function configuration() {
+  const rawAppGid = String(process.env.SHOPIFY_APP_GID || "").trim();
   return {
     token: String(process.env.SHOPIFY_PARTNER_API_ACCESS_TOKEN || "").trim(),
     orgId: String(process.env.SHOPIFY_PARTNER_ORG_ID || "236215501").trim(),
-    appGid: String(process.env.SHOPIFY_APP_GID || "").trim().replace(/^gid:\/\/shopify\//, "gid://partners/"),
+    managedPricingAppGid: rawAppGid.replace(/^gid:\/\/partners\//, "gid://shopify/"),
+    partnerAppGid: rawAppGid.replace(/^gid:\/\/shopify\//, "gid://partners/"),
   };
 }
 
@@ -68,7 +70,7 @@ function numericAmount(value: MoneyValue | undefined) {
 
 export function partnerSubscriptionConfigured() {
   const config = configuration();
-  return Boolean(config.token && config.orgId && config.appGid);
+  return Boolean(config.token && config.orgId && config.managedPricingAppGid);
 }
 
 export async function getShopGid(admin: AdminClient) {
@@ -90,7 +92,7 @@ export async function fetchActiveSubscription(
   shopId: string,
 ): Promise<ActiveSubscription> {
   const config = configuration();
-  if (!config.token || !config.orgId || !config.appGid) return null;
+  if (!config.token || !config.orgId || !config.managedPricingAppGid) return null;
 
   const response = await fetch(partnerEndpoint(config.orgId), {
     method: "POST",
@@ -121,7 +123,7 @@ export async function fetchActiveSubscription(
         }
       `,
       variables: {
-        appId: config.appGid,
+        appId: config.managedPricingAppGid,
         shopId,
       },
     }),
@@ -141,7 +143,7 @@ export async function fetchPartnerRevenueSummary(
 ): Promise<PartnerRevenueSummary> {
   const config = configuration();
 
-  if (!config.token || !config.orgId || !config.appGid) {
+  if (!config.token || !config.orgId || !config.partnerAppGid) {
     return {
       configured: false,
       createdAtMin,
@@ -188,7 +190,7 @@ export async function fetchPartnerRevenueSummary(
         }
       `,
       variables: {
-        appId: config.appGid,
+        appId: config.partnerAppGid,
         createdAtMin,
       },
     }),
