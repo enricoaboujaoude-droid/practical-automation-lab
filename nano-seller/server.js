@@ -37,12 +37,16 @@ const X402_VALIDATE_PRICE_ATOMIC = "50000";
 const X402_REMEDIATE_PATH = "/v1/usdc/catalog-remediation";
 const X402_REMEDIATE_PRICE_USD = "$1.00";
 const X402_REMEDIATE_PRICE_ATOMIC = "1000000";
+const X402_REMEDIATE_BATCH_PATH = "/v1/usdc/catalog-remediation-batch";
+const X402_REMEDIATE_BATCH_PRICE_USD = "$5.00";
+const X402_REMEDIATE_BATCH_PRICE_ATOMIC = "5000000";
 const X402_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_AUDIT_PATH}`;
 const X402_GTIN_URL = `${PUBLIC_BASE_URL}${X402_GTIN_PATH}`;
 const X402_GTIN_ONE_URL = `${PUBLIC_BASE_URL}${X402_GTIN_ONE_PATH}`;
 const X402_FEED_DIFF_URL = `${PUBLIC_BASE_URL}${X402_FEED_DIFF_PATH}`;
 const X402_VALIDATE_URL = `${PUBLIC_BASE_URL}${X402_VALIDATE_PATH}`;
 const X402_REMEDIATE_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_PATH}`;
+const X402_REMEDIATE_BATCH_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BATCH_PATH}`;
 const AGENT402_BOOTSTRAP = process.env.AGENT402_BOOTSTRAP === "1";
 const AGENT402_REGISTER_URL = "https://agent402.tools/api/index/register";
 const INDEX402_BOOTSTRAP = process.env.INDEX402_BOOTSTRAP === "1";
@@ -210,6 +214,7 @@ function buildPalMcpServer() {
         },
         paid_tools: [
           { name: "catalog_remediation", price_usd: 1.0 },
+          { name: "catalog_remediation_batch", price_usd: 5.0 },
           { name: "catalog_audit", price_usd: 0.01 },
           { name: "gtin_check", price_usd: 0.01 },
           { name: "single_gtin_check", price_usd: 0.01 },
@@ -279,6 +284,35 @@ function buildPalMcpServer() {
     async ({ records, payment_signature }) =>
       mcpPaidRequest({
         path: X402_REMEDIATE_PATH,
+        body: { records },
+        paymentSignature: payment_signature || "",
+      }),
+  );
+
+  server.registerTool(
+    "catalog_remediation_batch",
+    {
+      title: "Paid batch Merchant Center catalog remediation",
+      description:
+        "Generate a prioritized Merchant Center/product-feed remediation plan for 1-500 product records. Price: $5.00 USDC on Base via x402. First call without payment_signature returns the live payment requirement.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        required: ["records"],
+        properties: {
+          records: {
+            type: "array",
+            minItems: 1,
+            maxItems: 500,
+            items: { type: "object", additionalProperties: true },
+          },
+          payment_signature: paymentSignatureSchema,
+        },
+        additionalProperties: false,
+      }),
+    },
+    async ({ records, payment_signature }) =>
+      mcpPaidRequest({
+        path: X402_REMEDIATE_BATCH_PATH,
         body: { records },
         paymentSignature: payment_signature || "",
       }),
@@ -465,7 +499,7 @@ app.get("/.well-known/ai-catalog.json", (_req, res) => {
 // internal HTTP hop seen by the Node process.
 app.set("trust proxy", true);
 app.disable("x-powered-by");
-app.use(express.json({ limit: "128kb" }));
+app.use(express.json({ limit: "1mb" }));
 
 const USDC_X402_PATHS = new Set([
   X402_AUDIT_PATH,
@@ -474,6 +508,7 @@ const USDC_X402_PATHS = new Set([
   X402_FEED_DIFF_PATH,
   X402_VALIDATE_PATH,
   X402_REMEDIATE_PATH,
+  X402_REMEDIATE_BATCH_PATH,
 ]);
 
 function mirrorX402PaymentRequiredBody(req, res, next) {
@@ -673,6 +708,45 @@ app.use(
           }),
         },
       },
+      "POST /v1/usdc/catalog-remediation-batch": {
+        accepts: [
+          { scheme: "exact", price: X402_REMEDIATE_BATCH_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
+        ],
+        description:
+          "Generate a prioritized Merchant Center and product-feed remediation plan from 1-500 catalog records in one paid call, grouping issues by business impact and returning concrete fix actions and affected product IDs.",
+        mimeType: "application/json",
+        serviceName: "PAL Batch Catalog Remediation",
+        tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "remediation", "google-shopping", "batch"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              records: [
+                {
+                  id: "sku-100",
+                  title: "Example Product",
+                  link: "https://example.com/products/sku-100",
+                  image_link: "https://example.com/images/sku-100.jpg",
+                  gtin: "4006381333931",
+                  brand: "Example",
+                  mpn: "SKU-100",
+                  price: "19.99 USD",
+                  availability: "in_stock",
+                  identifier_exists: true,
+                },
+              ],
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL Catalog Remediation Plan",
+                readiness: "ready",
+                summary: { records: 1, issues: 0, errors: 0, warnings: 0 },
+                prioritized_actions: [],
+              },
+            },
+          }),
+        },
+      },
       "POST /v1/usdc/catalog-remediation": {
         accepts: [
           { scheme: "exact", price: X402_REMEDIATE_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
@@ -779,6 +853,7 @@ let usdcPaidSingleGtinChecks = 0;
 let usdcPaidFeedDiffs = 0;
 let usdcPaidX402Validations = 0;
 let usdcPaidCatalogRemediations = 0;
+let usdcPaidCatalogRemediationBatches = 0;
 let payanAgentState = {
   enabled: PAYANAGENT_BOOTSTRAP,
   status: PAYANAGENT_BOOTSTRAP ? "pending" : "disabled",
@@ -4025,7 +4100,7 @@ app.get("/marketplace", (_req, res) => {
     offers:{
       "@type":"AggregateOffer",
       lowPrice:"0.01",
-      highPrice:"1.00",
+      highPrice:"5.00",
       priceCurrency:"USD"
     },
     url:`${PUBLIC_BASE_URL}/marketplace`
@@ -4042,6 +4117,12 @@ app.get("/marketplace", (_req, res) => {
     <p>PAL is published in the <a href="https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence" rel="noopener noreferrer">Official MCP Registry</a> and exposes a production Streamable HTTP server.</p>
     <p><strong>Remote MCP:</strong> <code>${PUBLIC_BASE_URL}/mcp</code></p>
     <p>The MCP server exposes two free discovery/demo tools and six x402-paid commerce tools. Paid MCP calls return the live Base-USDC payment requirement before any paid result is delivered.</p>
+  </div>
+
+  <div class="card">
+    <h2>Batch Catalog Remediation <span class="price">$5.00 / call</span></h2>
+    <p>Process up to 500 product records in one paid call and receive a prioritized Merchant Center/product-feed remediation plan with concrete corrective actions.</p>
+    <code>POST /v1/usdc/catalog-remediation-batch</code>
   </div>
 
   <div class="card">
@@ -4202,7 +4283,7 @@ app.get("/.well-known/agent.json", (_req, res) => {
     origin: new URL(PUBLIC_BASE_URL).host,
     display_name: "PAL Commerce Catalog Intelligence",
     description:
-      "Six deterministic pay-per-call commerce tools for autonomous agents: Merchant Center feed audit, prioritized catalog remediation, GTIN validation, feed diff, and x402 diagnostics.",
+      "Seven deterministic pay-per-call commerce tools for autonomous agents: Merchant Center feed audit, batch and standard catalog remediation, GTIN validation, feed diff, and x402 diagnostics.",
     payout_address: BASE_PAYOUT_ADDRESS,
     payments: {
       x402: {
@@ -4223,6 +4304,14 @@ app.get("/.well-known/agent.json", (_req, res) => {
         endpoint: X402_AUDIT_PATH,
         method: "POST",
         price: { amount: 0.01, currency: "USDC" },
+      },
+      {
+        name: "catalog_remediation_batch",
+        description:
+          "Generate a prioritized Merchant Center and product-feed remediation plan for up to 500 catalog records in one paid call.",
+        endpoint: X402_REMEDIATE_BATCH_PATH,
+        method: "POST",
+        price: { amount: 5.0, currency: "USDC" },
       },
       {
         name: "catalog_remediation",
@@ -4265,7 +4354,7 @@ app.get("/.well-known/agent.json", (_req, res) => {
         price: { amount: 0.05, currency: "USDC" },
       },
     ],
-    service_version: "1.3.0",
+    service_version: "1.4.0",
     homepage: PUBLIC_BASE_URL,
     docs: `${PUBLIC_BASE_URL}/llms.txt`,
     skill: `${PUBLIC_BASE_URL}/skill.md`,
@@ -4923,6 +5012,33 @@ app.post("/v1/usdc/feed-diff", (req, res) => {
       network: USDC_X402_NETWORK,
       asset: "USDC",
       price_usd: USDC_X402_PRICE,
+      pay_to: BASE_PAYOUT_ADDRESS,
+      facilitator: "PayAI",
+    },
+  });
+});
+
+app.post("/v1/usdc/catalog-remediation-batch", (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 500) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 500 items.",
+    });
+  }
+
+  usdcPaidCatalogRemediationBatches += 1;
+  console.log(
+    `[revenue] usdc_x402_catalog_remediation_batch served price_usd=5.00 network=${USDC_X402_NETWORK} count=${usdcPaidCatalogRemediationBatches}`
+  );
+
+  return res.json({
+    ...catalogRemediationPlan(records),
+    payment: {
+      verified_by: "x402",
+      network: USDC_X402_NETWORK,
+      asset: "USDC",
+      price_usd: X402_REMEDIATE_BATCH_PRICE_USD,
       pay_to: BASE_PAYOUT_ADDRESS,
       facilitator: "PayAI",
     },
