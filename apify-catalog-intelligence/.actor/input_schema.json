@@ -24,11 +24,41 @@
       ],
       "default": "catalog-remediation"
     },
+    "feedUrl": {
+      "title": "Public product feed URL",
+      "type": "string",
+      "description": "Optional for catalog operations. Public HTTP(S) Google Merchant XML, CSV, or TSV feed. Up to 10 MB / 1,000 products.",
+      "editor": "textfield"
+    },
+    "feedContent": {
+      "title": "Pasted product feed",
+      "type": "string",
+      "description": "Optional for catalog operations. Paste XML, CSV, or TSV feed content instead of using a URL.",
+      "editor": "textarea"
+    },
+    "feedFormat": {
+      "title": "Feed format",
+      "type": "string",
+      "description": "Auto-detect is recommended.",
+      "enum": [
+        "auto",
+        "xml",
+        "csv",
+        "tsv"
+      ],
+      "enumTitles": [
+        "Auto detect",
+        "XML",
+        "CSV",
+        "TSV"
+      ],
+      "default": "auto"
+    },
     "records": {
       "title": "Product records",
       "type": "array",
-      "description": "Used by catalog-remediation and catalog-audit. Supply 1-100 product objects.",
-      "maxItems": 100,
+      "description": "Optional for catalog operations. Supply JSON records directly instead of a feed. Up to 1,000 products; processed in 100-product batches.",
+      "maxItems": 1000,
       "items": {
         "type": "object"
       },
@@ -50,8 +80,8 @@
     "gtins": {
       "title": "GTINs",
       "type": "array",
-      "description": "Used by gtin-check. Supply 1-100 GTIN/UPC/EAN values.",
-      "maxItems": 100,
+      "description": "Used by gtin-check. Supply 1-1,000 GTIN/UPC/EAN values; processed in batches.",
+      "maxItems": 1000,
       "items": {
         "type": "string"
       },
@@ -63,7 +93,7 @@
     "before": {
       "title": "Feed snapshot before",
       "type": "array",
-      "description": "Used by feed-diff.",
+      "description": "Used by feed-diff. Up to 100 rows.",
       "maxItems": 100,
       "items": {
         "type": "object"
@@ -72,7 +102,7 @@
     "after": {
       "title": "Feed snapshot after",
       "type": "array",
-      "description": "Used by feed-diff.",
+      "description": "Used by feed-diff. Up to 100 rows.",
       "maxItems": 100,
       "items": {
         "type": "object"
