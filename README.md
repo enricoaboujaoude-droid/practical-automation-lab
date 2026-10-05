@@ -19,6 +19,7 @@ PAL exposes a production **MCP + x402 API** for ecommerce product-feed intellige
 
 Paid operations include:
 
+- **Full catalog remediation — $20.00/call:** one prioritized Merchant Center/product-feed remediation plan for up to 2,000 products.
 - **Batch catalog remediation — $5.00/call:** prioritized Merchant Center/product-feed remediation for up to 500 products in one payment.
 - **Catalog remediation plan — $1.00/call:** prioritized Merchant Center/product-feed fixes for up to 100 products.
 - **Catalog audit — $0.01/call:** duplicate IDs, GTIN/checksum issues, URLs, price formatting, availability, and identifier consistency.
