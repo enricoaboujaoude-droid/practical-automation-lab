@@ -45,8 +45,22 @@ async function runScan(request: Request, persistHistory: boolean) {
   };
 }
 
-export const loader = async ({ request }: LoaderFunctionArgs) =>
-  runScan(request, false);
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { admin, session } = await authenticate.admin(request);
+  const entitlement = await getEntitlementForShop(session.shop, admin);
+
+  trackAppEvent("app_opened");
+
+  return {
+    report: null,
+    productPaginationCapped: false,
+    limits: entitlement.limits,
+    entitlement,
+    planSelectionUrl: getPlanSelectionUrl(session.shop),
+    changeSummary: null,
+  };
+};
+
 export const action = async ({ request }: ActionFunctionArgs) =>
   runScan(request, true);
 
@@ -128,6 +142,86 @@ export default function CatalogCheckDashboard() {
 
     return () => window.clearTimeout(timer);
   }, [fetcher.data, fetcher.state]);
+
+  if (!report) {
+    return (
+      <s-page heading="Catalog readiness">
+        <s-button
+          slot="primary-action"
+          onClick={() =>
+            fetcher.submit({}, { method: "post", defaultShouldRevalidate: false })
+          }
+          disabled={loading}
+        >
+          {loading ? "Scanning…" : "Scan catalog"}
+        </s-button>
+
+        <div className="pal-intro">
+          <div>
+            <div className="pal-eyebrow">
+              {pro ? "Pro monitoring enabled" : "Free catalog check"}
+            </div>
+            <p className="pal-subtitle">
+              Start a read-only catalog scan when you are ready. PAL checks the
+              Shopify product and variant fields most likely to create
+              product-feed friction and never edits your store.
+            </p>
+          </div>
+          <div className="pal-status-row">
+            {pro ? <s-badge tone="success">Pro active</s-badge> : null}
+            <s-badge tone="info">Ready to scan</s-badge>
+          </div>
+        </div>
+
+        <s-section heading="What the scan checks">
+          <s-paragraph>
+            Titles, vendor/brand presence, Online Store URLs, product images,
+            observable image dimensions, variant identifiers, prices, and
+            duplicate option combinations.
+          </s-paragraph>
+          <s-paragraph>
+            {pro
+              ? `This Pro scan can inspect up to ${data.limits.maxProducts.toLocaleString()} products and save the result to monitoring history.`
+              : `This Free scan can inspect up to ${data.limits.maxProducts.toLocaleString()} products. Upgrade only if you need recurring monitoring, history, alerts, reports, or higher scan limits.`}
+          </s-paragraph>
+        </s-section>
+
+        {!pro ? (
+          <s-section heading="Free now, monitoring when you need it">
+            <s-paragraph>
+              Run the catalog check first. Pro adds recurring scans, saved
+              history, change detection, health alerts, scheduled reports, CSV
+              exports, 2027 image-readiness monitoring, and higher scan limits.
+            </s-paragraph>
+            <div className="pal-actions-row">
+              {data.planSelectionUrl ? (
+                <s-link href={data.planSelectionUrl}>
+                  Compare Free and Pro in Shopify
+                </s-link>
+              ) : (
+                <s-link href="/app/pro">See Pro monitoring capabilities</s-link>
+              )}
+              <s-link href="/app/support">Support and data handling</s-link>
+            </div>
+          </s-section>
+        ) : (
+          <s-section heading="Pro monitoring">
+            <s-paragraph>
+              Your scan can be saved to history so PAL can compare changes and
+              surface regressions over time.
+            </s-paragraph>
+            <s-link href="/app/pro">Open monitoring, history and reports</s-link>
+          </s-section>
+        )}
+
+        <s-banner tone="info" heading="Read-only by design">
+          PAL requests product access for catalog analysis. It does not edit
+          products or variants and does not require Google Merchant Center
+          credentials.
+        </s-banner>
+      </s-page>
+    );
+  }
 
   return (
     <s-page heading="Catalog readiness">
