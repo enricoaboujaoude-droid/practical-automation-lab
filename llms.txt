@@ -38,3 +38,23 @@ https://practical-automation-lab.onrender.com/commercial-interest.html
 Public preflight tools are designed to process uploaded or pasted business data in the browser where stated. Do not submit passwords, tokens, payment-card data, customer records or other sensitive data through public forms.
 
 https://practical-automation-lab.onrender.com/privacy.html
+
+# Practical Automation Lab
+
+> Practical Automation Lab builds privacy-conscious commerce and automation utilities.
+
+## Paid commerce-data API
+
+- Product page: https://practical-automation-lab.onrender.com/merchant-center-catalog-intelligence-api.html
+- x402 OpenAPI: https://pal-nano-catalog-audit.onrender.com/openapi.json
+- Marketplace OpenAPI: https://pal-nano-catalog-audit.onrender.com/marketplace-openapi.json
+- Postman collection: https://practical-automation-lab.onrender.com/pal-commerce-catalog-intelligence.postman_collection.json
+- Live marketplace-upstream status: https://pal-nano-catalog-audit.onrender.com/v1/upstream/status
+
+Core capabilities: Google Merchant Center product-feed audit, prioritized catalog remediation, GTIN/UPC/EAN validation, feed change detection, and x402 v2 declaration validation.
+
+Primary paid operation: POST https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-remediation — $1.00 USDC per successful call on Base via x402.
+
+Catalog audit: POST https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-audit — $0.01 USDC per successful call on Base via x402.
+
+The API does not require merchant credentials, Shopify login, customer data, order data, or private keys.
