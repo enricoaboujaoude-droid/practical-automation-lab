@@ -29,14 +29,21 @@ jobs:
             "keyLocation": "https://practical-automation-lab.onrender.com/a308e807eac54897f390bd401091a89b.txt",
             "urlList": [
               "https://practical-automation-lab.onrender.com/",
+              "https://practical-automation-lab.onrender.com/merchant-center-catalog-intelligence-api.html",
               "https://practical-automation-lab.onrender.com/shopify-catalog-check.html",
               "https://practical-automation-lab.onrender.com/pricing.html",
               "https://practical-automation-lab.onrender.com/product-feed-preflight.html",
               "https://practical-automation-lab.onrender.com/merchant-center-image-readiness-2027.html",
               "https://practical-automation-lab.onrender.com/shopify-gtin-mpn-merchant-center.html",
               "https://practical-automation-lab.onrender.com/shopify-products-missing-google-merchant-center.html",
-              "https://practical-automation-lab.onrender.com/pal-catalog-check-support.html",
-              "https://practical-automation-lab.onrender.com/pal-catalog-check-privacy.html"
+              "https://practical-automation-lab.onrender.com/google-merchant-api-migration-preflight.html",
+              "https://practical-automation-lab.onrender.com/hubspot-api-migration-preflight.html",
+              "https://practical-automation-lab.onrender.com/eudr-dds-v3-preflight.html",
+              "https://practical-automation-lab.onrender.com/eudr-dds-v3-api-migration-checklist.html",
+              "https://practical-automation-lab.onrender.com/eu-battery-passport-preflight.html",
+              "https://practical-automation-lab.onrender.com/ap-exception-health-check.html",
+              "https://practical-automation-lab.onrender.com/commercial-interest.html",
+              "https://practical-automation-lab.onrender.com/agentictrade-x402-provider.html"
             ]
           }
           JSON
