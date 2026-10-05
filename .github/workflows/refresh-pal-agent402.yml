@@ -1,0 +1,22 @@
+name: Refresh PAL on Agent402
+
+on:
+  push:
+    branches:
+      - nano-seller
+    paths:
+      - .github/workflows/refresh-pal-agent402.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Re-register PAL origin
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error             --request POST             --header 'Content-Type: application/json'             --data '{"origin":"https://pal-nano-catalog-audit.onrender.com"}'             https://agent402.tools/api/index/register | tee agent402-register.json
+          echo
