@@ -24,7 +24,7 @@ pre{background:#f4f4f5;border-radius:14px;padding:16px;overflow:auto;font-size:.
 @media(max-width:720px){.grid{grid-template-columns:1fr}}
 </style>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"SoftwareApplication","name":"PAL Commerce Catalog Intelligence API","applicationCategory":"DeveloperApplication","operatingSystem":"Web API","url":"https://practical-automation-lab.onrender.com/merchant-center-catalog-intelligence-api.html","description":"Commerce catalog audit, remediation, GTIN validation and feed-diff API for Google Merchant Center and ecommerce workflows.","offers":[{"@type":"Offer","name":"Catalog audit","price":"0.01","priceCurrency":"USD"},{"@type":"Offer","name":"Catalog remediation plan","price":"1.00","priceCurrency":"USD"},{"@type":"Offer","name":"Batch catalog remediation","price":"5.00","priceCurrency":"USD"},{"@type":"Offer","name":"x402 declaration validation","price":"0.05","priceCurrency":"USD"}]}
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"PAL Commerce Catalog Intelligence API","applicationCategory":"DeveloperApplication","operatingSystem":"Web API","url":"https://practical-automation-lab.onrender.com/merchant-center-catalog-intelligence-api.html","description":"Commerce catalog audit, remediation, GTIN validation and feed-diff API for Google Merchant Center and ecommerce workflows.","offers":[{"@type":"Offer","name":"Catalog audit","price":"0.01","priceCurrency":"USD"},{"@type":"Offer","name":"Catalog remediation plan","price":"1.00","priceCurrency":"USD"},{"@type":"Offer","name":"Batch catalog remediation","price":"5.00","priceCurrency":"USD"},{"@type":"Offer","name":"Full catalog remediation","price":"20.00","priceCurrency":"USD"},{"@type":"Offer","name":"x402 declaration validation","price":"0.05","priceCurrency":"USD"}]}
 </script>
 </head>
 <body data-pal-view="commerce_catalog_api_viewed">
@@ -36,11 +36,14 @@ pre{background:#f4f4f5;border-radius:14px;padding:16px;overflow:auto;font-size:.
 <a class="button" href="https://pal-nano-catalog-audit.onrender.com/v1/sample/catalog-remediation" rel="noopener noreferrer" data-pal-event="commerce_api_remediation_sample_clicked">See a free remediation result</a>
 <a class="button secondary" href="https://pal-nano-catalog-audit.onrender.com/marketplace-openapi.json" rel="noopener noreferrer" data-pal-event="commerce_api_marketplace_spec_clicked">Import marketplace OpenAPI</a>
 <a class="button secondary" href="https://pal-nano-catalog-audit.onrender.com/openapi.json" rel="noopener noreferrer" data-pal-event="commerce_api_openapi_clicked">Direct x402 API</a>
+<a class="button secondary" href="https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor/pricing" rel="noopener noreferrer" data-pal-event="commerce_api_rapidapi_clicked">Buy via RapidAPI</a>
+<a class="button secondary" href="https://payapi.market/api/pal-batch-catalog-remediation" rel="noopener noreferrer" data-pal-event="commerce_api_payapi_clicked">Settlement-verified PayAPI</a>
 </div>
 
 <h2>Paid operations</h2>
 <div class="grid">
-<div class="card"><span class="badge">Highest-value operation</span><h3>Batch catalog remediation</h3><div class="price">$5.00 / call</div><p>Process 1–500 product records in one paid call and receive a prioritized Merchant Center/product-feed remediation plan with concrete corrective actions.</p><code>POST /v1/usdc/catalog-remediation-batch</code></div>
+<div class="card"><span class="badge">Highest-value operation</span><h3>Full catalog remediation</h3><div class="price">$20.00 / call</div><p>Process 1–2,000 product records in one paid call and receive one prioritized Merchant Center/product-feed remediation plan.</p><code>POST /v1/usdc/catalog-remediation-bulk</code></div>
+<div class="card"><span class="badge">Premium batch</span><h3>Batch catalog remediation</h3><div class="price">$5.00 / call</div><p>Process 1–500 product records in one paid call and receive a prioritized Merchant Center/product-feed remediation plan with concrete corrective actions.</p><code>POST /v1/usdc/catalog-remediation-batch</code></div>
 <div class="card"><span class="badge">Standard remediation</span><h3>Catalog remediation plan</h3><div class="price">$1.00 / call</div><p>Turn 1–100 product records into a prioritized remediation plan with concrete corrective actions and affected product IDs.</p><code>POST /v1/usdc/catalog-remediation</code></div>
 <div class="card"><h3>Catalog feed audit</h3><div class="price">$0.01 / call</div><p>Check duplicate IDs, GTIN validity, URLs, price format, availability and brand/MPN consistency for up to 100 records.</p><code>POST /v1/usdc/catalog-audit</code></div>
 <div class="card"><h3>GTIN validation</h3><div class="price">$0.01 / call</div><p>Validate GTIN-8, UPC/GTIN-12, GTIN-13 and GTIN-14 structure and check digits.</p><code>POST /v1/usdc/gtin-check</code></div>
@@ -48,7 +51,7 @@ pre{background:#f4f4f5;border-radius:14px;padding:16px;overflow:auto;font-size:.
 </div>
 
 <h2>Choose the right remediation tier</h2>
-<p>A plain validator tells you what is wrong. The remediation endpoints group findings by priority and issue code, explain business impact, and return concrete corrective actions. Use the $1 route for up to 100 products; use the $5 batch route for 101–500 products when you want one payment and one result.</p>
+<p>A plain validator tells you what is wrong. The remediation endpoints group findings by priority and issue code, explain business impact, and return concrete corrective actions. Use the $1 route for up to 100 products, the $5 batch route for 101–500 products, and the $20 full-catalog route for up to 2,000 products when you want one payment and one result.</p>
 <p><a href="https://pal-nano-catalog-audit.onrender.com/v1/sample/catalog-remediation" rel="noopener noreferrer"><strong>Open the free JSON example before paying →</strong></a></p>
 
 <h2>Example batch request</h2>
@@ -78,7 +81,7 @@ pre{background:#f4f4f5;border-radius:14px;padding:16px;overflow:auto;font-size:.
 <p>No Shopify login, Merchant Center token, customer data, order data or private key is required. PAL operates on the catalog/feed records you submit. Results are deterministic technical guidance and do not guarantee Merchant Center approval or regulatory compliance.</p>
 
 <h2>Current distribution</h2>
-<p>The production API is published in the Official MCP Registry as <code>io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence</code> and exposes a remote Streamable HTTP MCP server at <a href="https://pal-nano-catalog-audit.onrender.com/mcp">/mcp</a>. The free MCP tool <code>recommend_catalog_offer</code> routes buyers to the $1 or $5 remediation tier before payment.</p>
+<p>The production API is published in the Official MCP Registry as <code>io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence</code> and exposes a remote Streamable HTTP MCP server at <a href="https://pal-nano-catalog-audit.onrender.com/mcp">/mcp</a>. The free MCP tool <code>recommend_catalog_offer</code> routes buyers across the $1, $5, and $20 remediation tiers before payment.</p>
 
 <p class="muted">Last updated: October 5, 2026. Production endpoint health and pricing should be checked through the live API before integration.</p>
 <p class="muted"><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="https://github.com/enricoaboujaoude-droid/practical-automation-lab">Public source</a></p>
