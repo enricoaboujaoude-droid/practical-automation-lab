@@ -1,0 +1,43 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence",
+  "title": "PAL Commerce Catalog Intelligence",
+  "description": "Paid Merchant Center audits, remediation, GTIN checks and feed diffs via Base USDC.",
+  "websiteUrl": "https://pal-nano-catalog-audit.onrender.com/marketplace",
+  "repository": {
+    "url": "https://github.com/enricoaboujaoude-droid/practical-automation-lab",
+    "source": "github",
+    "subfolder": "nano-seller"
+  },
+  "version": "1.0.1",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://pal-nano-catalog-audit.onrender.com/mcp"
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "category": [
+        "ecommerce",
+        "merchant-center",
+        "product-feed",
+        "gtin",
+        "catalog-remediation",
+        "x402"
+      ],
+      "pricing": {
+        "currency": "USDC",
+        "network": "Base",
+        "minimum": "0.01",
+        "maximum": "1.00",
+        "unit": "call"
+      },
+      "discovery": {
+        "openapi": "https://pal-nano-catalog-audit.onrender.com/openapi.json",
+        "x402": "https://pal-nano-catalog-audit.onrender.com/.well-known/x402",
+        "agentCard": "https://pal-nano-catalog-audit.onrender.com/.well-known/agent.json"
+      }
+    }
+  }
+}
