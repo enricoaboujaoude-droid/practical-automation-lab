@@ -1,4 +1,4 @@
-name: Raise PAL AgenticTrade revenue price
+name: Register PAL $20 AgenticTrade service
 
 on:
   push:
@@ -10,84 +10,27 @@ permissions:
   contents: read
 
 jobs:
-  monetize:
+  register:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Update existing AgenticTrade PAL service
+      - name: Register full-catalog remediation
         shell: bash
         run: |
           set -euo pipefail
-
-          BASE="https://agentictrade.io/api/v1"
-          PROVIDER_ID="e6251fd3-fe50-4d17-9950-2bfd402c1ad7"
-          SERVICE_ID="a995b693-1db4-4b25-95b4-512b4c4dca42"
-
-          key_json="$(curl --fail-with-body --silent --show-error \
-            -X POST "$BASE/keys" \
-            -H "content-type: application/json" \
-            --data "$(jq -nc --arg owner "$PROVIDER_ID" '{owner_id:$owner,role:"provider"}')")"
-
-          KEY_ID="$(jq -r '.key_id // empty' <<<"$key_json")"
-          SECRET="$(jq -r '.secret // empty' <<<"$key_json")"
-          test -n "$KEY_ID"
-          test -n "$SECRET"
-          AUTH="Bearer ${KEY_ID}:${SECRET}"
-
-          owned_json="$(curl --fail-with-body --silent --show-error \
-            -H "Authorization: $AUTH" \
-            "$BASE/provider/services")"
-
-          OWNED="$owned_json" SERVICE_ID="$SERVICE_ID" python3 - <<'PY'
-import json, os
-data=json.loads(os.environ["OWNED"])
-services=data if isinstance(data,list) else data.get("services",[])
-sid=os.environ["SERVICE_ID"]
-assert any(str(s.get("id"))==sid for s in services), f"existing PAL service not owned by generated provider key: {services}"
-print("Owner authentication verified for existing PAL service.")
-PY
-
-          payload="$(jq -nc '{
-            name:"PAL Catalog Feed Auditor",
-            description:"Batch ecommerce catalog and Merchant Center readiness audit for AI agents. Audits up to 100 product records per paid call for duplicate IDs, GTIN/UPC/EAN issues, identifier consistency, URLs, price format, brand/MPN and availability findings.",
-            endpoint:"https://pal-marketplace-fast-api.onrender.com/api/agentpay",
-            price_per_call:"5",
-            status:"active",
-            category:"data",
-            tags:["catalog","ecommerce","merchant-center","shopify","gtin","validation","batch-audit"]
-          }')"
-
-          curl --fail-with-body --silent --show-error \
-            -X PATCH "$BASE/services/$SERVICE_ID" \
-            -H "Authorization: $AUTH" \
-            -H "content-type: application/json" \
-            --data "$payload" >/tmp/patch.json
-
-          verify_json="$(curl --fail-with-body --silent --show-error \
-            "$BASE/services?query=PAL%20Catalog%20Feed%20Auditor&limit=10")"
-
-          VERIFY="$verify_json" SERVICE_ID="$SERVICE_ID" python3 - <<'PY'
-import json, os
-data=json.loads(os.environ["VERIFY"])
-services=data.get("services",[])
-sid=os.environ["SERVICE_ID"]
-svc=next((s for s in services if str(s.get("id"))==sid),None)
-assert svc, data
-pricing=svc.get("pricing") or {}
-assert str(pricing.get("price_per_call")) in {"5","5.0","5.00"}, svc
-assert int(pricing.get("free_tier_calls",0)) == 0, svc
-assert svc.get("endpoint") == "https://pal-marketplace-fast-api.onrender.com/api/agentpay", svc
-assert svc.get("status") == "active", svc
-print("AgenticTrade public listing verified: $5/call, zero free calls, active.")
-PY
-
-          earnings_json="$(curl --fail-with-body --silent --show-error \
-            -H "Authorization: $AUTH" \
-            "$BASE/provider/earnings")"
-
-          EARNINGS="$earnings_json" python3 - <<'PY'
-import json, os
-data=json.loads(os.environ["EARNINGS"])
-safe={k:v for k,v in data.items() if k not in {"secret","api_key","token"}}
-print("Provider earnings state:", json.dumps(safe, sort_keys=True))
-PY
+          body='{"agent_name":"PAL Full Catalog Remediation","description":"Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for feed, identifier, GTIN, price, URL, brand/MPN and availability issues.","endpoint":"https://pal-full-catalog-remediation.onrender.com/v1/agentpay-remediation-bulk","price_per_call":"20","category":"data","tags":["ecommerce","merchant-center","catalog-remediation","shopify","gtin","product-feed"],"payment_method":"x402","free_tier_calls":0,"wallet_address":"0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF","role":"provider"}'
+          response="$(curl --fail-with-body --silent --show-error -X POST 'https://agentictrade.io/api/v1/agents/onboard' -H 'content-type: application/json' --data "$body")"
+          RESPONSE="$response" python3 - <<'PY'
+          import json, os
+          data=json.loads(os.environ["RESPONSE"])
+          safe={
+            "agent_id": data.get("agent_id"),
+            "service_id": data.get("service_id"),
+            "provider_id": data.get("provider_id"),
+            "owner_binding_status": data.get("owner_binding_status"),
+            "service": data.get("service"),
+          }
+          assert safe["agent_id"], data
+          assert safe["service_id"], data
+          print(json.dumps(safe, indent=2, sort_keys=True))
+          PY
