@@ -247,6 +247,8 @@ export async function fetchActiveManagedSubscriptionCount(shopIds = []) {
       .filter(Boolean),
   )];
   let activeSubscriptions = 0;
+  let purgedShops = 0;
+  let checkedShops = 0;
 
   for (const shopId of uniqueShopIds) {
     const response = await fetch(endpoint(orgId), {
@@ -281,9 +283,16 @@ export async function fetchActiveManagedSubscriptionCount(shopIds = []) {
       const detail = Array.isArray(body?.errors)
         ? body.errors.slice(0, 2).map((item) => String(item?.message || "unknown").replace(/\s+/g, " ").slice(0, 180)).join(" | ")
         : "unknown";
+
+      if (/shop has been purged/i.test(detail)) {
+        purgedShops += 1;
+        continue;
+      }
+
       throw new Error(`Shopify Partner activeSubscription probe failed status=${response.status} detail=${detail}`);
     }
 
+    checkedShops += 1;
     if (body?.data?.activeSubscription?.items?.length) {
       activeSubscriptions += 1;
     }
@@ -291,7 +300,9 @@ export async function fetchActiveManagedSubscriptionCount(shopIds = []) {
 
   return {
     configured: true,
-    checkedShops: uniqueShopIds.length,
+    historicalShops: uniqueShopIds.length,
+    checkedShops,
+    purgedShops,
     activeSubscriptions,
   };
 }
@@ -356,7 +367,7 @@ export function startPartnerRevenueProbe() {
     if (managed.status === "fulfilled") {
       const summary = managed.value;
       console.log(
-        `[pal-revenue-probe] managed_pricing configured=${summary.configured} checked_shops=${summary.checkedShops} active_subscriptions=${summary.activeSubscriptions}`,
+        `[pal-revenue-probe] managed_pricing configured=${summary.configured} historical_shops=${summary.historicalShops || 0} checked_shops=${summary.checkedShops} purged_shops=${summary.purgedShops || 0} active_subscriptions=${summary.activeSubscriptions}`,
       );
     } else {
       console.error(
