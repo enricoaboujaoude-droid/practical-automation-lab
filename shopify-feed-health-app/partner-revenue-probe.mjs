@@ -1,10 +1,12 @@
 const PARTNER_API_VERSION = "2026-07";
 
 function config() {
+  const rawAppGid = String(process.env.SHOPIFY_APP_GID || "").trim();
   return {
     token: String(process.env.SHOPIFY_PARTNER_API_ACCESS_TOKEN || "").trim(),
     orgId: String(process.env.SHOPIFY_PARTNER_ORG_ID || "236215501").trim(),
-    appGid: String(process.env.SHOPIFY_APP_GID || "").trim().replace(/^gid:\/\/shopify\//, "gid://partners/"),
+    managedPricingAppGid: rawAppGid.replace(/^gid:\/\/partners\//, "gid://shopify/"),
+    partnerAppGid: rawAppGid.replace(/^gid:\/\/shopify\//, "gid://partners/"),
   };
 }
 
@@ -18,8 +20,8 @@ function amount(value) {
 }
 
 export async function fetchPartnerRevenueProbe(createdAtMin = "2026-09-22T00:00:00Z") {
-  const { token, orgId, appGid } = config();
-  if (!token || !orgId || !appGid) {
+  const { token, orgId, managedPricingAppGid, partnerAppGid } = config();
+  if (!token || !orgId || !partnerAppGid) {
     return {
       configured: false,
       createdAtMin,
@@ -62,7 +64,7 @@ export async function fetchPartnerRevenueProbe(createdAtMin = "2026-09-22T00:00:
           }
         }
       `,
-      variables: { appId: appGid, createdAtMin },
+      variables: { appId: partnerAppGid, createdAtMin },
     }),
     signal: AbortSignal.timeout(15000),
   });
@@ -124,8 +126,8 @@ export async function fetchPartnerRevenueProbe(createdAtMin = "2026-09-22T00:00:
 export async function fetchPartnerAppEventsProbe(
   occurredAtMin = "2026-09-22T00:00:00Z",
 ) {
-  const { token, orgId, appGid } = config();
-  if (!token || !orgId || !appGid) {
+  const { token, orgId, managedPricingAppGid, partnerAppGid } = config();
+  if (!token || !orgId || !partnerAppGid) {
     return {
       configured: false,
       occurredAtMin,
@@ -166,7 +168,7 @@ export async function fetchPartnerAppEventsProbe(
           }
         }
       `,
-      variables: { appId: appGid, occurredAtMin },
+      variables: { appId: partnerAppGid, occurredAtMin },
     }),
     signal: AbortSignal.timeout(15000),
   });
@@ -230,12 +232,20 @@ export async function fetchPartnerAppEventsProbe(
 }
 
 export async function fetchActiveManagedSubscriptionCount(shopIds = []) {
-  const { token, orgId, appGid } = config();
-  if (!token || !orgId || !appGid) {
+  const { token, orgId, managedPricingAppGid } = config();
+  if (!token || !orgId || !managedPricingAppGid) {
     return { configured: false, checkedShops: 0, activeSubscriptions: 0 };
   }
 
-  const uniqueShopIds = [...new Set((shopIds || []).map((value) => String(value || "").trim()).filter(Boolean))];
+  const uniqueShopIds = [...new Set(
+    (shopIds || [])
+      .map((value) =>
+        String(value || "")
+          .trim()
+          .replace(/^gid:\/\/partners\/Shop\//, "gid://shopify/Shop/"),
+      )
+      .filter(Boolean),
+  )];
   let activeSubscriptions = 0;
 
   for (const shopId of uniqueShopIds) {
@@ -261,7 +271,7 @@ export async function fetchActiveManagedSubscriptionCount(shopIds = []) {
             }
           }
         `,
-        variables: { appId: appGid, shopId },
+        variables: { appId: managedPricingAppGid, shopId },
       }),
       signal: AbortSignal.timeout(15000),
     });
