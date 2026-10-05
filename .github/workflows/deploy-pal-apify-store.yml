@@ -1,0 +1,50 @@
+name: Deploy PAL Apify Store Actor
+
+on:
+  push:
+    branches:
+      - pal-apify-store
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Actor branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate Actor package
+        working-directory: apify-catalog-intelligence
+        run: |
+          npm install --ignore-scripts
+          node --check src/main.js
+          node -e "JSON.parse(require('fs').readFileSync('.actor/input_schema.json','utf8')); JSON.parse(require('fs').readFileSync('.actor/actor.json','utf8')); console.log('Actor schemas valid')"
+
+      - name: Check Apify deployment credential
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          if [ -z "$APIFY_TOKEN" ]; then
+            echo "::error::APIFY_TOKEN repository secret is not configured."
+            exit 1
+          fi
+
+      - name: Push Actor to Apify
+        id: push
+        uses: apify/push-actor-action@v1
+        with:
+          token: ${{ secrets.APIFY_TOKEN }}
+          working-directory: apify-catalog-intelligence
+
+      - name: Report build
+        run: |
+          echo "Apify build ID: ${{ steps.push.outputs.build-id }}"
+          echo "Apify build status: ${{ steps.push.outputs.build-status }}"
