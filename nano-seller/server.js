@@ -53,6 +53,7 @@ const X402_REMEDIATE_BATCH_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BATCH_PATH}
 const X402_REMEDIATE_CANARY_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_CANARY_PATH}`;
 const AGENT402_BOOTSTRAP = process.env.AGENT402_BOOTSTRAP === "1";
 const AGENT402_REGISTER_URL = "https://agent402.tools/api/index/register";
+let agent402RetryScheduled = false;
 const INDEX402_BOOTSTRAP = process.env.INDEX402_BOOTSTRAP === "1";
 const INDEX402_REGISTER_URL = "https://402index.io/api/v1/register";
 const INDEX402_CLAIM_BOOTSTRAP = process.env.INDEX402_CLAIM_BOOTSTRAP === "1";
@@ -1973,7 +1974,17 @@ async function startAgent402Bootstrap() {
       checked_at: nowIso(),
       error: safePayanAgentError(error),
     };
-    console.error("[agent402] bootstrap failed:", safePayanAgentError(error));
+    const message = safePayanAgentError(error);
+    console.error("[agent402] bootstrap failed:", message);
+
+    if (/HTTP 429|rate limit/i.test(message) && !agent402RetryScheduled) {
+      agent402RetryScheduled = true;
+      setTimeout(() => {
+        agent402RetryScheduled = false;
+        void startAgent402Bootstrap();
+      }, 65 * 60_000);
+      console.log("[agent402] rate limited; automatic retry scheduled after 65 minutes");
+    }
   }
 }
 
@@ -3470,6 +3481,42 @@ async function startNoHumansBootstrap() {
           },
         },
         required: ["x402Version", "accepts"],
+      },
+    },
+    {
+      name: "PAL Batch Catalog Remediation",
+      description:
+        "Premium Google Merchant Center and ecommerce product-feed remediation for 1-500 records, returning prioritized corrective actions, issue severity, and affected product IDs. Paid $5 USDC per call over x402 on Base.",
+      endpoint_url: X402_REMEDIATE_BATCH_URL,
+      category: "commerce.remediation",
+      sample_query: `${PUBLIC_BASE_URL}/v1/sample/catalog-audit`,
+      price_amount: 5.0,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          records: {
+            type: "array",
+            minItems: 1,
+            maxItems: 500,
+            default: [
+              {
+                id: "sku-100",
+                title: "Example Product",
+                link: "https://example.com/products/sku-100",
+                image_link: "https://example.com/images/sku-100.jpg",
+                gtin: "4006381333931",
+                brand: "Example",
+                mpn: "SKU-100",
+                price: "19.99 USD",
+                availability: "in_stock",
+                identifier_exists: true,
+              },
+            ],
+            items: { type: "object", additionalProperties: true },
+          },
+        },
+        required: ["records"],
       },
     },
   ];
