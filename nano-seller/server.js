@@ -7050,6 +7050,7 @@ async function startAgenticTradeFullCatalogOnboard() {
       method: "POST",
       body: JSON.stringify({
         agent_name: serviceName,
+        owner_email: "enricoaboujaoude@gmail.com",
         description:
           "Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for product-feed, identifier, GTIN, price, URL, brand/MPN and availability issues.",
         endpoint,
