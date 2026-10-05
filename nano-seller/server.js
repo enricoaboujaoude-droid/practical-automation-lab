@@ -4738,11 +4738,11 @@ OpenAPI: ${PUBLIC_BASE_URL}/openapi.json
 app.get("/.well-known/agent.json", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.type("application/json").json({
-    version: "1.4",
+    version: "1.5",
     origin: new URL(PUBLIC_BASE_URL).host,
     display_name: "PAL Commerce Catalog Intelligence",
     description:
-      "Seven deterministic pay-per-call commerce tools for autonomous agents: Merchant Center feed audit, batch and standard catalog remediation, GTIN validation, feed diff, and x402 diagnostics.",
+      "Eight deterministic pay-per-call commerce tools for autonomous agents, led by a $20 full-catalog Merchant Center remediation product plus batch/standard remediation, feed audit, GTIN validation, feed diff, and x402 diagnostics.",
     payout_address: BASE_PAYOUT_ADDRESS,
     payments: {
       x402: {
@@ -4763,6 +4763,14 @@ app.get("/.well-known/agent.json", (_req, res) => {
         endpoint: X402_AUDIT_PATH,
         method: "POST",
         price: { amount: 0.01, currency: "USDC" },
+      },
+      {
+        name: "catalog_remediation_bulk",
+        description:
+          "Generate one prioritized Merchant Center and product-feed remediation plan for up to 2,000 catalog records in one paid call.",
+        endpoint: X402_REMEDIATE_BULK_PATH,
+        method: "POST",
+        price: { amount: 20.0, currency: "USDC" },
       },
       {
         name: "catalog_remediation_batch",
@@ -4840,6 +4848,12 @@ app.get("/.well-known/agent.json", (_req, res) => {
         method: "POST",
         url: X402_REMEDIATE_URL,
         price_usd: 1.0,
+      },
+      {
+        name: "remediate_full_catalog",
+        method: "POST",
+        url: X402_REMEDIATE_BULK_URL,
+        price_usd: 20.0,
       },
       {
         name: "remediate_catalog_feed_batch",
