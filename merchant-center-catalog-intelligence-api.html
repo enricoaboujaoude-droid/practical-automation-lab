@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Google Merchant Center Catalog Audit & Remediation API | PAL</title>
+<meta name="description" content="Paid commerce-data API for Google Merchant Center feed audits, prioritized catalog remediation, GTIN validation, feed diffs and x402 declaration checks. Base USDC and marketplace-ready endpoints.">
+<meta property="og:title" content="PAL Commerce Catalog Intelligence API">
+<meta property="og:description" content="Merchant Center feed audits, catalog remediation, GTIN validation and feed-change detection for developers, agencies and AI agents.">
+<meta property="og:url" content="https://practical-automation-lab.onrender.com/merchant-center-catalog-intelligence-api.html">
+<link rel="canonical" href="https://practical-automation-lab.onrender.com/merchant-center-catalog-intelligence-api.html">
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:940px;margin:0 auto;padding:38px 18px 64px;line-height:1.6;color:#18181b}
+a{color:inherit}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.58}
+h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.03;margin:10px 0 14px;max-width:850px}h2{margin-top:36px}
+.lead{font-size:1.08rem;max-width:790px;opacity:.76}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0 28px}
+.button{display:inline-block;text-decoration:none;border:1px solid #18181b;border-radius:10px;padding:11px 15px;font-weight:750;background:#18181b;color:#fff}
+.button.secondary{background:#fff;color:#18181b}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.card{border:1px solid #e4e4e7;border-radius:16px;padding:19px}.card h3{margin:0 0 5px}.price{font-size:1.35rem;font-weight:800}
+.badge{display:inline-block;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:999px;background:#18181b;color:#fff;padding:4px 8px;margin-bottom:9px}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}code{background:#f4f4f5;padding:.12rem .32rem;border-radius:.3rem}
+pre{background:#f4f4f5;border-radius:14px;padding:16px;overflow:auto;font-size:.86rem}
+.muted{opacity:.7;font-size:.94rem}.note{border-left:4px solid #18181b;padding:10px 16px;background:#fafafa}
+@media(max-width:720px){.grid{grid-template-columns:1fr}}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"PAL Commerce Catalog Intelligence API","applicationCategory":"DeveloperApplication","operatingSystem":"Web API","url":"https://practical-automation-lab.onrender.com/merchant-center-catalog-intelligence-api.html","description":"Commerce catalog audit, remediation, GTIN validation and feed-diff API for Google Merchant Center and ecommerce workflows.","offers":[{"@type":"Offer","name":"Catalog audit","price":"0.01","priceCurrency":"USD"},{"@type":"Offer","name":"Catalog remediation plan","price":"1.00","priceCurrency":"USD"},{"@type":"Offer","name":"x402 declaration validation","price":"0.05","priceCurrency":"USD"}]}
+</script>
+</head>
+<body data-pal-view="commerce_catalog_api_viewed">
+<p><a href="index.html">← Practical Automation Lab</a></p>
+<div class="eyebrow">Commerce Data API · Base USDC · Marketplace ready</div>
+<h1>Audit and remediate product feeds before Merchant Center problems become expensive.</h1>
+<p class="lead">PAL Commerce Catalog Intelligence is a deterministic API for ecommerce catalog QA: product-feed audits, prioritized remediation plans, GTIN / UPC / EAN validation, feed-change detection and x402 declaration validation. It is built for developers, agencies, feed-management systems and AI agents.</p>
+<div class="actions">
+<a class="button" href="https://pal-nano-catalog-audit.onrender.com/openapi.json" rel="noopener noreferrer" data-pal-event="commerce_api_openapi_clicked">Open x402 API spec</a>
+<a class="button secondary" href="https://pal-nano-catalog-audit.onrender.com/marketplace-openapi.json" rel="noopener noreferrer" data-pal-event="commerce_api_marketplace_spec_clicked">Marketplace OpenAPI</a>
+<a class="button secondary" href="https://pal-nano-catalog-audit.onrender.com/v1/upstream/status" rel="noopener noreferrer">Live status</a>
+</div>
+
+<h2>Paid operations</h2>
+<div class="grid">
+<div class="card"><span class="badge">Primary premium action</span><h3>Catalog remediation plan</h3><div class="price">$1.00 / call</div><p>Turn 1–100 product records into a prioritized remediation plan with concrete corrective actions and affected product IDs.</p><code>POST /v1/usdc/catalog-remediation</code></div>
+<div class="card"><h3>Catalog feed audit</h3><div class="price">$0.01 / call</div><p>Check duplicate IDs, GTIN validity, URLs, price format, availability and brand/MPN consistency for up to 100 records.</p><code>POST /v1/usdc/catalog-audit</code></div>
+<div class="card"><h3>GTIN validation</h3><div class="price">$0.01 / call</div><p>Validate GTIN-8, UPC/GTIN-12, GTIN-13 and GTIN-14 structure and check digits.</p><code>POST /v1/usdc/gtin-check</code></div>
+<div class="card"><h3>x402 declaration validation</h3><div class="price">$0.05 / call</div><p>Statically inspect x402 v2 payment declarations for network, asset, amount, recipient and timeout consistency.</p><code>POST /v1/usdc/x402-validate</code></div>
+</div>
+
+<h2>Why use the remediation endpoint?</h2>
+<p>A plain validator tells you what is wrong. The remediation endpoint groups findings by priority and issue code, explains business impact, and returns concrete corrective actions so downstream automation can decide what to fix first.</p>
+
+<h2>Example request</h2>
+<pre>curl -X POST https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-remediation \
+  -H "content-type: application/json" \
+  -d '{
+    "records": [{
+      "id": "sku-100",
+      "title": "Example Product",
+      "link": "https://example.com/products/sku-100",
+      "image_link": "https://example.com/images/sku-100.jpg",
+      "gtin": "4006381333931",
+      "brand": "Example",
+      "mpn": "SKU-100",
+      "price": "19.99 USD",
+      "availability": "in_stock",
+      "identifier_exists": true
+    }]
+  }'</pre>
+<p class="muted">The first unpaid request returns HTTP 402 with the exact Base-USDC payment requirement. After settlement, retry the same request with the x402 payment signature to receive the JSON result.</p>
+
+<h2>Marketplace integration</h2>
+<p>For marketplaces that handle billing themselves, PAL exposes a separate machine-readable OpenAPI definition with catalog audit, catalog remediation, GTIN validation, feed diff and x402 declaration validation operations.</p>
+<div class="note"><strong>Marketplace OpenAPI:</strong> <a href="https://pal-nano-catalog-audit.onrender.com/marketplace-openapi.json">pal-nano-catalog-audit.onrender.com/marketplace-openapi.json</a></div>
+
+<h2>Privacy and scope</h2>
+<p>No Shopify login, Merchant Center token, customer data, order data or private key is required. PAL operates on the catalog/feed records you submit. Results are deterministic technical guidance and do not guarantee Merchant Center approval or regulatory compliance.</p>
+
+<h2>Current distribution</h2>
+<p>The production API is already discoverable through multiple x402 directories and protocol-native discovery surfaces, while PAL is expanding onto general-purpose developer marketplaces for greater buyer traffic.</p>
+
+<p class="muted">Last updated: October 5, 2026. Production endpoint health and pricing should be checked through the live API before integration.</p>
+<p class="muted"><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="https://github.com/enricoaboujaoude-droid/practical-automation-lab">Public source</a></p>
+<script src="pal-analytics.js" defer></script>
+</body>
+</html>
