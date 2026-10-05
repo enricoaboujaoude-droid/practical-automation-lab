@@ -3,7 +3,7 @@ export default function handler(req,res){
   if(req.method==="OPTIONS") return res.status(204).end();
   if(req.method==="GET") return res.status(200).json({
     ok:true,ready:true,service:"PAL Catalog Feed Auditor",marketplace:"AgenticTrade",method:"POST",
-    price_per_call_usdc:"0.1",capabilities:["catalog-audit","gtin-validation","duplicate-id-detection","merchant-center-readiness"],
+    price_per_call_usdc:"5",capabilities:["catalog-audit","gtin-validation","duplicate-id-detection","merchant-center-readiness"],
     limits:{records_per_audit:100}
   });
   if(req.method!=="POST") return res.status(405).json({error:"method_not_allowed"});
