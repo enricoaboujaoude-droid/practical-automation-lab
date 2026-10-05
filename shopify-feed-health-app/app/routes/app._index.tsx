@@ -1,5 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
 import { useEffect, useRef } from "react";
+import prisma from "../db.server";
 import { useFetcher, useLoaderData } from "react-router";
 import { authenticate } from "../shopify.server";
 import { scanCatalog } from "../lib/catalog-scan.server";
@@ -14,11 +15,27 @@ async function runScan(request: Request, persistHistory: boolean) {
 
   trackAppEvent("scan_started");
   const result = await scanCatalog(admin, entitlement.limits);
+
+  let shouldPersist = entitlement.plan === "pro" && persistHistory;
+  let persistenceSource: "manual" | "pro-activation-baseline" = "manual";
+
+  if (entitlement.plan === "pro" && !persistHistory) {
+    const existingBaseline = await prisma.catalogScan.findFirst({
+      where: { shop: session.shop },
+      select: { id: true },
+    });
+
+    if (!existingBaseline) {
+      shouldPersist = true;
+      persistenceSource = "pro-activation-baseline";
+    }
+  }
+
   const saved =
-    entitlement.plan === "pro" && persistHistory
+    shouldPersist
       ? await persistProScan({
           shop: session.shop,
-          source: "manual",
+          source: persistenceSource,
           result,
         })
       : null;
