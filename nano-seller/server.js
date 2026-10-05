@@ -4,6 +4,8 @@ import { HTTPFacilitatorClient } from "@x402/core/server";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { paymentMiddleware, x402ResourceServer } from "@x402/express";
 import { bazaarResourceServerExtension, declareDiscoveryExtension } from "@x402/extensions/bazaar";
+import { createMcpHandler, fromJsonSchema, McpServer } from "@modelcontextprotocol/server";
+import { toNodeHandler } from "@modelcontextprotocol/node";
 
 const PORT = Number(process.env.PORT || 10000);
 const PRICE_RAW = process.env.PRICE_RAW || "10000000000000000000000000000";
@@ -79,7 +81,345 @@ if (!/^0x[a-fA-F0-9]{40}$/.test(BASE_PAYOUT_ADDRESS)) {
   throw new Error("PAL_BASE_PAYOUT_ADDRESS must be a valid public EVM address");
 }
 
+function mcpText(value) {
+  return [{ type: "text", text: JSON.stringify(value, null, 2) }];
+}
+
+async function mcpPaidRequest({ method = "POST", path, query = null, body = null, paymentSignature = "" }) {
+  const url = new URL(path, \`\${PUBLIC_BASE_URL}/\`);
+  if (query && typeof query === "object") {
+    for (const [key, value] of Object.entries(query)) {
+      if (value !== undefined && value !== null && String(value) !== "") {
+        url.searchParams.set(key, String(value));
+      }
+    }
+  }
+
+  const headers = { accept: "application/json" };
+  if (body !== null) headers["content-type"] = "application/json";
+  if (paymentSignature) headers["PAYMENT-SIGNATURE"] = paymentSignature;
+
+  try {
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: body === null ? undefined : JSON.stringify(body),
+      signal: AbortSignal.timeout(30_000),
+    });
+
+    const raw = await response.text();
+    let payload;
+    try {
+      payload = raw ? JSON.parse(raw) : {};
+    } catch {
+      payload = { raw };
+    }
+
+    const paymentRequired = response.headers.get("payment-required");
+    const paymentResponse = response.headers.get("payment-response");
+
+    if (response.status === 402) {
+      return {
+        content: mcpText({
+          ok: false,
+          payment_required: true,
+          protocol: "x402",
+          version: 2,
+          network: USDC_X402_NETWORK,
+          asset: "USDC",
+          pay_to: BASE_PAYOUT_ADDRESS,
+          resource: url.toString(),
+          requirement_header: paymentRequired,
+          requirement: payload,
+          next_step:
+            "Sign one of the returned x402 payment requirements with a compatible Base wallet, then call this same MCP tool again with payment_signature set to the resulting PAYMENT-SIGNATURE value.",
+        }),
+      };
+    }
+
+    if (!response.ok) {
+      return {
+        isError: true,
+        content: mcpText({
+          ok: false,
+          status: response.status,
+          resource: url.toString(),
+          error: payload,
+        }),
+      };
+    }
+
+    return {
+      content: mcpText({
+        ok: true,
+        paid: true,
+        resource: url.toString(),
+        payment_response: paymentResponse,
+        result: payload,
+      }),
+    };
+  } catch (error) {
+    return {
+      isError: true,
+      content: mcpText({
+        ok: false,
+        error: error instanceof Error ? error.message : String(error),
+      }),
+    };
+  }
+}
+
+const paymentSignatureSchema = {
+  type: "string",
+  minLength: 1,
+  description:
+    "Optional x402 v2 PAYMENT-SIGNATURE value. Omit it on the first call to receive the live payment requirement; supply the signed value on the second call.",
+};
+
+function buildPalMcpServer() {
+  const server = new McpServer({
+    name: "pal-commerce-catalog-intelligence",
+    title: "PAL Commerce Catalog Intelligence",
+    version: "1.0.0",
+    description:
+      "Paid ecommerce catalog intelligence for Merchant Center feed audits, prioritized remediation, GTIN validation, feed changes, and x402 diagnostics.",
+  });
+
+  server.registerTool(
+    "pal_service_info",
+    {
+      title: "PAL service and pricing",
+      description:
+        "Free discovery tool. Lists PAL paid commerce tools, prices, Base-USDC payout details, direct API discovery URLs, and the free remediation demo.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        properties: {},
+        additionalProperties: false,
+      }),
+    },
+    async () => ({
+      content: mcpText({
+        service: "PAL Commerce Catalog Intelligence",
+        provider: "Practical Automation Lab",
+        payment: {
+          protocol: "x402",
+          version: 2,
+          network: USDC_X402_NETWORK,
+          asset: "USDC",
+          pay_to: BASE_PAYOUT_ADDRESS,
+        },
+        paid_tools: [
+          { name: "catalog_remediation", price_usd: 1.0 },
+          { name: "catalog_audit", price_usd: 0.01 },
+          { name: "gtin_check", price_usd: 0.01 },
+          { name: "single_gtin_check", price_usd: 0.01 },
+          { name: "feed_diff", price_usd: 0.01 },
+          { name: "x402_validate", price_usd: 0.05 },
+        ],
+        free_demo: \`\${PUBLIC_BASE_URL}/v1/sample/catalog-remediation\`,
+        landing_page: \`\${PUBLIC_BASE_URL}/marketplace\`,
+        openapi: \`\${PUBLIC_BASE_URL}/openapi.json\`,
+        x402_manifest: \`\${PUBLIC_BASE_URL}/.well-known/x402\`,
+      }),
+    }),
+  );
+
+  server.registerTool(
+    "free_remediation_sample",
+    {
+      title: "Free catalog remediation sample",
+      description:
+        "Returns PAL's fixed intentionally-flawed sample catalog and the prioritized remediation plan it produces. This demo does not process caller data and requires no payment.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        properties: {},
+        additionalProperties: false,
+      }),
+    },
+    async () => {
+      try {
+        const response = await fetch(\`\${PUBLIC_BASE_URL}/v1/sample/catalog-remediation\`, {
+          headers: { accept: "application/json" },
+          signal: AbortSignal.timeout(15_000),
+        });
+        const payload = await response.json();
+        return { content: mcpText(payload) };
+      } catch (error) {
+        return {
+          isError: true,
+          content: mcpText({ ok: false, error: error instanceof Error ? error.message : String(error) }),
+        };
+      }
+    },
+  );
+
+  const recordsSchema = {
+    type: "object",
+    required: ["records"],
+    properties: {
+      records: {
+        type: "array",
+        minItems: 1,
+        maxItems: 100,
+        items: { type: "object", additionalProperties: true },
+      },
+      payment_signature: paymentSignatureSchema,
+    },
+    additionalProperties: false,
+  };
+
+  server.registerTool(
+    "catalog_remediation",
+    {
+      title: "Paid Merchant Center catalog remediation",
+      description:
+        "Generate a prioritized Merchant Center/product-feed remediation plan for 1-100 product records. Price: $1.00 USDC on Base via x402. First call without payment_signature returns the live payment requirement.",
+      inputSchema: fromJsonSchema(recordsSchema),
+    },
+    async ({ records, payment_signature }) =>
+      mcpPaidRequest({
+        path: X402_REMEDIATE_PATH,
+        body: { records },
+        paymentSignature: payment_signature || "",
+      }),
+  );
+
+  server.registerTool(
+    "catalog_audit",
+    {
+      title: "Paid catalog feed audit",
+      description:
+        "Audit 1-100 ecommerce product records for duplicate IDs, GTIN/checksum issues, URL shape, price formatting, availability, and identifier consistency. Price: $0.01 USDC on Base via x402.",
+      inputSchema: fromJsonSchema(recordsSchema),
+    },
+    async ({ records, payment_signature }) =>
+      mcpPaidRequest({
+        path: X402_AUDIT_PATH,
+        body: { records },
+        paymentSignature: payment_signature || "",
+      }),
+  );
+
+  server.registerTool(
+    "gtin_check",
+    {
+      title: "Paid batch GTIN validation",
+      description:
+        "Validate 1-100 GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 identifiers including check digits. Price: $0.01 USDC on Base via x402.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        required: ["gtins"],
+        properties: {
+          gtins: {
+            type: "array",
+            minItems: 1,
+            maxItems: 100,
+            items: { oneOf: [{ type: "string" }, { type: "number" }] },
+          },
+          payment_signature: paymentSignatureSchema,
+        },
+        additionalProperties: false,
+      }),
+    },
+    async ({ gtins, payment_signature }) =>
+      mcpPaidRequest({
+        path: X402_GTIN_PATH,
+        body: { gtins },
+        paymentSignature: payment_signature || "",
+      }),
+  );
+
+  server.registerTool(
+    "single_gtin_check",
+    {
+      title: "Paid single GTIN validation",
+      description:
+        "Validate one GTIN/UPC/EAN identifier including its check digit. Price: $0.01 USDC on Base via x402.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        required: ["gtin"],
+        properties: {
+          gtin: { type: "string", minLength: 1 },
+          payment_signature: paymentSignatureSchema,
+        },
+        additionalProperties: false,
+      }),
+    },
+    async ({ gtin, payment_signature }) =>
+      mcpPaidRequest({
+        method: "GET",
+        path: X402_GTIN_ONE_PATH,
+        query: { gtin },
+        paymentSignature: payment_signature || "",
+      }),
+  );
+
+  server.registerTool(
+    "feed_diff",
+    {
+      title: "Paid product feed diff",
+      description:
+        "Compare two product-feed snapshots and return added, removed, and changed commerce fields. Price: $0.01 USDC on Base via x402.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        required: ["before", "after"],
+        properties: {
+          before: {
+            type: "array",
+            maxItems: 100,
+            items: { type: "object", additionalProperties: true },
+          },
+          after: {
+            type: "array",
+            maxItems: 100,
+            items: { type: "object", additionalProperties: true },
+          },
+          payment_signature: paymentSignatureSchema,
+        },
+        additionalProperties: false,
+      }),
+    },
+    async ({ before, after, payment_signature }) =>
+      mcpPaidRequest({
+        path: X402_FEED_DIFF_PATH,
+        body: { before, after },
+        paymentSignature: payment_signature || "",
+      }),
+  );
+
+  server.registerTool(
+    "x402_validate",
+    {
+      title: "Paid x402 v2 declaration validator",
+      description:
+        "Statically validate an x402 v2 payment declaration for protocol shape, Base/USDC fields, amount, recipient, timeout, and duplicate accepts. Price: $0.05 USDC on Base.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        required: ["declaration"],
+        properties: {
+          declaration: { type: "object", additionalProperties: true },
+          payment_signature: paymentSignatureSchema,
+        },
+        additionalProperties: false,
+      }),
+    },
+    async ({ declaration, payment_signature }) =>
+      mcpPaidRequest({
+        path: X402_VALIDATE_PATH,
+        body: declaration,
+        paymentSignature: payment_signature || "",
+      }),
+  );
+
+  return server;
+}
+
+const palMcpHandler = createMcpHandler(() => buildPalMcpServer());
+const palMcpNodeHandler = toNodeHandler(palMcpHandler);
+
 const app = express();
+// Mount MCP before Express JSON parsing so the official MCP Node adapter owns the request stream.
+app.all("/mcp", palMcpNodeHandler);
 // Render terminates TLS at its reverse proxy. Trust the forwarded protocol so
 // x402 middleware advertises the public HTTPS resource URL instead of the
 // internal HTTP hop seen by the Node process.
