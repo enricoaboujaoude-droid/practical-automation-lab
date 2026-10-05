@@ -2,14 +2,14 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence",
   "title": "PAL Commerce Catalog Intelligence",
-  "description": "Paid Merchant Center audits, GTIN checks, feed diffs, and $5 batch remediation via Base USDC.",
+  "description": "Merchant feed audits and $20 full-catalog remediation via Base USDC.",
   "websiteUrl": "https://pal-nano-catalog-audit.onrender.com/marketplace",
   "repository": {
     "url": "https://github.com/enricoaboujaoude-droid/practical-automation-lab",
     "source": "github",
     "subfolder": "nano-seller"
   },
-  "version": "1.0.3",
+  "version": "1.1.1",
   "remotes": [
     {
       "type": "streamable-http",
@@ -25,13 +25,14 @@
         "gtin",
         "catalog-remediation",
         "batch-remediation",
+        "full-catalog",
         "x402"
       ],
       "pricing": {
         "currency": "USDC",
         "network": "Base",
         "minimum": "0.01",
-        "maximum": "5.00",
+        "maximum": "20.00",
         "unit": "call"
       },
       "discovery": {
