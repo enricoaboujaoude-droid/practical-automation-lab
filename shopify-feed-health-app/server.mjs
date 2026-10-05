@@ -19,7 +19,7 @@ import { startSubnanoPublisher } from "./subnano-publisher.mjs";
 import { startAgenticTradeReferralPublisher } from "./agentictrade-referral-publisher.mjs";
 import { startX402ExpansionReportPublisher } from "./x402-expansion-report-publisher.mjs";
 import { startFirstUsdcSaleReportPublisher } from "./first-usdc-sale-report-publisher.mjs";
-import { startSubnanoRevenueIndexPublisher } from "./subnano-revenue-index-publisher.mjs";
+import { startSubnanoRevenueIndexPublisher } from "./subnano-revenue-index-publisher.mjs";\nimport { startPremiumRevenueReportPublisher } from "./premium-revenue-report-publisher.mjs";
 import { startTrue402ReportPublisher } from "./true402-report-publisher.mjs";
 import { startPartnerRevenueProbe } from "./partner-revenue-probe.mjs";
 import { startBrickScout } from "./brick-scout.mjs";
@@ -150,7 +150,7 @@ app.listen(port, host, () => {
   startAgenticTradeReferralPublisher();
   startX402ExpansionReportPublisher();
   startFirstUsdcSaleReportPublisher();
-  startSubnanoRevenueIndexPublisher();
+  startSubnanoRevenueIndexPublisher();\n  startPremiumRevenueReportPublisher();
   startTrue402ReportPublisher();
   startPartnerRevenueProbe();
   startBrickScout();
