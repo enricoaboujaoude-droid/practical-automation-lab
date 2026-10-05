@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence",
   "title": "PAL Commerce Catalog Intelligence",
-  "description": "Paid ecommerce catalog intelligence for Google Merchant Center feed audits, prioritized remediation, GTIN/UPC/EAN validation, feed diffs, and x402 payment diagnostics. Paid tools settle in USDC on Base.",
+  "description": "Paid Merchant Center audits, catalog remediation, GTIN checks and feed diffs via Base USDC.",
   "version": "1.0.0",
   "websiteUrl": "https://pal-nano-catalog-audit.onrender.com/marketplace",
   "repository": {
