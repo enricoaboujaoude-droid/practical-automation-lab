@@ -14,6 +14,7 @@ PAL exposes a production **MCP + x402 API** for ecommerce product-feed intellige
 **RapidAPI paid plans:** https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor/pricing  
 **RapidAPI API page:** https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor  
 **PayAPI Market (premium, settlement-verified):** https://payapi.market/api/pal-batch-catalog-remediation  
+**Agent Tools ($20 full-catalog, verified):** https://agent-tools.cloud/services/pal-nano-catalog-audit-onrender-com-sub1146  
 **PayAPI Market (audit):** https://payapi.market/api/pal-catalog-feed-auditor  
 **Settlement-verified PayAPI listing:** https://payapi.market/api/pal-catalog-feed-auditor  
 **Glama hosted connector:** https://glama.ai/mcp/connectors/io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence  
