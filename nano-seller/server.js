@@ -5786,6 +5786,64 @@ app.post("/v1/usdc/x402-validate", (req, res) => {
   });
 });
 
+
+app.post("/v1/agentpay/catalog-remediation", (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 100 items.",
+      example: catalogAuditExample(),
+    });
+  }
+  console.log(
+    `[revenue] agentictrade catalog-remediation served records=${records.length} marketplace_billing=upstream`
+  );
+  return res.json({
+    ...catalogRemediationPlan(records),
+    marketplace: { provider: "AgenticTrade", billing: "handled_upstream", price_usdc: "1.00" },
+  });
+});
+
+app.post("/v1/agentpay/catalog-remediation-batch", (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 500) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 500 items.",
+    });
+  }
+  console.log(
+    `[revenue] agentictrade catalog-remediation-batch served records=${records.length} marketplace_billing=upstream`
+  );
+  return res.json({
+    ...catalogRemediationPlan(records),
+    marketplace: { provider: "AgenticTrade", billing: "handled_upstream", price_usdc: "5.00" },
+  });
+});
+
+app.post("/v1/agentpay/catalog-remediation-bulk", (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 2000) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 2000 items.",
+    });
+  }
+  console.log(
+    `[revenue] agentictrade catalog-remediation-bulk served records=${records.length} marketplace_billing=upstream`
+  );
+  return res.json({
+    ...catalogRemediationPlan(records),
+    offer: {
+      product: "PAL Full Catalog Remediation",
+      records_processed: records.length,
+      price_usdc: "20.00",
+    },
+    marketplace: { provider: "AgenticTrade", billing: "handled_upstream", price_usdc: "20.00" },
+  });
+});
+
 const MARKETPLACE_UPSTREAM_TOKEN = String(
   process.env.MARKETPLACE_UPSTREAM_TOKEN || "",
 ).trim();
@@ -6814,6 +6872,130 @@ app.use((error, _req, res, _next) => {
   return res.status(500).json({ error: "internal_error" });
 });
 
+
+const AGENTICTRADE_PROVIDER_ID = "e6251fd3-fe50-4d17-9950-2bfd402c1ad7";
+const AGENTICTRADE_API_BASE = "https://agentictrade.io/api/v1";
+const AGENTICTRADE_PREMIUM_ORIGIN = "https://pal-full-catalog-remediation.onrender.com";
+const AGENTICTRADE_PREMIUM_BOOTSTRAP_ENABLED =
+  PUBLIC_BASE_URL === "https://pal-nano-catalog-audit.onrender.com";
+
+const AGENTICTRADE_PREMIUM_SERVICES = [
+  {
+    name: "PAL Merchant Center Catalog Remediation",
+    description:
+      "Prioritized Google Merchant Center and ecommerce product-feed remediation for up to 100 products. Returns concrete corrective actions, affected products, readiness, errors and warnings.",
+    endpoint: `${AGENTICTRADE_PREMIUM_ORIGIN}/v1/agentpay/catalog-remediation`,
+    price_per_call: "1.00",
+    category: "data",
+    tags: ["ecommerce", "merchant-center", "google-shopping", "catalog", "product-feed", "remediation"],
+  },
+  {
+    name: "PAL Batch Catalog Remediation",
+    description:
+      "Batch Google Merchant Center and product-feed remediation for up to 500 products in one deterministic call, with prioritized fixes and affected product IDs.",
+    endpoint: `${AGENTICTRADE_PREMIUM_ORIGIN}/v1/agentpay/catalog-remediation-batch`,
+    price_per_call: "5.00",
+    category: "data",
+    tags: ["ecommerce", "merchant-center", "catalog", "batch", "product-feed", "remediation"],
+  },
+  {
+    name: "PAL Full Catalog Remediation",
+    description:
+      "Full-store Merchant Center and ecommerce feed remediation for up to 2,000 products. Produces a prioritized implementation-ready corrective plan for large catalogs.",
+    endpoint: `${AGENTICTRADE_PREMIUM_ORIGIN}/v1/agentpay/catalog-remediation-bulk`,
+    price_per_call: "20.00",
+    category: "data",
+    tags: ["ecommerce", "merchant-center", "catalog", "full-catalog", "product-feed", "remediation"],
+  },
+];
+
+async function agenticTradeRequest(path, options = {}) {
+  const response = await fetch(`${AGENTICTRADE_API_BASE}${path}`, {
+    ...options,
+    headers: {
+      accept: "application/json",
+      ...(options.body ? { "content-type": "application/json" } : {}),
+      ...(options.headers || {}),
+    },
+    signal: AbortSignal.timeout(15_000),
+  });
+  let payload = null;
+  try {
+    payload = await response.json();
+  } catch {
+    payload = null;
+  }
+  return { response, payload };
+}
+
+async function startAgenticTradePremiumBootstrap() {
+  if (!AGENTICTRADE_PREMIUM_BOOTSTRAP_ENABLED) return;
+
+  try {
+    const search = await agenticTradeRequest("/services?query=PAL&limit=100");
+    if (!search.response.ok) {
+      console.log(`[agentictrade] premium bootstrap discovery status=${search.response.status}`);
+      return;
+    }
+
+    const existing = Array.isArray(search.payload?.services)
+      ? search.payload.services.filter((service) => service?.provider_id === AGENTICTRADE_PROVIDER_ID)
+      : [];
+    const existingNames = new Set(existing.map((service) => String(service?.name || "")));
+    const missing = AGENTICTRADE_PREMIUM_SERVICES.filter(
+      (service) => !existingNames.has(service.name),
+    );
+
+    if (missing.length === 0) {
+      console.log("[agentictrade] premium services already listed 3/3");
+      return;
+    }
+
+    const keyResult = await agenticTradeRequest("/keys", {
+      method: "POST",
+      body: JSON.stringify({ owner_id: AGENTICTRADE_PROVIDER_ID, role: "provider" }),
+    });
+    const keyId = String(keyResult.payload?.key_id || "");
+    const secret = String(keyResult.payload?.secret || "");
+    if (!keyResult.response.ok || !keyId || !secret) {
+      console.log(`[agentictrade] provider bootstrap key status=${keyResult.response.status}`);
+      return;
+    }
+
+    const authorization = `Bearer ${keyId}:${secret}`;
+    let created = 0;
+    for (const service of missing) {
+      const result = await agenticTradeRequest("/services", {
+        method: "POST",
+        headers: { authorization },
+        body: JSON.stringify({
+          ...service,
+          payment_method: "x402",
+          free_tier_calls: 0,
+        }),
+      });
+      if (result.response.ok) {
+        created += 1;
+        console.log(
+          `[agentictrade] premium listed name="${service.name}" price=${service.price_per_call} id=${result.payload?.id || "created"}`,
+        );
+      } else {
+        console.log(
+          `[agentictrade] premium listing failed name="${service.name}" status=${result.response.status}`,
+        );
+      }
+    }
+
+    console.log(
+      `[agentictrade] premium bootstrap complete created=${created} missing_before=${missing.length}`,
+    );
+  } catch (error) {
+    console.log(
+      `[agentictrade] premium bootstrap error=${String(error?.message || error).slice(0, 180)}`,
+    );
+  }
+}
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`PAL Nano seller listening on :${PORT}; pay_to=${PAY_TO}`);
   void startPayanAgentBootstrap();
@@ -6827,4 +7009,5 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startMarket402Bootstrap(), 32_000);
   setTimeout(() => void startX402DashBootstrap(), 36_000);
   setTimeout(() => void startNoHumansBootstrap(), 40_000);
+  setTimeout(() => void startAgenticTradePremiumBootstrap(), 44_000);
 });
