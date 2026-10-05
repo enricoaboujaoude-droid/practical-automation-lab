@@ -22,6 +22,32 @@ const PAYANAGENT_OFFER_TITLE = "PAL Catalog Feed Identifier Audit";
 const PAYANAGENT_OFFER_ENDPOINT = `${PUBLIC_BASE_URL}/v1/payanagent/catalog-audit`;
 const X402_NETWORK = "eip155:8453";
 const X402_ASSET = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const X402_EVM_NETWORKS = [
+  { network: "eip155:8453", asset: X402_ASSET, label: "Base" },
+  { network: "eip155:137", asset: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359", label: "Polygon" },
+  { network: "eip155:42161", asset: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831", label: "Arbitrum" },
+];
+
+function x402RouteAccepts(price) {
+  return X402_EVM_NETWORKS.map(({ network }) => ({
+    scheme: "exact",
+    price,
+    network,
+    payTo: BASE_PAYOUT_ADDRESS,
+  }));
+}
+
+function x402ManifestAccepts(amount) {
+  return X402_EVM_NETWORKS.map(({ network, asset }) => ({
+    scheme: "exact",
+    network,
+    asset,
+    amount,
+    payTo: BASE_PAYOUT_ADDRESS,
+    maxTimeoutSeconds: 60,
+    extra: { name: "USD Coin", version: "2" },
+  }));
+}
 const X402_PRICE_USD = "$0.01";
 const X402_PRICE_ATOMIC = "10000";
 const X402_FACILITATOR_URL = String(
@@ -684,16 +710,14 @@ app.use((req, res, next) => {
 
 const usdcFacilitatorClient = new HTTPFacilitatorClient(facilitator);
 const usdcResourceServer = new x402ResourceServer(usdcFacilitatorClient)
-  .register(USDC_X402_NETWORK, new ExactEvmScheme())
+  .register("eip155:*", new ExactEvmScheme())
   .registerExtension(bazaarResourceServerExtension);
 
 app.use(
   paymentMiddleware(
     {
       "POST /v1/usdc/catalog-audit": {
-        accepts: [
-          { scheme: "exact", price: USDC_X402_PRICE, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
-        ],
+        accepts: x402RouteAccepts(USDC_X402_PRICE),
         description:
           "Shopify and Google Merchant Center / Google Shopping product-feed audit for 1-100 catalog records. Detect feed errors, duplicate IDs, invalid GTIN/UPC/EAN checksums, malformed URLs and prices, availability issues, and brand/MPN identifier inconsistencies before feed submission.",
         mimeType: "application/json",
@@ -742,9 +766,7 @@ app.use(
         },
       },
       "GET /v1/usdc/gtin-check-one": {
-        accepts: [
-          { scheme: "exact", price: USDC_X402_PRICE, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
-        ],
+        accepts: x402RouteAccepts(USDC_X402_PRICE),
         description:
           "Validate one GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 identifier including its check digit. Pass ?gtin=...",
         mimeType: "application/json",
@@ -776,9 +798,7 @@ app.use(
         },
       },
       "POST /v1/usdc/gtin-check": {
-        accepts: [
-          { scheme: "exact", price: USDC_X402_PRICE, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
-        ],
+        accepts: x402RouteAccepts(USDC_X402_PRICE),
         description:
           "Validate up to 100 GTIN-8, UPC/GTIN-12, GTIN-13, or GTIN-14 identifiers including check digits.",
         mimeType: "application/json",
@@ -811,9 +831,7 @@ app.use(
         },
       },
       "POST /v1/usdc/feed-diff": {
-        accepts: [
-          { scheme: "exact", price: USDC_X402_PRICE, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
-        ],
+        accepts: x402RouteAccepts(USDC_X402_PRICE),
         description:
           "Compare two product-feed snapshots and return added, removed, and changed commerce fields for up to 100 rows per side.",
         mimeType: "application/json",
@@ -845,9 +863,7 @@ app.use(
         },
       },
       "POST /v1/usdc/catalog-remediation-canary": {
-        accepts: [
-          { scheme: "exact", price: X402_REMEDIATE_CANARY_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
-        ],
+        accepts: x402RouteAccepts(X402_REMEDIATE_CANARY_PRICE_USD),
         description:
           "Settlement-test the PAL premium remediation product on exactly one product record. Returns the real prioritized Merchant Center/product-feed remediation result used by the $5 batch service.",
         mimeType: "application/json",
@@ -896,9 +912,7 @@ app.use(
         },
       },
       "POST /v1/usdc/catalog-remediation-batch": {
-        accepts: [
-          { scheme: "exact", price: X402_REMEDIATE_BATCH_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
-        ],
+        accepts: x402RouteAccepts(X402_REMEDIATE_BATCH_PRICE_USD),
         description:
           "Fix Shopify, Google Merchant Center, and Google Shopping product-feed errors across 1-500 catalog records in one paid call. Returns a prioritized remediation plan for GTIN/UPC/EAN identifiers, duplicate IDs, prices, URLs, availability, brand/MPN issues, concrete fix actions, and affected product IDs.",
         mimeType: "application/json",
@@ -935,9 +949,7 @@ app.use(
         },
       },
       "POST /v1/usdc/catalog-remediation-bulk": {
-        accepts: [
-          { scheme: "exact", price: X402_REMEDIATE_BULK_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
-        ],
+        accepts: x402RouteAccepts(X402_REMEDIATE_BULK_PRICE_USD),
         description:
           "Full-catalog Shopify, Google Merchant Center, and Google Shopping remediation for 1-2,000 product records in one paid call. Returns one prioritized plan covering GTIN/UPC/EAN identifiers, duplicate IDs, prices, URLs, availability, brand/MPN issues, concrete fix actions, and affected product IDs.",
         mimeType: "application/json",
@@ -986,9 +998,7 @@ app.use(
         },
       },
       "POST /v1/usdc/catalog-remediation": {
-        accepts: [
-          { scheme: "exact", price: X402_REMEDIATE_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
-        ],
+        accepts: x402RouteAccepts(X402_REMEDIATE_PRICE_USD),
         description:
           "Fix Shopify, Google Merchant Center, and Google Shopping product-feed errors across 1-100 catalog records. Returns prioritized remediation for GTIN/UPC/EAN identifiers, duplicate IDs, prices, URLs, availability, brand/MPN issues, concrete fix actions, and affected product IDs.",
         mimeType: "application/json",
@@ -1037,9 +1047,7 @@ app.use(
         },
       },
       "POST /v1/usdc/x402-validate": {
-        accepts: [
-          { scheme: "exact", price: X402_VALIDATE_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
-        ],
+        accepts: x402RouteAccepts(X402_VALIDATE_PRICE_USD),
         description:
           "Statically validate x402 v2 payment declarations and report protocol-shape, EVM/Base, amount, asset, recipient, timeout, and duplicate-accept findings without fetching or paying the declared resource.",
         mimeType: "application/json",
@@ -1494,61 +1502,11 @@ function true402Manifest() {
 }
 
 function x402Manifest() {
-  const commonAccepts = [
-    {
-      scheme: "exact",
-      network: X402_NETWORK,
-      asset: X402_ASSET,
-      amount: X402_PRICE_ATOMIC,
-      payTo: BASE_PAYOUT_ADDRESS,
-      maxTimeoutSeconds: 60,
-      extra: { name: "USD Coin", version: "2" },
-    },
-  ];
-  const validatorAccepts = [
-    {
-      scheme: "exact",
-      network: X402_NETWORK,
-      asset: X402_ASSET,
-      amount: X402_VALIDATE_PRICE_ATOMIC,
-      payTo: BASE_PAYOUT_ADDRESS,
-      maxTimeoutSeconds: 60,
-      extra: { name: "USD Coin", version: "2" },
-    },
-  ];
-  const remediationAccepts = [
-    {
-      scheme: "exact",
-      network: X402_NETWORK,
-      asset: X402_ASSET,
-      amount: X402_REMEDIATE_PRICE_ATOMIC,
-      payTo: BASE_PAYOUT_ADDRESS,
-      maxTimeoutSeconds: 60,
-      extra: { name: "USD Coin", version: "2" },
-    },
-  ];
-  const remediationBatchAccepts = [
-    {
-      scheme: "exact",
-      network: X402_NETWORK,
-      asset: X402_ASSET,
-      amount: X402_REMEDIATE_BATCH_PRICE_ATOMIC,
-      payTo: BASE_PAYOUT_ADDRESS,
-      maxTimeoutSeconds: 60,
-      extra: { name: "USD Coin", version: "2" },
-    },
-  ];
-  const remediationBulkAccepts = [
-    {
-      scheme: "exact",
-      network: X402_NETWORK,
-      asset: X402_ASSET,
-      amount: X402_REMEDIATE_BULK_PRICE_ATOMIC,
-      payTo: BASE_PAYOUT_ADDRESS,
-      maxTimeoutSeconds: 60,
-      extra: { name: "USD Coin", version: "2" },
-    },
-  ];
+  const commonAccepts = x402ManifestAccepts(X402_PRICE_ATOMIC);
+  const validatorAccepts = x402ManifestAccepts(X402_VALIDATE_PRICE_ATOMIC);
+  const remediationAccepts = x402ManifestAccepts(X402_REMEDIATE_PRICE_ATOMIC);
+  const remediationBatchAccepts = x402ManifestAccepts(X402_REMEDIATE_BATCH_PRICE_ATOMIC);
+  const remediationBulkAccepts = x402ManifestAccepts(X402_REMEDIATE_BULK_PRICE_ATOMIC);
 
   return {
     spec: "agent402-service-manifest/1",
@@ -1688,7 +1646,7 @@ function x402Manifest() {
       x402: {
         version: 2,
         currency: "USDC",
-        networks: [X402_NETWORK],
+        networks: X402_EVM_NETWORKS.map(({ network }) => network),
         primaryNetwork: X402_NETWORK,
         payTo: BASE_PAYOUT_ADDRESS,
       },
