@@ -103,3 +103,19 @@ jobs:
           assert route["requestBody"]["content"]["application/json"]["schema"]["properties"]["records"]["maxItems"] == 500
           print("batch_discovery_ok")
           PY
+
+      - name: Assert MCP exposes premium and free routing tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes @modelcontextprotocol/inspector --cli             http://127.0.0.1:10000/mcp             --transport http             --method tools/list             --format json > /tmp/mcp-tools.json
+          python3 - <<'PY'
+          import json
+          data=json.load(open("/tmp/mcp-tools.json"))
+          tools=data.get("tools") or data.get("result",{}).get("tools") or []
+          names={t.get("name") for t in tools}
+          required={"catalog_remediation_batch","recommend_catalog_offer"}
+          missing=required-names
+          assert not missing, f"Missing MCP tools: {sorted(missing)}; got {sorted(names)}"
+          print("mcp_premium_tools_ok", sorted(required))
+          PY
