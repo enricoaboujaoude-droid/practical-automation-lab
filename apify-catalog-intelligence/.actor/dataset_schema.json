@@ -1,0 +1,68 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "ok": {
+        "type": "boolean",
+        "title": "Success"
+      },
+      "operation": {
+        "type": "string",
+        "title": "Operation"
+      },
+      "provider": {
+        "type": "string",
+        "title": "Provider"
+      },
+      "batch": {
+        "type": "object",
+        "title": "Batch",
+        "properties": {
+          "index": {
+            "type": "integer"
+          },
+          "count": {
+            "type": "integer"
+          }
+        },
+        "additionalProperties": false
+      },
+      "result": {
+        "type": "object",
+        "title": "Result",
+        "description": "Structured audit, remediation, validation, or diff output.",
+        "additionalProperties": true
+      },
+      "generated_at": {
+        "type": "string",
+        "title": "Generated at"
+      }
+    },
+    "required": [
+      "ok",
+      "operation",
+      "provider",
+      "result",
+      "generated_at"
+    ],
+    "additionalProperties": true
+  },
+  "views": {
+    "overview": {
+      "title": "Results",
+      "transformation": {
+        "fields": [
+          "operation",
+          "batch",
+          "generated_at",
+          "result"
+        ]
+      },
+      "display": {
+        "component": "table"
+      }
+    }
+  }
+}
