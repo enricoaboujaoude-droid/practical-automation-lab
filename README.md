@@ -4,6 +4,26 @@ Practical Automation Lab builds privacy-conscious tools for product data, commer
 
 **Live products:** https://practical-automation-lab.onrender.com/
 
+## Paid Commerce Catalog Intelligence API
+
+PAL exposes a production **MCP + x402 API** for ecommerce product-feed intelligence. It is designed for AI agents, commerce automation, feed-management systems, and developers working with Google Merchant Center data.
+
+**Live marketplace:** https://pal-nano-catalog-audit.onrender.com/marketplace  
+**Remote MCP:** https://pal-nano-catalog-audit.onrender.com/mcp  
+**Official MCP Registry:** https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence  
+**OpenAPI:** https://pal-nano-catalog-audit.onrender.com/openapi.json
+
+Paid operations include:
+
+- **Catalog remediation plan — $1.00/call:** prioritized Merchant Center/product-feed fixes for up to 100 products.
+- **Catalog audit — $0.01/call:** duplicate IDs, GTIN/checksum issues, URLs, price formatting, availability, and identifier consistency.
+- **GTIN / UPC / EAN validation — $0.01/call.**
+- **Product feed diff — $0.01/call.**
+- **x402 declaration validation — $0.05/call.**
+
+Direct calls use **x402 v2 exact settlement in USDC on Base**. No PAL account or API key is required for direct paid calls.
+
+
 ## PAL Catalog Check for Shopify
 
 **Install free from the Shopify App Store:** https://apps.shopify.com/pal-catalog-check
