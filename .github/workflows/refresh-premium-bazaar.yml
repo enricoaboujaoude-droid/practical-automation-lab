@@ -1,0 +1,75 @@
+name: Refresh premium x402 Bazaar discovery
+
+on:
+  push:
+    branches: [nano-seller]
+    paths:
+      - ".github/workflows/refresh-premium-bazaar.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe live premium routes without payment
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://pal-nano-catalog-audit.onrender.com"
+
+          probe() {
+            path="$1"
+            body="$2"
+            expected="$3"
+            headers="$(mktemp)"
+            response="$(mktemp)"
+
+            code="$(curl --retry 2 --retry-delay 2 -sS -D "$headers" -o "$response" -w '%{http_code}'               -X POST "$base$path"               -H "Content-Type: application/json"               --data "$body")"
+
+            echo "$path -> HTTP $code"
+            test "$code" = "402"
+
+            payment="$(awk 'BEGIN{IGNORECASE=1} /^PAYMENT-REQUIRED:/ {sub(/^[^:]+:[[:space:]]*/, ""); gsub(/\r/,""); print; exit}' "$headers")"
+            test -n "$payment"
+
+            PAYMENT_REQUIRED="$payment" EXPECTED="$expected" PATH_EXPECTED="$path" python3 - <<'PY'
+          import base64, json, os
+          raw=os.environ["PAYMENT_REQUIRED"]
+          raw += "=" * (-len(raw) % 4)
+          data=json.loads(base64.b64decode(raw).decode())
+          accepts=data.get("accepts") or []
+          assert accepts, data
+          exact=accepts[0]
+          expected=os.environ["EXPECTED"]
+          path_expected=os.environ["PATH_EXPECTED"]
+          assert exact["amount"] == expected, (exact, expected)
+          assert data["resource"]["url"].endswith(path_expected), data["resource"]["url"]
+          assert exact["network"] == "eip155:8453", exact
+          print("challenge_ok", path_expected, expected)
+          PY
+          }
+
+          one='{"records":[{"id":"sku-premium","title":"Premium Product","link":"https://example.com/products/sku-premium","image_link":"https://example.com/images/sku-premium.jpg","gtin":"4006381333931","brand":"Example","mpn":"SKU-PREMIUM","price":"49.99 USD","availability":"in_stock","identifier_exists":true}]}'
+
+          probe "/v1/usdc/catalog-remediation" "$one" "1000000"
+          probe "/v1/usdc/catalog-remediation-batch" "$one" "5000000"
+          probe "/v1/usdc/catalog-remediation-bulk" "$one" "20000000"
+
+      - name: Fetch Bazaar discovery after probes
+        shell: bash
+        run: |
+          set -euo pipefail
+          sleep 3
+          curl -fsS "https://facilitator.payai.network/discovery/resources?payTo=0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF&network=eip155%3A8453&limit=100" > /tmp/bazaar.json
+          python3 - <<'PY'
+          import json
+          data=json.load(open("/tmp/bazaar.json"))
+          items=data.get("items",[])
+          print("bazaar_total", len(items))
+          for item in items:
+              print(item.get("resource"), (item.get("accepts") or [{}])[0].get("amount"))
+          PY
