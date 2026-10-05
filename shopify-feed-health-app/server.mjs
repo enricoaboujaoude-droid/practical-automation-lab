@@ -18,6 +18,7 @@ import { startNearMarketAgent } from "./near-market-agent.mjs";
 import { startSubnanoPublisher } from "./subnano-publisher.mjs";
 import { startAgenticTradeReferralPublisher } from "./agentictrade-referral-publisher.mjs";
 import { startX402ExpansionReportPublisher } from "./x402-expansion-report-publisher.mjs";
+import { startFirstUsdcSaleReportPublisher } from "./first-usdc-sale-report-publisher.mjs";
 import { startSubnanoRevenueIndexPublisher } from "./subnano-revenue-index-publisher.mjs";
 import { startTrue402ReportPublisher } from "./true402-report-publisher.mjs";
 import { startPartnerRevenueProbe } from "./partner-revenue-probe.mjs";
@@ -148,6 +149,7 @@ app.listen(port, host, () => {
   startSubnanoPublisher();
   startAgenticTradeReferralPublisher();
   startX402ExpansionReportPublisher();
+  startFirstUsdcSaleReportPublisher();
   startSubnanoRevenueIndexPublisher();
   startTrue402ReportPublisher();
   startPartnerRevenueProbe();
