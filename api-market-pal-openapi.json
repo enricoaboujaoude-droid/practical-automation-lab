@@ -1,0 +1,283 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "PAL Commerce Catalog Intelligence",
+    "version": "1.0.0",
+    "description": "Ecommerce catalog QA for Shopify, Google Merchant Center, product feeds and AI commerce workflows. Includes catalog audits, prioritized remediation, GTIN/UPC/EAN validation and feed diffs."
+  },
+  "servers": [
+    {
+      "url": "https://pal-marketplace-fast-api.onrender.com"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Catalog",
+      "description": "Catalog quality and remediation"
+    },
+    {
+      "name": "Identifiers",
+      "description": "GTIN UPC EAN validation"
+    },
+    {
+      "name": "Feeds",
+      "description": "Product-feed change detection"
+    }
+  ],
+  "paths": {
+    "/api/catalog-audit": {
+      "post": {
+        "tags": [
+          "Catalog"
+        ],
+        "operationId": "auditCatalog",
+        "summary": "Audit ecommerce catalog records",
+        "description": "Audit 1-100 product records for duplicate IDs, identifier issues, price/availability formatting and Merchant Center readiness.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogRecordsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Catalog audit result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/api/catalog-remediation": {
+      "post": {
+        "tags": [
+          "Catalog"
+        ],
+        "operationId": "remediateCatalog",
+        "summary": "Generate prioritized catalog remediation",
+        "description": "Generate a prioritized Merchant Center and product-feed remediation plan for 1-100 product records.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogRecordsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Prioritized remediation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/api/gtin-check": {
+      "post": {
+        "tags": [
+          "Identifiers"
+        ],
+        "operationId": "validateGtins",
+        "summary": "Validate GTIN UPC EAN identifiers",
+        "description": "Validate structure and check digits for 1-100 GTIN-8, UPC/GTIN-12, GTIN-13 or GTIN-14 values.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GtinRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "GTIN validation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    },
+    "/api/feed-diff": {
+      "post": {
+        "tags": [
+          "Feeds"
+        ],
+        "operationId": "diffProductFeeds",
+        "summary": "Compare product-feed snapshots",
+        "description": "Compare before/after feed snapshots of up to 100 records each and return added, removed and changed products.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedDiffRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Feed diff result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ProductRecord": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "sku-100"
+          },
+          "title": {
+            "type": "string",
+            "example": "Example Product"
+          },
+          "link": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/products/sku-100"
+          },
+          "image_link": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://example.com/images/sku-100.jpg"
+          },
+          "gtin": {
+            "type": "string",
+            "example": "4006381333931"
+          },
+          "brand": {
+            "type": "string",
+            "example": "Example"
+          },
+          "mpn": {
+            "type": "string",
+            "example": "SKU-100"
+          },
+          "price": {
+            "type": "string",
+            "example": "19.99 USD"
+          },
+          "availability": {
+            "type": "string",
+            "example": "in_stock"
+          },
+          "identifier_exists": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "CatalogRecordsRequest": {
+        "type": "object",
+        "required": [
+          "records"
+        ],
+        "properties": {
+          "records": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/ProductRecord"
+            }
+          }
+        }
+      },
+      "GtinRequest": {
+        "type": "object",
+        "required": [
+          "gtins"
+        ],
+        "properties": {
+          "gtins": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "4006381333931",
+              "036000291452"
+            ]
+          }
+        }
+      },
+      "FeedDiffRequest": {
+        "type": "object",
+        "required": [
+          "before",
+          "after"
+        ],
+        "properties": {
+          "before": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/ProductRecord"
+            }
+          },
+          "after": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/ProductRecord"
+            }
+          }
+        }
+      }
+    }
+  }
+}
