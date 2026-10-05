@@ -1217,9 +1217,9 @@ function catalogAuditExample() {
 function true402Manifest() {
   return {
     x402: "1.0",
-    name: "PAL Catalog Remediation Plan",
+    name: "PAL Batch Catalog Remediation",
     description:
-      "Turn 1-100 ecommerce catalog records into a prioritized Google Merchant Center and product-feed remediation plan with concrete corrective actions, issue severity, and affected products.",
+      "Turn up to 500 ecommerce catalog records into a prioritized Google Merchant Center and product-feed remediation plan with concrete corrective actions, issue severity, and affected products.",
     capabilities: [
       "catalog-remediation",
       "merchant-center",
@@ -1231,7 +1231,7 @@ function true402Manifest() {
     ],
     pricing: {
       currency: "USDC",
-      base: "1.00",
+      base: "5.00",
       unit: "request",
     },
     payment: {
@@ -1239,7 +1239,7 @@ function true402Manifest() {
       chain: "base-mainnet",
       facilitator: X402_FACILITATOR_URL,
     },
-    endpoint: X402_REMEDIATE_URL,
+    endpoint: X402_REMEDIATE_BATCH_URL,
     endpoints: [
       { name: "PAL Catalog Feed Identifier Audit", endpoint: X402_AUDIT_URL, method: "POST", price: "0.01" },
       { name: "PAL GTIN Check", endpoint: X402_GTIN_URL, method: "POST", price: "0.01" },
@@ -1247,6 +1247,7 @@ function true402Manifest() {
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
       { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
+      { name: "PAL Batch Catalog Remediation", endpoint: X402_REMEDIATE_BATCH_URL, method: "POST", price: "5.00" },
     ],
   };
 }
@@ -1280,6 +1281,17 @@ function x402Manifest() {
       network: X402_NETWORK,
       asset: X402_ASSET,
       amount: X402_REMEDIATE_PRICE_ATOMIC,
+      payTo: BASE_PAYOUT_ADDRESS,
+      maxTimeoutSeconds: 60,
+      extra: { name: "USD Coin", version: "2" },
+    },
+  ];
+  const remediationBatchAccepts = [
+    {
+      scheme: "exact",
+      network: X402_NETWORK,
+      asset: X402_ASSET,
+      amount: X402_REMEDIATE_BATCH_PRICE_ATOMIC,
       payTo: BASE_PAYOUT_ADDRESS,
       maxTimeoutSeconds: 60,
       extra: { name: "USD Coin", version: "2" },
@@ -1387,6 +1399,22 @@ function x402Manifest() {
         },
         accepts: remediationAccepts,
       },
+      {
+        resource: X402_REMEDIATE_BATCH_URL,
+        name: "PAL Batch Catalog Remediation",
+        description:
+          "Generate a prioritized Merchant Center and product-feed remediation plan for 1-500 catalog records in one paid call.",
+        method: "POST",
+        price: X402_REMEDIATE_BATCH_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["records"],
+          properties: {
+            records: { type: "array", minItems: 1, maxItems: 500, items: { type: "object" } },
+          },
+        },
+        accepts: remediationBatchAccepts,
+      },
     ],
     payment: {
       x402: {
@@ -1398,7 +1426,7 @@ function x402Manifest() {
       },
     },
     capabilities: {
-      tools: 6,
+      tools: 7,
       categories: [
         "commerce",
         "merchant-feed",
@@ -1452,14 +1480,24 @@ function x402OpenApi() {
     price: X402_REMEDIATE_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
+  const remediationBatchPaymentInfo = {
+    protocol: "x402",
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_REMEDIATE_BATCH_PRICE_ATOMIC,
+    price: X402_REMEDIATE_BATCH_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
 
   return {
     openapi: "3.1.0",
     info: {
       title: "PAL Commerce Data x402 API",
-      version: "1.3.0",
+      version: "1.4.0",
       description:
-        "Deterministic utilities paid per call with x402 Base USDC: catalog audit, GTIN validation, product-feed diff, x402 declaration validation, and prioritized catalog remediation.",
+        "Deterministic utilities paid per call with x402 Base USDC: catalog audit, GTIN validation, product-feed diff, x402 declaration validation, and standard or batch prioritized catalog remediation.",
     },
     servers: [{ url: PUBLIC_BASE_URL }],
     paths: {
@@ -1581,6 +1619,39 @@ function x402OpenApi() {
             "402": { description: "x402 payment required." },
           },
           "x-payment-info": paymentInfo,
+        },
+      },
+      [X402_REMEDIATE_BATCH_PATH]: {
+        post: {
+          operationId: "remediateCatalogFeedBatch",
+          summary: "Generate a prioritized remediation plan for up to 500 products",
+          tags: ["ecommerce", "merchant-feed", "google-shopping", "catalog-remediation", "batch"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["records"],
+                  properties: {
+                    records: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 500,
+                      items: { type: "object", additionalProperties: true },
+                    },
+                  },
+                },
+                example: catalogAuditExample(),
+              },
+            },
+          },
+          responses: {
+            "200": { description: "Batch remediation plan after successful payment." },
+            "400": { description: "Invalid catalog payload." },
+            "402": { description: "x402 payment required." },
+          },
+          "x-payment-info": remediationBatchPaymentInfo,
         },
       },
       [X402_REMEDIATE_PATH]: {
@@ -3979,9 +4050,10 @@ app.get("/", (_req, res) => {
     description:
       "Agent-ready ecommerce catalog intelligence for Merchant Center feed auditing, prioritized remediation, GTIN validation, feed change detection, and x402 diagnostics. Pay per call in USDC on Base; Nano remains available as a legacy rail.",
     primary_offer: {
-      name: "PAL Catalog Remediation Plan",
-      endpoint: "POST /v1/usdc/catalog-remediation",
-      price_usd: 1.0,
+      name: "PAL Batch Catalog Remediation",
+      endpoint: "POST /v1/usdc/catalog-remediation-batch",
+      price_usd: 5.0,
+      records_per_call: 500,
       payment: "x402 v2 exact, USDC on Base",
     },
     paid_endpoint: "POST /v1/audit",
@@ -3992,10 +4064,11 @@ app.get("/", (_req, res) => {
       "POST /v1/usdc/feed-diff",
       "POST /v1/usdc/x402-validate",
       "POST /v1/usdc/catalog-remediation",
+      "POST /v1/usdc/catalog-remediation-batch",
     ],
     agentpay_endpoint: "POST /v1/agentpay",
     free_endpoints: ["GET /health", "GET /v1/price", "GET /v1/stats"],
-    limits: { records_per_audit: 100, request_body: "128kb" },
+    limits: { records_per_audit: 100, records_per_batch_remediation: 500, request_body: "1mb" },
     payment: {
       nano: {
         asset: "XNO",
@@ -4116,7 +4189,7 @@ app.get("/marketplace", (_req, res) => {
     <h2>Use it from an AI agent</h2>
     <p>PAL is published in the <a href="https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence" rel="noopener noreferrer">Official MCP Registry</a> and exposes a production Streamable HTTP server.</p>
     <p><strong>Remote MCP:</strong> <code>${PUBLIC_BASE_URL}/mcp</code></p>
-    <p>The MCP server exposes two free discovery/demo tools and six x402-paid commerce tools. Paid MCP calls return the live Base-USDC payment requirement before any paid result is delivered.</p>
+    <p>The MCP server exposes two free discovery/demo tools and seven x402-paid commerce tools. Paid MCP calls return the live Base-USDC payment requirement before any paid result is delivered.</p>
   </div>
 
   <div class="card">
@@ -4212,6 +4285,12 @@ Price: $0.05 USDC per successful call
 Input: an x402 v2 PaymentRequired object directly, or wrap it as {"declaration":{...}} or {"payment_required":{...}}.
 Returns deterministic protocol-shape findings, Base/EVM readiness, amount/address/asset checks, duplicate accepts, and warnings. It never fetches or pays the declared resource.
 
+### PAL Batch Catalog Remediation
+POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation-batch
+Price: $5.00 USDC per successful call
+Input: {"records":[...]} with 1-500 product records.
+Use for larger catalogs when a buyer wants one prioritized Merchant Center/product-feed remediation plan in a single paid call.
+
 ### PAL Catalog Remediation Plan
 POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation
 Price: $1.00 USDC per successful call
@@ -4263,6 +4342,12 @@ POST ${PUBLIC_BASE_URL}/v1/usdc/x402-validate
 Cost: $0.05 USDC
 Body: an x402 v2 PaymentRequired object or a wrapper containing declaration/payment_required.
 Use to statically validate protocol shape, payment requirements, Base/EVM fields, amounts, timeouts and duplicate accepts without paying or fetching the declared resource.
+
+## remediate_catalog_feed_batch
+POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation-batch
+Cost: $5.00 USDC
+Body: {"records":[product,...]} with 1-500 records.
+Use for larger Merchant Center/product-feed remediation jobs that should complete in one payment and one call.
 
 ## remediate_catalog_feed
 POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation
@@ -4381,6 +4466,12 @@ app.get("/.well-known/agent.json", (_req, res) => {
         method: "POST",
         url: X402_REMEDIATE_URL,
         price_usd: 1.0,
+      },
+      {
+        name: "remediate_catalog_feed_batch",
+        method: "POST",
+        url: X402_REMEDIATE_BATCH_URL,
+        price_usd: 5.0,
       },
       {
         name: "validate_single_gtin",
