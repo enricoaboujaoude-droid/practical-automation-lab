@@ -1,36 +1,51 @@
 # Merchant Center Catalog Intelligence
 
-Audit and repair ecommerce product data before it reaches Google Merchant Center, shopping feeds, marketplaces, or downstream automation.
+Turn ecommerce product feeds into **actionable Merchant Center remediation**, not just another validation report.
 
-This Actor exposes deterministic commerce-data tools from **Practical Automation Lab**. It does not need merchant credentials and does not use an LLM for validation.
+This Actor accepts public Google Merchant XML/CSV/TSV feeds, pasted feed content, or JSON product records. It can audit and remediate up to **1,000 products per run**, processing catalog work in 100-product batches.
 
-## Best use cases
+It exposes deterministic commerce-data tools from **Practical Automation Lab**. It does not need merchant credentials and does not use an LLM for validation.
 
-- Diagnose product-feed problems before Merchant Center upload
-- Generate a prioritized remediation plan instead of only raw warnings
-- Validate GTIN-8, UPC/GTIN-12, GTIN-13, and GTIN-14 check digits
-- Compare two feed snapshots to detect price, availability, and other field changes
-- Validate x402 v2 payment declarations for Base/EVM correctness
+## What makes this Actor different
+
+Most feed validators stop at "this field is wrong." The primary `catalog-remediation` operation returns a prioritized fix plan grouped by issue and business impact, with concrete corrective actions and affected products.
+
+It also includes GTIN validation, feed-diff monitoring, and x402 payment-declaration validation in one Actor.
+
+## Inputs
+
+For `catalog-remediation` or `catalog-audit`, provide one of:
+
+- `feedUrl`: public Google Merchant XML, CSV, or TSV feed
+- `feedContent`: pasted XML, CSV, or TSV
+- `records`: JSON array of product records
+
+Maximum feed size: **10 MB**  
+Maximum products per catalog run: **1,000**
 
 ## Operations
 
 ### Catalog remediation plan — primary premium operation
 
-Choose `catalog-remediation` and supply 1-100 product records.
+Choose `catalog-remediation`.
 
-The result includes the underlying audit plus prioritized corrective actions grouped by issue and business impact. It is designed for merchants, feed-management systems, ecommerce automation, and AI agents that need actionable output rather than a pass/fail response.
+Each paid event covers up to **100 products**. A 1,000-product feed is processed as ten independently billed batches.
+
+The result includes the base audit plus prioritized corrective actions grouped by issue code and business impact.
 
 ### Catalog feed audit
 
-Choose `catalog-audit` to check 1-100 records for duplicate IDs, identifier consistency, GTIN formatting/checksums, URLs, prices, availability, and brand/MPN consistency.
+Choose `catalog-audit`.
+
+Checks duplicate IDs, GTIN formatting/checksums, URLs, price formatting, availability, and brand/MPN/identifier consistency.
 
 ### GTIN / UPC / EAN validation
 
-Choose `gtin-check` with up to 100 values.
+Choose `gtin-check` with up to 1,000 values. The Actor batches them automatically.
 
 ### Product feed diff
 
-Choose `feed-diff` with `before` and `after` snapshots to identify added, removed, and changed commerce fields.
+Choose `feed-diff` with `before` and `after` snapshots of up to 100 rows each.
 
 ### x402 declaration validation
 
@@ -40,17 +55,27 @@ Choose `x402-validate` to statically inspect x402 v2 payment declarations withou
 
 Configure these events in **Apify Console → Publication → Monetization → Pay per event**:
 
-| Event | Suggested price |
-| --- | ---: |
-| `catalog-remediation` | $1.00 |
-| `catalog-audit` | $0.25 |
-| `feed-diff` | $0.25 |
-| `gtin-check` | $0.10 |
-| `x402-validate` | $0.10 |
+| Event | Suggested price | Billing unit |
+| --- | ---: | --- |
+| `catalog-remediation` | $1.00 | up to 100 products |
+| `catalog-audit` | $0.25 | up to 100 products |
+| `feed-diff` | $0.25 | one comparison |
+| `gtin-check` | $0.10 | up to 100 GTINs |
+| `x402-validate` | $0.10 | one declaration |
 
-The Actor charges only after the upstream operation returns successfully.
+Results are saved before the event charge is issued, following Apify's pay-per-event guidance.
 
-## Example input
+## Example: audit a public feed
+
+```json
+{
+  "operation": "catalog-remediation",
+  "feedUrl": "https://example.com/google-shopping-feed.xml",
+  "feedFormat": "auto"
+}
+```
+
+## Example: audit JSON records
 
 ```json
 {
@@ -74,8 +99,8 @@ The Actor charges only after the upstream operation returns successfully.
 
 ## Output
 
-The result is written both to the run's `OUTPUT` key-value-store record and to the default dataset, making it easy to consume from the Apify API, integrations, or agents.
+Every successful batch is written to the default dataset. A run-level summary is written to the `OUTPUT` key-value-store record.
 
-## Reliability and privacy
+## Privacy
 
-The Actor sends only the submitted operation payload to the PAL commerce-data service. No store login, merchant token, payment credentials, or private key is required.
+Only the submitted public catalog data or operation payload is sent to the PAL commerce-data service. No store login, merchant token, payment credential, customer record, or private key is required.
