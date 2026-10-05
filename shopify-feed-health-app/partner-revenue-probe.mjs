@@ -156,6 +156,7 @@ export async function fetchPartnerAppEventsProbe(
                   __typename
                   type
                   occurredAt
+                  shop { id }
                   ... on RelationshipUninstalled {
                     reason
                   }
@@ -224,6 +225,64 @@ export async function fetchPartnerAppEventsProbe(
     subscriptionActivated: Number(byType.SUBSCRIPTION_CHARGE_ACTIVATED || 0),
     subscriptionCanceled: Number(byType.SUBSCRIPTION_CHARGE_CANCELED || 0),
     latestOccurredAt,
+    shopIds: [...new Set(events.map((event) => String(event?.shop?.id || "").trim()).filter(Boolean))],
+  };
+}
+
+export async function fetchActiveManagedSubscriptionCount(shopIds = []) {
+  const { token, orgId, appGid } = config();
+  if (!token || !orgId || !appGid) {
+    return { configured: false, checkedShops: 0, activeSubscriptions: 0 };
+  }
+
+  const uniqueShopIds = [...new Set((shopIds || []).map((value) => String(value || "").trim()).filter(Boolean))];
+  let activeSubscriptions = 0;
+
+  for (const shopId of uniqueShopIds) {
+    const response = await fetch(endpoint(orgId), {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-shopify-access-token": token,
+      },
+      body: JSON.stringify({
+        query: `#graphql
+          query PalActiveManagedSubscription($appId: ID!, $shopId: ID!) {
+            activeSubscription(appId: $appId, shopId: $shopId) {
+              billingPeriod
+              items {
+                handle
+                price {
+                  __typename
+                  active
+                  ... on FlatRatePrice { amount currency }
+                }
+              }
+            }
+          }
+        `,
+        variables: { appId: appGid, shopId },
+      }),
+      signal: AbortSignal.timeout(15000),
+    });
+
+    const body = await response.json();
+    if (!response.ok || body?.errors?.length) {
+      const detail = Array.isArray(body?.errors)
+        ? body.errors.slice(0, 2).map((item) => String(item?.message || "unknown").replace(/\s+/g, " ").slice(0, 180)).join(" | ")
+        : "unknown";
+      throw new Error(`Shopify Partner activeSubscription probe failed status=${response.status} detail=${detail}`);
+    }
+
+    if (body?.data?.activeSubscription?.items?.length) {
+      activeSubscriptions += 1;
+    }
+  }
+
+  return {
+    configured: true,
+    checkedShops: uniqueShopIds.length,
+    activeSubscriptions,
   };
 }
 
@@ -252,11 +311,16 @@ export async function fetchPalPaymentLedger() {
 }
 
 export function startPartnerRevenueProbe() {
-  void Promise.allSettled([
-    fetchPartnerRevenueProbe(),
-    fetchPartnerAppEventsProbe(),
-    fetchPalPaymentLedger(),
-  ]).then(([shopify, appEvents, ledger]) => {
+  void fetchPartnerAppEventsProbe().then(async (appEventSummary) => {
+    const [shopify, managed, ledger] = await Promise.allSettled([
+      fetchPartnerRevenueProbe(),
+      fetchActiveManagedSubscriptionCount(appEventSummary.shopIds),
+      fetchPalPaymentLedger(),
+    ]);
+    const appEvents = { status: "fulfilled", value: appEventSummary };
+
+    return [shopify, appEvents, managed, ledger];
+  }).then(([shopify, appEvents, managed, ledger]) => {
     if (shopify.status === "fulfilled") {
       const summary = shopify.value;
       console.log(
@@ -276,6 +340,17 @@ export function startPartnerRevenueProbe() {
     } else {
       console.error(
         `[pal-revenue-probe] app_events_failed message=${String(appEvents.reason?.message || appEvents.reason).replace(/\s+/g, " ").slice(0, 240)}`,
+      );
+    }
+
+    if (managed.status === "fulfilled") {
+      const summary = managed.value;
+      console.log(
+        `[pal-revenue-probe] managed_pricing configured=${summary.configured} checked_shops=${summary.checkedShops} active_subscriptions=${summary.activeSubscriptions}`,
+      );
+    } else {
+      console.error(
+        `[pal-revenue-probe] managed_pricing_failed message=${String(managed.reason?.message || managed.reason).replace(/\s+/g, " ").slice(0, 240)}`,
       );
     }
 
