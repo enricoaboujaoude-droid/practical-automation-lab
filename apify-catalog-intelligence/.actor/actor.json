@@ -1,11 +1,17 @@
 {
   "actorSpecification": 1,
   "name": "merchant-center-catalog-intelligence",
-  "version": "1.0",
+  "title": "Merchant Center Catalog Intelligence",
+  "description": "Audit and remediate ecommerce product feeds, validate GTINs, compare feed snapshots, and validate x402 declarations.",
+  "version": "1.2",
   "usesStandbyMode": false,
   "minMemoryMbytes": 128,
   "maxMemoryMbytes": 256,
   "dockerfile": "./Dockerfile",
   "readme": "../README.md",
-  "input": "./input_schema.json"
+  "input": "./input_schema.json",
+  "output": "./output_schema.json",
+  "storages": {
+    "dataset": "./dataset_schema.json"
+  }
 }
