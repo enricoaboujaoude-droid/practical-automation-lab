@@ -2868,7 +2868,7 @@ async function startTrue402Bootstrap() {
       error: null,
     };
     console.log(
-      `[true402] registered/refreshed primary=${X402_REMEDIATE_URL} id=${body?.id || body?.service?.id || body?.data?.id || "unknown"}`
+      `[true402] registered/refreshed primary=${X402_REMEDIATE_BATCH_URL} id=${body?.id || body?.service?.id || body?.data?.id || "unknown"}`
     );
   } catch (error) {
     true402State = {
@@ -2941,6 +2941,7 @@ async function startMarket402Bootstrap() {
     X402_FEED_DIFF_URL,
     X402_VALIDATE_URL,
     X402_REMEDIATE_URL,
+    X402_REMEDIATE_BATCH_URL,
   ];
   const results = [];
 
