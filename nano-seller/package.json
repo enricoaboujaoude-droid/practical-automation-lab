@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Nano-paid deterministic catalog identifier audit for AI agents and commerce tooling.",
+  "description": "Agent-ready paid ecommerce catalog intelligence for Merchant Center feeds, GTIN validation, remediation, and x402.",
   "scripts": {
     "start": "node server.js"
   },
@@ -16,6 +16,8 @@
     "@x402/evm": "2.19.0",
     "@x402/express": "2.19.0",
     "@payai/facilitator": "2.4.4",
-    "@x402/extensions": "2.19.0"
+    "@x402/extensions": "2.19.0",
+    "@modelcontextprotocol/server": "2.3.0",
+    "@modelcontextprotocol/node": "2.1.1"
   }
 }
