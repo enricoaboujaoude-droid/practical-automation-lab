@@ -1160,6 +1160,7 @@ let openDexterAuditionState = {
   routes: [],
   error: null,
 };
+let openDexterRetryCount = 0;
 let true402State = {
   enabled: TRUE402_BOOTSTRAP,
   status: TRUE402_BOOTSTRAP ? "pending" : "disabled",
@@ -1456,9 +1457,9 @@ function catalogAuditExample() {
 function true402Manifest() {
   return {
     x402: "1.0",
-    name: "PAL Batch Catalog Remediation",
+    name: "PAL Full Catalog Remediation",
     description:
-      "Turn up to 500 ecommerce catalog records into a prioritized Google Merchant Center and product-feed remediation plan with concrete corrective actions, issue severity, and affected products.",
+      "Turn up to 2,000 ecommerce catalog records into one prioritized Google Merchant Center and product-feed remediation plan with concrete corrective actions, issue severity, and affected products.",
     capabilities: [
       "catalog-remediation",
       "merchant-center",
@@ -1470,7 +1471,7 @@ function true402Manifest() {
     ],
     pricing: {
       currency: "USDC",
-      base: "5.00",
+      base: "20.00",
       unit: "request",
     },
     payment: {
@@ -1478,7 +1479,7 @@ function true402Manifest() {
       chain: "base-mainnet",
       facilitator: X402_FACILITATOR_URL,
     },
-    endpoint: X402_REMEDIATE_BATCH_URL,
+    endpoint: X402_REMEDIATE_BULK_URL,
     endpoints: [
       { name: "PAL Catalog Feed Identifier Audit", endpoint: X402_AUDIT_URL, method: "POST", price: "0.01" },
       { name: "PAL GTIN Check", endpoint: X402_GTIN_URL, method: "POST", price: "0.01" },
@@ -1486,6 +1487,7 @@ function true402Manifest() {
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
       { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
+      { name: "PAL Full Catalog Remediation", endpoint: X402_REMEDIATE_BULK_URL, method: "POST", price: "20.00" },
       { name: "PAL Batch Catalog Remediation", endpoint: X402_REMEDIATE_BATCH_URL, method: "POST", price: "5.00" },
     ],
   };
@@ -3007,6 +3009,20 @@ async function startOpenDexterAuditionBootstrap() {
     console.log(
       `[opendexter] audition route=${X402_REMEDIATE_BULK_URL} ok=true scored=${openDexterAuditionState.routes.filter((r) => Number.isFinite(r.score)).length}`
     );
+    const retryableVerifierFailure = openDexterAuditionState.routes.some(
+      (route) =>
+        route?.auditOutcome === "incomplete" &&
+        /on our side|retry shortly/i.test(String(route?.incompleteReason || ""))
+    );
+    if (retryableVerifierFailure && openDexterRetryCount < 3) {
+      openDexterRetryCount += 1;
+      console.log(
+        `[opendexter] verifier-side settlement incomplete; retry ${openDexterRetryCount}/3 scheduled in 120s`
+      );
+      setTimeout(() => void startOpenDexterAuditionBootstrap(), 120_000);
+    } else if (!retryableVerifierFailure) {
+      openDexterRetryCount = 0;
+    }
   } catch (error) {
     openDexterAuditionState = {
       ...openDexterAuditionState,
@@ -5089,10 +5105,10 @@ app.get("/v1/agenttools/status", (_req, res) => {
 app.get("/v1/opendexter/status", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({
-    service: "PAL Catalog Feed Identifier Audit",
+    service: "PAL Full Catalog Remediation",
     marketplace: "x402gle / OpenDexter",
-    route: X402_AUDIT_PATH,
-    price_usd: 0.01,
+    route: X402_REMEDIATE_BULK_PATH,
+    price_usd: 20.0,
     payout_network: X402_NETWORK,
     payout_asset: "USDC",
     payout_address: BASE_PAYOUT_ADDRESS,
@@ -5103,10 +5119,10 @@ app.get("/v1/opendexter/status", (_req, res) => {
 app.get("/v1/true402/status", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({
-    service: "PAL Catalog Feed Identifier Audit",
+    service: "PAL Full Catalog Remediation",
     marketplace: "true402",
-    route: X402_AUDIT_PATH,
-    price_usd: 0.01,
+    route: X402_REMEDIATE_BULK_PATH,
+    price_usd: 20.0,
     payout_network: X402_NETWORK,
     payout_asset: "USDC",
     payout_address: BASE_PAYOUT_ADDRESS,
@@ -5118,10 +5134,10 @@ app.get("/v1/true402/status", (_req, res) => {
 app.get("/v1/market402/status", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({
-    service: "PAL Catalog Feed Identifier Audit",
+    service: "PAL Full Catalog Remediation",
     marketplace: "Market402",
-    route: X402_AUDIT_PATH,
-    price_usd: 0.01,
+    route: X402_REMEDIATE_BULK_PATH,
+    price_usd: 20.0,
     payout_network: X402_NETWORK,
     payout_asset: "USDC",
     payout_address: BASE_PAYOUT_ADDRESS,
