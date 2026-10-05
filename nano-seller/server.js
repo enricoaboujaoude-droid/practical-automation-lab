@@ -5298,6 +5298,73 @@ app.post("/v1/agentpay", (req, res) => {
   });
 });
 
+
+app.get("/v1/agentpay-remediation-bulk", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  return res.json({
+    ok: true,
+    ready: true,
+    service: "PAL Full Catalog Remediation",
+    marketplace: "AgenticTrade",
+    method: "POST",
+    billing: "handled_upstream",
+    price_per_call_usdc: "20",
+    category: "data",
+    capabilities: [
+      "full-catalog-remediation",
+      "merchant-center-readiness",
+      "product-feed-validation",
+      "gtin-validation",
+      "duplicate-id-detection",
+      "prioritized-corrective-actions"
+    ],
+    limits: { records_per_call: 2000 },
+    input: {
+      messages: [
+        {
+          role: "user",
+          content:
+            "{\"records\":[{\"id\":\"sku-100\",\"title\":\"Example Product\",\"gtin\":\"4006381333931\",\"brand\":\"Example\",\"mpn\":\"SKU-100\",\"price\":\"19.99 USD\",\"availability\":\"in_stock\",\"identifier_exists\":true}]}"
+        }
+      ]
+    }
+  });
+});
+
+app.post("/v1/agentpay-remediation-bulk", (req, res) => {
+  const records = extractAgentPayRecords(req.body?.messages);
+
+  if (!records) {
+    return res.json({
+      ok: false,
+      ready: true,
+      service: "PAL Full Catalog Remediation",
+      error: "catalog_payload_required",
+      detail:
+        "Send a messages array whose message content is JSON containing {\"records\":[...]} or a JSON array of records.",
+      limits: { records_per_call: 2000 }
+    });
+  }
+
+  if (records.length < 1 || records.length > 2000) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Catalog payload must contain 1 to 2,000 records."
+    });
+  }
+
+  const result = catalogRemediationPlan(records);
+  return res.json({
+    ...result,
+    marketplace: {
+      provider: "AgenticTrade",
+      billing: "handled_upstream",
+      price_per_call_usdc: "20"
+    },
+    generated_at: nowIso()
+  });
+});
+
 app.get("/v1/payanagent/status", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({
