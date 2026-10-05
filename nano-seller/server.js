@@ -2018,6 +2018,20 @@ async function startIndex402Bootstrap() {
       category: "ecommerce/catalog-remediation",
       provider: "Practical Automation Lab",
     },
+    {
+      url: X402_REMEDIATE_BATCH_URL,
+      name: "PAL Batch Catalog Remediation",
+      protocol: "x402",
+      http_method: "POST",
+      probe_body: JSON.stringify(catalogAuditExample()),
+      description:
+        "Prioritized Merchant Center and product-feed remediation plan for 1-500 catalog records in one paid call, including concrete corrective actions, issue severity, and affected products.",
+      price_usd: 5.0,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      category: "ecommerce/catalog-remediation",
+      provider: "Practical Automation Lab",
+    },
   ];
 
   const registrationResults = [];
