@@ -1,0 +1,38 @@
+name: Verify API.market billing header
+
+on:
+  push:
+    branches: [nano-seller]
+    paths:
+      - ".github/workflows/verify-api-market-billing.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe marketplace upstream
+        shell: bash
+        run: |
+          set -euo pipefail
+          headers="$(mktemp)"
+          body="$(mktemp)"
+          code="$(curl -sS -D "$headers" -o "$body" -w '%{http_code}' \
+            -X POST 'https://pal-nano-catalog-audit.onrender.com/v1/upstream/catalog-audit' \
+            -H 'Content-Type: application/json' \
+            --data '{"records":[{"id":"probe-1","title":"Probe","gtin":"4006381333931","price":"10.00 USD","availability":"in_stock"}]}')"
+          echo "HTTP $code"
+          cat "$headers"
+          if [ "$code" = "200" ]; then
+            grep -i '^x-magicapi-billing: API=1;' "$headers"
+            echo "billing_header_verified=true"
+          elif [ "$code" = "401" ]; then
+            echo "marketplace_gateway_protected=true"
+          else
+            cat "$body"
+            exit 1
+          fi
