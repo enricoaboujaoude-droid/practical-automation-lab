@@ -1,0 +1,16 @@
+{
+  "name": "pal-commerce-catalog-intelligence-actor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Apify Store adapter for PAL commerce catalog intelligence",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/main.js"
+  },
+  "dependencies": {
+    "apify": "^3.7.2"
+  }
+}
