@@ -1,0 +1,9 @@
+{
+  "name": "pal-marketplace-fast-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  }
+}
