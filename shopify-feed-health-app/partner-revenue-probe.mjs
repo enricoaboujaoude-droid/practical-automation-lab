@@ -249,6 +249,9 @@ export async function fetchActiveManagedSubscriptionCount(shopIds = []) {
   let activeSubscriptions = 0;
   let purgedShops = 0;
   let checkedShops = 0;
+  let cancelAtEndOfCycle = 0;
+  let trialingSubscriptions = 0;
+  const activePlanAmounts = {};
 
   for (const shopId of uniqueShopIds) {
     const response = await fetch(endpoint(orgId), {
@@ -262,6 +265,8 @@ export async function fetchActiveManagedSubscriptionCount(shopIds = []) {
           query PalActiveManagedSubscription($appId: ID!, $shopId: ID!) {
             activeSubscription(appId: $appId, shopId: $shopId) {
               billingPeriod
+              cancelAtEndOfCycle
+              trialEndsAt
               items {
                 handle
                 price {
@@ -293,8 +298,23 @@ export async function fetchActiveManagedSubscriptionCount(shopIds = []) {
     }
 
     checkedShops += 1;
-    if (body?.data?.activeSubscription?.items?.length) {
+    const subscription = body?.data?.activeSubscription;
+    if (subscription?.items?.length) {
       activeSubscriptions += 1;
+      if (subscription.cancelAtEndOfCycle) cancelAtEndOfCycle += 1;
+      if (subscription.trialEndsAt && new Date(subscription.trialEndsAt).getTime() > Date.now()) {
+        trialingSubscriptions += 1;
+      }
+
+      for (const item of subscription.items) {
+        const price = item?.price;
+        if (price?.__typename !== "FlatRatePrice" || price?.active === false) continue;
+        const amount = Number(price?.amount || 0);
+        const currency = String(price?.currency || "USD").toUpperCase();
+        if (!Number.isFinite(amount) || amount <= 0) continue;
+        const key = `${String(subscription.billingPeriod || "UNKNOWN")}:${currency}:${amount.toFixed(2)}`;
+        activePlanAmounts[key] = (activePlanAmounts[key] || 0) + 1;
+      }
     }
   }
 
@@ -304,6 +324,9 @@ export async function fetchActiveManagedSubscriptionCount(shopIds = []) {
     checkedShops,
     purgedShops,
     activeSubscriptions,
+    cancelAtEndOfCycle,
+    trialingSubscriptions,
+    activePlanAmounts,
   };
 }
 
@@ -367,7 +390,7 @@ export function startPartnerRevenueProbe() {
     if (managed.status === "fulfilled") {
       const summary = managed.value;
       console.log(
-        `[pal-revenue-probe] managed_pricing configured=${summary.configured} historical_shops=${summary.historicalShops || 0} checked_shops=${summary.checkedShops} purged_shops=${summary.purgedShops || 0} active_subscriptions=${summary.activeSubscriptions}`,
+        `[pal-revenue-probe] managed_pricing configured=${summary.configured} historical_shops=${summary.historicalShops || 0} checked_shops=${summary.checkedShops} purged_shops=${summary.purgedShops || 0} active_subscriptions=${summary.activeSubscriptions} cancel_at_end=${summary.cancelAtEndOfCycle || 0} trialing=${summary.trialingSubscriptions || 0} plans=${JSON.stringify(summary.activePlanAmounts || {})}`,
       );
     } else {
       console.error(
