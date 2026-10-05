@@ -4943,7 +4943,42 @@ app.post("/v1/usdc/x402-validate", (req, res) => {
   });
 });
 
-app.post("/v1/upstream/catalog-audit", (req, res) => {
+const MARKETPLACE_UPSTREAM_TOKEN = String(
+  process.env.MARKETPLACE_UPSTREAM_TOKEN || "",
+).trim();
+
+function requireMarketplaceGateway(req, res, next) {
+  if (!MARKETPLACE_UPSTREAM_TOKEN) {
+    return res.status(503).json({
+      error: "marketplace_gateway_not_configured",
+      detail:
+        "Direct marketplace-upstream access is disabled until a billing marketplace injects the private gateway token.",
+      direct_paid_api: `${PUBLIC_BASE_URL}/openapi.json`,
+      mcp: `${PUBLIC_BASE_URL}/mcp`,
+    });
+  }
+
+  const supplied = String(req.get("x-pal-marketplace-token") || "");
+  const expected = Buffer.from(MARKETPLACE_UPSTREAM_TOKEN);
+  const actual = Buffer.from(supplied);
+
+  if (
+    expected.length !== actual.length ||
+    !crypto.timingSafeEqual(expected, actual)
+  ) {
+    return res.status(401).json({
+      error: "marketplace_gateway_auth_required",
+      detail:
+        "This upstream route is reserved for configured billing marketplaces. Use the direct x402 API or official MCP server instead.",
+      direct_paid_api: `${PUBLIC_BASE_URL}/openapi.json`,
+      mcp: `${PUBLIC_BASE_URL}/mcp`,
+    });
+  }
+
+  return next();
+}
+
+app.post("/v1/upstream/catalog-audit", requireMarketplaceGateway, (req, res) => {
   const records = req.body?.records;
   if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
     return res.status(400).json({
@@ -4970,7 +5005,7 @@ app.post("/v1/upstream/catalog-audit", (req, res) => {
   });
 });
 
-app.post("/v1/upstream/catalog-remediation", (req, res) => {
+app.post("/v1/upstream/catalog-remediation", requireMarketplaceGateway, (req, res) => {
   const records = req.body?.records;
   if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
     return res.status(400).json({
@@ -4996,7 +5031,7 @@ app.post("/v1/upstream/catalog-remediation", (req, res) => {
   });
 });
 
-app.post("/v1/upstream/gtin-check", (req, res) => {
+app.post("/v1/upstream/gtin-check", requireMarketplaceGateway, (req, res) => {
   const gtins = req.body?.gtins;
   if (!Array.isArray(gtins) || gtins.length < 1 || gtins.length > 100) {
     return res.status(400).json({
@@ -5027,7 +5062,7 @@ app.post("/v1/upstream/gtin-check", (req, res) => {
   });
 });
 
-app.post("/v1/upstream/feed-diff", (req, res) => {
+app.post("/v1/upstream/feed-diff", requireMarketplaceGateway, (req, res) => {
   const beforeError = feedRowError(req.body?.before, "before");
   if (beforeError) return res.status(400).json({ error: "invalid_feed", detail: beforeError });
   const afterError = feedRowError(req.body?.after, "after");
@@ -5052,7 +5087,7 @@ app.post("/v1/upstream/feed-diff", (req, res) => {
   });
 });
 
-app.post("/v1/upstream/x402-validate", (req, res) => {
+app.post("/v1/upstream/x402-validate", requireMarketplaceGateway, (req, res) => {
   const validation = validateX402DeclarationBody(req.body);
   if (!validation.ok) {
     return res.status(400).json({ error: "invalid_declaration", detail: validation.error });
