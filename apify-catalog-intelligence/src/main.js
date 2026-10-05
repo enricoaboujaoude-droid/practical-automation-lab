@@ -1,4 +1,4 @@
-import { Actor } from 'apify';
+import { randomUUID } from 'node:crypto';
 import { XMLParser } from 'fast-xml-parser';
 import { parse as parseCsv } from 'csv-parse/sync';
 
@@ -6,6 +6,14 @@ const PAL_BASE_URL = 'https://pal-nano-catalog-audit.onrender.com';
 const MAX_FEED_BYTES = 10 * 1024 * 1024;
 const MAX_PRODUCTS = 1000;
 const BATCH_SIZE = 100;
+
+const EVENT_PRICES_USD = Object.freeze({
+  'catalog-remediation': 1.00,
+  'catalog-audit': 0.25,
+  'gtin-check': 0.10,
+  'feed-diff': 0.25,
+  'x402-validate': 0.10,
+});
 
 const OPERATIONS = {
   'catalog-remediation': {
@@ -34,6 +42,103 @@ const OPERATIONS = {
     source: 'declaration',
   },
 };
+
+function requiredEnv(name) {
+  const value = String(process.env[name] || '').trim();
+  if (!value) throw new Error(`Required Apify runtime variable ${name} is missing`);
+  return value;
+}
+
+function apiBaseUrl() {
+  const raw = String(process.env.APIFY_API_PUBLIC_BASE_URL || 'https://api.apify.com').trim();
+  const withScheme = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  return withScheme.replace(/\/$/, '');
+}
+
+function runtime() {
+  return {
+    runId: requiredEnv('ACTOR_RUN_ID'),
+    datasetId: requiredEnv('ACTOR_DEFAULT_DATASET_ID'),
+    keyValueStoreId: requiredEnv('ACTOR_DEFAULT_KEY_VALUE_STORE_ID'),
+    inputKey: String(process.env.ACTOR_INPUT_KEY || 'INPUT'),
+    token: requiredEnv('APIFY_TOKEN'),
+    apiBase: apiBaseUrl(),
+    maxChargeUsd: Number(process.env.ACTOR_MAX_TOTAL_CHARGE_USD || Number.POSITIVE_INFINITY),
+  };
+}
+
+async function apifyRequest(rt, path, options = {}) {
+  const headers = new Headers(options.headers || {});
+  headers.set('authorization', `Bearer ${rt.token}`);
+  if (options.body != null && !headers.has('content-type')) headers.set('content-type', 'application/json');
+  if (!headers.has('accept')) headers.set('accept', 'application/json');
+
+  const response = await fetch(`${rt.apiBase}/v2${path}`, { ...options, headers });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Apify API ${options.method || 'GET'} ${path} failed HTTP ${response.status}: ${text.slice(0, 500)}`);
+  }
+  return response;
+}
+
+async function getInput(rt) {
+  const response = await apifyRequest(
+    rt,
+    `/key-value-stores/${encodeURIComponent(rt.keyValueStoreId)}/records/${encodeURIComponent(rt.inputKey)}`,
+  );
+  const text = await response.text();
+  if (!text.trim()) return {};
+  return JSON.parse(text);
+}
+
+async function pushData(rt, item) {
+  await apifyRequest(rt, `/datasets/${encodeURIComponent(rt.datasetId)}/items`, {
+    method: 'POST',
+    body: JSON.stringify(item),
+  });
+}
+
+async function setValue(rt, key, value) {
+  await apifyRequest(
+    rt,
+    `/key-value-stores/${encodeURIComponent(rt.keyValueStoreId)}/records/${encodeURIComponent(key)}`,
+    {
+      method: 'PUT',
+      body: JSON.stringify(value),
+    },
+  );
+}
+
+let plannedChargeUsd = 0;
+
+function ensureChargeBudget(rt, eventName) {
+  const price = EVENT_PRICES_USD[eventName];
+  if (!Number.isFinite(price)) throw new Error(`No local price configured for event ${eventName}`);
+
+  if (Number.isFinite(rt.maxChargeUsd) && plannedChargeUsd + price > rt.maxChargeUsd + 1e-9) {
+    throw new Error(
+      `The next ${eventName} result would exceed the run's maximum total charge of $${rt.maxChargeUsd.toFixed(2)}. ` +
+      'Increase the maximum run charge to process additional batches.',
+    );
+  }
+}
+
+async function charge(rt, eventName) {
+  ensureChargeBudget(rt, eventName);
+
+  const response = await apifyRequest(rt, `/actor-runs/${encodeURIComponent(rt.runId)}/charge`, {
+    method: 'POST',
+    headers: {
+      'idempotency-key': `${rt.runId}-${eventName}-${randomUUID()}`,
+    },
+    body: JSON.stringify({ eventName, count: 1 }),
+  });
+
+  plannedChargeUsd += EVENT_PRICES_USD[eventName];
+  const text = await response.text();
+  if (!text.trim()) return {};
+  try { return JSON.parse(text); } catch { return { raw: text }; }
+}
 
 function asArray(value) {
   if (value == null) return [];
@@ -81,7 +186,6 @@ function normalizeRecord(row) {
   for (const [key, value] of Object.entries(record)) {
     if (result[key] == null && value != null && typeof value !== 'object') result[key] = value;
   }
-
   return result;
 }
 
@@ -136,11 +240,8 @@ function parseFeed(text, requestedFormat = 'auto') {
 
 async function fetchFeed(url) {
   let parsed;
-  try {
-    parsed = new URL(url);
-  } catch {
-    throw new Error('feedUrl must be a valid absolute HTTP(S) URL');
-  }
+  try { parsed = new URL(url); }
+  catch { throw new Error('feedUrl must be a valid absolute HTTP(S) URL'); }
   if (!['http:', 'https:'].includes(parsed.protocol)) throw new Error('feedUrl must use HTTP or HTTPS');
 
   const controller = new AbortController();
@@ -204,15 +305,17 @@ async function callPal(path, body) {
       headers: {
         'content-type': 'application/json',
         accept: 'application/json',
-        'user-agent': 'PAL-Apify-Actor/1.1',
+        'user-agent': 'PAL-Apify-Actor/1.2',
       },
       body: JSON.stringify(body),
       signal: controller.signal,
     });
+
     const text = await response.text();
     let payload;
     try { payload = text ? JSON.parse(text) : {}; }
     catch { payload = { raw: text }; }
+
     if (!response.ok) {
       const detail = payload?.detail || payload?.error || text || `HTTP ${response.status}`;
       throw new Error(`PAL upstream rejected the request: ${detail}`);
@@ -223,7 +326,9 @@ async function callPal(path, body) {
   }
 }
 
-async function saveAndCharge({ operation, eventName, result, batchIndex = 1, batchCount = 1 }) {
+async function saveAndCharge(rt, { operation, eventName, result, batchIndex = 1, batchCount = 1 }) {
+  ensureChargeBudget(rt, eventName);
+
   const output = {
     ok: true,
     operation,
@@ -233,29 +338,27 @@ async function saveAndCharge({ operation, eventName, result, batchIndex = 1, bat
     generated_at: new Date().toISOString(),
   };
 
-  await Actor.pushData(output);
-  const charge = await Actor.charge({ eventName });
-  if (Number(charge?.chargedCount ?? 0) < 1) {
-    throw new Error('The run spending limit does not allow the next paid result. Increase the maximum run charge and try again.');
-  }
+  // Apify recommends persisting the paid result before emitting the charge event.
+  await pushData(rt, output);
+  await charge(rt, eventName);
   return output;
 }
 
-async function runCatalogOperation(input, config, operation) {
+async function runCatalogOperation(rt, input, config, operation) {
   const loaded = await loadCatalogRecords(input);
   const batches = chunks(loaded.records, BATCH_SIZE);
   const results = [];
 
   for (let index = 0; index < batches.length; index += 1) {
+    ensureChargeBudget(rt, config.eventName);
     const result = await callPal(config.path, { records: batches[index] });
-    const saved = await saveAndCharge({
+    results.push(await saveAndCharge(rt, {
       operation,
       eventName: config.eventName,
       result,
       batchIndex: index + 1,
       batchCount: batches.length,
-    });
-    results.push(saved);
+    }));
   }
 
   return {
@@ -267,16 +370,18 @@ async function runCatalogOperation(input, config, operation) {
   };
 }
 
-async function runGtinOperation(input, config, operation) {
+async function runGtinOperation(rt, input, config, operation) {
   const gtins = input.gtins;
   if (!Array.isArray(gtins) || gtins.length < 1 || gtins.length > MAX_PRODUCTS) {
     throw new Error(`gtin-check requires 1 to ${MAX_PRODUCTS} values`);
   }
+
   const batches = chunks(gtins, BATCH_SIZE);
   const results = [];
   for (let index = 0; index < batches.length; index += 1) {
+    ensureChargeBudget(rt, config.eventName);
     const result = await callPal(config.path, { gtins: batches[index] });
-    results.push(await saveAndCharge({
+    results.push(await saveAndCharge(rt, {
       operation,
       eventName: config.eventName,
       result,
@@ -287,8 +392,9 @@ async function runGtinOperation(input, config, operation) {
   return { gtin_count: gtins.length, batches: results.length, results };
 }
 
-async function runSingleOperation(input, config, operation) {
+async function runSingleOperation(rt, input, config, operation) {
   let body;
+
   if (config.source === 'feed-diff') {
     const before = input.before;
     const after = input.after;
@@ -305,40 +411,52 @@ async function runSingleOperation(input, config, operation) {
     body = declaration;
   }
 
+  ensureChargeBudget(rt, config.eventName);
   const result = await callPal(config.path, body);
-  return saveAndCharge({ operation, eventName: config.eventName, result });
+  return saveAndCharge(rt, { operation, eventName: config.eventName, result });
 }
 
-await Actor.init();
+const rt = runtime();
+
 try {
-  const input = (await Actor.getInput()) ?? {};
+  const input = await getInput(rt);
   const operation = String(input.operation || 'catalog-remediation');
   const config = OPERATIONS[operation];
-  if (!config) throw new Error(`Unsupported operation "${operation}". Choose one of: ${Object.keys(OPERATIONS).join(', ')}`);
+  if (!config) {
+    throw new Error(`Unsupported operation "${operation}". Choose one of: ${Object.keys(OPERATIONS).join(', ')}`);
+  }
 
   let result;
-  if (config.source === 'catalog') result = await runCatalogOperation(input, config, operation);
-  else if (config.source === 'gtins') result = await runGtinOperation(input, config, operation);
-  else result = await runSingleOperation(input, config, operation);
+  if (config.source === 'catalog') result = await runCatalogOperation(rt, input, config, operation);
+  else if (config.source === 'gtins') result = await runGtinOperation(rt, input, config, operation);
+  else result = await runSingleOperation(rt, input, config, operation);
 
-  const summary = {
+  await setValue(rt, 'OUTPUT', {
     ok: true,
     operation,
     provider: 'Practical Automation Lab',
-    billing: { platform: 'Apify', model: 'pay-per-event', event: config.eventName },
+    billing: {
+      platform: 'Apify',
+      model: 'pay-per-event',
+      event: config.eventName,
+      planned_charge_usd: Number(plannedChargeUsd.toFixed(2)),
+    },
     ...result,
     generated_at: new Date().toISOString(),
-  };
-  await Actor.setValue('OUTPUT', summary);
+  });
 } catch (error) {
-  const output = {
+  const failure = {
     ok: false,
     provider: 'Practical Automation Lab',
     error: error instanceof Error ? error.message : String(error),
     generated_at: new Date().toISOString(),
   };
-  await Actor.setValue('OUTPUT', output);
-  throw error;
-} finally {
-  await Actor.exit();
+
+  try { await setValue(rt, 'OUTPUT', failure); }
+  catch (storageError) {
+    console.error('Could not persist failure output:', storageError instanceof Error ? storageError.message : String(storageError));
+  }
+
+  console.error(failure.error);
+  process.exitCode = 1;
 }
