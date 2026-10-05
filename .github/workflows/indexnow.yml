@@ -2,7 +2,7 @@ name: IndexNow PAL public pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, nano-seller]
     paths:
       - "*.html"
       - "sitemap.xml"
