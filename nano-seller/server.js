@@ -4423,6 +4423,32 @@ app.post("/v1/upstream/catalog-audit", (req, res) => {
   });
 });
 
+app.post("/v1/upstream/catalog-remediation", (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records) || records.length < 1 || records.length > 100) {
+    return res.status(400).json({
+      error: "invalid_records",
+      detail: "Body must contain records as an array with 1 to 100 items.",
+      example: catalogAuditExample(),
+    });
+  }
+
+  console.log(
+    `[revenue] marketplace_upstream catalog-remediation served records=${records.length}`
+  );
+
+  return res.json({
+    ...catalogRemediationPlan(records),
+    provider_upstream: {
+      service: "PAL Catalog Remediation Plan",
+      billing: "handled_by_marketplace",
+    },
+    generated_at: nowIso(),
+    disclaimer:
+      "Deterministic catalog remediation guidance; not a guarantee of Merchant Center approval or regulatory compliance.",
+  });
+});
+
 app.post("/v1/upstream/gtin-check", (req, res) => {
   const gtins = req.body?.gtins;
   if (!Array.isArray(gtins) || gtins.length < 1 || gtins.length > 100) {
@@ -4492,6 +4518,168 @@ app.post("/v1/upstream/x402-validate", (req, res) => {
     provider_upstream: {
       service: "PAL x402 Declaration Validator",
       billing: "handled_by_marketplace",
+    },
+  });
+});
+
+
+app.get("/marketplace-openapi.json", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.json({
+    openapi: "3.0.3",
+    info: {
+      title: "PAL Commerce Catalog Intelligence API",
+      version: "1.1.0",
+      description:
+        "Marketplace-ready ecommerce catalog intelligence for Merchant Center feed audits, remediation, GTIN validation, feed change detection, and x402 declaration validation.",
+    },
+    servers: [{ url: PUBLIC_BASE_URL }],
+    paths: {
+      "/v1/upstream/catalog-audit": {
+        post: {
+          operationId: "auditCatalogFeed",
+          summary: "Audit ecommerce product-feed records",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["records"],
+                  properties: {
+                    records: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 100,
+                      items: { type: "object", additionalProperties: true },
+                    },
+                  },
+                },
+                example: catalogAuditExample(),
+              },
+            },
+          },
+          responses: {
+            200: { description: "Structured catalog audit result" },
+            400: { description: "Invalid request payload" },
+          },
+        },
+      },
+      "/v1/upstream/catalog-remediation": {
+        post: {
+          operationId: "remediateCatalogFeed",
+          summary: "Generate a prioritized Merchant Center remediation plan",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["records"],
+                  properties: {
+                    records: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 100,
+                      items: { type: "object", additionalProperties: true },
+                    },
+                  },
+                },
+                example: catalogAuditExample(),
+              },
+            },
+          },
+          responses: {
+            200: { description: "Prioritized remediation plan with concrete corrective actions" },
+            400: { description: "Invalid request payload" },
+          },
+        },
+      },
+      "/v1/upstream/gtin-check": {
+        post: {
+          operationId: "validateGtins",
+          summary: "Validate GTIN, UPC, and EAN identifiers",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["gtins"],
+                  properties: {
+                    gtins: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 100,
+                      items: { oneOf: [{ type: "string" }, { type: "number" }] },
+                    },
+                  },
+                },
+                example: { gtins: ["4006381333931", "036000291452"] },
+              },
+            },
+          },
+          responses: {
+            200: { description: "GTIN validation result" },
+            400: { description: "Invalid request payload" },
+          },
+        },
+      },
+      "/v1/upstream/feed-diff": {
+        post: {
+          operationId: "diffProductFeeds",
+          summary: "Compare two product-feed snapshots",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["before", "after"],
+                  properties: {
+                    before: {
+                      type: "array",
+                      maxItems: 100,
+                      items: { type: "object", additionalProperties: true },
+                    },
+                    after: {
+                      type: "array",
+                      maxItems: 100,
+                      items: { type: "object", additionalProperties: true },
+                    },
+                  },
+                },
+                example: {
+                  before: [{ id: "sku-1", price: "19.99 USD", availability: "in_stock" }],
+                  after: [{ id: "sku-1", price: "17.99 USD", availability: "in_stock" }],
+                },
+              },
+            },
+          },
+          responses: {
+            200: { description: "Feed change result" },
+            400: { description: "Invalid request payload" },
+          },
+        },
+      },
+      "/v1/upstream/x402-validate": {
+        post: {
+          operationId: "validateX402Declaration",
+          summary: "Validate an x402 v2 payment declaration",
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: { type: "object", additionalProperties: true },
+              },
+            },
+          },
+          responses: {
+            200: { description: "x402 declaration validation result" },
+            400: { description: "Invalid request payload" },
+          },
+        },
+      },
     },
   });
 });
@@ -4718,12 +4906,20 @@ app.get("/v1/upstream/status", (_req, res) => {
     payout_network: "Base",
     payout_asset: "USDC",
     payout_address: BASE_PAYOUT_ADDRESS,
+    marketplace_openapi: `${PUBLIC_BASE_URL}/marketplace-openapi.json`,
     endpoints: [
       {
         name: "PAL Catalog Feed Identifier Audit",
         method: "POST",
         url: `${PUBLIC_BASE_URL}/v1/upstream/catalog-audit`,
         max_items: 100,
+      },
+      {
+        name: "PAL Catalog Remediation Plan",
+        method: "POST",
+        url: `${PUBLIC_BASE_URL}/v1/upstream/catalog-remediation`,
+        max_items: 100,
+        recommended_marketplace_tier: "premium",
       },
       {
         name: "PAL GTIN Check",
