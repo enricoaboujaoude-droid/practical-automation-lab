@@ -1,4 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router";
+import { useEffect, useRef } from "react";
 import { useFetcher, useLoaderData } from "react-router";
 import { authenticate } from "../shopify.server";
 import { scanCatalog } from "../lib/catalog-scan.server";
@@ -57,6 +58,76 @@ export default function CatalogCheckDashboard() {
   const loading = fetcher.state !== "idle";
   const pro = data.entitlement.plan === "pro";
   const displayedIssueLimit = pro ? 250 : 100;
+  const reviewRequestHandled = useRef(false);
+
+  useEffect(() => {
+    if (
+      fetcher.state !== "idle" ||
+      !fetcher.data ||
+      reviewRequestHandled.current ||
+      Number(fetcher.data.report?.productsChecked || 0) < 1
+    ) {
+      return;
+    }
+
+    reviewRequestHandled.current = true;
+
+    const storageKey = "pal.catalog-check.review-next-at";
+    const now = Date.now();
+    let nextAllowedAt = 0;
+
+    try {
+      nextAllowedAt = Number(window.localStorage.getItem(storageKey) || "0");
+    } catch {
+      nextAllowedAt = 0;
+    }
+
+    if (Number.isFinite(nextAllowedAt) && nextAllowedAt > now) {
+      return;
+    }
+
+    const day = 24 * 60 * 60 * 1000;
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        const reviews = (window as any).shopify?.reviews;
+        if (!reviews?.request) return;
+
+        try {
+          const result = await reviews.request();
+          const code = String(result?.code || "");
+
+          let delayDays = 30;
+          if (result?.success || code === "already-reviewed") delayDays = 365;
+          else if (code === "cancelled" || code === "annual-limit-reached") delayDays = 365;
+          else if (code === "cooldown-period") delayDays = 90;
+          else if (code === "recently-installed") delayDays = 14;
+          else if (code === "merchant-ineligible" || code === "mobile-app") delayDays = 30;
+          else if (code === "already-open" || code === "open-in-progress") delayDays = 1;
+
+          try {
+            window.localStorage.setItem(
+              storageKey,
+              String(Date.now() + delayDays * day),
+            );
+          } catch {
+            // Local storage is an optional throttle only.
+          }
+
+          if (!result?.success) {
+            console.info(
+              `PAL review modal not shown: ${code || "unknown"} ${String(
+                result?.message || "",
+              )}`,
+            );
+          }
+        } catch (error) {
+          console.info("PAL review request unavailable", error);
+        }
+      })();
+    }, 1200);
+
+    return () => window.clearTimeout(timer);
+  }, [fetcher.data, fetcher.state]);
 
   return (
     <s-page heading="Catalog readiness">
