@@ -1,0 +1,50 @@
+name: Deploy PAL Apify Store Actor
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout production branch
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate Actor package
+        working-directory: apify-catalog-intelligence
+        run: |
+          npm install --ignore-scripts
+          npm run check
+          npm audit --audit-level=moderate
+          node -e "for (const f of ['.actor/input_schema.json','.actor/actor.json','.actor/output_schema.json','.actor/dataset_schema.json']) JSON.parse(require('fs').readFileSync(f,'utf8')); console.log('Actor schemas valid')"
+          node --input-type=module -e "import { parse } from 'csv-parse/sync'; const r=parse('id,title\\n1,Example',{columns:true}); if (r?.[0]?.id !== '1') process.exit(1); console.log('CSV parser smoke test passed')"
+          node --input-type=module -e "import { XMLParser } from 'fast-xml-parser'; const d=new XMLParser({removeNSPrefix:true}).parse('<rss><channel><item><id>1</id></item></channel></rss>'); if (String(d?.rss?.channel?.item?.id) !== '1') process.exit(1); console.log('XML parser smoke test passed')"
+
+      - name: Require Apify deployment credential
+        env:
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: |
+          if [ -z "$APIFY_TOKEN" ]; then
+            echo "::error::APIFY_TOKEN repository secret is not configured."
+            exit 1
+          fi
+
+      - name: Push Actor to Apify
+        id: push
+        uses: apify/push-actor-action@v1
+        with:
+          token: ${{ secrets.APIFY_TOKEN }}
+          working-directory: apify-catalog-intelligence
+
+      - name: Report build
+        run: |
+          echo "Apify build ID: ${{ steps.push.outputs.build-id }}"
+          echo "Apify build status: ${{ steps.push.outputs.build-status }}"
