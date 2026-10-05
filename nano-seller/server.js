@@ -180,7 +180,7 @@ function buildPalMcpServer() {
   const server = new McpServer({
     name: "pal-commerce-catalog-intelligence",
     title: "PAL Commerce Catalog Intelligence",
-    version: "1.0.0",
+    version: "1.0.1",
     description:
       "Paid ecommerce catalog intelligence for Merchant Center feed audits, prioritized remediation, GTIN validation, feed changes, and x402 diagnostics.",
   });
@@ -420,6 +420,46 @@ const palMcpNodeHandler = toNodeHandler(palMcpHandler);
 const app = express();
 // Mount MCP before Express JSON parsing so the official MCP Node adapter owns the request stream.
 app.all("/mcp", palMcpNodeHandler);
+
+// Experimental SEP-2127 discovery metadata. The official MCP Registry remains
+// the canonical listing; these documents improve domain-level crawler discovery.
+app.get("/mcp/server-card", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.type("application/mcp-server-card+json").json({
+    $schema: "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
+    name: "io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence",
+    version: "1.0.1",
+    title: "PAL Commerce Catalog Intelligence",
+    description:
+      "Paid Merchant Center audits, remediation, GTIN checks and feed diffs via Base USDC.",
+    websiteUrl: `${PUBLIC_BASE_URL}/marketplace`,
+    repository: {
+      url: "https://github.com/enricoaboujaoude-droid/practical-automation-lab",
+      source: "github",
+      subfolder: "nano-seller",
+    },
+    remotes: [
+      {
+        type: "streamable-http",
+        url: `${PUBLIC_BASE_URL}/mcp`,
+      },
+    ],
+  });
+});
+
+app.get("/.well-known/ai-catalog.json", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.type("application/ai-catalog+json").json({
+    specVersion: "1.0",
+    entries: [
+      {
+        identifier: "urn:air:pal-nano-catalog-audit.onrender.com:mcp:commerce-catalog-intelligence",
+        type: "application/mcp-server-card+json",
+        url: `${PUBLIC_BASE_URL}/mcp/server-card`,
+      },
+    ],
+  });
+});
 // Render terminates TLS at its reverse proxy. Trust the forwarded protocol so
 // x402 middleware advertises the public HTTPS resource URL instead of the
 // internal HTTP hop seen by the Node process.
