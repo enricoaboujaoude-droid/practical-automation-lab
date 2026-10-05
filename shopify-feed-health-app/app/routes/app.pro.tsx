@@ -302,11 +302,16 @@ export default function ProMonitoringDashboard() {
             compare new scans with earlier results, surface regressions, and
             generate reports without changing Shopify product data.
           </s-paragraph>
+          <s-paragraph>
+            Pro is $19/month or $199/year and includes recurring scans, saved
+            history, change detection, health alerts, scheduled reports, CSV
+            exports, 2027 image-readiness monitoring, and higher scan limits.
+          </s-paragraph>
 
           <div className="pal-actions-row">
             {data.planSelectionUrl ? (
               <s-link href={data.planSelectionUrl}>
-                Compare Free and Pro in Shopify
+                Upgrade to Pro in Shopify
               </s-link>
             ) : (
               <s-link href="/app">Return to the catalog check</s-link>
