@@ -13,7 +13,7 @@ This is PAL's free index of live revenue experiments that have crossed from "ide
 
 ## Proven paid-content signal
 
-PAL's Subnano catalog currently contains five technical field reports.
+PAL's Subnano catalog now contains six technical field reports.
 
 Public purchase counts at the time this index was published:
 
@@ -22,17 +22,21 @@ Public purchase counts at the time this index was published:
 - [Two Unlocks, Two Payouts](https://subnano.me/@practicalautomationlab/two-unlocks-two-payouts-how-pal-reconciled-its-first-nano-content-revenue) — 1 purchase
 - [AgenticTrade Provider Economics](https://subnano.me/@practicalautomationlab/agentictrade-provider-economics-one-active-listing-one-pending-referral-and-a-portal-linkage-bug) — 0 purchases so far
 - [One Seller, Three Paid Tools](https://subnano.me/@practicalautomationlab/one-seller-three-paid-tools-the-x402-compatibility-bugs-that-blocked-distribution) — 0 purchases so far
+- [The First Real USDC Sale](https://subnano.me/@practicalautomationlab/the-first-real-usdc-sale-turning-a-001-x402-canary-into-a-5-commerce-api) — new 0.50 XNO price test
 
-The first three reports were priced at 0.05 XNO. The newest deep-dive report is a controlled 0.20 XNO price test.
+The first three reports were priced at 0.05 XNO. PAL later tested 0.20 XNO and is now testing 0.50 XNO on a production report backed by wallet-confirmed USDC revenue.
 
 ## Live machine-paid APIs
 
-PAL currently exposes four Base-USDC x402 endpoints:
+PAL currently exposes seven Base-USDC x402 operations:
 
-- Product-feed / Merchant Center audit
-- GTIN / UPC / EAN validation
-- Product-feed snapshot diff
-- x402 v2 declaration validation — the higher-value tool, priced at $0.05 USDC per successful direct call
+- Product-feed / Merchant Center audit — $0.01
+- GTIN / UPC / EAN validation — $0.01
+- Single GTIN validation — $0.01
+- Product-feed snapshot diff — $0.01
+- x402 v2 declaration validation — $0.05
+- Prioritized catalog remediation for up to 100 products — $1.00
+- Batch catalog remediation for up to 500 products — $5.00
 
 Discovery:
 
@@ -42,7 +46,21 @@ OpenAPI:
 
 https://pal-nano-catalog-audit.onrender.com/openapi.json
 
-The seller is intentionally measured by paid calls, not by listing count. The first three commerce-data tools are $0.01 per direct x402 call; the declaration validator is $0.05.
+The seller is intentionally measured by paid calls, not by listing count. PAL has now received its first wallet-confirmed Base-USDC payment: **0.01 USDC** from a successful paid catalog-audit execution. The exact payer is not attributed unless independently confirmed.
+
+The next experiment is revenue density: preserve the cheap discovery tools, but route larger remediation workloads to the $1 and $5 tiers.
+
+## Shopify merchant channel
+
+PAL Catalog Check is also live in the Shopify App Store:
+
+https://apps.shopify.com/pal-catalog-check
+
+- Free plan
+- Pro: $19/month
+- Pro annual: $199/year
+
+The Shopify app is not counted as revenue until earnings or settlement is confirmed.
 
 ## AgenticTrade provider referral
 
