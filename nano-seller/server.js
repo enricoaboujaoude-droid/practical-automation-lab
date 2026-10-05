@@ -652,7 +652,7 @@ app.use(
           { scheme: "exact", price: USDC_X402_PRICE, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
         ],
         description:
-          "Google Merchant Center and Google Shopping product-feed audit for 1-100 catalog records: duplicate IDs, GTIN validation/checksum, URLs, prices, availability, and brand/MPN consistency.",
+          "Shopify and Google Merchant Center / Google Shopping product-feed audit for 1-100 catalog records. Detect feed errors, duplicate IDs, invalid GTIN/UPC/EAN checksums, malformed URLs and prices, availability issues, and brand/MPN identifier inconsistencies before feed submission.",
         mimeType: "application/json",
         serviceName: "PAL Catalog Feed Audit",
         tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "gtin"],
@@ -857,7 +857,7 @@ app.use(
           { scheme: "exact", price: X402_REMEDIATE_BATCH_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
         ],
         description:
-          "Generate a prioritized Merchant Center and product-feed remediation plan from 1-500 catalog records in one paid call, grouping issues by business impact and returning concrete fix actions and affected product IDs.",
+          "Fix Shopify, Google Merchant Center, and Google Shopping product-feed errors across 1-500 catalog records in one paid call. Returns a prioritized remediation plan for GTIN/UPC/EAN identifiers, duplicate IDs, prices, URLs, availability, brand/MPN issues, concrete fix actions, and affected product IDs.",
         mimeType: "application/json",
         serviceName: "PAL Batch Catalog Remediation",
         tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "remediation", "google-shopping", "batch"],
@@ -896,7 +896,7 @@ app.use(
           { scheme: "exact", price: X402_REMEDIATE_PRICE_USD, network: USDC_X402_NETWORK, payTo: BASE_PAYOUT_ADDRESS },
         ],
         description:
-          "Generate a prioritized Merchant Center and product-feed remediation plan from 1-100 catalog records, grouping issues by business impact and returning concrete fix actions and affected product IDs.",
+          "Fix Shopify, Google Merchant Center, and Google Shopping product-feed errors across 1-100 catalog records. Returns prioritized remediation for GTIN/UPC/EAN identifiers, duplicate IDs, prices, URLs, availability, brand/MPN issues, concrete fix actions, and affected product IDs.",
         mimeType: "application/json",
         serviceName: "PAL Catalog Remediation Plan",
         tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "remediation", "google-shopping"],
@@ -1648,8 +1648,8 @@ function x402OpenApi() {
       [X402_AUDIT_PATH]: {
         post: {
           operationId: "auditCatalogFeedIdentifiers",
-          summary: "Google Merchant Center and product feed audit",
-          tags: ["ecommerce", "merchant-feed", "google-shopping", "catalog-validation", "gtin"],
+          summary: "Shopify and Google Merchant Center product feed audit",
+          tags: ["ecommerce", "shopify", "merchant-feed", "google-shopping", "merchant-center", "catalog-validation", "feed-errors", "gtin", "upc", "ean"],
           requestBody: {
             required: true,
             content: {
