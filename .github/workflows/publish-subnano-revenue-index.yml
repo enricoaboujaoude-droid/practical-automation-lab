@@ -1,0 +1,52 @@
+name: Publish PAL Subnano revenue index
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "shopify-feed-health-app/subnano-revenue-index-publisher.mjs"
+      - ".github/workflows/publish-subnano-revenue-index.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SUBNANO_PUBLISH_KEY: ${{ secrets.SUBNANO_PUBLISH_KEY }}
+    steps:
+      - name: Check publishing credential
+        id: credential
+        shell: bash
+        run: |
+          if [ -z "${SUBNANO_PUBLISH_KEY:-}" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "SUBNANO_PUBLISH_KEY is not configured; skipping safely." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.credential.outputs.configured == 'true'
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        if: steps.credential.outputs.configured == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Update or publish revenue index only
+        if: steps.credential.outputs.configured == 'true'
+        working-directory: shopify-feed-health-app
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { ensureSubnanoRevenueIndex } from "./subnano-revenue-index-publisher.mjs";
+
+          const result = await ensureSubnanoRevenueIndex();
+          console.log(JSON.stringify(result));
+          NODE
