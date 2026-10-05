@@ -184,7 +184,7 @@ function buildPalMcpServer() {
   const server = new McpServer({
     name: "pal-commerce-catalog-intelligence",
     title: "PAL Commerce Catalog Intelligence",
-    version: "1.0.1",
+    version: "1.1.0",
     description:
       "Paid ecommerce catalog intelligence for Merchant Center feed audits, prioritized remediation, GTIN validation, feed changes, and x402 diagnostics.",
   });
@@ -462,7 +462,7 @@ app.get("/mcp/server-card", (_req, res) => {
   res.type("application/mcp-server-card+json").json({
     $schema: "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
     name: "io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence",
-    version: "1.0.1",
+    version: "1.1.0",
     title: "PAL Commerce Catalog Intelligence",
     description:
       "Paid Merchant Center audits, remediation, GTIN checks and feed diffs via Base USDC.",
@@ -4046,7 +4046,7 @@ async function verifyPayment(hash) {
 app.get("/", (_req, res) => {
   res.json({
     service: "PAL Commerce Catalog Intelligence",
-    version: "1.3.0",
+    version: "1.4.0",
     description:
       "Agent-ready ecommerce catalog intelligence for Merchant Center feed auditing, prioritized remediation, GTIN validation, feed change detection, and x402 diagnostics. Pay per call in USDC on Base; Nano remains available as a legacy rail.",
     primary_offer: {
@@ -4364,7 +4364,7 @@ OpenAPI: ${PUBLIC_BASE_URL}/openapi.json
 app.get("/.well-known/agent.json", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.type("application/json").json({
-    version: "1.3",
+    version: "1.4",
     origin: new URL(PUBLIC_BASE_URL).host,
     display_name: "PAL Commerce Catalog Intelligence",
     description:
