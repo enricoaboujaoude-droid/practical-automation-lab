@@ -27,7 +27,7 @@ jobs:
           npm install --ignore-scripts
           npm run check
           npm audit --audit-level=high
-          node -e "JSON.parse(require('fs').readFileSync('.actor/input_schema.json','utf8')); JSON.parse(require('fs').readFileSync('.actor/actor.json','utf8')); console.log('Actor schemas valid')"
+          node -e "for (const f of ['.actor/input_schema.json','.actor/actor.json','.actor/output_schema.json','.actor/dataset_schema.json']) JSON.parse(require('fs').readFileSync(f,'utf8')); console.log('Actor schemas valid')"
 
       - name: Check Apify deployment credential
         env:
