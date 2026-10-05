@@ -230,6 +230,92 @@ function buildPalMcpServer() {
   );
 
   server.registerTool(
+    "recommend_catalog_offer",
+    {
+      title: "Choose the best PAL paid catalog tool",
+      description:
+        "Free pricing/router tool. Give the number of products and whether you need remediation or audit; PAL returns the best paid route and exact price before you spend anything.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        required: ["product_count", "goal"],
+        properties: {
+          product_count: {
+            type: "integer",
+            minimum: 1,
+            maximum: 500,
+            description: "Number of product records you need processed.",
+          },
+          goal: {
+            type: "string",
+            enum: ["remediation", "audit"],
+            description: "Use remediation for prioritized corrective actions; audit for validation findings only.",
+          },
+        },
+        additionalProperties: false,
+      }),
+    },
+    async ({ product_count, goal }) => {
+      const count = Number(product_count);
+      if (goal === "remediation") {
+        const offer =
+          count <= 100
+            ? {
+                tool: "catalog_remediation",
+                route: X402_REMEDIATE_PATH,
+                price_usd: 1.0,
+                max_products: 100,
+                reason: "Best-value remediation route for catalogs up to 100 products.",
+              }
+            : {
+                tool: "catalog_remediation_batch",
+                route: X402_REMEDIATE_BATCH_PATH,
+                price_usd: 5.0,
+                max_products: 500,
+                reason: "Single-call batch remediation avoids splitting a 101-500 product catalog across separate purchases.",
+              };
+        return {
+          content: mcpText({
+            ok: true,
+            goal,
+            product_count: count,
+            recommended_offer: offer,
+            payment: {
+              protocol: "x402",
+              asset: "USDC",
+              network: USDC_X402_NETWORK,
+              pay_to: BASE_PAYOUT_ADDRESS,
+            },
+          }),
+        };
+      }
+
+      const calls = Math.ceil(count / 100);
+      return {
+        content: mcpText({
+          ok: true,
+          goal,
+          product_count: count,
+          recommended_offer: {
+            tool: "catalog_audit",
+            route: X402_AUDIT_PATH,
+            price_usd_per_call: 0.01,
+            max_products_per_call: 100,
+            calls_required: calls,
+            estimated_total_usd: Number((calls * 0.01).toFixed(2)),
+            reason: "Catalog audit is billed per batch of up to 100 products.",
+          },
+          payment: {
+            protocol: "x402",
+            asset: "USDC",
+            network: USDC_X402_NETWORK,
+            pay_to: BASE_PAYOUT_ADDRESS,
+          },
+        }),
+      };
+    },
+  );
+
+  server.registerTool(
     "free_remediation_sample",
     {
       title: "Free catalog remediation sample",
@@ -4189,7 +4275,7 @@ app.get("/marketplace", (_req, res) => {
     <h2>Use it from an AI agent</h2>
     <p>PAL is published in the <a href="https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence" rel="noopener noreferrer">Official MCP Registry</a> and exposes a production Streamable HTTP server.</p>
     <p><strong>Remote MCP:</strong> <code>${PUBLIC_BASE_URL}/mcp</code></p>
-    <p>The MCP server exposes two free discovery/demo tools and seven x402-paid commerce tools. Paid MCP calls return the live Base-USDC payment requirement before any paid result is delivered.</p>
+    <p>The MCP server exposes three free discovery/demo tools and seven x402-paid commerce tools. Paid MCP calls return the live Base-USDC payment requirement before any paid result is delivered.</p>
   </div>
 
   <div class="card">
