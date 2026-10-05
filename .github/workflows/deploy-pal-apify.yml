@@ -1,0 +1,51 @@
+name: Deploy PAL Apify Store Actor
+
+on:
+  push:
+    branches: [nano-seller]
+    paths:
+      - "apify-catalog-intelligence/**"
+      - ".github/workflows/deploy-pal-apify.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Apify deployment credential
+        id: credential
+        shell: bash
+        run: |
+          if [ -z "${APIFY_TOKEN:-}" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "APIFY_TOKEN is not configured; skipping deployment without failing the workflow."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+            echo "APIFY_TOKEN is configured."
+          fi
+
+      - name: Set up Node.js
+        if: steps.credential.outputs.configured == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Apify CLI
+        if: steps.credential.outputs.configured == 'true'
+        run: npm install --global apify-cli
+
+      - name: Authenticate Apify CLI
+        if: steps.credential.outputs.configured == 'true'
+        run: apify login --token "$APIFY_TOKEN"
+
+      - name: Push and build PAL Actor
+        if: steps.credential.outputs.configured == 'true'
+        working-directory: apify-catalog-intelligence
+        run: apify push
