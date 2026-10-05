@@ -2513,6 +2513,14 @@ async function startAgentToolsBootstrap() {
         category: "ecommerce",
         price: 1.0,
       },
+      {
+        url: X402_REMEDIATE_BATCH_URL,
+        name: "PAL Batch Catalog Remediation",
+        description:
+          "Turn a 1-500 record ecommerce catalog into one prioritized Merchant Center/product-feed remediation plan with concrete fixes, issue counts, affected products, and the underlying deterministic audit. Live x402 endpoint; $5.00 USDC per request on Base.",
+        category: "ecommerce",
+        price: 5.0,
+      },
     ];
 
     const submitAdditionalListings = async () => {
