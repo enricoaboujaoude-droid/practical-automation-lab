@@ -121,6 +121,102 @@ export async function fetchPartnerRevenueProbe(createdAtMin = "2026-09-22T00:00:
   };
 }
 
+export async function fetchPartnerAppEventsProbe(
+  occurredAtMin = "2026-09-22T00:00:00Z",
+) {
+  const { token, orgId, appGid } = config();
+  if (!token || !orgId || !appGid) {
+    return {
+      configured: false,
+      occurredAtMin,
+      eventCount: 0,
+      byType: {},
+      installs: 0,
+      uninstalls: 0,
+      subscriptionAccepted: 0,
+      subscriptionActivated: 0,
+      subscriptionCanceled: 0,
+      latestOccurredAt: null,
+    };
+  }
+
+  const response = await fetch(endpoint(orgId), {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      "x-shopify-access-token": token,
+    },
+    body: JSON.stringify({
+      query: `#graphql
+        query PalAppEvents($appId: ID!, $occurredAtMin: DateTime!) {
+          app(id: $appId) {
+            events(first: 100, occurredAtMin: $occurredAtMin) {
+              edges {
+                node {
+                  __typename
+                  type
+                  occurredAt
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: { appId: appGid, occurredAtMin },
+    }),
+    signal: AbortSignal.timeout(15000),
+  });
+
+  const body = await response.json();
+  if (!response.ok || body?.errors?.length) {
+    const detail = Array.isArray(body?.errors)
+      ? body.errors
+          .slice(0, 2)
+          .map((item) =>
+            String(item?.message || "unknown").replace(/\s+/g, " ").slice(0, 180),
+          )
+          .join(" | ")
+      : "unknown";
+    throw new Error(
+      `Shopify Partner app-events probe failed status=${response.status} detail=${detail}`,
+    );
+  }
+
+  const events = (body?.data?.app?.events?.edges || [])
+    .map((edge) => edge?.node)
+    .filter(Boolean);
+
+  const byType = {};
+  let latestOccurredAt = null;
+
+  for (const event of events) {
+    const type = String(event?.type || event?.__typename || "UNKNOWN");
+    byType[type] = (byType[type] || 0) + 1;
+
+    if (
+      event?.occurredAt &&
+      (!latestOccurredAt ||
+        new Date(event.occurredAt).getTime() >
+          new Date(latestOccurredAt).getTime())
+    ) {
+      latestOccurredAt = event.occurredAt;
+    }
+  }
+
+  return {
+    configured: true,
+    occurredAtMin,
+    eventCount: events.length,
+    byType,
+    installs: Number(byType.RELATIONSHIP_INSTALLED || 0),
+    uninstalls: Number(byType.RELATIONSHIP_UNINSTALLED || 0),
+    subscriptionAccepted: Number(byType.SUBSCRIPTION_CHARGE_ACCEPTED || 0),
+    subscriptionActivated: Number(byType.SUBSCRIPTION_CHARGE_ACTIVATED || 0),
+    subscriptionCanceled: Number(byType.SUBSCRIPTION_CHARGE_CANCELED || 0),
+    latestOccurredAt,
+  };
+}
+
 export async function fetchPalPaymentLedger() {
   const response = await fetch(
     "https://pal-feed-auditor-events.onrender.com/metrics/payments",
@@ -148,8 +244,9 @@ export async function fetchPalPaymentLedger() {
 export function startPartnerRevenueProbe() {
   void Promise.allSettled([
     fetchPartnerRevenueProbe(),
+    fetchPartnerAppEventsProbe(),
     fetchPalPaymentLedger(),
-  ]).then(([shopify, ledger]) => {
+  ]).then(([shopify, appEvents, ledger]) => {
     if (shopify.status === "fulfilled") {
       const summary = shopify.value;
       console.log(
@@ -158,6 +255,17 @@ export function startPartnerRevenueProbe() {
     } else {
       console.error(
         `[pal-revenue-probe] shopify_failed message=${String(shopify.reason?.message || shopify.reason).replace(/\s+/g, " ").slice(0, 240)}`,
+      );
+    }
+
+    if (appEvents.status === "fulfilled") {
+      const summary = appEvents.value;
+      console.log(
+        `[pal-revenue-probe] app_events configured=${summary.configured} total=${summary.eventCount} installs=${summary.installs} uninstalls=${summary.uninstalls} subscription_accepted=${summary.subscriptionAccepted} subscription_activated=${summary.subscriptionActivated} subscription_canceled=${summary.subscriptionCanceled} latest=${summary.latestOccurredAt || "none"} types=${JSON.stringify(summary.byType)}`,
+      );
+    } else {
+      console.error(
+        `[pal-revenue-probe] app_events_failed message=${String(appEvents.reason?.message || appEvents.reason).replace(/\s+/g, " ").slice(0, 240)}`,
       );
     }
 
