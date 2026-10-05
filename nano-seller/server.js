@@ -4737,6 +4737,16 @@ app.get("/v1/stats", (_req, res) => {
     usdc_x402_paid_feed_diffs_since_process_start: usdcPaidFeedDiffs,
     usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
     usdc_x402_paid_catalog_remediations_since_process_start: usdcPaidCatalogRemediations,
+    usdc_x402_paid_catalog_remediation_batches_since_process_start: usdcPaidCatalogRemediationBatches,
+    usdc_x402_revenue_if_all_current_process_calls_settled_usd: Number((
+      usdcPaidAudits * 0.01 +
+      usdcPaidGtinChecks * 0.01 +
+      usdcPaidSingleGtinChecks * 0.01 +
+      usdcPaidFeedDiffs * 0.01 +
+      usdcPaidX402Validations * 0.05 +
+      usdcPaidCatalogRemediations * 1.00 +
+      usdcPaidCatalogRemediationBatches * 5.00
+    ).toFixed(2)),
     payment_hashes_consumed_since_process_start: usedPayments.size,
     uptime_seconds: Math.floor(process.uptime()),
   });
