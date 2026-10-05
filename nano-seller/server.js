@@ -2167,6 +2167,20 @@ async function startIndex402Bootstrap() {
 
   const listings = [
     {
+      url: X402_REMEDIATE_BULK_URL,
+      name: "PAL Full Catalog Remediation",
+      protocol: "x402",
+      http_method: "POST",
+      probe_body: JSON.stringify(catalogAuditExample()),
+      description:
+        "Full-store Merchant Center and product-feed remediation for 1-2,000 catalog records in one paid call, returning prioritized corrective actions, issue severity, and affected products.",
+      price_usd: 20.0,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      category: "ecommerce/catalog-remediation",
+      provider: "Practical Automation Lab",
+    },
+    {
       url: X402_AUDIT_URL,
       name: "PAL Catalog Feed Identifier Audit",
       protocol: "x402",
@@ -2672,6 +2686,14 @@ async function startAgentToolsBootstrap() {
 
     const additionalListings = [
       {
+        url: X402_REMEDIATE_BULK_URL,
+        name: "PAL Full Catalog Remediation",
+        description:
+          "Turn a 1-2,000 record ecommerce catalog into one prioritized Merchant Center/product-feed remediation plan with concrete fixes, issue counts, affected products, and the underlying deterministic audit. Live x402 endpoint; $20.00 USDC per request on Base.",
+        category: "ecommerce",
+        price: 20.0,
+      },
+      {
         url: X402_GTIN_URL,
         name: "PAL GTIN Check",
         description:
@@ -2943,7 +2965,7 @@ async function startOpenDexterAuditionBootstrap() {
         accept: "application/json",
         "accept-encoding": "identity",
       },
-      body: JSON.stringify({ url: X402_AUDIT_URL }),
+      body: JSON.stringify({ url: X402_REMEDIATE_BULK_URL }),
       signal: AbortSignal.timeout(120_000),
       redirect: "manual",
     });
@@ -2983,7 +3005,7 @@ async function startOpenDexterAuditionBootstrap() {
     };
 
     console.log(
-      `[opendexter] audition route=${X402_AUDIT_URL} ok=true scored=${openDexterAuditionState.routes.filter((r) => Number.isFinite(r.score)).length}`
+      `[opendexter] audition route=${X402_REMEDIATE_BULK_URL} ok=true scored=${openDexterAuditionState.routes.filter((r) => Number.isFinite(r.score)).length}`
     );
   } catch (error) {
     openDexterAuditionState = {
@@ -3066,7 +3088,7 @@ async function startTrue402Bootstrap() {
       error: null,
     };
     console.log(
-      `[true402] registered/refreshed primary=${X402_REMEDIATE_BATCH_URL} id=${body?.id || body?.service?.id || body?.data?.id || "unknown"}`
+      `[true402] registered/refreshed primary=${X402_REMEDIATE_BULK_URL} id=${body?.id || body?.service?.id || body?.data?.id || "unknown"}`
     );
   } catch (error) {
     true402State = {
@@ -3133,6 +3155,7 @@ async function startMarket402Bootstrap() {
   };
 
   const resources = [
+    X402_REMEDIATE_BULK_URL,
     X402_AUDIT_URL,
     X402_GTIN_ONE_URL,
     X402_GTIN_URL,
@@ -3211,6 +3234,14 @@ async function startX402DashBootstrap() {
   };
 
   const listings = [
+    {
+      url: X402_REMEDIATE_BULK_URL,
+      name: "PAL Full Catalog Remediation",
+      description:
+        "Full-store Merchant Center and product-feed remediation for 1-2,000 catalog records in one paid call with prioritized fixes and affected product IDs. Paid directly over x402 Base USDC.",
+      category: "Data",
+      tags: ["ecommerce", "catalog", "merchant-center", "product-feed", "remediation", "full-catalog"],
+    },
     {
       url: X402_GTIN_ONE_URL,
       name: "PAL Single GTIN Check",
@@ -3533,6 +3564,28 @@ async function startNoHumansBootstrap() {
   const sampleUrl = `${PUBLIC_BASE_URL}/v1/sample/gtin-check?gtin=4006381333931`;
 
   const listings = [
+    {
+      name: "PAL Full Catalog Remediation",
+      description:
+        "Full-store ecommerce catalog remediation for 1-2,000 product records. Returns prioritized Merchant Center/product-feed corrective actions, issue severity, and affected product IDs in one paid call.",
+      endpoint_url: X402_REMEDIATE_BULK_URL,
+      category: "commerce.remediation",
+      sample_query: `${PUBLIC_BASE_URL}/v1/sample/catalog-remediation`,
+      price_amount: 20.0,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          records: {
+            type: "array",
+            minItems: 1,
+            maxItems: 2000,
+            items: { type: "object", additionalProperties: true },
+          },
+        },
+        required: ["records"],
+      },
+    },
     {
       name: "PAL Catalog Feed Audit",
       description:
