@@ -156,6 +156,9 @@ export async function fetchPartnerAppEventsProbe(
                   __typename
                   type
                   occurredAt
+                  ... on RelationshipUninstalled {
+                    reason
+                  }
                 }
               }
             }
@@ -187,11 +190,17 @@ export async function fetchPartnerAppEventsProbe(
     .filter(Boolean);
 
   const byType = {};
+  const uninstallReasons = {};
   let latestOccurredAt = null;
 
   for (const event of events) {
     const type = String(event?.type || event?.__typename || "UNKNOWN");
     byType[type] = (byType[type] || 0) + 1;
+
+    if (type === "RELATIONSHIP_UNINSTALLED") {
+      const reason = String(event?.reason || "unspecified").trim() || "unspecified";
+      uninstallReasons[reason] = (uninstallReasons[reason] || 0) + 1;
+    }
 
     if (
       event?.occurredAt &&
@@ -208,6 +217,7 @@ export async function fetchPartnerAppEventsProbe(
     occurredAtMin,
     eventCount: events.length,
     byType,
+    uninstallReasons,
     installs: Number(byType.RELATIONSHIP_INSTALLED || 0),
     uninstalls: Number(byType.RELATIONSHIP_UNINSTALLED || 0),
     subscriptionAccepted: Number(byType.SUBSCRIPTION_CHARGE_ACCEPTED || 0),
@@ -261,7 +271,7 @@ export function startPartnerRevenueProbe() {
     if (appEvents.status === "fulfilled") {
       const summary = appEvents.value;
       console.log(
-        `[pal-revenue-probe] app_events configured=${summary.configured} total=${summary.eventCount} installs=${summary.installs} uninstalls=${summary.uninstalls} subscription_accepted=${summary.subscriptionAccepted} subscription_activated=${summary.subscriptionActivated} subscription_canceled=${summary.subscriptionCanceled} latest=${summary.latestOccurredAt || "none"} types=${JSON.stringify(summary.byType)}`,
+        `[pal-revenue-probe] app_events configured=${summary.configured} total=${summary.eventCount} installs=${summary.installs} uninstalls=${summary.uninstalls} subscription_accepted=${summary.subscriptionAccepted} subscription_activated=${summary.subscriptionActivated} subscription_canceled=${summary.subscriptionCanceled} latest=${summary.latestOccurredAt || "none"} types=${JSON.stringify(summary.byType)} uninstall_reasons=${JSON.stringify(summary.uninstallReasons || {})}`,
       );
     } else {
       console.error(
