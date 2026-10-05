@@ -24,7 +24,7 @@ jobs:
         env:
           PORT: "10000"
           NANO_ADDRESS: "nano_1gcpoxg6o1heqtmub9srjbpdwoe9bm1n85tks3yznjhb9iywktixczc7ydpr"
-          PAL_BASE_PAYOUT_ADDRESS: "0x3D7718d5D868AF1Daae41D757244DE73DF72FB53"
+          PAL_BASE_PAYOUT_ADDRESS: "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF"
           PUBLIC_BASE_URL: "https://pal-nano-catalog-audit.onrender.com"
         run: |
           set -euo pipefail
@@ -52,4 +52,54 @@ jobs:
           url=data["resource"]["url"]
           print("resource.url=", url)
           assert url == "https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-audit", url
+          PY
+      - name: Assert $5 batch remediation payment contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          headers="$(mktemp)"
+          body="$(mktemp)"
+          code="$(curl -sS -D "$headers" -o "$body" -w '%{http_code}' \
+            -X POST "http://127.0.0.1:10000/v1/usdc/catalog-remediation-batch" \
+            -H "Host: pal-nano-catalog-audit.onrender.com" \
+            -H "X-Forwarded-Proto: https" \
+            -H "Content-Type: application/json" \
+            --data '{"records":[{"id":"sku-500","title":"Premium Batch Product","link":"https://example.com/products/sku-500","image_link":"https://example.com/images/sku-500.jpg","gtin":"4006381333931","brand":"Example","mpn":"SKU-500","price":"49.99 USD","availability":"in_stock","identifier_exists":true}]}')"
+          test "$code" = "402"
+          payment="$(awk 'BEGIN{IGNORECASE=1} /^PAYMENT-REQUIRED:/ {sub(/^[^:]+:[[:space:]]*/, ""); gsub(/\r/,""); print; exit}' "$headers")"
+          test -n "$payment"
+          PAYMENT_REQUIRED="$payment" python3 - <<'PY'
+          import base64, json, os
+          raw=os.environ["PAYMENT_REQUIRED"]
+          raw += "=" * (-len(raw) % 4)
+          data=json.loads(base64.b64decode(raw).decode())
+          assert data["resource"]["url"] == "https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-remediation-batch"
+          accepts=data["accepts"]
+          assert len(accepts) >= 1
+          exact=accepts[0]
+          assert exact["network"] == "eip155:8453", exact
+          assert exact["amount"] == "5000000", exact
+          assert exact["payTo"].lower() == "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF".lower(), exact
+          print("batch_x402_contract_ok", exact["amount"], exact["network"], exact["payTo"])
+          PY
+
+      - name: Assert discovery advertises the $5 batch tool
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS http://127.0.0.1:10000/.well-known/x402 > /tmp/x402.json
+          curl -fsS http://127.0.0.1:10000/openapi.json > /tmp/openapi.json
+          python3 - <<'PY'
+          import json
+          manifest=json.load(open("/tmp/x402.json"))
+          resources={r["resource"]:r for r in manifest["resources"]}
+          url="https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-remediation-batch"
+          item=resources[url]
+          assert item["price"] == "$5.00", item
+          assert item["inputSchema"]["properties"]["records"]["maxItems"] == 500, item
+          spec=json.load(open("/tmp/openapi.json"))
+          route=spec["paths"]["/v1/usdc/catalog-remediation-batch"]["post"]
+          assert route["x-payment-info"]["amount"] == "5000000", route["x-payment-info"]
+          assert route["requestBody"]["content"]["application/json"]["schema"]["properties"]["records"]["maxItems"] == 500
+          print("batch_discovery_ok")
           PY
