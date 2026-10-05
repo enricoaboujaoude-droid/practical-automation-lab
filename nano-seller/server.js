@@ -4314,6 +4314,13 @@ app.get("/marketplace", (_req, res) => {
     <code>POST /v1/usdc/x402-validate</code>
   </div>
 
+  <div class="card">
+    <h2>API providers: add an agent-native sales channel</h2>
+    <p>If you already operate an API or MCP service, AgenticTrade provides AI-agent discovery and automatic usage billing.</p>
+    <p><a href="https://agentictrade.io/portal/register?ref=6HDHVHZ3" rel="sponsored noopener noreferrer"><strong>List a service on AgenticTrade →</strong></a></p>
+    <p class="muted">Affiliate disclosure: Practical Automation Lab participates in AgenticTrade's referral program and may earn referral revenue from qualifying providers who join through this link.</p>
+  </div>
+
   <h2>Machine-readable discovery</h2>
   <p>
     <a href="/.well-known/x402">x402 manifest</a> ·
