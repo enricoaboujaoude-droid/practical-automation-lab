@@ -7021,6 +7021,73 @@ async function startAgenticTradePremiumBootstrap() {
   }
 }
 
+
+async function startAgenticTradeFullCatalogOnboard() {
+  const serviceName = "PAL Full Catalog Remediation 2000";
+  const endpoint =
+    "https://pal-full-catalog-remediation.onrender.com/v1/agentpay-remediation-bulk";
+
+  try {
+    const search = await agenticTradeRequest(
+      `/services?query=${encodeURIComponent(serviceName)}&limit=20`
+    );
+    const existing = Array.isArray(search.payload?.services)
+      ? search.payload.services.find(
+          (service) =>
+            String(service?.name || "") === serviceName ||
+            String(service?.endpoint || "") === endpoint
+        )
+      : null;
+
+    if (existing) {
+      console.log(
+        `[agentictrade-onboard] already listed id=${existing.id || "unknown"} price=${existing?.pricing?.price_per_call || "unknown"}`
+      );
+      return;
+    }
+
+    const result = await agenticTradeRequest("/agents/onboard", {
+      method: "POST",
+      body: JSON.stringify({
+        agent_name: serviceName,
+        description:
+          "Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for product-feed, identifier, GTIN, price, URL, brand/MPN and availability issues.",
+        endpoint,
+        price_per_call: "20",
+        category: "data",
+        tags: [
+          "ecommerce",
+          "merchant-center",
+          "catalog-remediation",
+          "shopify",
+          "gtin",
+          "product-feed",
+          "full-catalog"
+        ],
+        payment_method: "x402",
+        free_tier_calls: 0,
+        wallet_address: BASE_PAYOUT_ADDRESS,
+        role: "provider"
+      })
+    });
+
+    if (!result.response.ok) {
+      console.log(
+        `[agentictrade-onboard] failed status=${result.response.status} detail=${String(result.payload?.detail || result.payload?.message || "unknown").slice(0, 180)}`
+      );
+      return;
+    }
+
+    console.log(
+      `[agentictrade-onboard] created agent_id=${result.payload?.agent_id || "unknown"} service_id=${result.payload?.service_id || "unknown"} price=20 wallet_bound=${Boolean(BASE_PAYOUT_ADDRESS)}`
+    );
+  } catch (error) {
+    console.log(
+      `[agentictrade-onboard] error=${String(error?.message || error).slice(0, 180)}`
+    );
+  }
+}
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`PAL Nano seller listening on :${PORT}; pay_to=${PAY_TO}`);
   void startPayanAgentBootstrap();
@@ -7035,4 +7102,5 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startX402DashBootstrap(), 36_000);
   setTimeout(() => void startNoHumansBootstrap(), 40_000);
   setTimeout(() => void startAgenticTradePremiumBootstrap(), 44_000);
+  setTimeout(() => void startAgenticTradeFullCatalogOnboard(), 52_000);
 });
