@@ -5818,6 +5818,12 @@ function allowMarketplaceBootstrapRequest(req, res) {
   return count <= MARKETPLACE_BOOTSTRAP_LIMIT;
 }
 
+function setMarketplaceUsage(res, apiMarketUnits) {
+  const units = Math.max(0, Math.floor(Number(apiMarketUnits) || 0));
+  res.set("X-Magicapi-Billing", `API=${units};`);
+  res.set("X-PAL-Marketplace-Units", String(units));
+}
+
 function requireMarketplaceGateway(req, res, next) {
   // Launch mode: until a marketplace proxy secret is configured, keep the
   // marketplace-billed routes usable behind a conservative per-IP cap.
@@ -5871,6 +5877,7 @@ app.post("/v1/upstream/catalog-audit", requireMarketplaceGateway, (req, res) => 
   console.log(
     `[revenue] marketplace_upstream catalog-audit served records=${records.length}`
   );
+  setMarketplaceUsage(res, 1);
 
   return res.json({
     ...result,
@@ -5897,6 +5904,7 @@ app.post("/v1/upstream/catalog-remediation", requireMarketplaceGateway, (req, re
   console.log(
     `[revenue] marketplace_upstream catalog-remediation served records=${records.length}`
   );
+  setMarketplaceUsage(res, 20);
 
   return res.json({
     ...catalogRemediationPlan(records),
@@ -5922,6 +5930,7 @@ app.post("/v1/upstream/catalog-remediation-batch", requireMarketplaceGateway, (r
   console.log(
     `[revenue] marketplace_upstream catalog-remediation-batch served records=${records.length}`
   );
+  setMarketplaceUsage(res, 100);
 
   return res.json({
     ...catalogRemediationPlan(records),
@@ -5948,6 +5957,7 @@ app.post("/v1/upstream/catalog-remediation-bulk", requireMarketplaceGateway, (re
   console.log(
     `[revenue] marketplace_upstream catalog-remediation-bulk served records=${records.length}`
   );
+  setMarketplaceUsage(res, 400);
 
   return res.json({
     ...catalogRemediationPlan(records),
@@ -5983,6 +5993,7 @@ app.post("/v1/upstream/gtin-check", requireMarketplaceGateway, (req, res) => {
   console.log(
     `[revenue] marketplace_upstream gtin-check served count=${gtins.length}`
   );
+  setMarketplaceUsage(res, 1);
 
   return res.json({
     ...gtinCheck(gtins),
@@ -6008,6 +6019,7 @@ app.post("/v1/upstream/feed-diff", requireMarketplaceGateway, (req, res) => {
   console.log(
     `[revenue] marketplace_upstream feed-diff served before=${req.body.before.length} after=${req.body.after.length}`
   );
+  setMarketplaceUsage(res, 2);
 
   return res.json({
     ...feedDiff(req.body.before, req.body.after),
@@ -6025,6 +6037,7 @@ app.post("/v1/upstream/x402-validate", requireMarketplaceGateway, (req, res) => 
   }
 
   console.log("[revenue] marketplace_upstream x402-validate served");
+  setMarketplaceUsage(res, 5);
 
   return res.json({
     ...inspectX402Declaration(req.body),
