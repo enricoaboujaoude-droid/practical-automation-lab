@@ -3,7 +3,7 @@ import { facilitator } from "@payai/facilitator";
 import { HTTPFacilitatorClient } from "@x402/core/server";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { paymentMiddleware, x402ResourceServer } from "@x402/express";
-import { declareDiscoveryExtension } from "@x402/extensions/bazaar";
+import { bazaarResourceServerExtension, declareDiscoveryExtension } from "@x402/extensions/bazaar";
 
 const PORT = Number(process.env.PORT || 10000);
 const PRICE_RAW = process.env.PRICE_RAW || "10000000000000000000000000000";
@@ -133,7 +133,8 @@ app.use((req, res, next) => {
 
 const usdcFacilitatorClient = new HTTPFacilitatorClient(facilitator);
 const usdcResourceServer = new x402ResourceServer(usdcFacilitatorClient)
-  .register(USDC_X402_NETWORK, new ExactEvmScheme());
+  .register(USDC_X402_NETWORK, new ExactEvmScheme())
+  .registerExtension(bazaarResourceServerExtension);
 
 app.use(
   paymentMiddleware(
