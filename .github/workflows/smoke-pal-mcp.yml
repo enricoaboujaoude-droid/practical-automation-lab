@@ -1,0 +1,94 @@
+name: Smoke test PAL remote MCP
+
+on:
+  push:
+    branches: [nano-seller]
+    paths:
+      - ".github/workflows/smoke-pal-mcp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install MCP client
+        run: |
+          mkdir -p /tmp/pal-mcp-smoke
+          cd /tmp/pal-mcp-smoke
+          npm init -y >/dev/null
+          npm install --silent @modelcontextprotocol/client@2.3.0
+
+      - name: Connect, list tools, and call free demo
+        working-directory: /tmp/pal-mcp-smoke
+        run: |
+          cat > smoke.mjs <<'JS'
+          import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
+
+          const url = new URL('https://pal-nano-catalog-audit.onrender.com/mcp');
+          const client = new Client({ name: 'pal-ci-smoke', version: '1.0.0' });
+          const transport = new StreamableHTTPClientTransport(url);
+
+          try {
+            await client.connect(transport);
+            const { tools } = await client.listTools();
+            const names = tools.map((tool) => tool.name);
+            const required = [
+              'pal_service_info',
+              'free_remediation_sample',
+              'catalog_remediation',
+              'catalog_audit',
+              'gtin_check',
+              'single_gtin_check',
+              'feed_diff',
+              'x402_validate',
+            ];
+            for (const name of required) {
+              if (!names.includes(name)) throw new Error(`Missing MCP tool: ${name}`);
+            }
+
+            const info = await client.callTool({ name: 'pal_service_info', arguments: {} });
+            if (info.isError) throw new Error('pal_service_info returned isError');
+
+            const demo = await client.callTool({ name: 'free_remediation_sample', arguments: {} });
+            if (demo.isError) throw new Error('free_remediation_sample returned isError');
+
+            const remediation = await client.callTool({
+              name: 'catalog_remediation',
+              arguments: {
+                records: [{
+                  id: 'smoke-sku',
+                  title: 'Smoke Test',
+                  gtin: '4006381333931',
+                  brand: 'Example',
+                  mpn: 'SMOKE-1',
+                  price: '19.99 USD',
+                  availability: 'in_stock',
+                  identifier_exists: true
+                }]
+              }
+            });
+            if (remediation.isError) throw new Error('catalog_remediation first call returned isError');
+            const text = remediation.content?.find((block) => block.type === 'text')?.text || '';
+            if (!text.includes('"payment_required": true')) {
+              throw new Error('Paid MCP tool did not return x402 payment requirement');
+            }
+
+            console.log(JSON.stringify({
+              server: client.getServerVersion(),
+              tools: names,
+              free_demo_ok: true,
+              paid_x402_gate_ok: true
+            }, null, 2));
+          } finally {
+            try { await transport.terminateSession(); } catch {}
+            await client.close();
+          }
+          JS
+          node smoke.mjs
