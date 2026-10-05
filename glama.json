@@ -1,0 +1,22 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "maintainers": [
+    "enricoaboujaoude-droid"
+  ],
+  "keywords": [
+    "ecommerce",
+    "merchant-center",
+    "google-shopping",
+    "product-feed",
+    "catalog-remediation",
+    "gtin",
+    "upc",
+    "ean",
+    "x402",
+    "base-usdc",
+    "commerce"
+  ],
+  "quality": {
+    "tool_definitions": "Paid tools use specific action-oriented descriptions, disclose Base-USDC x402 pricing, and include explicit first-call payment-requirement behavior. Free discovery and remediation-demo tools let agents inspect the service before paying."
+  }
+}
