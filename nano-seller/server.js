@@ -5078,6 +5078,34 @@ app.post("/v1/usdc/catalog-audit", (req, res) => {
   );
 
   const result = audit(records);
+  const nextActions = [];
+
+  if (result.issue_count > 0) {
+    nextActions.push({
+      action: "generate_prioritized_remediation",
+      endpoint: X402_REMEDIATE_URL,
+      price_usd: X402_REMEDIATE_PRICE_USD,
+      max_records: 100,
+      input: {
+        records: "Reuse the same records array from this audit.",
+      },
+      value:
+        "Returns prioritized corrective actions grouped by issue and business impact.",
+    });
+  }
+
+  nextActions.push({
+    action: "remediate_large_catalog",
+    endpoint: X402_REMEDIATE_BATCH_URL,
+    price_usd: X402_REMEDIATE_BATCH_PRICE_USD,
+    max_records: 500,
+    input: {
+      records: "Send 1 to 500 product records.",
+    },
+    value:
+      "Audits and prioritizes remediation across a larger catalog in one paid call.",
+  });
+
   return res.json({
     ...result,
     payment: {
@@ -5088,6 +5116,7 @@ app.post("/v1/usdc/catalog-audit", (req, res) => {
       pay_to: BASE_PAYOUT_ADDRESS,
       facilitator: "PayAI",
     },
+    next_actions: nextActions,
     generated_at: nowIso(),
     disclaimer:
       "Consistency audit only; not a guarantee of Merchant Center approval or regulatory compliance.",
