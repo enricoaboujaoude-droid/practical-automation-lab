@@ -4514,6 +4514,9 @@ app.get("/", (_req, res) => {
       marketplace_openapi: `${PUBLIC_BASE_URL}/marketplace-openapi.json`,
       llms: `${PUBLIC_BASE_URL}/llms.txt`,
       skill: `${PUBLIC_BASE_URL}/skill.md`,
+      agent_tools: "https://agent-tools.cloud/services/pal-nano-catalog-audit-onrender-com-sub1146",
+      payapi_premium: "https://payapi.market/api/pal-batch-catalog-remediation",
+      rapidapi_pricing: "https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor/pricing",
     },
     categories: [
       "ecommerce",
@@ -4607,6 +4610,7 @@ app.get("/marketplace", (_req, res) => {
     <h2>Buy through a marketplace</h2>
     <p><a href="https://payapi.market/api/pal-batch-catalog-remediation" rel="noopener noreferrer"><strong>PayAPI — settlement-verified premium remediation ($0.10–$5.00) →</strong></a></p>
     <p><a href="https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor/pricing" rel="noopener noreferrer"><strong>RapidAPI — paid plans from $25/month (PRO recommended) →</strong></a></p>
+    <p><a href="https://agent-tools.cloud/services/pal-nano-catalog-audit-onrender-com-sub1146" rel="noopener noreferrer"><strong>Agent Tools — verified $20 Full Catalog Remediation →</strong></a></p>
     <p class="muted">For full-store jobs, the direct x402 Full Catalog Remediation route below handles up to 2,000 products for $20.00 USDC on Base.</p>
   </div>
 
