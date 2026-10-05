@@ -11,6 +11,8 @@ PAL exposes a production **MCP + x402 API** for ecommerce product-feed intellige
 **Live marketplace:** https://pal-nano-catalog-audit.onrender.com/marketplace  
 **Remote MCP:** https://pal-nano-catalog-audit.onrender.com/mcp  
 **Official MCP Registry:** https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence  
+**Settlement-verified PayAPI listing:** https://payapi.market/api/pal-catalog-feed-auditor  
+**Glama hosted connector:** https://glama.ai/mcp/connectors/io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence  
 **OpenAPI:** https://pal-nano-catalog-audit.onrender.com/openapi.json
 
 Paid operations include:
