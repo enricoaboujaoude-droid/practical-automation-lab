@@ -4606,7 +4606,7 @@ app.get("/marketplace", (_req, res) => {
   <div class="card">
     <h2>Buy through a marketplace</h2>
     <p><a href="https://payapi.market/api/pal-batch-catalog-remediation" rel="noopener noreferrer"><strong>PayAPI — settlement-verified premium remediation ($0.10–$5.00) →</strong></a></p>
-    <p><a href="https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor" rel="noopener noreferrer"><strong>RapidAPI — public PAL Catalog Feed Auditor →</strong></a></p>
+    <p><a href="https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor/pricing" rel="noopener noreferrer"><strong>RapidAPI — paid plans from $25/month (PRO recommended) →</strong></a></p>
     <p class="muted">For full-store jobs, the direct x402 Full Catalog Remediation route below handles up to 2,000 products for $20.00 USDC on Base.</p>
   </div>
 
