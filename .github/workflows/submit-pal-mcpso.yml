@@ -1,0 +1,25 @@
+name: Submit PAL to mcp.so
+
+on:
+  push:
+    branches:
+      - nano-seller
+    paths:
+      - .github/workflows/submit-pal-mcpso.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Submit PAL repository to mcp.so
+        env:
+          MCP_SO_URL: https://mcp.so/api/submit-project
+          PAL_REPOSITORY: https://github.com/enricoaboujaoude-droid/practical-automation-lab
+        run: |
+          set -euo pipefail
+          response="$(curl --fail-with-body --silent --show-error             --request POST "$MCP_SO_URL"             --header 'Content-Type: application/json'             --data "$(printf '{"url":"%s"}' "$PAL_REPOSITORY")")"
+          printf '%s\n' "$response"
