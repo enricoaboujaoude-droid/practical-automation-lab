@@ -18,7 +18,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          body='{"agent_name":"PAL Full Catalog Remediation","description":"Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for feed, identifier, GTIN, price, URL, brand/MPN and availability issues.","endpoint":"https://pal-full-catalog-remediation.onrender.com/v1/usdc/catalog-remediation-bulk","price_per_call":"20","category":"data","tags":["ecommerce","merchant-center","catalog-remediation","shopify","gtin","product-feed"],"payment_method":"x402","free_tier_calls":0,"wallet_address":"0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF","role":"provider"}'
+          body='{"agent_name":"PAL Full Catalog Remediation","owner_email":"enricoaboujaoude@gmail.com","description":"Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for feed, identifier, GTIN, price, URL, brand/MPN and availability issues.","endpoint":"https://pal-full-catalog-remediation.onrender.com/v1/usdc/catalog-remediation-bulk","price_per_call":"20","category":"data","tags":["ecommerce","merchant-center","catalog-remediation","shopify","gtin","product-feed"],"payment_method":"x402","free_tier_calls":0,"wallet_address":"0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF","role":"provider"}'
           response="$(curl --fail-with-body --silent --show-error -X POST 'https://agentictrade.io/api/v1/agents/onboard' -H 'content-type: application/json' --data "$body")"
           RESPONSE="$response" python3 - <<'PY'
           import json, os
