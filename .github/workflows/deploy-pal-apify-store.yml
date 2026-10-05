@@ -25,7 +25,8 @@ jobs:
         working-directory: apify-catalog-intelligence
         run: |
           npm install --ignore-scripts
-          node --check src/main.js
+          npm run check
+          npm audit --audit-level=high
           node -e "JSON.parse(require('fs').readFileSync('.actor/input_schema.json','utf8')); JSON.parse(require('fs').readFileSync('.actor/actor.json','utf8')); console.log('Actor schemas valid')"
 
       - name: Check Apify deployment credential
