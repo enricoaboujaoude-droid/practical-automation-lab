@@ -4037,6 +4037,37 @@ app.get("/v1/preflight", async (_req, res) => {
   }
 });
 
+app.get("/v1/agentpay", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  return res.json({
+    ok: true,
+    ready: true,
+    service: "PAL Catalog Feed Auditor",
+    marketplace: "AgenticTrade",
+    method: "POST",
+    billing: "handled_upstream",
+    price_per_call_usdc: "0.1",
+    category: "data",
+    capabilities: [
+      "catalog-audit",
+      "product-feed-validation",
+      "gtin-validation",
+      "duplicate-id-detection",
+      "merchant-center-readiness"
+    ],
+    limits: { records_per_audit: 100 },
+    input: {
+      messages: [
+        {
+          role: "user",
+          content:
+            "{\"records\":[{\"id\":\"sku-100\",\"title\":\"Example Product\",\"gtin\":\"4006381333931\",\"brand\":\"Example\",\"mpn\":\"SKU-100\",\"price\":\"19.99 USD\",\"availability\":\"in_stock\",\"identifier_exists\":true}]}"
+        }
+      ]
+    }
+  });
+});
+
 app.post("/v1/agentpay", (req, res) => {
   const records = extractAgentPayRecords(req.body?.messages);
 
@@ -4072,7 +4103,7 @@ app.post("/v1/agentpay", (req, res) => {
   return res.json({
     ...result,
     marketplace: {
-      provider: "AgentStore",
+      provider: "AgenticTrade",
       billing: "handled_upstream",
     },
     generated_at: nowIso(),
