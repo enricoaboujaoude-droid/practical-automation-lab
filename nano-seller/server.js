@@ -3655,6 +3655,7 @@ app.get("/marketplace", (_req, res) => {
 <body>
   <h1>PAL Commerce Catalog Intelligence API</h1>
   <p class="lead">Deterministic, agent-ready ecommerce catalog intelligence for Google Merchant Center, shopping feeds, marketplaces, and automated commerce workflows.</p>
+  <p><a href="/v1/sample/catalog-remediation"><strong>See a free remediation result →</strong></a> &nbsp; <a href="/v1/sample/catalog-audit">See audit sample</a> &nbsp; <a href="/v1/sample/gtin-check">See GTIN sample</a></p>
 
   <div class="card">
     <h2>Catalog Remediation Plan <span class="price">$1.00 / call</span></h2>
@@ -4403,11 +4404,40 @@ app.get("/v1/sample/x402-validate", (_req, res) => {
 });
 
 app.get("/v1/sample/catalog-remediation", (_req, res) => {
-  const input = catalogAuditExample();
+  const input = {
+    records: [
+      {
+        id: "sku-demo",
+        title: "",
+        link: "http://example.com/products/sku-demo",
+        image_link: "not-a-url",
+        gtin: "4006381333932",
+        brand: "",
+        mpn: "SKU-DEMO",
+        price: "19.99",
+        availability: "available",
+        identifier_exists: true,
+      },
+      {
+        id: "sku-demo",
+        title: "Second demo variant",
+        link: "https://example.com/products/sku-demo-2",
+        image_link: "https://example.com/images/sku-demo-2.jpg",
+        gtin: "",
+        brand: "",
+        mpn: "",
+        price: "22.00 USD",
+        availability: "in_stock",
+        identifier_exists: true,
+      },
+    ],
+  };
   res.set("Cache-Control", "public, max-age=300");
   return res.json({
     service: "PAL Catalog Remediation Plan",
     sample: true,
+    demo_note:
+      "This intentionally flawed sample shows the prioritized actions returned for common feed problems.",
     input,
     result: catalogRemediationPlan(input.records),
     paid_endpoint: X402_REMEDIATE_URL,
