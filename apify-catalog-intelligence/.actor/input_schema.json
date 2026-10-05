@@ -1,0 +1,120 @@
+{
+  "title": "PAL Commerce Catalog Intelligence",
+  "description": "Audit and remediate ecommerce product feeds, validate GTINs, compare feed snapshots, or validate x402 declarations.",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "operation": {
+      "title": "Operation",
+      "type": "string",
+      "description": "Choose the commerce-data operation to run.",
+      "enum": [
+        "catalog-remediation",
+        "catalog-audit",
+        "gtin-check",
+        "feed-diff",
+        "x402-validate"
+      ],
+      "enumTitles": [
+        "Catalog remediation plan",
+        "Catalog feed audit",
+        "GTIN / UPC / EAN validation",
+        "Product feed diff",
+        "x402 declaration validation"
+      ],
+      "default": "catalog-remediation"
+    },
+    "feedUrl": {
+      "title": "Public product feed URL",
+      "type": "string",
+      "description": "Optional for catalog operations. Public HTTP(S) Google Merchant XML, CSV, or TSV feed. Up to 10 MB / 1,000 products.",
+      "editor": "textfield"
+    },
+    "feedContent": {
+      "title": "Pasted product feed",
+      "type": "string",
+      "description": "Optional for catalog operations. Paste XML, CSV, or TSV feed content instead of using a URL.",
+      "editor": "textarea"
+    },
+    "feedFormat": {
+      "title": "Feed format",
+      "type": "string",
+      "description": "Auto-detect is recommended.",
+      "enum": [
+        "auto",
+        "xml",
+        "csv",
+        "tsv"
+      ],
+      "enumTitles": [
+        "Auto detect",
+        "XML",
+        "CSV",
+        "TSV"
+      ],
+      "default": "auto"
+    },
+    "records": {
+      "title": "Product records",
+      "type": "array",
+      "description": "Optional for catalog operations. Supply JSON records directly instead of a feed. Up to 1,000 products; processed in 100-product batches.",
+      "maxItems": 1000,
+      "items": {
+        "type": "object"
+      },
+      "default": [
+        {
+          "id": "sku-100",
+          "title": "Example Product",
+          "link": "https://example.com/products/sku-100",
+          "image_link": "https://example.com/images/sku-100.jpg",
+          "gtin": "4006381333931",
+          "brand": "Example",
+          "mpn": "SKU-100",
+          "price": "19.99 USD",
+          "availability": "in_stock",
+          "identifier_exists": true
+        }
+      ]
+    },
+    "gtins": {
+      "title": "GTINs",
+      "type": "array",
+      "description": "Used by gtin-check. Supply 1-1,000 GTIN/UPC/EAN values; processed in batches.",
+      "maxItems": 1000,
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "4006381333931",
+        "036000291452"
+      ]
+    },
+    "before": {
+      "title": "Feed snapshot before",
+      "type": "array",
+      "description": "Used by feed-diff. Up to 100 rows.",
+      "maxItems": 100,
+      "items": {
+        "type": "object"
+      }
+    },
+    "after": {
+      "title": "Feed snapshot after",
+      "type": "array",
+      "description": "Used by feed-diff. Up to 100 rows.",
+      "maxItems": 100,
+      "items": {
+        "type": "object"
+      }
+    },
+    "declaration": {
+      "title": "x402 declaration",
+      "type": "object",
+      "description": "Used by x402-validate. Provide an x402 v2 PaymentRequired declaration."
+    }
+  },
+  "required": [
+    "operation"
+  ]
+}
