@@ -86,7 +86,7 @@ function mcpText(value) {
 }
 
 async function mcpPaidRequest({ method = "POST", path, query = null, body = null, paymentSignature = "" }) {
-  const url = new URL(path, \`\${PUBLIC_BASE_URL}/\`);
+  const url = new URL(path, `${PUBLIC_BASE_URL}/`);
   if (query && typeof query === "object") {
     for (const [key, value] of Object.entries(query)) {
       if (value !== undefined && value !== null && String(value) !== "") {
@@ -216,10 +216,10 @@ function buildPalMcpServer() {
           { name: "feed_diff", price_usd: 0.01 },
           { name: "x402_validate", price_usd: 0.05 },
         ],
-        free_demo: \`\${PUBLIC_BASE_URL}/v1/sample/catalog-remediation\`,
-        landing_page: \`\${PUBLIC_BASE_URL}/marketplace\`,
-        openapi: \`\${PUBLIC_BASE_URL}/openapi.json\`,
-        x402_manifest: \`\${PUBLIC_BASE_URL}/.well-known/x402\`,
+        free_demo: `${PUBLIC_BASE_URL}/v1/sample/catalog-remediation`,
+        landing_page: `${PUBLIC_BASE_URL}/marketplace`,
+        openapi: `${PUBLIC_BASE_URL}/openapi.json`,
+        x402_manifest: `${PUBLIC_BASE_URL}/.well-known/x402`,
       }),
     }),
   );
@@ -238,7 +238,7 @@ function buildPalMcpServer() {
     },
     async () => {
       try {
-        const response = await fetch(\`\${PUBLIC_BASE_URL}/v1/sample/catalog-remediation\`, {
+        const response = await fetch(`${PUBLIC_BASE_URL}/v1/sample/catalog-remediation`, {
           headers: { accept: "application/json" },
           signal: AbortSignal.timeout(15_000),
         });
