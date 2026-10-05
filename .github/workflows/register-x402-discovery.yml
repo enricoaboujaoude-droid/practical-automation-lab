@@ -1,0 +1,39 @@
+name: Register PAL with x402 discovery
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [nano-seller]
+    paths:
+      - ".github/workflows/register-x402-discovery.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Register PAL paid services
+        shell: bash
+        run: |
+          set -euo pipefail
+          register() {
+            name="$1"
+            url="$2"
+            price="$3"
+            category="$4"
+            description="$5"
+            echo "Registering: $name"
+            curl --fail-with-body -sS -X POST 'https://x402scout.com/register'               -H 'Content-Type: application/json'               --data "$(jq -nc                 --arg name "$name"                 --arg url "$url"                 --argjson price "$price"                 --arg category "$category"                 --arg description "$description"                 '{name:$name,url:$url,price_usd:$price,category:$category,description:$description,network:"base-mainnet"}')"
+            echo
+          }
+
+          register             'PAL Shopify Merchant Center Product Feed Audit'             'https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-audit'             0.01             'ecommerce'             'Shopify, Google Merchant Center and Google Shopping product-feed audit: GTIN/UPC/EAN checksums, duplicate IDs, URLs, prices, availability and brand/MPN consistency.'
+
+          register             'PAL Catalog Remediation Plan'             'https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-remediation'             1             'ecommerce'             'Prioritized Merchant Center and product-feed remediation for up to 100 product records.'
+
+          register             'PAL Batch Catalog Remediation'             'https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-remediation-batch'             5             'ecommerce'             'Prioritized Merchant Center and product-feed remediation for up to 500 product records.'
+
+          register             'PAL Full Catalog Remediation'             'https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-remediation-bulk'             20             'ecommerce'             'Full-store Google Merchant Center and product-feed remediation for up to 2000 product records.'
