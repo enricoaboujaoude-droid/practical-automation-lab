@@ -3296,6 +3296,61 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
+async function logShopifyAcquisitionFunnelSnapshot() {
+  const { rows } = await pool.query(`
+    select event_name, count(*)::bigint as count
+      from pal_feed_auditor_events
+     where is_test = false
+       and occurred_at >= now() - interval '30 days'
+       and event_name in (
+         'pal_home_viewed',
+         'pal_home_shopify_clicked',
+         'pal_shopify_landing_viewed',
+         'pal_shopify_landing_clicked',
+         'pal_gtin_guide_viewed',
+         'pal_gtin_guide_clicked',
+         'pal_missing_products_guide_viewed',
+         'pal_missing_products_guide_clicked',
+         'pal_pricing_viewed',
+         'pal_pricing_shopify_clicked',
+         'pal_feed_auditor_shopify_clicked',
+         'pal_image_readiness_shopify_clicked',
+         'audit_started',
+         'audit_completed',
+         'report_downloaded'
+       )
+     group by event_name
+     order by event_name
+  `);
+
+  const counts = Object.fromEntries(
+    rows.map((row) => [String(row.event_name), Number(row.count || 0)])
+  );
+
+  const ratio = (num, den) =>
+    den > 0 ? Number(((num / den) * 100).toFixed(1)) : null;
+
+  const landingViews = counts.pal_shopify_landing_viewed || 0;
+  const landingClicks = counts.pal_shopify_landing_clicked || 0;
+  const guideViews =
+    (counts.pal_gtin_guide_viewed || 0) +
+    (counts.pal_missing_products_guide_viewed || 0);
+  const guideClicks =
+    (counts.pal_gtin_guide_clicked || 0) +
+    (counts.pal_missing_products_guide_clicked || 0);
+  const totalShopifyClicks =
+    (counts.pal_home_shopify_clicked || 0) +
+    landingClicks +
+    guideClicks +
+    (counts.pal_pricing_shopify_clicked || 0) +
+    (counts.pal_feed_auditor_shopify_clicked || 0) +
+    (counts.pal_image_readiness_shopify_clicked || 0);
+
+  console.log(
+    `[pal-shopify-funnel] window=30d total_shopify_clicks=${totalShopifyClicks} landing_views=${landingViews} landing_clicks=${landingClicks} landing_ctr_pct=${ratio(landingClicks, landingViews) ?? 'na'} guide_views=${guideViews} guide_clicks=${guideClicks} guide_ctr_pct=${ratio(guideClicks, guideViews) ?? 'na'} audit_started=${counts.audit_started || 0} audit_completed=${counts.audit_completed || 0} report_downloaded=${counts.report_downloaded || 0} counts=${JSON.stringify(counts)}`
+  );
+}
+
 async function logCompletedRevenueSnapshot() {
   const { rows } = await pool.query(`
     with completed as (
@@ -3358,6 +3413,15 @@ initialize()
       void logCompletedRevenueSnapshot().catch(error => {
         console.error('[pal-payment-ledger] failed:', error.message);
       });
+      void logShopifyAcquisitionFunnelSnapshot().catch(error => {
+        console.error('[pal-shopify-funnel] failed:', error.message);
+      });
+      const funnelTimer = setInterval(() => {
+        void logShopifyAcquisitionFunnelSnapshot().catch(error => {
+          console.error('[pal-shopify-funnel] failed:', error.message);
+        });
+      }, 15 * 60 * 1000);
+      funnelTimer.unref();
     });
   })
   .catch(error => {
