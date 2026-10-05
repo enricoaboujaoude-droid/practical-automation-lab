@@ -1,0 +1,55 @@
+name: Read PAL Agent402 trust for free
+
+on:
+  push:
+    branches:
+      - nano-seller
+    paths:
+      - .github/workflows/read-pal-agent402-trust.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  trust:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Solve Agent402 proof of work and fetch PAL trust
+        run: |
+          cat > /tmp/read-trust.mjs <<'EOF'
+          import crypto from 'node:crypto';
+
+          const origin = 'https://pal-nano-catalog-audit.onrender.com';
+          const challengeRes = await fetch('https://agent402.tools/api/pow/challenge?slug=seller-trust');
+          if (!challengeRes.ok) throw new Error(`challenge HTTP ${challengeRes.status}`);
+          const c = await challengeRes.json();
+
+          const leadingZeroBits = (buf) => {
+            let total = 0;
+            for (const byte of buf) {
+              if (byte === 0) { total += 8; continue; }
+              total += Math.clz32(byte) - 24;
+              break;
+            }
+            return total;
+          };
+
+          let nonce = 0;
+          for (;; nonce++) {
+            const digest = crypto.createHash('sha256')
+              .update(c.challenge + ':' + nonce)
+              .digest();
+            if (leadingZeroBits(digest) >= c.difficulty) break;
+          }
+
+          const response = await fetch(
+            'https://agent402.tools/api/x402/seller-trust?origin=' + encodeURIComponent(origin),
+            { headers: { 'X-Pow-Solution': c.token + ':' + nonce } },
+          );
+          const text = await response.text();
+          console.log('HTTP', response.status);
+          console.log(text);
+          if (!response.ok) process.exit(1);
+          EOF
+          node /tmp/read-trust.mjs
