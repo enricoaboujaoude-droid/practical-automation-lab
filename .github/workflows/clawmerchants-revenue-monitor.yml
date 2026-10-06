@@ -1,0 +1,83 @@
+name: ClawMerchants revenue monitor
+
+on:
+  push:
+    paths:
+      - ".github/workflows/clawmerchants-revenue-monitor.yml"
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: clawmerchants-revenue-monitor
+  cancel-in-progress: true
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Reconcile high-value PAL offers and report revenue signals
+        shell: bash
+        env:
+          BASE_URL: https://clawmerchants.com
+          PROVIDER_ID: practical-automation-lab
+          FULL_NAME: PAL Full Catalog Remediation
+          FULL_ENDPOINT: https://pal-full-catalog-remediation.onrender.com/v1/usdc/catalog-remediation-bulk
+          BATCH_NAME: PAL Batch Catalog Remediation
+          BATCH_ENDPOINT: https://pal-full-catalog-remediation.onrender.com/v1/usdc/catalog-remediation-batch
+        run: |
+          set -euo pipefail
+
+          fetch_assets() {
+            curl --fail --silent --show-error --max-time 30               "$BASE_URL/api/v1/assets?providerId=$PROVIDER_ID"
+          }
+
+          ASSETS="$(fetch_assets)"
+
+          ensure_asset() {
+            local name="$1"
+            local endpoint="$2"
+            local price="$3"
+            local description="$4"
+
+            if printf '%s' "$ASSETS" | jq -e --arg name "$name" --arg endpoint "$endpoint"               '.assets[]? | select(.name == $name or .endpoint == $endpoint)' >/dev/null; then
+              echo "present: $name"
+              return
+            fi
+
+            payload="$(jq -nc               --arg name "$name"               --arg description "$description"               --arg providerId "$PROVIDER_ID"               --arg endpoint "$endpoint"               --argjson priceUsdc "$price"               '{name:$name,description:$description,category:"ecommerce",assetType:"data",priceUsdc:$priceUsdc,providerId:$providerId,endpoint:$endpoint}')"
+
+            curl --fail --silent --show-error --max-time 30               -X POST "$BASE_URL/api/v1/assets"               -H 'content-type: application/json'               --data "$payload" | jq '{id,name,priceUsdc,status,totalPurchases,discoveryCount}'
+          }
+
+          ensure_asset             "$FULL_NAME" "$FULL_ENDPOINT" 20             "Full-store ecommerce catalog remediation for up to 2,000 product records. Google Merchant Center and product-feed corrective actions, severity, affected product IDs and concrete fixes."
+
+          ensure_asset             "$BATCH_NAME" "$BATCH_ENDPOINT" 5             "Batch ecommerce catalog remediation for up to 500 product records. Merchant Center and product-feed corrective actions, severity, affected products and concrete fixes."
+
+          ASSETS="$(fetch_assets)"
+          printf '%s' "$ASSETS" | jq --arg full "$FULL_NAME" --arg batch "$BATCH_NAME" '
+            {
+              provider: "practical-automation-lab",
+              high_value: [
+                .assets[]?
+                | select(.name == $full or .name == $batch)
+                | {
+                    id,
+                    name,
+                    priceUsdc,
+                    status,
+                    totalPurchases: (.totalPurchases // 0),
+                    discoveryCount: (.discoveryCount // 0)
+                  }
+              ],
+              realized_purchase_count: (
+                [.assets[]? | (.totalPurchases // 0)] | add // 0
+              ),
+              total_discovery_count: (
+                [.assets[]? | (.discoveryCount // 0)] | add // 0
+              )
+            }'
