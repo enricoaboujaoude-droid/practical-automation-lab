@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Live Shopify Store Audit for Merchant Center | Practical Automation Lab</title>
+  <meta name="description" content="Preflight a public Shopify storefront for free, then run a $25 autonomous Merchant Center/catalog-readiness audit over up to 250 live variants. No feed upload or store login required.">
+  <link rel="canonical" href="https://practical-automation-lab.onrender.com/shopify-store-audit.html">
+  <meta name="robots" content="index,follow">
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:900px;margin:0 auto;padding:48px 24px;color:#111827;line-height:1.65}
+    h1{font-size:2.45rem;line-height:1.12}.lead{font-size:1.16rem;color:#374151}.card{border:1px solid #e5e7eb;border-radius:14px;padding:20px;margin:18px 0}
+    input{width:min(100%,620px);box-sizing:border-box;padding:12px 14px;border:1px solid #cbd5e1;border-radius:10px;font:inherit}
+    button,.cta{display:inline-block;padding:12px 18px;border:0;border-radius:10px;background:#111827;color:#fff;text-decoration:none;font:inherit;font-weight:700;cursor:pointer;margin-top:10px}
+    code{background:#f3f4f6;padding:.14rem .35rem;border-radius:6px;overflow-wrap:anywhere}.muted{color:#6b7280}a{color:#0f62fe}
+    #result{white-space:pre-wrap;background:#f8fafc;border-radius:10px;padding:14px;margin-top:14px;display:none}
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Service",
+    "name":"PAL Live Shopify Store Commerce Audit",
+    "description":"Autonomous live public Shopify storefront audit for Merchant Center and catalog readiness.",
+    "provider":{"@type":"Organization","name":"Practical Automation Lab"},
+    "offers":{"@type":"Offer","price":"25.00","priceCurrency":"USD"},
+    "url":"https://practical-automation-lab.onrender.com/shopify-store-audit.html"
+  }
+  </script>
+</head>
+<body>
+  <p><a href="/">← Practical Automation Lab</a></p>
+  <h1>Audit a live Shopify store without uploading a feed</h1>
+  <p class="lead">PAL reads only the store's public Shopify storefront APIs. The paid audit inspects up to 250 live variants for product identifiers, links, pricing, availability and Merchant Center/catalog-readiness issues, then returns prioritized remediation.</p>
+
+  <div class="card">
+    <h2>Free storefront preflight</h2>
+    <p>Check whether PAL can safely read the public catalog before paying.</p>
+    <input id="store" type="url" placeholder="https://your-store.com" autocomplete="url">
+    <br><button id="preflight">Run free preflight</button>
+    <div id="result"></div>
+  </div>
+
+  <div class="card">
+    <h2>Full live-store audit — $25 USDC</h2>
+    <p>The paid machine call fetches the public catalog, audits up to 250 variants, and returns a structured Merchant Center/catalog remediation report. No store login, app install, feed upload, or private credential is required.</p>
+    <p><a id="buy" class="cta" href="https://agent-tools.cloud/services/pal-full-catalog-remediation-onrender-com-sub1199" rel="noopener noreferrer">Open $25 machine-buy listing →</a></p>
+    <p class="muted">Direct x402 endpoint: <code>GET https://pal-full-catalog-remediation.onrender.com/v1/usdc/shopify-store-audit?url=...</code></p>
+  </div>
+
+  <div class="card">
+    <h2>What the audit checks</h2>
+    <ul>
+      <li>Stable product/variant IDs and duplicate-risk signals</li>
+      <li>GTIN/UPC/EAN format and checksum where public barcodes exist</li>
+      <li>Brand + SKU/MPN consistency</li>
+      <li>Public product and image-link shape</li>
+      <li>Live price formatting and storefront currency</li>
+      <li>Variant availability normalization</li>
+      <li>Prioritized critical/high/medium remediation actions</li>
+    </ul>
+  </div>
+
+  <p class="muted">Boundary: public storefront data only. PAL does not authenticate into the shop, mutate store data, or guarantee Google Merchant Center approval.</p>
+
+<script>
+const EVENTS="https://pal-feed-auditor-events.onrender.com/event";
+function event(name){try{fetch(EVENTS,{method:"POST",mode:"cors",headers:{"content-type":"text/plain"},body:name,keepalive:true}).catch(()=>{});}catch(_){}}
+event("pal_shopify_store_audit_viewed");
+const input=document.getElementById("store");
+const result=document.getElementById("result");
+document.getElementById("preflight").addEventListener("click",async()=>{
+  const url=input.value.trim();
+  if(!url){result.style.display="block";result.textContent="Enter a public Shopify storefront URL.";return;}
+  event("pal_shopify_store_preflight_run");
+  result.style.display="block";result.textContent="Checking public storefront…";
+  try{
+    const r=await fetch("https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url="+encodeURIComponent(url));
+    const j=await r.json();
+    if(r.ok){
+      result.textContent="Shopify public catalog detected.\nCurrency: "+(j.currency||"unknown")+"\nSample product present: "+String(j.sample_product_present)+"\n\nPaid audit: $25 USDC\n"+j.paid_audit.url;
+    }else{
+      result.textContent="Preflight could not validate this public storefront.\n"+(j.detail||j.error||"Unknown error");
+    }
+  }catch(e){result.textContent="Preflight request failed. Try again.";}
+});
+document.getElementById("buy").addEventListener("click",()=>event("pal_shopify_store_audit_buy_clicked"));
+</script>
+</body>
+</html>
