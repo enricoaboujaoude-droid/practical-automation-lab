@@ -1674,6 +1674,7 @@ function true402Manifest() {
       { name: "PAL GTIN Check", endpoint: X402_GTIN_URL, method: "POST", price: "0.01" },
       { name: "PAL Single GTIN Check", endpoint: X402_GTIN_ONE_URL, method: "GET", price: "0.01" },
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
+      { name: "PAL x402 Seller Integrity Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.01" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
       { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
       { name: "PAL Full Catalog Remediation", endpoint: X402_REMEDIATE_BULK_URL, method: "POST", price: "20.00" },
@@ -2400,6 +2401,19 @@ async function startIndex402Bootstrap() {
       payment_asset: "USDC",
       payment_network: "Base",
       category: "ecommerce/data-quality",
+      provider: "Practical Automation Lab",
+    },
+    {
+      url: X402_SELLER_AUDIT_URL,
+      name: "PAL x402 Seller Integrity Audit",
+      protocol: "x402",
+      http_method: "GET",
+      description:
+        "Audit one x402 seller origin and paid route using Circle runtime-readiness plus Agent402 routing, health and settlement evidence. Returns machine_buyable, contract_ready, or repair_required without paying the target.",
+      price_usd: 0.01,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      category: "x402/seller-trust",
       provider: "Practical Automation Lab",
     },
     {
@@ -3404,6 +3418,7 @@ async function startMarket402Bootstrap() {
     X402_GTIN_ONE_URL,
     X402_GTIN_URL,
     X402_FEED_DIFF_URL,
+    X402_SELLER_AUDIT_URL,
     X402_VALIDATE_URL,
     X402_REMEDIATE_URL,
     X402_REMEDIATE_BATCH_URL,
@@ -3485,6 +3500,14 @@ async function startX402DashBootstrap() {
         "Full-store Merchant Center and product-feed remediation for 1-2,000 catalog records in one paid call with prioritized fixes and affected product IDs. Paid directly over x402 Base USDC.",
       category: "Data",
       tags: ["ecommerce", "catalog", "merchant-center", "product-feed", "remediation", "full-catalog"],
+    },
+    {
+      url: X402_SELLER_AUDIT_URL,
+      name: "PAL x402 Seller Integrity Audit",
+      description:
+        "Audit one x402 seller using public readiness plus routing and independent settlement evidence. Returns machine_buyable, contract_ready, or repair_required. Paid directly over x402 Base USDC.",
+      category: "Developer Tools",
+      tags: ["x402", "seller-trust", "integrity", "payments", "routing", "agent-commerce"],
     },
     {
       url: X402_GTIN_ONE_URL,
@@ -3915,6 +3938,32 @@ async function startNoHumansBootstrap() {
           },
         },
         required: ["before", "after"],
+      },
+    },
+    {
+      name: "PAL x402 Seller Integrity Audit",
+      description:
+        "Audit one x402 seller origin and paid route using public Circle runtime-readiness plus Agent402 routing, health and settlement evidence. Returns machine_buyable, contract_ready, or repair_required and never sends a payment to the target.",
+      endpoint_url: X402_SELLER_AUDIT_URL,
+      category: "infra.validation",
+      sample_query: `${X402_SELLER_AUDIT_URL}?origin=https%3A%2F%2Fx402-endpoints.onrender.com&route=%2Fx402%2Fseller-trust`,
+      price_amount: 0.01,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          origin: {
+            type: "string",
+            default: "https://x402-endpoints.onrender.com",
+            description: "Seller origin to audit.",
+          },
+          route: {
+            type: "string",
+            default: "/x402/seller-trust",
+            description: "Exact paid route when known.",
+          },
+        },
+        required: ["origin"],
       },
     },
     {
@@ -5217,6 +5266,12 @@ app.get("/.well-known/agent.json", (_req, res) => {
         name: "diff_product_feeds",
         method: "POST",
         url: X402_FEED_DIFF_URL,
+        price_usd: 0.01,
+      },
+      {
+        name: "audit_x402_seller_integrity",
+        method: "GET",
+        url: X402_SELLER_AUDIT_URL,
         price_usd: 0.01,
       },
       {
