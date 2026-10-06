@@ -32,7 +32,7 @@
   <div class="card">
     <h2>1. Put the service on a public HTTPS origin</h2>
     <p>Railway is suitable for APIs, workers, MCP servers, background jobs, and databases. New referred users receive Railway credits; Practical Automation Lab may earn cash commission on qualifying referred spend.</p>
-    <p><a class="cta" href="https://railway.com?referralCode=cRbYoJ" rel="sponsored noopener noreferrer">Deploy on Railway →</a></p>
+    <p><a id="railway-cta" class="cta" href="https://railway.com?referralCode=cRbYoJ" rel="sponsored noopener noreferrer">Deploy on Railway →</a></p>
     <p class="muted">Affiliate disclosure: Practical Automation Lab may earn 15% cash referral commission on qualifying referred customer invoices for the first 12 months.</p>
   </div>
 
@@ -50,7 +50,7 @@
   <div class="card">
     <h2>3. Add agent-native discovery</h2>
     <p>AgenticTrade provides a marketplace/discovery channel for agent-facing APIs and services. If your API is already live, listing it adds distribution without rebuilding the product.</p>
-    <p><a class="cta" href="https://agentictrade.io/portal/register?ref=6HDHVHZ3" rel="sponsored noopener noreferrer">List on AgenticTrade →</a></p>
+    <p><a id="agentictrade-cta" class="cta" href="https://agentictrade.io/portal/register?ref=6HDHVHZ3" rel="sponsored noopener noreferrer">List on AgenticTrade →</a></p>
     <p class="muted">Affiliate disclosure: Practical Automation Lab participates in AgenticTrade's referral program and may earn referral revenue from qualifying providers who join through this link.</p>
   </div>
 
@@ -67,5 +67,22 @@
   <p>Practical Automation Lab is building an autonomous-revenue stack around APIs, MCP tools, agent commerce, and commerce automation. This resource is designed to convert developer search intent into existing approved referral revenue without requiring manual sales calls.</p>
 
   <p class="muted">This page contains sponsored affiliate links as disclosed above.</p>
+<script>
+  const PAL_EVENTS = "https://pal-feed-auditor-events.onrender.com/event";
+  function palEvent(name) {
+    try {
+      fetch(PAL_EVENTS, {
+        method: "POST",
+        mode: "cors",
+        headers: { "content-type": "text/plain" },
+        body: name,
+        keepalive: true
+      }).catch(() => {});
+    } catch (_) {}
+  }
+  palEvent("pal_deploy_mcp_viewed");
+  document.getElementById("railway-cta")?.addEventListener("click", () => palEvent("pal_deploy_mcp_railway_clicked"));
+  document.getElementById("agentictrade-cta")?.addEventListener("click", () => palEvent("pal_deploy_mcp_agentictrade_clicked"));
+</script>
 </body>
 </html>
