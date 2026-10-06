@@ -64,8 +64,8 @@ const X402_GTIN_ONE_PATH = "/v1/usdc/gtin-check-one";
 const X402_FEED_DIFF_PATH = "/v1/usdc/feed-diff";
 const X402_VALIDATE_PATH = "/v1/usdc/x402-validate";
 const X402_SELLER_AUDIT_PATH = "/v1/usdc/x402-seller-integrity";
-const X402_SELLER_AUDIT_PRICE_USD = "$0.25";
-const X402_SELLER_AUDIT_PRICE_ATOMIC = "250000";
+const X402_SELLER_AUDIT_PRICE_USD = "$0.01";
+const X402_SELLER_AUDIT_PRICE_ATOMIC = "10000";
 const X402_SHOPIFY_PRODUCT_PATH = "/v1/usdc/shopify-product-availability";
 const X402_SHOPIFY_PRODUCT_PRICE_USD = "$0.005";
 const X402_SHOPIFY_PRODUCT_PRICE_ATOMIC = "5000";
@@ -1839,7 +1839,7 @@ function true402Manifest() {
       { name: "PAL GTIN Check", endpoint: X402_GTIN_URL, method: "POST", price: "0.01" },
       { name: "PAL Single GTIN Check", endpoint: X402_GTIN_ONE_URL, method: "GET", price: "0.01" },
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
-      { name: "PAL Agent Commerce Seller Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.25" },
+      { name: "PAL Agent Commerce Seller Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.01" },
       { name: "PAL Shopify Product Availability", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "GET", price: "0.005" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
       { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
@@ -2156,7 +2156,7 @@ function x402OpenApi() {
       description:
         "Deterministic paid utilities for autonomous agents: agent-commerce seller verification, x402 readiness diagnostics, catalog QA, GTIN validation, product-feed diff, and prioritized ecommerce remediation.",
       "x-guidance":
-        "Use the $0.25 Agent Commerce Seller Audit when an autonomous agent needs to verify whether an x402 seller is runtime-ready, discoverable, healthy, settlement-backed, and machine-buyable. Use the $20 bulk remediation route for up to 2,000 commerce records, the $5 batch route for up to 500, and the lower-cost validation tools for focused checks. Successful paid calls return structured JSON with a decision, evidence, and exact next actions; unpaid calls return an x402 payment challenge.",
+        "Use the $0.01 Agent Commerce Seller Audit when an autonomous agent needs to verify whether an x402 seller is runtime-ready, discoverable, healthy, settlement-backed, and machine-buyable. Use the $20 bulk remediation route for up to 2,000 commerce records, the $5 batch route for up to 500, and the lower-cost validation tools for focused checks. Successful paid calls return structured JSON with a decision, evidence, and exact next actions; unpaid calls return an x402 payment challenge.",
       contact: {
         email: "enricoaboujaoude@gmail.com",
       },
@@ -5011,7 +5011,7 @@ app.get("/", (_req, res) => {
     primary_offer: {
       name: "PAL Agent Commerce Seller Audit",
       endpoint: "GET /v1/usdc/x402-seller-integrity?origin=...&route=...",
-      price_usd: 0.25,
+      price_usd: 0.01,
       purpose: "Verify x402 seller readiness, discovery, health, settlement evidence and machine-buyability.",
       payment: "x402 v2 exact, USDC on Base",
     },
@@ -6490,7 +6490,25 @@ async function buildSellerIntegrityAudit(originRaw, routeRaw = "") {
   const origin = `${target.protocol}//${target.host}`;
   const hostname = target.hostname.toLowerCase();
   const route = String(routeRaw || "").trim();
-  const [circleResult, agent402Result] = await Promise.allSettled([
+
+  let probeUrl = null;
+  if (route) {
+    try {
+      probeUrl = new URL(route, `${origin}/`);
+      if (probeUrl.origin !== origin) {
+        return { ok: false, error: "invalid_route", detail: "route must stay on the audited seller origin." };
+      }
+      await assertPublicFetchHost(hostname);
+    } catch (error) {
+      return {
+        ok: false,
+        error: "invalid_or_unsafe_route",
+        detail: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  const [circleResult, agent402Result, probeResult] = await Promise.allSettled([
     fetch("https://agents.circle.com/sell/score/check", {
       method: "POST",
       headers: { "content-type": "application/json", accept: "application/json" },
@@ -6501,6 +6519,30 @@ async function buildSellerIntegrityAudit(originRaw, routeRaw = "") {
       `https://agent402.tools/api/route?q=${encodeURIComponent(`${hostname} ${route}`.trim())}&include=external`,
       { headers: { accept: "application/json" }, signal: AbortSignal.timeout(15_000) },
     ).then(async (response) => ({ status: response.status, body: await response.json() })),
+    probeUrl
+      ? fetch(probeUrl, {
+          method: "GET",
+          redirect: "manual",
+          headers: {
+            accept: "application/json",
+            "user-agent": "PAL-Agent-Commerce-Seller-Audit/1.0",
+          },
+          signal: AbortSignal.timeout(12_000),
+        }).then(async (response) => {
+          const raw = (await response.text()).slice(0, 12_000);
+          let body = null;
+          try { body = raw ? JSON.parse(raw) : null; } catch { body = null; }
+          return {
+            status: response.status,
+            content_type: response.headers.get("content-type"),
+            location: response.headers.get("location"),
+            payment_required:
+              response.headers.get("payment-required") ||
+              response.headers.get("x-payment-required"),
+            body,
+          };
+        })
+      : Promise.resolve(null),
   ]);
 
   const circle =
@@ -6529,9 +6571,23 @@ async function buildSellerIntegrityAudit(originRaw, routeRaw = "") {
   const dispatchReason = exact?.routerDispatchReason || null;
   const payers30d = exact?.bazaar?.payers30d ?? exact?.why?.bazaarPayers30d ?? null;
   const calls30d = exact?.bazaar?.calls30d ?? null;
+  const runtimeProbe =
+    probeResult.status === "fulfilled" && probeResult.value
+      ? probeResult.value
+      : null;
+  const probeAccepts =
+    Array.isArray(runtimeProbe?.body?.accepts)
+      ? runtimeProbe.body.accepts
+      : Array.isArray(runtimeProbe?.body?.paymentRequirements?.accepts)
+        ? runtimeProbe.body.paymentRequirements.accepts
+        : [];
+  const liveChallenge =
+    !route ||
+    (runtimeProbe?.status === 402 &&
+      Boolean(runtimeProbe?.payment_required || probeAccepts.length > 0 || runtimeProbe?.body?.x402Version === 2));
 
   let decision = "repair_required";
-  if (runtimeVerified && exact && health === 1) {
+  if (runtimeVerified && exact && health === 1 && liveChallenge) {
     decision = dispatchEligible ? "machine_buyable" : "contract_ready";
   }
 
@@ -6540,6 +6596,9 @@ async function buildSellerIntegrityAudit(originRaw, routeRaw = "") {
   else {
     if (Number(circle.score || 0) < 80) nextActions.push("Raise Circle seller-readiness above 80 by fixing the failed discovery/payment/agent metadata checks.");
     if (!runtimeVerified) nextActions.push("Expose a live unpaid HTTP 402 challenge so runtime payment readiness can be verified.");
+  }
+  if (route && !liveChallenge) {
+    nextActions.push("Make the exact audited route return a live unpaid HTTP 402 challenge with machine-readable accepts before asking an agent to pay it.");
   }
   if (!exact) {
     nextActions.push("Register or expose the exact paid route in a crawler-visible x402 manifest/OpenAPI document.");
@@ -6568,6 +6627,20 @@ async function buildSellerIntegrityAudit(originRaw, routeRaw = "") {
           warnings: circle.warnings || [],
         }
       : null,
+    runtime_probe: route
+      ? {
+          attempted: true,
+          url: probeUrl?.toString() || null,
+          status: runtimeProbe?.status ?? null,
+          live_payment_challenge: liveChallenge,
+          payment_required_header: Boolean(runtimeProbe?.payment_required),
+          accepts_count: probeAccepts.length,
+          redirect_location: runtimeProbe?.location || null,
+        }
+      : {
+          attempted: false,
+          live_payment_challenge: null,
+        },
     agent402: exact
       ? {
           seller: exact.seller || exact.sellerHome || null,
@@ -6701,7 +6774,7 @@ app.get("/v1/usdc/x402-seller-integrity", async (req, res) => {
 
     usdcPaidSellerIntegrityAudits += 1;
     console.log(
-      `[revenue] usdc_x402_seller_integrity served price_usd=0.25 network=${USDC_X402_NETWORK} count=${usdcPaidSellerIntegrityAudits}`,
+      `[revenue] usdc_x402_seller_integrity served price_usd=0.01 network=${USDC_X402_NETWORK} count=${usdcPaidSellerIntegrityAudits}`,
     );
 
     return res.json({
