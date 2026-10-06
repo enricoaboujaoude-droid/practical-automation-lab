@@ -78,6 +78,9 @@ const X402_SELLER_PORTFOLIO_PRICE_ATOMIC = "20000000";
 const X402_AGENT_COMMERCE_KIT_PATH = "/v1/usdc/agent-commerce-launch-kit";
 const X402_AGENT_COMMERCE_KIT_PRICE_USD = "$99.00";
 const X402_AGENT_COMMERCE_KIT_PRICE_ATOMIC = "99000000";
+const X402_AGENT_COMMERCE_GO_LIVE_PATH = "/v1/usdc/agent-commerce-go-live";
+const X402_AGENT_COMMERCE_GO_LIVE_PRICE_USD = "$350.00";
+const X402_AGENT_COMMERCE_GO_LIVE_PRICE_ATOMIC = "350000000";
 const X402_SHOPIFY_PRODUCT_PATH = "/v1/usdc/shopify-product-availability";
 const X402_SHOPIFY_PRODUCT_PRICE_USD = "$0.01";
 const X402_SHOPIFY_PRODUCT_PRICE_ATOMIC = "10000";
@@ -107,6 +110,7 @@ const X402_SELLER_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_SELLER_AUDIT_PATH}`;
 const X402_SELLER_REPAIR_URL = `${PUBLIC_BASE_URL}${X402_SELLER_REPAIR_PATH}`;
 const X402_SELLER_PORTFOLIO_URL = `${PUBLIC_BASE_URL}${X402_SELLER_PORTFOLIO_PATH}`;
 const X402_AGENT_COMMERCE_KIT_URL = `${PUBLIC_BASE_URL}${X402_AGENT_COMMERCE_KIT_PATH}`;
+const X402_AGENT_COMMERCE_GO_LIVE_URL = `${PUBLIC_BASE_URL}${X402_AGENT_COMMERCE_GO_LIVE_PATH}`;
 const X402_SHOPIFY_PRODUCT_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_PRODUCT_PATH}`;
 const X402_SHOPIFY_COMPARE_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_COMPARE_PATH}`;
 const X402_REMEDIATE_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_PATH}`;
@@ -807,6 +811,7 @@ const USDC_X402_PATHS = new Set([
   X402_SELLER_REPAIR_PATH,
   X402_SELLER_PORTFOLIO_PATH,
   X402_AGENT_COMMERCE_KIT_PATH,
+  X402_AGENT_COMMERCE_GO_LIVE_PATH,
   X402_SHOPIFY_PRODUCT_PATH,
   X402_SHOPIFY_COMPARE_PATH,
   X402_REMEDIATE_PATH,
@@ -1352,6 +1357,53 @@ app.use(
           }),
         },
       },
+      "POST /v1/usdc/agent-commerce-go-live": {
+        accepts: x402RouteAccepts(X402_AGENT_COMMERCE_GO_LIVE_PRICE_USD),
+        description:
+          "One-call agent-commerce go-live for an already-public service: verify runtime x402 readiness, generate the deployment bundle, submit the public origin/route to compatible agent discovery markets, and return registration receipts plus exact remaining blockers. No wallet custody and no private repository access.",
+        mimeType: "application/json",
+        serviceName: "PAL Agent Commerce Go-Live",
+        tags: ["agent-commerce", "x402", "distribution", "marketplace", "agent402", "402index", "market402", "readiness", "go-live"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              origin: "https://example.com",
+              route: "/api/paid",
+              service_name: "Example Paid Service",
+              service_description: "What the service does for autonomous buyers.",
+              contact_email: "ops@example.com",
+              price_usd: 25,
+            },
+            inputSchema: {
+              type: "object",
+              additionalProperties: false,
+              required: ["origin", "route", "service_name", "service_description", "price_usd"],
+              properties: {
+                origin: { type: "string", format: "uri" },
+                route: { type: "string", minLength: 1 },
+                service_name: { type: "string", minLength: 3, maxLength: 120 },
+                service_description: { type: "string", minLength: 20, maxLength: 1000 },
+                contact_email: { type: "string" },
+                price_usd: { type: "number", exclusiveMinimum: 0 },
+              },
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL Agent Commerce Go-Live",
+                readiness: { decision: "contract_ready", score: 100 },
+                registrations: {
+                  agent402: { ok: true },
+                  market402: { ok: true },
+                  index402: { ok: true },
+                },
+                files: {},
+                remaining_blockers: [],
+              },
+            },
+          }),
+        },
+      },
       "GET /v1/usdc/shopify-product-availability": {
         accepts: x402RouteAccepts(X402_SHOPIFY_PRODUCT_PRICE_USD),
         description:
@@ -1481,6 +1533,7 @@ let usdcPaidSellerIntegrityAudits = 0;
 let usdcPaidSellerRepairPlans = 0;
 let usdcPaidSellerPortfolioAudits = 0;
 let usdcPaidAgentCommerceLaunchKits = 0;
+let usdcPaidAgentCommerceGoLives = 0;
 let usdcPaidShopifyProductChecks = 0;
 let usdcPaidShopifyProductCompares = 0;
 let usdcPaidCatalogRemediations = 0;
@@ -2035,6 +2088,7 @@ function true402Manifest() {
       { name: "PAL Agent Commerce Seller Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.01" },
       { name: "PAL x402 Seller Revenue Repair Plan", endpoint: X402_SELLER_REPAIR_URL, method: "GET", price: "5.00" },
       { name: "PAL Agent Commerce Launch Kit", endpoint: X402_AGENT_COMMERCE_KIT_URL, method: "POST", price: "99.00" },
+      { name: "PAL Agent Commerce Go-Live", endpoint: X402_AGENT_COMMERCE_GO_LIVE_URL, method: "POST", price: "350.00" },
       { name: "PAL x402 Seller Portfolio Audit", endpoint: X402_SELLER_PORTFOLIO_URL, method: "POST", price: "20.00" },
       { name: "PAL Shopify Product Availability & Price Check", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "GET", price: "0.01" },
       { name: "PAL Shopify Product Compare", endpoint: X402_SHOPIFY_COMPARE_URL, method: "POST", price: "0.05" },
@@ -2049,6 +2103,7 @@ function true402Manifest() {
 function x402Manifest() {
   const commonAccepts = x402ManifestAccepts(X402_PRICE_ATOMIC);
   const sellerAuditAccepts = x402ManifestAccepts(X402_SELLER_AUDIT_PRICE_ATOMIC);
+  const agentCommerceGoLiveAccepts = x402ManifestAccepts(X402_AGENT_COMMERCE_GO_LIVE_PRICE_ATOMIC);
   const agentCommerceKitAccepts = x402ManifestAccepts(X402_AGENT_COMMERCE_KIT_PRICE_ATOMIC);
   const sellerRepairAccepts = x402ManifestAccepts(X402_SELLER_REPAIR_PRICE_ATOMIC);
   const sellerPortfolioAccepts = x402ManifestAccepts(X402_SELLER_PORTFOLIO_PRICE_ATOMIC);
@@ -2149,6 +2204,27 @@ function x402Manifest() {
           },
         },
         accepts: sellerAuditAccepts,
+      },
+      {
+        resource: X402_AGENT_COMMERCE_GO_LIVE_URL,
+        name: "PAL Agent Commerce Go-Live",
+        description:
+          "Verify one already-public paid agent service, generate its launch artifacts, submit the origin/route to compatible buyer-discovery markets, and return registration receipts plus remaining blockers.",
+        method: "POST",
+        price: X402_AGENT_COMMERCE_GO_LIVE_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["origin", "route", "service_name", "service_description", "price_usd"],
+          properties: {
+            origin: { type: "string" },
+            route: { type: "string" },
+            service_name: { type: "string" },
+            service_description: { type: "string" },
+            contact_email: { type: "string" },
+            price_usd: { type: "number" },
+          },
+        },
+        accepts: agentCommerceGoLiveAccepts,
       },
       {
         resource: X402_AGENT_COMMERCE_KIT_URL,
@@ -2386,6 +2462,18 @@ function x402OpenApi() {
     amount: X402_REMEDIATE_PRICE_ATOMIC,
     price: { mode: "fixed", currency: "USD", amount: X402_REMEDIATE_PRICE_USD.replace("$", "") },
     priceDisplay: X402_REMEDIATE_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
+  const agentCommerceGoLivePaymentInfo = {
+    protocol: "x402",
+    protocols: ["x402"],
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_AGENT_COMMERCE_GO_LIVE_PRICE_ATOMIC,
+    price: { mode: "fixed", currency: "USD", amount: "350.00" },
+    priceDisplay: X402_AGENT_COMMERCE_GO_LIVE_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
   const agentCommerceKitPaymentInfo = {
@@ -2761,6 +2849,40 @@ function x402OpenApi() {
             "502": { description: "Public readiness/index upstream temporarily unavailable." },
           },
           "x-payment-info": sellerAuditPaymentInfo,
+        },
+      },
+      [X402_AGENT_COMMERCE_GO_LIVE_PATH]: {
+        post: {
+          operationId: "agentCommerceGoLive",
+          summary: "Verify and distribute an already-public paid agent service",
+          tags: ["agent-commerce", "x402", "distribution", "go-live"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: ["origin", "route", "service_name", "service_description", "price_usd"],
+                  properties: {
+                    origin: { type: "string", format: "uri" },
+                    route: { type: "string", minLength: 1 },
+                    service_name: { type: "string", minLength: 3, maxLength: 120 },
+                    service_description: { type: "string", minLength: 20, maxLength: 1000 },
+                    contact_email: { type: "string" },
+                    price_usd: { type: "number", exclusiveMinimum: 0 },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "Go-live bundle and marketplace registration receipts after successful payment." },
+            "400": { description: "Invalid go-live input." },
+            "402": { description: "x402 payment required." },
+            "502": { description: "Readiness or marketplace upstream temporarily unavailable." },
+          },
+          "x-payment-info": agentCommerceGoLivePaymentInfo,
         },
       },
       [X402_AGENT_COMMERCE_KIT_PATH]: {
@@ -5606,6 +5728,7 @@ app.get("/", (_req, res) => {
       "GET /v1/usdc/x402-seller-repair-plan?origin=...&route=...",
       "POST /v1/usdc/x402-seller-portfolio-audit",
       "POST /v1/usdc/agent-commerce-launch-kit",
+      "POST /v1/usdc/agent-commerce-go-live",
       "POST /v1/usdc/x402-validate",
       "POST /v1/usdc/catalog-remediation",
       "POST /v1/usdc/catalog-remediation-canary",
@@ -6467,6 +6590,7 @@ app.get("/v1/revenue", async (_req, res) => {
         seller_repair_plan_calls: usdcPaidSellerRepairPlans,
         seller_portfolio_audit_calls: usdcPaidSellerPortfolioAudits,
         agent_commerce_launch_kit_calls: usdcPaidAgentCommerceLaunchKits,
+        agent_commerce_go_live_calls: usdcPaidAgentCommerceGoLives,
         catalog_bulk_calls: usdcPaidCatalogRemediationBulks,
         catalog_batch_calls: usdcPaidCatalogRemediationBatches,
       },
@@ -6499,6 +6623,7 @@ app.get("/v1/stats", (_req, res) => {
     usdc_x402_paid_seller_repair_plans_since_process_start: usdcPaidSellerRepairPlans,
     usdc_x402_paid_seller_portfolio_audits_since_process_start: usdcPaidSellerPortfolioAudits,
     usdc_x402_paid_agent_commerce_launch_kits_since_process_start: usdcPaidAgentCommerceLaunchKits,
+    usdc_x402_paid_agent_commerce_go_lives_since_process_start: usdcPaidAgentCommerceGoLives,
     usdc_x402_paid_shopify_product_checks_since_process_start: usdcPaidShopifyProductChecks,
     usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
     usdc_x402_paid_catalog_remediations_since_process_start: usdcPaidCatalogRemediations,
@@ -6513,6 +6638,7 @@ app.get("/v1/stats", (_req, res) => {
       usdcPaidSellerRepairPlans * 5.00 +
       usdcPaidSellerPortfolioAudits * 20.00 +
       usdcPaidAgentCommerceLaunchKits * 99.00 +
+      usdcPaidAgentCommerceGoLives * 350.00 +
       usdcPaidShopifyProductChecks * 0.005 +
       usdcPaidX402Validations * 0.05 +
       usdcPaidCatalogRemediations * 1.00 +
@@ -7690,6 +7816,162 @@ function buildAgentCommerceLaunchKit(report, input) {
       "This package generates deployment-ready artifacts and registration payloads from public/runtime evidence. It does not take custody of wallets, sign payments, deploy into the buyer's private repository, or fabricate settlement history.",
   };
 }
+
+async function registerAgentCommerceService(input, launchKit) {
+  const origin = launchKit.target.origin;
+  const route = String(input.route || launchKit.target.route || "").trim();
+  const resource = new URL(route, `${origin}/`).toString();
+  const priceUsd = Number(input.price_usd);
+  const probeBody = JSON.stringify({
+    origin,
+    route,
+    service_name: input.service_name,
+    service_description: input.service_description,
+    contact_email: input.contact_email || undefined,
+  });
+
+  const registrations = {};
+
+  try {
+    const response = await fetch(AGENT402_REGISTER_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ origin }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const body = await response.json().catch(() => ({}));
+    registrations.agent402 = {
+      ok: response.ok && body?.listed === true,
+      status: response.status,
+      listed: body?.listed === true,
+      tools: body?.seller?.toolCount ?? null,
+      routable: body?.seller?.routable ?? null,
+      health: body?.seller?.health ?? null,
+    };
+  } catch (error) {
+    registrations.agent402 = { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+
+  try {
+    const response = await fetch(MARKET402_SUBMIT_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ resource }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const body = await response.json().catch(() => ({}));
+    registrations.market402 = {
+      ok: response.ok && body?.ok === true,
+      status: response.status,
+      message: body?.message || null,
+      compliance: body?.instant_check?.summary || null,
+    };
+  } catch (error) {
+    registrations.market402 = { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+
+  try {
+    const payload = {
+      url: resource,
+      name: String(input.service_name).trim(),
+      protocol: "x402",
+      http_method: "POST",
+      probe_body: probeBody,
+      description: String(input.service_description).trim(),
+      price_usd: priceUsd,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      category: "x402/agent-commerce",
+      provider: String(input.service_name).trim(),
+    };
+    const response = await fetch(INDEX402_REGISTER_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const body = await response.json().catch(() => ({}));
+    registrations.index402 = {
+      ok: response.ok || response.status === 409,
+      status: response.status,
+      service_id: body?.service?.id || null,
+      listing_status: body?.service?.status || body?.status || null,
+      healthy: body?.service?.health_status === "healthy",
+      domain_verified: body?.service?.domain_verified === 1,
+    };
+  } catch (error) {
+    registrations.index402 = { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+
+  return { resource, registrations };
+}
+
+app.post("/v1/usdc/agent-commerce-go-live", async (req, res) => {
+  const origin = String(req.body?.origin || "").trim();
+  const route = String(req.body?.route || "").trim();
+  const serviceName = String(req.body?.service_name || "").trim();
+  const serviceDescription = String(req.body?.service_description || "").trim();
+  const priceUsd = Number(req.body?.price_usd);
+  if (
+    !origin ||
+    !route ||
+    serviceName.length < 3 ||
+    serviceDescription.length < 20 ||
+    !Number.isFinite(priceUsd) ||
+    priceUsd <= 0
+  ) {
+    return res.status(400).json({
+      error: "invalid_go_live_input",
+      detail: "origin, route, service_name, service_description, and positive price_usd are required.",
+    });
+  }
+
+  try {
+    const report = await buildSellerIntegrityAudit(origin, route);
+    if (!report.ok) return res.status(400).json(report);
+    const launchKit = buildAgentCommerceLaunchKit(report, req.body);
+    const registration = await registerAgentCommerceService(req.body, launchKit);
+
+    usdcPaidAgentCommerceGoLives += 1;
+    console.log(
+      `[revenue] usdc_agent_commerce_go_live served price_usd=350 network=${USDC_X402_NETWORK} count=${usdcPaidAgentCommerceGoLives}`,
+    );
+
+    const remainingBlockers = [
+      ...(launchKit.readiness?.blockers || []),
+      ...Object.entries(registration.registrations)
+        .filter(([, value]) => value?.ok !== true)
+        .map(([name]) => `${name}_registration_failed`),
+    ];
+
+    return res.json({
+      service: "PAL Agent Commerce Go-Live",
+      completed_at: nowIso(),
+      target: launchKit.target,
+      readiness: launchKit.readiness,
+      files: launchKit.files,
+      registrations: registration.registrations,
+      registered_resource: registration.resource,
+      deployment_checklist: launchKit.deployment_checklist,
+      remaining_blockers: remainingBlockers,
+      payment: {
+        verified_by: "x402",
+        network: USDC_X402_NETWORK,
+        asset: "USDC",
+        price_usd: X402_AGENT_COMMERCE_GO_LIVE_PRICE_USD,
+        pay_to: BASE_PAYOUT_ADDRESS,
+        facilitator: "PayAI",
+      },
+      boundary:
+        "This service operates only on the buyer-supplied public origin/route. It does not access private repositories, sign buyer transactions, custody wallets, or create fake settlement history.",
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "agent_commerce_go_live_failed",
+      detail: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
 
 app.post("/v1/usdc/agent-commerce-launch-kit", async (req, res) => {
   const origin = String(req.body?.origin || "").trim();
