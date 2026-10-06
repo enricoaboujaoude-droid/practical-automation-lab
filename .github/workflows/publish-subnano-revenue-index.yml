@@ -47,9 +47,13 @@ jobs:
         shell: bash
         run: |
           node --input-type=module <<'NODE'
-          import { ensureSubnanoRevenueIndex } from "./subnano-revenue-index-publisher.mjs";
+          import {
+            ensureSubnanoRevenueIndex,
+            correctSubnanoVerificationAccounting
+          } from "./subnano-revenue-index-publisher.mjs";
+          const correction = await correctSubnanoVerificationAccounting();
           const result = await ensureSubnanoRevenueIndex();
-          console.log(JSON.stringify(result));
+          console.log(JSON.stringify({ correction, result }));
           NODE
 
       - name: Publish premium autonomous revenue report
