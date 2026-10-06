@@ -4,22 +4,33 @@ const RPC_URL = process.env.BASE_RPC_URL || "https://mainnet.base.org";
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const PAYOUT = "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF".toLowerCase();
 const LEDGER_PATH = process.env.REVENUE_LEDGER_PATH || "revenue/base-usdc-ledger.json";
-const BLOCK_WINDOW = Number(process.env.BLOCK_WINDOW || 30000);
+const BLOCK_WINDOW = Number(process.env.BLOCK_WINDOW || 5000);
 const CHUNK = 450;
+const RPC_DELAY_MS = Number(process.env.RPC_DELAY_MS || 300);
 const TRANSFER_TOPIC =
   "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
 const TO_TOPIC = "0x" + "0".repeat(24) + PAYOUT.slice(2);
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function rpc(method, params) {
-  const response = await fetch(RPC_URL, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
-  });
-  if (!response.ok) throw new Error(`${method} HTTP ${response.status}`);
-  const body = await response.json();
-  if (body.error) throw new Error(`${method}: ${JSON.stringify(body.error)}`);
-  return body.result;
+  let lastError;
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    const response = await fetch(RPC_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+    });
+    if (response.ok) {
+      const body = await response.json();
+      if (body.error) throw new Error(`${method}: ${JSON.stringify(body.error)}`);
+      return body.result;
+    }
+    lastError = new Error(`${method} HTTP ${response.status}`);
+    if (response.status !== 429 && response.status < 500) throw lastError;
+    await sleep(750 * 2 ** attempt);
+  }
+  throw lastError;
 }
 
 function readLedger() {
@@ -76,20 +87,16 @@ for (let start = overlapStart; start <= latest; start += CHUNK) {
     },
   ]);
   logs.push(...batch);
+  await sleep(RPC_DELAY_MS);
 }
 
 const existing = new Set(
-  (ledger.transfers || []).map(
-    (item) => `${String(item.tx_hash).toLowerCase()}:${item.log_index}`,
-  ),
+  (ledger.transfers || []).map((item) => String(item.tx_hash).toLowerCase()),
 );
 
 let added = 0;
 for (const log of logs) {
-  const key = `${String(log.transactionHash).toLowerCase()}:${Number.parseInt(
-    log.logIndex,
-    16,
-  )}`;
+  const key = String(log.transactionHash).toLowerCase();
   if (existing.has(key)) continue;
 
   const blockNumber = Number.parseInt(log.blockNumber, 16);
@@ -104,6 +111,7 @@ for (const log of logs) {
   });
   existing.add(key);
   added += 1;
+  await sleep(RPC_DELAY_MS);
 }
 
 ledger.transfers.sort(
