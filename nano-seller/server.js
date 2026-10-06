@@ -87,6 +87,9 @@ const X402_SHOPIFY_PRODUCT_PRICE_ATOMIC = "10000";
 const X402_SHOPIFY_COMPARE_PATH = "/v1/usdc/shopify-product-compare";
 const X402_SHOPIFY_COMPARE_PRICE_USD = "$0.05";
 const X402_SHOPIFY_COMPARE_PRICE_ATOMIC = "50000";
+const X402_SHOPIFY_STORE_AUDIT_PATH = "/v1/usdc/shopify-store-audit";
+const X402_SHOPIFY_STORE_AUDIT_PRICE_USD = "$25.00";
+const X402_SHOPIFY_STORE_AUDIT_PRICE_ATOMIC = "25000000";
 const X402_VALIDATE_PRICE_USD = "$0.05";
 const X402_VALIDATE_PRICE_ATOMIC = "50000";
 const X402_REMEDIATE_PATH = "/v1/usdc/catalog-remediation";
@@ -113,6 +116,7 @@ const X402_AGENT_COMMERCE_KIT_URL = `${PUBLIC_BASE_URL}${X402_AGENT_COMMERCE_KIT
 const X402_AGENT_COMMERCE_GO_LIVE_URL = `${PUBLIC_BASE_URL}${X402_AGENT_COMMERCE_GO_LIVE_PATH}`;
 const X402_SHOPIFY_PRODUCT_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_PRODUCT_PATH}`;
 const X402_SHOPIFY_COMPARE_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_COMPARE_PATH}`;
+const X402_SHOPIFY_STORE_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_STORE_AUDIT_PATH}`;
 const X402_REMEDIATE_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_PATH}`;
 const X402_REMEDIATE_BATCH_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BATCH_PATH}`;
 const X402_REMEDIATE_BULK_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BULK_PATH}`;
@@ -892,6 +896,7 @@ const USDC_X402_PATHS = new Set([
   X402_AGENT_COMMERCE_GO_LIVE_PATH,
   X402_SHOPIFY_PRODUCT_PATH,
   X402_SHOPIFY_COMPARE_PATH,
+  X402_SHOPIFY_STORE_AUDIT_PATH,
   X402_REMEDIATE_PATH,
   X402_REMEDIATE_BATCH_PATH,
   X402_REMEDIATE_BULK_PATH,
@@ -1482,6 +1487,37 @@ app.use(
           }),
         },
       },
+      "GET /v1/usdc/shopify-store-audit": {
+        accepts: x402RouteAccepts(X402_SHOPIFY_STORE_AUDIT_PRICE_USD),
+        description:
+          "Audit a live public Shopify storefront without requiring a feed upload. PAL fetches public catalog/cart metadata, inspects up to 250 sellable variants, validates identifiers/pricing/availability/link shape, and returns prioritized Merchant Center remediation.",
+        mimeType: "application/json",
+        serviceName: "PAL Live Shopify Store Commerce Audit",
+        tags: ["shopify", "live-store", "merchant-center", "catalog-audit", "product-feed", "ecommerce", "automation"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: { url: "https://example-shop.com" },
+            inputSchema: {
+              type: "object",
+              additionalProperties: false,
+              required: ["url"],
+              properties: {
+                url: { type: "string", format: "uri", description: "Public HTTPS Shopify storefront URL." },
+              },
+            },
+            output: {
+              example: {
+                service: "PAL Live Shopify Store Commerce Audit",
+                source: "Shopify public storefront APIs",
+                variants_audited: 40,
+                readiness: "needs_remediation",
+                summary: { records: 40, issues: 7, errors: 5, warnings: 2 },
+                prioritized_actions: [],
+              },
+            },
+          }),
+        },
+      },
       "GET /v1/usdc/shopify-product-availability": {
         accepts: x402RouteAccepts(X402_SHOPIFY_PRODUCT_PRICE_USD),
         description:
@@ -1614,6 +1650,7 @@ let usdcPaidAgentCommerceLaunchKits = 0;
 let usdcPaidAgentCommerceGoLives = 0;
 let usdcPaidShopifyProductChecks = 0;
 let usdcPaidShopifyProductCompares = 0;
+let usdcPaidShopifyStoreAudits = 0;
 let usdcPaidCatalogRemediations = 0;
 let usdcPaidCatalogRemediationBatches = 0;
 let usdcPaidCatalogRemediationBulks = 0;
@@ -1879,6 +1916,142 @@ async function readShopifyProduct(input) {
     return { found: true, product_json_url: target.toString(), product };
   }
   throw new Error("shopify_product_redirect_limit");
+}
+
+
+function shopifyStoreOrigin(input) {
+  const source = new URL(String(input || "").trim());
+  if (source.protocol !== "https:" || source.username || source.password) {
+    throw new Error("shopify_store_url_must_be_public_https");
+  }
+  source.pathname = "/";
+  source.search = "";
+  source.hash = "";
+  return source;
+}
+
+async function readBoundedPublicJson(initialUrl, {
+  maxBytes = 5_000_000,
+  timeoutMs = 15_000,
+  userAgent = "Practical-Automation-Lab-Live-Shopify-Audit/1.0",
+} = {}) {
+  let target = new URL(initialUrl);
+  for (let redirect = 0; redirect <= 3; redirect += 1) {
+    if (target.protocol !== "https:" || target.username || target.password) {
+      throw new Error("unsafe_public_json_url");
+    }
+    await assertPublicFetchHost(target.hostname);
+    const response = await fetch(target, {
+      method: "GET",
+      headers: { accept: "application/json", "user-agent": userAgent },
+      redirect: "manual",
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+
+    if ([301, 302, 303, 307, 308].includes(response.status)) {
+      const location = response.headers.get("location");
+      if (!location || redirect === 3) throw new Error("unsafe_or_excessive_redirect");
+      const next = new URL(location, target);
+      if (next.protocol !== "https:" || next.username || next.password) {
+        throw new Error("unsafe_redirect_target");
+      }
+      target = next;
+      continue;
+    }
+
+    if (!response.ok) throw new Error(`public_json_http_${response.status}`);
+    const length = Number(response.headers.get("content-length") || 0);
+    if (length > maxBytes) throw new Error("public_json_response_too_large");
+    const raw = await response.text();
+    if (raw.length > maxBytes) throw new Error("public_json_response_too_large");
+    try {
+      return { url: target.toString(), json: JSON.parse(raw) };
+    } catch {
+      throw new Error("public_json_invalid");
+    }
+  }
+  throw new Error("public_json_redirect_limit");
+}
+
+async function readShopifyStoreCatalog(input) {
+  const origin = shopifyStoreOrigin(input);
+  await assertPublicFetchHost(origin.hostname);
+
+  const productsRead = await readBoundedPublicJson(new URL("/products.json?limit=250", origin), {
+    maxBytes: 8_000_000,
+  });
+  const products = Array.isArray(productsRead.json?.products) ? productsRead.json.products : null;
+  if (!products) throw new Error("shopify_products_shape_invalid");
+
+  let currency = null;
+  let cartJsonUrl = null;
+  try {
+    const cartRead = await readBoundedPublicJson(new URL("/cart.js", origin), {
+      maxBytes: 1_000_000,
+      timeoutMs: 10_000,
+    });
+    cartJsonUrl = cartRead.url;
+    currency = cleanString(cartRead.json?.currency).toUpperCase() || null;
+    if (currency && !/^[A-Z]{3}$/.test(currency)) currency = null;
+  } catch {}
+
+  const records = [];
+  let variantsSeen = 0;
+  for (const product of products) {
+    const variants = Array.isArray(product?.variants) ? product.variants : [];
+    const images = Array.isArray(product?.images) ? product.images : [];
+    for (const variant of variants) {
+      variantsSeen += 1;
+      if (records.length >= 250) continue;
+
+      const variantId = cleanString(variant?.id);
+      const productId = cleanString(product?.id);
+      const handle = cleanString(product?.handle);
+      const sku = cleanString(variant?.sku);
+      const barcode = cleanString(variant?.barcode);
+      const vendor = cleanString(product?.vendor);
+      const title = [cleanString(product?.title), cleanString(variant?.title)]
+        .filter((value) => value && value.toLowerCase() !== "default title")
+        .join(" — ");
+      const imageLink =
+        cleanString(variant?.featured_image?.src) ||
+        cleanString(variant?.featured_image) ||
+        cleanString(product?.image?.src) ||
+        cleanString(product?.image) ||
+        cleanString(images[0]?.src) ||
+        cleanString(images[0]);
+      const priceValue = cleanString(variant?.price);
+      const productLink = handle
+        ? new URL(`/products/${encodeURIComponent(handle)}`, origin).toString()
+        : origin.toString();
+
+      records.push({
+        id: variantId || (productId && sku ? `${productId}-${sku}` : productId || sku),
+        title,
+        link: productLink,
+        image_link: imageLink,
+        gtin: barcode,
+        brand: vendor,
+        mpn: sku,
+        price: priceValue && currency ? `${priceValue} ${currency}` : "",
+        availability: variant?.available === true ? "in_stock" : "out_of_stock",
+        identifier_exists: Boolean(barcode || sku),
+      });
+    }
+  }
+
+  if (!records.length) throw new Error("shopify_store_has_no_public_variants");
+  return {
+    origin: origin.toString(),
+    products_json_url: productsRead.url,
+    cart_json_url: cartJsonUrl,
+    currency,
+    products_seen: products.length,
+    variants_seen: variantsSeen,
+    variants_audited: records.length,
+    variants_truncated: variantsSeen > records.length,
+    records,
+  };
 }
 
 function extractAgentPayRecords(messages) {
@@ -7675,6 +7848,65 @@ async function buildSellerIntegrityAudit(originRaw, routeRaw = "") {
     },
   };
 }
+
+app.get("/v1/usdc/shopify-store-audit", async (req, res) => {
+  const storeUrl = String(req.query?.url || "").trim();
+  if (!storeUrl) {
+    return res.status(400).json({ error: "missing_url", detail: "Query parameter url must contain a public HTTPS Shopify storefront URL." });
+  }
+
+  try {
+    const prepared = shopifyStoreOrigin(storeUrl);
+    await assertPublicFetchHost(prepared.hostname);
+  } catch (error) {
+    return res.status(400).json({
+      error: "invalid_or_unsafe_shopify_store_url",
+      detail: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  usdcPaidShopifyStoreAudits += 1;
+  console.log(`[revenue] usdc_x402_shopify_store_audit served price_usd=25 network=${USDC_X402_NETWORK} count=${usdcPaidShopifyStoreAudits}`);
+
+  try {
+    const live = await readShopifyStoreCatalog(storeUrl);
+    const remediation = catalogRemediationPlan(live.records);
+    return res.json({
+      service: "PAL Live Shopify Store Commerce Audit",
+      checked_at: nowIso(),
+      source: "Shopify public storefront APIs",
+      storefront: {
+        origin: live.origin,
+        products_json_url: live.products_json_url,
+        cart_json_url: live.cart_json_url,
+        currency: live.currency,
+        products_seen: live.products_seen,
+        variants_seen: live.variants_seen,
+        variants_audited: live.variants_audited,
+        variants_truncated: live.variants_truncated,
+      },
+      readiness: remediation.readiness,
+      summary: remediation.summary,
+      prioritized_actions: remediation.prioritized_actions,
+      audit: remediation.audit,
+      payment: {
+        verified_by: "x402",
+        network: USDC_X402_NETWORK,
+        asset: "USDC",
+        price_usd: X402_SHOPIFY_STORE_AUDIT_PRICE_USD,
+        pay_to: BASE_PAYOUT_ADDRESS,
+      },
+      boundary: { authenticated_access: false, private_data_access: false, store_mutation: false, records_cap: 250 },
+      disclaimer: "Public-storefront deterministic audit only; not a guarantee of Google Merchant Center approval, full private-catalog coverage, or regulatory compliance.",
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "shopify_store_audit_failed",
+      detail: error instanceof Error ? error.message : String(error),
+      checked_at: nowIso(),
+    });
+  }
+});
 
 app.get("/v1/usdc/shopify-product-availability", async (req, res) => {
   const productUrl = String(req.query?.url || "").trim();
