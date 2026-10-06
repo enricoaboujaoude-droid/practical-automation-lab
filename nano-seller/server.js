@@ -1811,21 +1811,22 @@ function catalogAuditExample() {
 function true402Manifest() {
   return {
     x402: "1.0",
-    name: "PAL Full Catalog Remediation",
+    name: "PAL Agent Commerce Seller Audit",
     description:
-      "Turn up to 2,000 ecommerce catalog records into one prioritized Google Merchant Center and product-feed remediation plan with concrete corrective actions, issue severity, and affected products.",
+      "Verify whether an x402 seller and exact paid route are live, discoverable, machine-buyable, and backed by routing and settlement evidence. Returns a decision plus exact repair actions without paying the audited target.",
     capabilities: [
-      "catalog-remediation",
-      "merchant-center",
-      "product-feed",
-      "ecommerce",
-      "catalog",
-      "gtin",
+      "x402-audit",
+      "seller-integrity",
+      "endpoint-verification",
+      "agent-commerce",
+      "payment-preflight",
+      "routing",
+      "settlement-evidence",
       "validation",
     ],
     pricing: {
       currency: "USDC",
-      base: "20.00",
+      base: "0.01",
       unit: "request",
     },
     payment: {
@@ -1833,7 +1834,7 @@ function true402Manifest() {
       chain: "base-mainnet",
       facilitator: X402_FACILITATOR_URL,
     },
-    endpoint: X402_REMEDIATE_BULK_URL,
+    endpoint: X402_SELLER_AUDIT_URL,
     endpoints: [
       { name: "PAL Catalog Feed Identifier Audit", endpoint: X402_AUDIT_URL, method: "POST", price: "0.01" },
       { name: "PAL GTIN Check", endpoint: X402_GTIN_URL, method: "POST", price: "0.01" },
@@ -3458,7 +3459,7 @@ async function startOpenDexterAuditionBootstrap() {
         accept: "application/json",
         "accept-encoding": "identity",
       },
-      body: JSON.stringify({ url: X402_REMEDIATE_BULK_URL }),
+      body: JSON.stringify({ url: X402_SELLER_AUDIT_URL }),
       signal: AbortSignal.timeout(120_000),
       redirect: "manual",
     });
@@ -3498,7 +3499,7 @@ async function startOpenDexterAuditionBootstrap() {
     };
 
     console.log(
-      `[opendexter] audition route=${X402_REMEDIATE_BULK_URL} ok=true scored=${openDexterAuditionState.routes.filter((r) => Number.isFinite(r.score)).length}`
+      `[opendexter] audition route=${X402_SELLER_AUDIT_URL} ok=true scored=${openDexterAuditionState.routes.filter((r) => Number.isFinite(r.score)).length}`
     );
     const retryableVerifierFailure = openDexterAuditionState.routes.some(
       (route) =>
@@ -3595,7 +3596,7 @@ async function startTrue402Bootstrap() {
       error: null,
     };
     console.log(
-      `[true402] registered/refreshed primary=${X402_REMEDIATE_BULK_URL} id=${body?.id || body?.service?.id || body?.data?.id || "unknown"}`
+      `[true402] registered/refreshed primary=${X402_SELLER_AUDIT_URL} id=${body?.id || body?.service?.id || body?.data?.id || "unknown"}`
     );
   } catch (error) {
     true402State = {
