@@ -86,6 +86,16 @@ const ALLOWED_EVENTS = new Set([
   'pal_pricing_shopify_clicked',
   'pal_feed_auditor_shopify_clicked',
   'pal_image_readiness_shopify_clicked',
+  'pal_affiliate_audit_viewed',
+  'pal_impact_audit_viewed',
+  'pal_awin_audit_viewed',
+  'pal_shareasale_audit_viewed',
+  'pal_partnerstack_audit_viewed',
+  'pal_afterlink_free_audit_clicked',
+  'pal_afterlink_impact_clicked',
+  'pal_afterlink_awin_clicked',
+  'pal_afterlink_shareasale_clicked',
+  'pal_afterlink_partnerstack_clicked',
 ]);
 
 if (!DATABASE_URL) {
@@ -164,7 +174,17 @@ async function initialize() {
         'pal_pricing_viewed',
         'pal_pricing_shopify_clicked',
         'pal_feed_auditor_shopify_clicked',
-        'pal_image_readiness_shopify_clicked'
+        'pal_image_readiness_shopify_clicked',
+        'pal_affiliate_audit_viewed',
+        'pal_impact_audit_viewed',
+        'pal_awin_audit_viewed',
+        'pal_shareasale_audit_viewed',
+        'pal_partnerstack_audit_viewed',
+        'pal_afterlink_free_audit_clicked',
+        'pal_afterlink_impact_clicked',
+        'pal_afterlink_awin_clicked',
+        'pal_afterlink_shareasale_clicked',
+        'pal_afterlink_partnerstack_clicked'
       ))
   `);
   await pool.query(`
@@ -2524,6 +2544,42 @@ const server = http.createServer(async (req, res) => {
         ok: true,
         scope: 'production_only',
         events: await productionMetrics(names),
+      });
+    }
+
+    if (req.method === 'GET' && url.pathname === '/metrics/affiliate-funnel') {
+      const names = [
+        'pal_affiliate_audit_viewed',
+        'pal_impact_audit_viewed',
+        'pal_awin_audit_viewed',
+        'pal_shareasale_audit_viewed',
+        'pal_partnerstack_audit_viewed',
+        'pal_afterlink_free_audit_clicked',
+        'pal_afterlink_impact_clicked',
+        'pal_afterlink_awin_clicked',
+        'pal_afterlink_shareasale_clicked',
+        'pal_afterlink_partnerstack_clicked',
+      ];
+      const events = await productionMetrics(names);
+      const views =
+        (events.pal_affiliate_audit_viewed?.total || 0) +
+        (events.pal_impact_audit_viewed?.total || 0) +
+        (events.pal_awin_audit_viewed?.total || 0) +
+        (events.pal_shareasale_audit_viewed?.total || 0) +
+        (events.pal_partnerstack_audit_viewed?.total || 0);
+      const clicks =
+        (events.pal_afterlink_free_audit_clicked?.total || 0) +
+        (events.pal_afterlink_impact_clicked?.total || 0) +
+        (events.pal_afterlink_awin_clicked?.total || 0) +
+        (events.pal_afterlink_shareasale_clicked?.total || 0) +
+        (events.pal_afterlink_partnerstack_clicked?.total || 0);
+      return sendJson(req, res, 200, {
+        ok: true,
+        scope: 'production_only',
+        views,
+        outbound_clicks: clicks,
+        outbound_ctr_pct: views > 0 ? Number(((clicks / views) * 100).toFixed(2)) : null,
+        events,
       });
     }
 
