@@ -4,8 +4,29 @@
   "asset": "USDC",
   "asset_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   "payout_address": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
-  "transfers": [],
-  "total_usdc": 0,
+  "transfers": [
+    {
+      "tx_hash": "0xd6d5a0238a350b8cb9e955ff6655181cdda79772853252b6f275da475472fa89",
+      "log_index": null,
+      "block_number": 52198758,
+      "timestamp": "2026-10-05T07:54:23.000Z",
+      "from": "0x7e6b6556322c4e26c567a867964ac793f5ee2b1c",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "verified_baseline_basescan"
+    },
+    {
+      "tx_hash": "0x916ce48a02ceb864e3a8f20da0d672eb23f17dde080a9f1f77a116e5cca31d77",
+      "log_index": null,
+      "block_number": 52206633,
+      "timestamp": "2026-10-05T12:16:53.000Z",
+      "from": "0x7e6b6556322c4e26c567a867964ac793f5ee2b1c",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.1,
+      "source": "verified_baseline_basescan"
+    }
+  ],
+  "total_usdc": 0.11,
   "last_scanned_block": null,
-  "updated_at": null
+  "updated_at": "2026-10-06T09:37:00.000Z"
 }
