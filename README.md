@@ -6,16 +6,36 @@ Practical Automation Lab builds privacy-conscious tools for product data, commer
 
 ## Paid commerce API and MCP server
 
-**PAL Commerce Catalog Intelligence** is a live pay-per-call API and remote MCP server for Google Merchant Center/product-feed workflows.
+**PAL Commerce Catalog Intelligence** is a live pay-per-call API and remote MCP server for Google Merchant Center and ecommerce product-feed workflows.
 
-- Official MCP Registry: https://registry.modelcontextprotocol.io/v0.1/servers/io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence/versions/latest
+- Primary paid x402 origin: https://pal-full-catalog-remediation.onrender.com
+- Direct x402 OpenAPI 3.1: https://pal-full-catalog-remediation.onrender.com/openapi.json
+- Human-readable marketplace/docs: https://pal-full-catalog-remediation.onrender.com/marketplace
 - Remote MCP endpoint: https://pal-nano-catalog-audit.onrender.com/mcp
-- Human-readable API page: https://pal-nano-catalog-audit.onrender.com/marketplace
+- Official MCP Registry: https://registry.modelcontextprotocol.io/v0.1/servers/io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence/versions/latest
+- Secondary paid origin: https://pal-nano-catalog-audit.onrender.com
 - Free remediation example: https://pal-nano-catalog-audit.onrender.com/v1/sample/catalog-remediation
-- Marketplace OpenAPI: https://pal-nano-catalog-audit.onrender.com/marketplace-openapi.json
-- Direct x402 OpenAPI: https://pal-nano-catalog-audit.onrender.com/openapi.json
 
-The primary paid tool is a **$1.00 USDC catalog-remediation call** for 1–100 product records. Additional paid tools cover catalog auditing, GTIN/UPC/EAN validation, feed-diff detection, and x402 declaration validation. Direct paid calls settle over x402 v2 on Base.
+### Live x402 pricing
+
+| Endpoint | Price | Purpose |
+| --- | ---: | --- |
+| `POST /v1/usdc/catalog-remediation-bulk` | $20.00 USDC | Prioritized remediation for up to 2,000 product records |
+| `POST /v1/usdc/catalog-remediation-batch` | $5.00 USDC | Batch catalog remediation for up to 500 records |
+| `POST /v1/usdc/catalog-remediation` | $1.00 USDC | Standard catalog remediation |
+| `POST /v1/usdc/catalog-audit` | $0.01 USDC | Product-feed and identifier audit |
+| `GET /v1/usdc/gtin-check-one` | $0.01 USDC | Single GTIN / UPC / EAN validation |
+| `POST /v1/usdc/gtin-check` | $0.01 USDC | Batch GTIN validation |
+| `POST /v1/usdc/feed-diff` | $0.01 USDC | Product-feed change detection |
+| `POST /v1/usdc/x402-validate` | $0.05 USDC | x402 declaration validation |
+
+Direct paid calls use **x402 v2 with USDC on Base mainnet** and return a standard HTTP 402 payment challenge before settlement. The OpenAPI document includes x402 payment metadata, agent guidance, input schemas, contact information, and external documentation.
+
+### Agent discovery and runtime verification
+
+The production origins are configured for machine discovery and are currently **100/100, Grade A, strong, runtimeVerified** in Circle's official agent-readiness checker. Public x402 validation payments have also settled successfully on Base, confirming the payment path end to end.
+
+PAL's paid services are distributed across agent-commerce discovery surfaces including PayAPI, AgenticTrade, Agent402, 402Index, true402, nohumans, Market402, Agent Tools, ClawMerchants, and FiatDock. Listings and availability can change independently of PAL; the canonical source for current operations and pricing is the live OpenAPI document above.
 
 
 ## PAL Catalog Check for Shopify
