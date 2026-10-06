@@ -1565,7 +1565,7 @@ let index402State = {
   verification: null,
   error: null,
 };
-let index402VerificationHash = "";
+let index402VerificationHash = "ea588a78a59eab4a879558ac824f350ddd026c880983a9bb47ec8115a4b02ba0";
 let index402ClaimState = {
   enabled: INDEX402_CLAIM_BOOTSTRAP,
   status: INDEX402_CLAIM_BOOTSTRAP ? "pending" : "disabled",
@@ -6541,11 +6541,6 @@ app.get("/.well-known/talkshi-verification/b3651fcd-64a4-4f27-beae-24874a353da5"
     domain: "pal-full-catalog-remediation.onrender.com",
     agent_name: "Practical Automation Lab",
   });
-});
-
-app.get("/.well-known/402index-verify.txt", (_req, res) => {
-  res.setHeader("Cache-Control", "no-store");
-  res.type("text/plain").send("ea588a78a59eab4a879558ac824f350ddd026c880983a9bb47ec8115a4b02ba0");
 });
 
 app.get("/.well-known/talkshi-verification/005cdcc6-b01f-4f9f-8a65-d1cf277f12a5", (_req, res) => {
