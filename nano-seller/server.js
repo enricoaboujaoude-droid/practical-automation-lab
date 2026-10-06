@@ -6006,6 +6006,19 @@ app.get("/marketplace", (_req, res) => {
     <p class="muted">Affiliate disclosure: Practical Automation Lab may earn 15% cash referral commission on qualifying referred customer spend for the first 12 months.</p>
   </div>
 
+  <div class="card">
+    <h2>Affiliate publishers: find broken revenue links before they cost you sales</h2>
+    <p>Afterlink audits affiliate-heavy sites for broken or outdated tracking links across networks such as Impact, Awin, ShareASale, and PartnerStack. Start with the free audit before paying for anything.</p>
+    <p><a href="https://afterlink.io/?via=Enricoaj" rel="sponsored noopener noreferrer"><strong>Run the free Afterlink audit →</strong></a></p>
+    <p class="muted">Network guides:
+      <a href="https://afterlink.io/networks/impact?via=Enricoaj" rel="sponsored noopener noreferrer">Impact</a> ·
+      <a href="https://afterlink.io/networks/awin?via=Enricoaj" rel="sponsored noopener noreferrer">Awin</a> ·
+      <a href="https://afterlink.io/networks/shareasale?via=Enricoaj" rel="sponsored noopener noreferrer">ShareASale</a> ·
+      <a href="https://afterlink.io/networks/partnerstack?via=Enricoaj" rel="sponsored noopener noreferrer">PartnerStack</a>
+    </p>
+    <p class="muted">Affiliate disclosure: Practical Automation Lab may receive 50% of qualifying referred customer subscription payments for up to 36 months. The free audit itself costs nothing.</p>
+  </div>
+
   <h2>Machine-readable discovery</h2>
   <p>
     <a href="/.well-known/x402">x402 manifest</a> ·
