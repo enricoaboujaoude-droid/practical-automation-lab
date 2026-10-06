@@ -2341,6 +2341,7 @@ function true402Manifest() {
       { name: "PAL Agent Commerce Launch Kit", endpoint: X402_AGENT_COMMERCE_KIT_URL, method: "POST", price: "99.00" },
       { name: "PAL Agent Commerce Go-Live", endpoint: X402_AGENT_COMMERCE_GO_LIVE_URL, method: "POST", price: "350.00" },
       { name: "PAL x402 Seller Portfolio Audit", endpoint: X402_SELLER_PORTFOLIO_URL, method: "POST", price: "20.00" },
+      { name: "PAL Live Shopify Store Commerce Audit", endpoint: X402_SHOPIFY_STORE_AUDIT_URL, method: "GET", price: "25.00" },
       { name: "PAL Shopify Product Availability & Price Check", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "GET", price: "0.01" },
       { name: "PAL Shopify Product Compare", endpoint: X402_SHOPIFY_COMPARE_URL, method: "POST", price: "0.05" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
@@ -2359,6 +2360,7 @@ function x402Manifest() {
   const sellerRepairAccepts = x402ManifestAccepts(X402_SELLER_REPAIR_PRICE_ATOMIC);
   const sellerPortfolioAccepts = x402ManifestAccepts(X402_SELLER_PORTFOLIO_PRICE_ATOMIC);
   const shopifyProductAccepts = x402ManifestAccepts(X402_SHOPIFY_PRODUCT_PRICE_ATOMIC);
+  const shopifyStoreAuditAccepts = x402ManifestAccepts(X402_SHOPIFY_STORE_AUDIT_PRICE_ATOMIC);
   const validatorAccepts = x402ManifestAccepts(X402_VALIDATE_PRICE_ATOMIC);
   const remediationAccepts = x402ManifestAccepts(X402_REMEDIATE_PRICE_ATOMIC);
   const remediationBatchAccepts = x402ManifestAccepts(X402_REMEDIATE_BATCH_PRICE_ATOMIC);
@@ -2543,6 +2545,22 @@ function x402Manifest() {
         accepts: sellerPortfolioAccepts,
       },
       {
+        resource: X402_SHOPIFY_STORE_AUDIT_URL,
+        name: "PAL Live Shopify Store Commerce Audit",
+        description:
+          "Fetch a public Shopify storefront's live catalog and audit up to 250 sellable variants for Merchant Center/product-feed readiness, identifiers, pricing, availability and links. Returns prioritized remediation without requiring a feed upload or store login.",
+        method: "GET",
+        price: X402_SHOPIFY_STORE_AUDIT_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["url"],
+          properties: {
+            url: { type: "string", format: "uri", description: "Public HTTPS Shopify storefront URL." },
+          },
+        },
+        accepts: shopifyStoreAuditAccepts,
+      },
+      {
         resource: X402_SHOPIFY_PRODUCT_URL,
         name: "PAL Shopify Product Availability & Price Check",
         description:
@@ -2677,6 +2695,18 @@ function x402OpenApi() {
     payTo: BASE_PAYOUT_ADDRESS,
   };
 
+  const shopifyStoreAuditPaymentInfo = {
+    protocol: "x402",
+    protocols: ["x402"],
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_SHOPIFY_STORE_AUDIT_PRICE_ATOMIC,
+    price: { mode: "fixed", currency: "USD", amount: "25.00" },
+    priceDisplay: X402_SHOPIFY_STORE_AUDIT_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
   const shopifyProductPaymentInfo = {
     protocol: "x402",
     protocols: ["x402"],
@@ -3227,6 +3257,29 @@ function x402OpenApi() {
             "502": { description: "Public readiness/index upstream temporarily unavailable." },
           },
           "x-payment-info": sellerPortfolioPaymentInfo,
+        },
+      },
+      [X402_SHOPIFY_STORE_AUDIT_PATH]: {
+        get: {
+          operationId: "auditLiveShopifyStore",
+          summary: "Audit a live public Shopify storefront without a feed upload",
+          tags: ["shopify", "live-store", "merchant-center", "catalog-audit", "ecommerce"],
+          parameters: [
+            {
+              name: "url",
+              in: "query",
+              required: true,
+              schema: { type: "string", format: "uri" },
+              description: "Public HTTPS Shopify storefront URL.",
+            },
+          ],
+          responses: {
+            "200": { description: "Live storefront audit and prioritized remediation after successful payment." },
+            "400": { description: "Missing, invalid, or unsafe storefront URL." },
+            "402": { description: "x402 payment required." },
+            "502": { description: "Public Shopify storefront data could not be read safely." },
+          },
+          "x-payment-info": shopifyStoreAuditPaymentInfo,
         },
       },
       [X402_SHOPIFY_PRODUCT_PATH]: {
@@ -7036,6 +7089,7 @@ app.get("/v1/stats", (_req, res) => {
     usdc_x402_paid_agent_commerce_launch_kits_since_process_start: usdcPaidAgentCommerceLaunchKits,
     usdc_x402_paid_agent_commerce_go_lives_since_process_start: usdcPaidAgentCommerceGoLives,
     usdc_x402_paid_shopify_product_checks_since_process_start: usdcPaidShopifyProductChecks,
+    usdc_x402_paid_shopify_store_audits_since_process_start: usdcPaidShopifyStoreAudits,
     usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
     usdc_x402_paid_catalog_remediations_since_process_start: usdcPaidCatalogRemediations,
     usdc_x402_paid_catalog_remediation_batches_since_process_start: usdcPaidCatalogRemediationBatches,
@@ -7051,6 +7105,7 @@ app.get("/v1/stats", (_req, res) => {
       usdcPaidAgentCommerceLaunchKits * 99.00 +
       usdcPaidAgentCommerceGoLives * 350.00 +
       usdcPaidShopifyProductChecks * 0.005 +
+      usdcPaidShopifyStoreAudits * 25.00 +
       usdcPaidX402Validations * 0.05 +
       usdcPaidCatalogRemediations * 1.00 +
       usdcPaidCatalogRemediationBatches * 5.00 +
