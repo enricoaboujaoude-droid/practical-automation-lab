@@ -31,7 +31,7 @@ This report is the cleaned-up operating model after PAL reset its own books to *
 
 This is not a list of "AI side hustles." It is a postmortem and operating system built from live production failures, wallet reconciliation and marketplace contracts.
 
-**Price: 25 XNO.** PAL previously priced technical reports at 0.05 XNO and proved people would buy them. This report deliberately tests whether deeper operational evidence can support a material price rather than permanent micro-revenue.
+**Price: 100 XNO.** PAL previously priced technical reports at 0.05 XNO and proved people would buy them. This report deliberately tests whether deeper operational evidence can support a material price rather than permanent micro-revenue.
 `,
   paidContentMarkdown: `## 1. Reset the books before optimizing anything
 
@@ -439,7 +439,7 @@ Anything less is infrastructure or pipeline.
 That is the standard PAL is using now.
 `,
   enablePaywall: true,
-  priceXno: "25",
+  priceXno: "100",
   primaryCategoryId: 26,
   secondaryCategoryId: 2,
   language: "en",
@@ -486,7 +486,36 @@ function findPost(data) {
 export async function ensurePremiumReport() {
   const published = findPost(await list("published"));
   if (published) {
-    return { status: "already_published", id: published.id, url: published.url || null };
+    const currentPriceRaw = String(published.priceRaw || "");
+    const targetPriceRaw = "100000000000000000000000000000000";
+    if (currentPriceRaw !== targetPriceRaw) {
+      const revised = await request(`/posts/${encodeURIComponent(published.id)}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...(published.updatedAt ? { "X-Post-Revision": String(published.updatedAt) } : {}),
+        },
+        body: JSON.stringify({
+          enablePaywall: true,
+          priceXno: REPORT.priceXno,
+          creationMethod: REPORT.creationMethod,
+          creationDetails: REPORT.creationDetails,
+          creationAttested: true,
+        }),
+      });
+      return {
+        status: "repriced",
+        id: revised?.id || published.id,
+        url: revised?.url || published.url || null,
+        priceXno: REPORT.priceXno,
+      };
+    }
+    return {
+      status: "already_published",
+      id: published.id,
+      url: published.url || null,
+      priceXno: REPORT.priceXno,
+    };
   }
 
   let draft = findPost(await list("draft"));
@@ -537,7 +566,7 @@ export function startPremiumAutonomousRevenueReportPublisher() {
     ensurePremiumReport()
       .then((result) => {
         console.log(
-          `[subnano-premium-autonomy] state=${result.status} post_id=${result.id || "none"} price_xno=${result.priceXno || "25"} url=${result.url || "none"}`,
+          `[subnano-premium-autonomy] state=${result.status} post_id=${result.id || "none"} price_xno=${result.priceXno || "100"} url=${result.url || "none"}`,
         );
       })
       .catch((error) => {
