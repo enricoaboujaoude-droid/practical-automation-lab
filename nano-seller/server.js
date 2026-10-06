@@ -1875,9 +1875,18 @@ function x402OpenApi() {
     openapi: "3.1.0",
     info: {
       title: "PAL Commerce Data x402 API",
-      version: "1.5.0",
+      version: "1.5.1",
       description:
         "Deterministic utilities paid per call with x402 Base USDC: catalog audit, GTIN validation, product-feed diff, x402 declaration validation, and standard or batch prioritized catalog remediation.",
+      "x-guidance":
+        "Use this API when an autonomous agent needs deterministic ecommerce catalog QA or remediation. Choose the $20 bulk remediation route for up to 2,000 records, the $5 batch route for up to 500 records, the $1 standard remediation route for smaller catalogs, and the lower-cost audit, GTIN, feed-diff, or x402 validation tools for focused checks. Send only the fields required by each operation schema. Successful paid calls return structured JSON with concrete findings or corrective actions; unpaid calls return an x402 payment challenge.",
+      contact: {
+        email: "support@kalikora",
+      },
+    },
+    externalDocs: {
+      description: "PAL Commerce Data API documentation and marketplace overview",
+      url: `${PUBLIC_BASE_URL}/marketplace`,
     },
     servers: [{ url: PUBLIC_BASE_URL }],
     paths: {
