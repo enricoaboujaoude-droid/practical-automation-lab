@@ -1,6 +1,9 @@
 name: Keep PAL full-catalog revenue service warm
 
 on:
+  push:
+    paths:
+      - ".github/workflows/pal-full-catalog-keepalive.yml"
   schedule:
     - cron: "*/10 * * * *"
   workflow_dispatch:
