@@ -1,0 +1,45 @@
+name: Base USDC revenue ledger
+
+on:
+  push:
+    paths:
+      - "scripts/reconcile-base-usdc.mjs"
+      - ".github/workflows/base-usdc-revenue-ledger.yml"
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: base-usdc-revenue-ledger
+  cancel-in-progress: true
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Reconcile Base USDC settlements
+        run: node scripts/reconcile-base-usdc.mjs
+
+      - name: Persist ledger only when settlements change
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- revenue/base-usdc-ledger.json; then
+            echo "No ledger change."
+            exit 0
+          fi
+
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/base-usdc-ledger.json
+          git commit -m "revenue: reconcile Base USDC settlements"
+          git push origin HEAD:main
