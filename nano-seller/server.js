@@ -5417,6 +5417,16 @@ app.get("/v1/fiatdock/status", async (_req, res) => {
   }
 });
 
+app.get("/.well-known/talkshi-verification/7ef0b2ef-9d4e-41da-870f-62c04cd67e09", (_req, res) => {
+  res.json({
+    service: "talkshi.com",
+    challenge_id: "7ef0b2ef-9d4e-41da-870f-62c04cd67e09",
+    challenge: "talkshi-domain-045bc111a6474e69a5267b4d9baedcd522e21bbaf43a49a49787b0849942e773",
+    domain: "pal-full-catalog-remediation.onrender.com",
+    agent_name: "practical-automation-lab-commerce",
+  });
+});
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "pal-nano-catalog-identifier-audit", time: nowIso() });
 });
