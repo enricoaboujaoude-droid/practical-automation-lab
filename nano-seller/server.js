@@ -1881,7 +1881,7 @@ function x402OpenApi() {
       "x-guidance":
         "Use this API when an autonomous agent needs deterministic ecommerce catalog QA or remediation. Choose the $20 bulk remediation route for up to 2,000 records, the $5 batch route for up to 500 records, the $1 standard remediation route for smaller catalogs, and the lower-cost audit, GTIN, feed-diff, or x402 validation tools for focused checks. Send only the fields required by each operation schema. Successful paid calls return structured JSON with concrete findings or corrective actions; unpaid calls return an x402 payment challenge.",
       contact: {
-        email: "support@kalikora",
+        email: "enricoaboujaoude@gmail.com",
       },
     },
     externalDocs: {
