@@ -524,3 +524,26 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const result = await ensurePremiumReport();
   console.log(JSON.stringify(result));
 }
+
+
+export function startPremiumAutonomousRevenueReportPublisher() {
+  const key = String(process.env.SUBNANO_PUBLISH_KEY || "").trim();
+  if (!key || !key.startsWith("snpk_")) {
+    console.log("[subnano-premium-autonomy] skipped: publishing credential unavailable");
+    return;
+  }
+
+  setTimeout(() => {
+    ensurePremiumReport()
+      .then((result) => {
+        console.log(
+          `[subnano-premium-autonomy] state=${result.status} post_id=${result.id || "none"} price_xno=${result.priceXno || "25"} url=${result.url || "none"}`,
+        );
+      })
+      .catch((error) => {
+        console.error(
+          `[subnano-premium-autonomy] failed message=${String(error?.message || error).replace(/\s+/g, " ").slice(0, 400)}`,
+        );
+      });
+  }, 22_000).unref();
+}
