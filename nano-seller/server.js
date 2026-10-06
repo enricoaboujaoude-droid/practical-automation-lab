@@ -5598,6 +5598,7 @@ app.get("/v1/stats", (_req, res) => {
     usdc_x402_paid_gtin_checks_since_process_start: usdcPaidGtinChecks,
     usdc_x402_paid_single_gtin_checks_since_process_start: usdcPaidSingleGtinChecks,
     usdc_x402_paid_feed_diffs_since_process_start: usdcPaidFeedDiffs,
+    usdc_x402_paid_seller_integrity_audits_since_process_start: usdcPaidSellerIntegrityAudits,
     usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
     usdc_x402_paid_catalog_remediations_since_process_start: usdcPaidCatalogRemediations,
     usdc_x402_paid_catalog_remediation_batches_since_process_start: usdcPaidCatalogRemediationBatches,
@@ -5607,6 +5608,7 @@ app.get("/v1/stats", (_req, res) => {
       usdcPaidGtinChecks * 0.01 +
       usdcPaidSingleGtinChecks * 0.01 +
       usdcPaidFeedDiffs * 0.01 +
+      usdcPaidSellerIntegrityAudits * 0.01 +
       usdcPaidX402Validations * 0.05 +
       usdcPaidCatalogRemediations * 1.00 +
       usdcPaidCatalogRemediationBatches * 5.00 +
