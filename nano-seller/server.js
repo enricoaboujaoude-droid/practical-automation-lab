@@ -18,8 +18,8 @@ const PAYANAGENT_BASE = "https://payanagent.com";
 const PUBLIC_BASE_URL = String(
   process.env.PUBLIC_BASE_URL || "https://pal-nano-catalog-audit.onrender.com"
 ).replace(/\/$/, "");
-const PAYANAGENT_OFFER_TITLE = "PAL Catalog Feed Identifier Audit";
-const PAYANAGENT_OFFER_ENDPOINT = `${PUBLIC_BASE_URL}/v1/payanagent/catalog-audit`;
+const PAYANAGENT_OFFER_TITLE = "PAL Full Catalog Remediation";
+const PAYANAGENT_OFFER_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation-bulk`;
 const X402_NETWORK = "eip155:8453";
 const X402_ASSET = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const X402_EVM_NETWORKS = [
@@ -1325,7 +1325,7 @@ async function existingPayanAgentOffer() {
     offers.find(
       (offer) =>
         String(offer?.title || "").trim() === PAYANAGENT_OFFER_TITLE &&
-        String(offer?.endpoint || "").replace(/\/$/, "") === PAYANAGENT_OFFER_ENDPOINT
+        String(offer?.externalUrl || offer?.endpoint || "").replace(/\/$/, "") === PAYANAGENT_OFFER_ENDPOINT
     ) || null
   );
 }
@@ -1379,10 +1379,10 @@ async function startPayanAgentBootstrap() {
       body: JSON.stringify({
         name: "Practical Automation Lab Catalog API",
         description:
-          "Deterministic product-catalog and feed identifier auditing for autonomous commerce agents. Checks duplicate IDs, GTIN format/checksum, URLs, price shape, availability, and brand/MPN consistency.",
+          "Machine-paid ecommerce catalog intelligence for Google Merchant Center and product feeds, including full-catalog remediation for up to 2,000 product records.",
         walletAddress: BASE_PAYOUT_ADDRESS,
         chain: "base",
-        tags: ["catalog", "product-feed", "ecommerce", "data-quality"],
+        tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "remediation"],
         providerType: "api",
         agentUrl: PUBLIC_BASE_URL,
       }),
@@ -1407,18 +1407,33 @@ async function startPayanAgentBootstrap() {
       body: JSON.stringify({
         title: PAYANAGENT_OFFER_TITLE,
         description:
-          "Deterministic product-feed row QA for identifiers, duplicate IDs, URL shape, price formatting, availability, GTIN checksum, and brand/MPN consistency. Accepts 1-100 records and returns structured row-level findings. No LLM and no merchant credentials.",
+          "Full-catalog Shopify / Google Merchant Center remediation for 1-2,000 product records. Returns one prioritized corrective plan covering duplicate IDs, GTIN/UPC/EAN checksums, prices, URLs, availability, brand/MPN issues, severity, affected product IDs, and concrete actions. Existing x402 route; buyers settle directly to PAL.",
         category: "Data",
-        tags: ["catalog", "product-feed", "ecommerce", "validation"],
-        priceCents: 1,
+        tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "remediation", "full-catalog"],
         offerType: "api",
-        endpoint: PAYANAGENT_OFFER_ENDPOINT,
+        externalUrl: PAYANAGENT_OFFER_ENDPOINT,
         httpMethod: "POST",
+        verificationBody: {
+          records: [
+            {
+              id: "sku-payanagent-verify",
+              title: "Verification Product",
+              link: "https://example.com/products/sku-payanagent-verify",
+              image_link: "https://example.com/images/sku-payanagent-verify.jpg",
+              gtin: "4006381333931",
+              brand: "Example",
+              mpn: "SKU-PAYANAGENT-VERIFY",
+              price: "19.99 USD",
+              availability: "in_stock",
+              identifier_exists: true,
+            },
+          ],
+        },
         inputSchema:
-          '{"records":[{"id":"sku-100","title":"Example Product","link":"https://example.com/p/sku-100","image_link":"https://example.com/i/sku-100.jpg","gtin":"4006381333931","brand":"Example","mpn":"SKU-100","price":"19.99 USD","availability":"in_stock","identifier_exists":true}]}',
+          '{"records":[{"id":"sku-100","title":"Example Product","link":"https://example.com/p/sku-100","image_link":"https://example.com/i/sku-100.jpg","gtin":"4006381333931","brand":"Example","mpn":"SKU-100","price":"19.99 USD","availability":"in_stock","identifier_exists":true}],"limits":{"records":"1-2000"}}',
         outputSchema:
-          '{"ok":true,"record_count":1,"issue_count":0,"error_count":0,"warning_count":0,"issues":[],"generated_at":"ISO-8601"}',
-        estimatedDurationSeconds: 2,
+          '{"service":"PAL Catalog Remediation Plan","readiness":"ready","summary":{"records":1,"issues":0,"errors":0,"warnings":0},"prioritized_actions":[]}',
+        estimatedDurationSeconds: 4,
       }),
     });
 
