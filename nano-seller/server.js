@@ -75,6 +75,9 @@ const X402_SELLER_REPAIR_PRICE_ATOMIC = "5000000";
 const X402_SELLER_PORTFOLIO_PATH = "/v1/usdc/x402-seller-portfolio-audit";
 const X402_SELLER_PORTFOLIO_PRICE_USD = "$20.00";
 const X402_SELLER_PORTFOLIO_PRICE_ATOMIC = "20000000";
+const X402_AGENT_COMMERCE_KIT_PATH = "/v1/usdc/agent-commerce-launch-kit";
+const X402_AGENT_COMMERCE_KIT_PRICE_USD = "$99.00";
+const X402_AGENT_COMMERCE_KIT_PRICE_ATOMIC = "99000000";
 const X402_SHOPIFY_PRODUCT_PATH = "/v1/usdc/shopify-product-availability";
 const X402_SHOPIFY_PRODUCT_PRICE_USD = "$0.01";
 const X402_SHOPIFY_PRODUCT_PRICE_ATOMIC = "10000";
@@ -103,6 +106,7 @@ const X402_VALIDATE_URL = `${PUBLIC_BASE_URL}${X402_VALIDATE_PATH}`;
 const X402_SELLER_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_SELLER_AUDIT_PATH}`;
 const X402_SELLER_REPAIR_URL = `${PUBLIC_BASE_URL}${X402_SELLER_REPAIR_PATH}`;
 const X402_SELLER_PORTFOLIO_URL = `${PUBLIC_BASE_URL}${X402_SELLER_PORTFOLIO_PATH}`;
+const X402_AGENT_COMMERCE_KIT_URL = `${PUBLIC_BASE_URL}${X402_AGENT_COMMERCE_KIT_PATH}`;
 const X402_SHOPIFY_PRODUCT_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_PRODUCT_PATH}`;
 const X402_SHOPIFY_COMPARE_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_COMPARE_PATH}`;
 const X402_REMEDIATE_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_PATH}`;
@@ -802,6 +806,7 @@ const USDC_X402_PATHS = new Set([
   X402_SELLER_AUDIT_PATH,
   X402_SELLER_REPAIR_PATH,
   X402_SELLER_PORTFOLIO_PATH,
+  X402_AGENT_COMMERCE_KIT_PATH,
   X402_SHOPIFY_PRODUCT_PATH,
   X402_SHOPIFY_COMPARE_PATH,
   X402_REMEDIATE_PATH,
@@ -1302,6 +1307,51 @@ app.use(
           }),
         },
       },
+      "POST /v1/usdc/agent-commerce-launch-kit": {
+        accepts: x402RouteAccepts(X402_AGENT_COMMERCE_KIT_PRICE_USD),
+        description:
+          "Generate a deployment-ready agent-commerce launch bundle for an existing public service: runtime x402 readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata templates, marketplace registration payloads, and a prioritized deployment checklist. Built for providers that want one machine-generated package instead of manually wiring agent discovery surfaces.",
+        mimeType: "application/json",
+        serviceName: "PAL Agent Commerce Launch Kit",
+        tags: ["agent-commerce", "x402", "mcp", "openapi", "agent-card", "llms", "marketplace", "deployment", "revenue-readiness"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              origin: "https://example.com",
+              route: "/api/paid",
+              service_name: "Example Paid Service",
+              service_description: "What the service does for autonomous buyers.",
+              contact_email: "ops@example.com",
+            },
+            inputSchema: {
+              type: "object",
+              additionalProperties: false,
+              required: ["origin", "service_name", "service_description"],
+              properties: {
+                origin: { type: "string", format: "uri" },
+                route: { type: "string" },
+                service_name: { type: "string", minLength: 3, maxLength: 120 },
+                service_description: { type: "string", minLength: 20, maxLength: 1000 },
+                contact_email: { type: "string" },
+              },
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL Agent Commerce Launch Kit",
+                readiness: { decision: "contract_ready", score: 85 },
+                files: {
+                  ".well-known/agent-card.json": {},
+                  "llms.txt": "...",
+                  "openapi-agent-commerce.patch.json": {},
+                },
+                marketplace_payloads: {},
+                deployment_checklist: [],
+              },
+            },
+          }),
+        },
+      },
       "GET /v1/usdc/shopify-product-availability": {
         accepts: x402RouteAccepts(X402_SHOPIFY_PRODUCT_PRICE_USD),
         description:
@@ -1430,6 +1480,7 @@ let usdcPaidX402Validations = 0;
 let usdcPaidSellerIntegrityAudits = 0;
 let usdcPaidSellerRepairPlans = 0;
 let usdcPaidSellerPortfolioAudits = 0;
+let usdcPaidAgentCommerceLaunchKits = 0;
 let usdcPaidShopifyProductChecks = 0;
 let usdcPaidShopifyProductCompares = 0;
 let usdcPaidCatalogRemediations = 0;
@@ -1983,6 +2034,7 @@ function true402Manifest() {
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
       { name: "PAL Agent Commerce Seller Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.01" },
       { name: "PAL x402 Seller Revenue Repair Plan", endpoint: X402_SELLER_REPAIR_URL, method: "GET", price: "5.00" },
+      { name: "PAL Agent Commerce Launch Kit", endpoint: X402_AGENT_COMMERCE_KIT_URL, method: "POST", price: "99.00" },
       { name: "PAL x402 Seller Portfolio Audit", endpoint: X402_SELLER_PORTFOLIO_URL, method: "POST", price: "20.00" },
       { name: "PAL Shopify Product Availability & Price Check", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "GET", price: "0.01" },
       { name: "PAL Shopify Product Compare", endpoint: X402_SHOPIFY_COMPARE_URL, method: "POST", price: "0.05" },
@@ -1997,6 +2049,7 @@ function true402Manifest() {
 function x402Manifest() {
   const commonAccepts = x402ManifestAccepts(X402_PRICE_ATOMIC);
   const sellerAuditAccepts = x402ManifestAccepts(X402_SELLER_AUDIT_PRICE_ATOMIC);
+  const agentCommerceKitAccepts = x402ManifestAccepts(X402_AGENT_COMMERCE_KIT_PRICE_ATOMIC);
   const sellerRepairAccepts = x402ManifestAccepts(X402_SELLER_REPAIR_PRICE_ATOMIC);
   const sellerPortfolioAccepts = x402ManifestAccepts(X402_SELLER_PORTFOLIO_PRICE_ATOMIC);
   const shopifyProductAccepts = x402ManifestAccepts(X402_SHOPIFY_PRODUCT_PRICE_ATOMIC);
@@ -2096,6 +2149,26 @@ function x402Manifest() {
           },
         },
         accepts: sellerAuditAccepts,
+      },
+      {
+        resource: X402_AGENT_COMMERCE_KIT_URL,
+        name: "PAL Agent Commerce Launch Kit",
+        description:
+          "Generate one deployment-ready agent-commerce package for an existing service: agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads, readiness evidence and prioritized deployment steps.",
+        method: "POST",
+        price: X402_AGENT_COMMERCE_KIT_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["origin", "service_name", "service_description"],
+          properties: {
+            origin: { type: "string" },
+            route: { type: "string" },
+            service_name: { type: "string" },
+            service_description: { type: "string" },
+            contact_email: { type: "string" },
+          },
+        },
+        accepts: agentCommerceKitAccepts,
       },
       {
         resource: X402_SELLER_REPAIR_URL,
@@ -2313,6 +2386,18 @@ function x402OpenApi() {
     amount: X402_REMEDIATE_PRICE_ATOMIC,
     price: { mode: "fixed", currency: "USD", amount: X402_REMEDIATE_PRICE_USD.replace("$", "") },
     priceDisplay: X402_REMEDIATE_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
+  const agentCommerceKitPaymentInfo = {
+    protocol: "x402",
+    protocols: ["x402"],
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_AGENT_COMMERCE_KIT_PRICE_ATOMIC,
+    price: { mode: "fixed", currency: "USD", amount: "99.00" },
+    priceDisplay: X402_AGENT_COMMERCE_KIT_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
   const sellerRepairPaymentInfo = {
@@ -2676,6 +2761,39 @@ function x402OpenApi() {
             "502": { description: "Public readiness/index upstream temporarily unavailable." },
           },
           "x-payment-info": sellerAuditPaymentInfo,
+        },
+      },
+      [X402_AGENT_COMMERCE_KIT_PATH]: {
+        post: {
+          operationId: "agentCommerceLaunchKit",
+          summary: "Generate a deployment-ready agent-commerce launch bundle",
+          tags: ["agent-commerce", "x402", "mcp", "openapi", "deployment"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: ["origin", "service_name", "service_description"],
+                  properties: {
+                    origin: { type: "string", format: "uri" },
+                    route: { type: "string" },
+                    service_name: { type: "string", minLength: 3, maxLength: 120 },
+                    service_description: { type: "string", minLength: 20, maxLength: 1000 },
+                    contact_email: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "Deployment-ready launch bundle after successful payment." },
+            "400": { description: "Invalid launch-kit input." },
+            "402": { description: "x402 payment required." },
+            "502": { description: "Readiness upstream temporarily unavailable." },
+          },
+          "x-payment-info": agentCommerceKitPaymentInfo,
         },
       },
       [X402_SELLER_REPAIR_PATH]: {
@@ -5471,9 +5589,9 @@ app.get("/", (_req, res) => {
       payment: "x402 v2 exact, USDC on Base",
     },
     high_value_offer: {
-      name: "PAL x402 Seller Portfolio Audit",
-      endpoint: "POST /v1/usdc/x402-seller-portfolio-audit",
-      price_usd: 20.0,
+      name: "PAL Agent Commerce Launch Kit",
+      endpoint: "POST /v1/usdc/agent-commerce-launch-kit",
+      price_usd: 99.0,
       sellers_per_call: 5,
       reason: "This offer is the paid upgrade from the seller-integrity product that has already produced an independent on-chain payment.",
       payment: "x402 v2 exact, USDC on Base",
@@ -5487,6 +5605,7 @@ app.get("/", (_req, res) => {
       "GET /v1/usdc/x402-seller-integrity?origin=...&route=...",
       "GET /v1/usdc/x402-seller-repair-plan?origin=...&route=...",
       "POST /v1/usdc/x402-seller-portfolio-audit",
+      "POST /v1/usdc/agent-commerce-launch-kit",
       "POST /v1/usdc/x402-validate",
       "POST /v1/usdc/catalog-remediation",
       "POST /v1/usdc/catalog-remediation-canary",
@@ -6347,6 +6466,7 @@ app.get("/v1/revenue", async (_req, res) => {
         seller_integrity_calls: usdcPaidSellerIntegrityAudits,
         seller_repair_plan_calls: usdcPaidSellerRepairPlans,
         seller_portfolio_audit_calls: usdcPaidSellerPortfolioAudits,
+        agent_commerce_launch_kit_calls: usdcPaidAgentCommerceLaunchKits,
         catalog_bulk_calls: usdcPaidCatalogRemediationBulks,
         catalog_batch_calls: usdcPaidCatalogRemediationBatches,
       },
@@ -6378,6 +6498,7 @@ app.get("/v1/stats", (_req, res) => {
     usdc_x402_paid_seller_integrity_audits_since_process_start: usdcPaidSellerIntegrityAudits,
     usdc_x402_paid_seller_repair_plans_since_process_start: usdcPaidSellerRepairPlans,
     usdc_x402_paid_seller_portfolio_audits_since_process_start: usdcPaidSellerPortfolioAudits,
+    usdc_x402_paid_agent_commerce_launch_kits_since_process_start: usdcPaidAgentCommerceLaunchKits,
     usdc_x402_paid_shopify_product_checks_since_process_start: usdcPaidShopifyProductChecks,
     usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
     usdc_x402_paid_catalog_remediations_since_process_start: usdcPaidCatalogRemediations,
@@ -6391,6 +6512,7 @@ app.get("/v1/stats", (_req, res) => {
       usdcPaidSellerIntegrityAudits * 0.01 +
       usdcPaidSellerRepairPlans * 5.00 +
       usdcPaidSellerPortfolioAudits * 20.00 +
+      usdcPaidAgentCommerceLaunchKits * 99.00 +
       usdcPaidShopifyProductChecks * 0.005 +
       usdcPaidX402Validations * 0.05 +
       usdcPaidCatalogRemediations * 1.00 +
@@ -7428,6 +7550,181 @@ app.get("/v1/usdc/x402-seller-integrity", async (req, res) => {
   } catch (error) {
     return res.status(502).json({
       error: "seller_integrity_upstream_failed",
+      detail: error?.message || String(error),
+    });
+  }
+});
+
+function buildAgentCommerceLaunchKit(report, input) {
+  const serviceName = String(input.service_name || "").trim();
+  const serviceDescription = String(input.service_description || "").trim();
+  const contactEmail = String(input.contact_email || "").trim();
+  const origin = report.request.origin;
+  const route = report.request.route || String(input.route || "").trim() || null;
+  const repair = sellerRepairPlan(report);
+
+  const agentCard = {
+    protocolVersion: "0.3",
+    name: serviceName,
+    description: serviceDescription,
+    url: origin,
+    capabilities: { streaming: false, pushNotifications: false, stateTransitionHistory: false },
+    skills: [
+      {
+        id: "primary-paid-service",
+        name: serviceName,
+        description: serviceDescription,
+        tags: ["x402", "paid-api", "agent-commerce"],
+      },
+    ],
+    documentationUrl: `${origin}/openapi.json`,
+    provider: {
+      organization: serviceName,
+      url: origin,
+      ...(contactEmail ? { contactEmail } : {}),
+    },
+  };
+
+  const llmsTxt = [
+    `# ${serviceName}`,
+    "",
+    serviceDescription,
+    "",
+    `Origin: ${origin}`,
+    route ? `Primary paid route: ${route}` : "Primary paid route: inspect /.well-known/x402 or /openapi.json",
+    "Payment: x402 exact USDC",
+    "Discovery: publish /.well-known/agent-card.json, /.well-known/x402 and /openapi.json",
+    "",
+    "For autonomous buyers:",
+    "1. Discover the input schema in OpenAPI/x402 metadata.",
+    "2. Call the paid endpoint without a payment signature to receive HTTP 402 requirements.",
+    "3. Settle an accepted x402 requirement and retry the identical request.",
+    "4. Store the payment response and application result separately.",
+  ].join("\n");
+
+  const openApiPatch = {
+    info: {
+      title: serviceName,
+      description: serviceDescription,
+      ...(contactEmail ? { contact: { email: contactEmail } } : {}),
+      "x-guidance":
+        "Expose one bounded paid operation with a strict JSON input schema, deterministic error handling and machine-readable x402 payment requirements. Keep discovery files public and do not require an account or checkout.",
+    },
+    externalDocs: { url: origin },
+    "x-agent-commerce": {
+      primary_origin: origin,
+      primary_route: route,
+      payment_protocol: "x402",
+      preferred_network: "eip155:8453",
+    },
+  };
+
+  const x402ResourceTemplate = {
+    resource: route ? `${origin}${route.startsWith("/") ? route : `/${route}`}` : origin,
+    method: "POST",
+    name: serviceName,
+    description: serviceDescription,
+    accepts: [
+      {
+        scheme: "exact",
+        network: "eip155:8453",
+        asset: X402_ASSET,
+        payTo: "<provider-payout-wallet>",
+        amount: "<atomic-usdc-amount>",
+        maxTimeoutSeconds: 60,
+      },
+    ],
+  };
+
+  const marketplacePayloads = {
+    agent402: { origin },
+    index402: {
+      url: x402ResourceTemplate.resource,
+      name: serviceName,
+      protocol: "x402",
+      http_method: "POST",
+      description: serviceDescription,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      provider: serviceName,
+    },
+    market402: { resource: x402ResourceTemplate.resource },
+    talkshi_launch: {
+      name: serviceName,
+      url: origin,
+      category: "AI Agent Service",
+      description: serviceDescription.slice(0, 140),
+      tags: ["x402", "api", "agent-commerce", "automation"],
+    },
+  };
+
+  return {
+    service: "PAL Agent Commerce Launch Kit",
+    generated_at: nowIso(),
+    target: { origin, route, service_name: serviceName },
+    readiness: {
+      decision: report.decision,
+      score: repair.revenue_readiness_score,
+      blockers: repair.blockers,
+      next_step: repair.commercialization_next_step,
+    },
+    files: {
+      ".well-known/agent-card.json": agentCard,
+      "llms.txt": llmsTxt,
+      "openapi-agent-commerce.patch.json": openApiPatch,
+      "x402-resource-template.json": x402ResourceTemplate,
+    },
+    marketplace_payloads: marketplacePayloads,
+    deployment_checklist: [
+      "Publish the agent card at /.well-known/agent-card.json.",
+      "Publish llms.txt at /llms.txt.",
+      "Merge the OpenAPI agent-commerce metadata into the service's existing OpenAPI document.",
+      "Replace the x402 resource template placeholders with the provider's actual payout address and atomic USDC price.",
+      "Expose the paid route so an unpaid request returns a valid x402 HTTP 402 challenge.",
+      "Run Circle/agent readiness checks and resolve all P0 blockers.",
+      "Submit the origin/route to buyer-routing marketplaces using the generated payloads.",
+      "Verify one real third-party purchase and preserve the settlement receipt as proof of demand.",
+    ],
+    evidence: repair.evidence,
+    boundary:
+      "This package generates deployment-ready artifacts and registration payloads from public/runtime evidence. It does not take custody of wallets, sign payments, deploy into the buyer's private repository, or fabricate settlement history.",
+  };
+}
+
+app.post("/v1/usdc/agent-commerce-launch-kit", async (req, res) => {
+  const origin = String(req.body?.origin || "").trim();
+  const serviceName = String(req.body?.service_name || "").trim();
+  const serviceDescription = String(req.body?.service_description || "").trim();
+  if (!origin || serviceName.length < 3 || serviceDescription.length < 20) {
+    return res.status(400).json({
+      error: "invalid_launch_kit_input",
+      detail: "origin, service_name (>=3 chars), and service_description (>=20 chars) are required.",
+    });
+  }
+
+  try {
+    const report = await buildSellerIntegrityAudit(origin, req.body?.route);
+    if (!report.ok) return res.status(400).json(report);
+
+    usdcPaidAgentCommerceLaunchKits += 1;
+    console.log(
+      `[revenue] usdc_agent_commerce_launch_kit served price_usd=99 network=${USDC_X402_NETWORK} count=${usdcPaidAgentCommerceLaunchKits}`,
+    );
+
+    return res.json({
+      ...buildAgentCommerceLaunchKit(report, req.body),
+      payment: {
+        verified_by: "x402",
+        network: USDC_X402_NETWORK,
+        asset: "USDC",
+        price_usd: X402_AGENT_COMMERCE_KIT_PRICE_USD,
+        pay_to: BASE_PAYOUT_ADDRESS,
+        facilitator: "PayAI",
+      },
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "agent_commerce_launch_kit_failed",
       detail: error?.message || String(error),
     });
   }
