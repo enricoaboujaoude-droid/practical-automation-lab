@@ -16,24 +16,29 @@ Practical Automation Lab builds privacy-conscious tools for product data, commer
 - Secondary paid origin: https://pal-nano-catalog-audit.onrender.com
 - Free remediation example: https://pal-nano-catalog-audit.onrender.com/v1/sample/catalog-remediation
 
-### Live x402 pricing
+### Autonomous paid services
 
 | Endpoint | Price | Purpose |
 | --- | ---: | --- |
+| `POST /v1/usdc/agent-commerce-go-live` | **$350.00 USDC** | Verify, package, and distribute an already-public paid agent service; returns launch artifacts and registration receipts |
+| `POST /v1/usdc/agent-commerce-launch-kit` | **$99.00 USDC** | Generate an agent-commerce launch bundle: runtime evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads, and checklist |
+| `GET /v1/usdc/shopify-store-audit?url=...` | **$25.00 USDC** | Fetch a public Shopify storefront and audit up to 250 live variants for Merchant Center/catalog readiness |
 | `POST /v1/usdc/catalog-remediation-bulk` | $20.00 USDC | Prioritized remediation for up to 2,000 product records |
 | `POST /v1/usdc/catalog-remediation-batch` | $5.00 USDC | Batch catalog remediation for up to 500 records |
-| `POST /v1/usdc/catalog-remediation` | $1.00 USDC | Standard catalog remediation |
-| `POST /v1/usdc/catalog-audit` | $0.01 USDC | Product-feed and identifier audit |
-| `GET /v1/usdc/gtin-check-one` | $0.01 USDC | Single GTIN / UPC / EAN validation |
-| `POST /v1/usdc/gtin-check` | $0.01 USDC | Batch GTIN validation |
-| `POST /v1/usdc/feed-diff` | $0.01 USDC | Product-feed change detection |
-| `POST /v1/usdc/x402-validate` | $0.05 USDC | x402 declaration validation |
+
+**Free preflight before the $25 store audit:**  
+`GET https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url=https://your-store.com`
+
+Public landing page:  
+https://practical-automation-lab.onrender.com/shopify-store-audit.html
+
+Lower-priced legacy diagnostics remain available in the live OpenAPI document, but PAL's primary commercial focus is now the material-price autonomous services above.
 
 Direct paid calls use **x402 v2 with USDC on Base mainnet** and return a standard HTTP 402 payment challenge before settlement. The OpenAPI document includes x402 payment metadata, agent guidance, input schemas, contact information, and external documentation.
 
 ### Agent discovery and runtime verification
 
-The production origins are configured for machine discovery and are currently **100/100, Grade A, strong, runtimeVerified** in Circle's official agent-readiness checker. Public x402 validation payments have also settled successfully on Base, confirming the payment path end to end.
+The production origins are configured for machine discovery and are currently **100/100, Grade A, strong, runtimeVerified** in Circle's official agent-readiness checker. Marketplace verifier/canary payments have settled successfully on Base and confirm the payment path technically; they are **not counted as customer revenue**. Genuine customer revenue is tracked separately.
 
 PAL's paid services are distributed across agent-commerce discovery surfaces including PayAPI, AgenticTrade, Agent402, 402Index, true402, nohumans, Market402, Agent Tools, ClawMerchants, and FiatDock. Listings and availability can change independently of PAL; the canonical source for current operations and pricing is the live OpenAPI document above.
 
