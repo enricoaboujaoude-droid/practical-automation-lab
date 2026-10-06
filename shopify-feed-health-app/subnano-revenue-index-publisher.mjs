@@ -22,7 +22,7 @@ Public purchase counts at the time this index was published:
 - [Two Unlocks, Two Payouts](https://subnano.me/@practicalautomationlab/two-unlocks-two-payouts-how-pal-reconciled-its-first-nano-content-revenue) — 1 purchase
 - [AgenticTrade Provider Economics](https://subnano.me/@practicalautomationlab/agentictrade-provider-economics-one-active-listing-one-pending-referral-and-a-portal-linkage-bug) — 0 purchases so far
 - [One Seller, Three Paid Tools](https://subnano.me/@practicalautomationlab/one-seller-three-paid-tools-the-x402-compatibility-bugs-that-blocked-distribution) — 0 purchases so far
-- [The First Real USDC Sale](https://subnano.me/@practicalautomationlab/the-first-real-usdc-sale-turning-a-001-x402-canary-into-a-5-commerce-api) — new 0.50 XNO price test
+- [The First USDC Verification Payment](https://subnano.me/@practicalautomationlab/the-first-real-usdc-sale-turning-a-001-x402-canary-into-a-5-commerce-api) — 0.50 XNO price test; this was later reclassified as marketplace verification, not genuine customer revenue
 
 The first three reports were priced at 0.05 XNO. PAL later tested 0.20 XNO and is now testing 0.50 XNO on a production report backed by wallet-confirmed USDC revenue.
 
@@ -59,7 +59,7 @@ OpenAPI:
 
 https://pal-nano-catalog-audit.onrender.com/openapi.json
 
-The seller is intentionally measured by settled money, not listing count. PAL's Base wallet currently contains **0.11 USDC of verified incoming revenue**: the original $0.01 PayAPI settlement-verification call plus a later $0.10 verification payment for the premium remediation listing.
+The seller is intentionally measured by genuine customer payments, not listing count or verifier transfers. PAL's Base wallet received **0.11 USDC of marketplace verification/canary payments** in these experiments. Those receipts proved the payment rail worked, but PAL now classifies genuine customer revenue from these USDC routes as **$0 until an independent buyer pays for the service itself**.
 
 PayAPI now has two PAL listings marked payment-verified, including the premium remediation listing:
 
@@ -92,7 +92,7 @@ Current public plans:
 - ULTRA — $75/month, 2,500 requests
 - MEGA — $150/month, 7,500 requests
 
-PAL does not count RapidAPI as revenue until a paid transaction appears in the provider ledger.
+PAL does not count RapidAPI as revenue until a genuine external paid transaction appears in the provider ledger.
 
 ## Afterlink partner revenue
 
@@ -251,6 +251,33 @@ export async function ensureSubnanoRevenueIndex(fetchImpl = fetch) {
     postId: publishedResult?.id || draft.id,
     url: publishedResult?.url || null,
   };
+}
+
+async function correctVerificationPost(fetchImpl = fetch) {
+  const published = await listPosts("published", fetchImpl);
+  const old = published?.data?.find(
+    (post) => post?.title === "The First Real USDC Sale: Turning a $0.01 x402 Canary Into a $5 Commerce API",
+  );
+  if (!old?.id) return { status: "not_found_or_already_corrected" };
+
+  const updated = await request(
+    `/posts/${encodeURIComponent(old.id)}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: "The First USDC Verification Payment: What an x402 Canary Proved — and What It Did Not",
+        description:
+          "A corrected PAL field report: the Base-USDC transfer was a marketplace verification payment, not genuine customer revenue. What it proved, what it did not, and how PAL fixed its accounting.",
+      }),
+    },
+    fetchImpl,
+  );
+  return { status: "corrected", postId: updated?.id || old.id, url: updated?.url || old.url || null };
+}
+
+export async function correctSubnanoVerificationAccounting(fetchImpl = fetch) {
+  return correctVerificationPost(fetchImpl);
 }
 
 export function startSubnanoRevenueIndexPublisher() {
