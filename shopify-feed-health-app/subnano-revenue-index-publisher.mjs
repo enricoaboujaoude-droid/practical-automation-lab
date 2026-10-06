@@ -284,13 +284,13 @@ export function startSubnanoRevenueIndexPublisher() {
   const key = apiKey();
   if (!key || !key.startsWith("snpk_")) return;
 
-  void ensureSubnanoRevenueIndex()
-    .then((result) =>
-      console.log(
-        `[subnano-revenue-index] state=${result.status} post_id=${result.postId || "unknown"} url=${result.url || "unknown"}`,
-      ),
-    )
-    .catch((error) =>
-      console.error("[subnano-revenue-index] publisher failed:", error?.message || error),
+  void (async () => {
+    const correction = await correctSubnanoVerificationAccounting();
+    const result = await ensureSubnanoRevenueIndex();
+    console.log(
+      `[subnano-revenue-index] correction=${correction.status} state=${result.status} post_id=${result.postId || "unknown"} url=${result.url || "unknown"}`,
     );
+  })().catch((error) =>
+    console.error("[subnano-revenue-index] publisher failed:", error?.message || error),
+  );
 }
