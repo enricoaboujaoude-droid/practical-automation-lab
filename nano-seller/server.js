@@ -1213,10 +1213,10 @@ app.use(
       "GET /v1/usdc/shopify-product-availability": {
         accepts: x402RouteAccepts(X402_SHOPIFY_PRODUCT_PRICE_USD),
         description:
-          "Check a public Shopify product URL using Shopify's Ajax Product API. Returns live/sold-out/not-found status and current variants for $0.005 USDC. Public Shopify product URLs only; private and reserved networks are blocked.",
+          "Verify whether a public Shopify product is in stock or sold out and get its current live price, compare-at price, variants, SKU/barcode and images using Shopify's Ajax Product API. Use when an agent needs Shopify product availability, stock status, current price, variant availability, or a live product offer before buying. Costs $0.01 USDC. Public Shopify product URLs only; private and reserved networks are blocked.",
         mimeType: "application/json",
-        serviceName: "PAL Shopify Live Product Offer",
-        tags: ["shopify", "product-price", "product-availability", "live-offer", "shopping", "ecommerce", "variants"],
+        serviceName: "PAL Shopify Product Availability & Price Check",
+        tags: ["shopify", "shopify-product", "product", "product-price", "current-price", "price-check", "product-availability", "availability", "in-stock", "stock", "sold-out", "live-offer", "shopping", "ecommerce", "variants", "variant-price"],
         extensions: {
           ...declareDiscoveryExtension({
             input: { url: "https://example-shop.com/products/example-product" },
@@ -1233,7 +1233,7 @@ app.use(
             },
             output: {
               example: {
-                service: "PAL Shopify Live Product Offer",
+                service: "PAL Shopify Product Availability & Price Check",
                 status: "live",
                 available: true,
                 product: { title: "Example Product", variants_total: 2, available_variants: 1 },
@@ -1888,7 +1888,7 @@ function true402Manifest() {
       { name: "PAL Single GTIN Check", endpoint: X402_GTIN_ONE_URL, method: "GET", price: "0.01" },
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
       { name: "PAL Agent Commerce Seller Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.01" },
-      { name: "PAL Shopify Live Product Offer", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "GET", price: "0.01" },
+      { name: "PAL Shopify Product Availability & Price Check", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "GET", price: "0.01" },
       { name: "PAL Shopify Product Compare", endpoint: X402_SHOPIFY_COMPARE_URL, method: "POST", price: "0.05" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
       { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
@@ -2001,9 +2001,9 @@ function x402Manifest() {
       },
       {
         resource: X402_SHOPIFY_PRODUCT_URL,
-        name: "PAL Shopify Live Product Offer",
+        name: "PAL Shopify Product Availability & Price Check",
         description:
-          "Check a public Shopify storefront product URL using Shopify's documented Ajax Product API. Returns current live/sold-out/not-found status plus variants, raw presentment prices, SKU/barcode and images. Public Shopify product URLs only; private and reserved networks are blocked.",
+          "Verify a Shopify product's current availability, in-stock/sold-out status, live price, compare-at price, variants, SKU/barcode and images from a public storefront URL using Shopify's documented Ajax Product API. Built for shopping agents that need a current Shopify product price and availability check before purchase.",
         method: "GET",
         price: X402_SHOPIFY_PRODUCT_PRICE_USD,
         inputSchema: {
@@ -2514,7 +2514,7 @@ function x402OpenApi() {
       [X402_SHOPIFY_PRODUCT_PATH]: {
         get: {
           operationId: "verifyShopifyLiveProductOffer",
-          summary: "Verify live Shopify product price, availability and variants",
+          summary: "Check Shopify product availability, stock status and current price",
           tags: ["shopify", "product-price", "product-availability", "live-offer", "shopping", "ecommerce", "variants"],
           parameters: [
             {
@@ -2864,7 +2864,7 @@ async function startIndex402Bootstrap() {
     },
     {
       url: X402_SHOPIFY_PRODUCT_URL,
-      name: "PAL Shopify Live Product Offer",
+      name: "PAL Shopify Product Availability & Price Check",
       protocol: "x402",
       http_method: "GET",
       description:
@@ -6906,7 +6906,7 @@ app.get("/v1/usdc/shopify-product-availability", async (req, res) => {
     const result = await readShopifyProduct(productUrl);
     if (!result.found) {
       return res.status(404).json({
-        service: "PAL Shopify Live Product Offer",
+        service: "PAL Shopify Product Availability & Price Check",
         checked_at: nowIso(),
         status: "not_found",
         available: false,
@@ -6934,7 +6934,7 @@ app.get("/v1/usdc/shopify-product-availability", async (req, res) => {
     const availableVariants = variants.filter((variant) => variant.available).length;
 
     return res.json({
-      service: "PAL Shopify Live Product Offer",
+      service: "PAL Shopify Product Availability & Price Check",
       checked_at: nowIso(),
       status: availableVariants > 0 ? "live" : "sold_out",
       available: availableVariants > 0,
