@@ -7940,6 +7940,73 @@ async function buildSellerIntegrityAudit(originRaw, routeRaw = "") {
   };
 }
 
+app.get("/v1/shopify-store-preflight", async (req, res) => {
+  const storeUrl = String(req.query?.url || "").trim();
+  if (!storeUrl) {
+    return res.status(400).json({
+      error: "missing_url",
+      detail: "Query parameter url must contain a public HTTPS Shopify storefront URL.",
+    });
+  }
+
+  try {
+    const origin = shopifyStoreOrigin(storeUrl);
+    await assertPublicFetchHost(origin.hostname);
+    const productsRead = await readBoundedPublicJson(new URL("/products.json?limit=1", origin), {
+      maxBytes: 500_000,
+      timeoutMs: 10_000,
+      userAgent: "Practical-Automation-Lab-Shopify-Preflight/1.0",
+    });
+    const products = Array.isArray(productsRead.json?.products) ? productsRead.json.products : null;
+    if (!products) throw new Error("shopify_products_shape_invalid");
+
+    let currency = null;
+    try {
+      const cartRead = await readBoundedPublicJson(new URL("/cart.js", origin), {
+        maxBytes: 250_000,
+        timeoutMs: 8_000,
+        userAgent: "Practical-Automation-Lab-Shopify-Preflight/1.0",
+      });
+      const value = cleanString(cartRead.json?.currency).toUpperCase();
+      currency = /^[A-Z]{3}$/.test(value) ? value : null;
+    } catch {}
+
+    const paidUrl = new URL(X402_SHOPIFY_STORE_AUDIT_URL);
+    paidUrl.searchParams.set("url", origin.toString());
+
+    return res.json({
+      service: "PAL Shopify Store Audit Preflight",
+      checked_at: nowIso(),
+      shopify_public_catalog_detected: true,
+      storefront_origin: origin.toString(),
+      public_products_endpoint: productsRead.url,
+      sample_product_present: products.length > 0,
+      currency,
+      paid_audit: {
+        name: "PAL Live Shopify Store Commerce Audit",
+        price_usdc: 25,
+        method: "GET",
+        url: paidUrl.toString(),
+        scope: "Fetch and audit up to 250 public Shopify variants with prioritized Merchant Center/catalog remediation.",
+      },
+      boundary: {
+        free_preflight_only: true,
+        full_audit_included: false,
+        authenticated_access: false,
+        private_data_access: false,
+      },
+    });
+  } catch (error) {
+    return res.status(422).json({
+      service: "PAL Shopify Store Audit Preflight",
+      shopify_public_catalog_detected: false,
+      error: "storefront_preflight_failed",
+      detail: error instanceof Error ? error.message : String(error),
+      checked_at: nowIso(),
+    });
+  }
+});
+
 app.get("/v1/usdc/shopify-store-audit", async (req, res) => {
   const storeUrl = String(req.query?.url || "").trim();
   if (!storeUrl) {
