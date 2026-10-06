@@ -61,6 +61,9 @@ const X402_GTIN_PATH = "/v1/usdc/gtin-check";
 const X402_GTIN_ONE_PATH = "/v1/usdc/gtin-check-one";
 const X402_FEED_DIFF_PATH = "/v1/usdc/feed-diff";
 const X402_VALIDATE_PATH = "/v1/usdc/x402-validate";
+const X402_SELLER_AUDIT_PATH = "/v1/usdc/x402-seller-integrity";
+const X402_SELLER_AUDIT_PRICE_USD = "$0.01";
+const X402_SELLER_AUDIT_PRICE_ATOMIC = "10000";
 const X402_VALIDATE_PRICE_USD = "$0.05";
 const X402_VALIDATE_PRICE_ATOMIC = "50000";
 const X402_REMEDIATE_PATH = "/v1/usdc/catalog-remediation";
@@ -80,6 +83,7 @@ const X402_GTIN_URL = `${PUBLIC_BASE_URL}${X402_GTIN_PATH}`;
 const X402_GTIN_ONE_URL = `${PUBLIC_BASE_URL}${X402_GTIN_ONE_PATH}`;
 const X402_FEED_DIFF_URL = `${PUBLIC_BASE_URL}${X402_FEED_DIFF_PATH}`;
 const X402_VALIDATE_URL = `${PUBLIC_BASE_URL}${X402_VALIDATE_PATH}`;
+const X402_SELLER_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_SELLER_AUDIT_PATH}`;
 const X402_REMEDIATE_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_PATH}`;
 const X402_REMEDIATE_BATCH_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BATCH_PATH}`;
 const X402_REMEDIATE_BULK_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BULK_PATH}`;
@@ -773,6 +777,7 @@ const USDC_X402_PATHS = new Set([
   X402_GTIN_ONE_PATH,
   X402_FEED_DIFF_PATH,
   X402_VALIDATE_PATH,
+  X402_SELLER_AUDIT_PATH,
   X402_REMEDIATE_PATH,
   X402_REMEDIATE_BATCH_PATH,
   X402_REMEDIATE_BULK_PATH,
@@ -1152,6 +1157,46 @@ app.use(
           }),
         },
       },
+      "GET /v1/usdc/x402-seller-integrity": {
+        accepts: x402RouteAccepts(X402_SELLER_AUDIT_PRICE_USD),
+        description:
+          "Audit one x402 seller origin and paid route using public Circle runtime-readiness plus Agent402 routing/settlement evidence. Returns machine_buyable, contract_ready, or repair_required with exact next actions. No target payment is sent.",
+        mimeType: "application/json",
+        serviceName: "PAL x402 Seller Integrity Audit",
+        tags: ["x402", "seller-trust", "integrity", "agent-commerce", "payments", "routing"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              origin: "https://example.com",
+              route: "/api/data",
+            },
+            inputSchema: {
+              type: "object",
+              properties: {
+                origin: {
+                  type: "string",
+                  description: "Seller origin to audit, for example https://example.com.",
+                },
+                route: {
+                  type: "string",
+                  description: "Exact paid route to inspect when known, for example /api/data.",
+                },
+              },
+              required: ["origin"],
+            },
+            output: {
+              example: {
+                service: "PAL x402 Seller Integrity Audit",
+                decision: "contract_ready",
+                runtime_verified: true,
+                router_dispatch_eligible: false,
+                router_dispatch_reason: "settlement_required",
+                next_actions: ["Earn independent settlement history on the advertised payTo."],
+              },
+            },
+          }),
+        },
+      },
       "POST /v1/usdc/x402-validate": {
         accepts: x402RouteAccepts(X402_VALIDATE_PRICE_USD),
         description:
@@ -1204,6 +1249,7 @@ let usdcPaidGtinChecks = 0;
 let usdcPaidSingleGtinChecks = 0;
 let usdcPaidFeedDiffs = 0;
 let usdcPaidX402Validations = 0;
+let usdcPaidSellerIntegrityAudits = 0;
 let usdcPaidCatalogRemediations = 0;
 let usdcPaidCatalogRemediationBatches = 0;
 let usdcPaidCatalogRemediationBulks = 0;
@@ -6050,6 +6096,164 @@ app.post("/v1/usdc/catalog-remediation", (req, res) => {
       facilitator: "PayAI",
     },
   });
+});
+
+async function buildSellerIntegrityAudit(originRaw, routeRaw = "") {
+  let target;
+  try {
+    const normalized = /^https?:\/\//i.test(String(originRaw || ""))
+      ? String(originRaw).trim()
+      : `https://${String(originRaw || "").trim()}`;
+    target = new URL(normalized);
+  } catch {
+    return { ok: false, error: "invalid_origin", detail: "origin must be a valid http(s) URL or hostname." };
+  }
+
+  if (!["http:", "https:"].includes(target.protocol) || !target.hostname) {
+    return { ok: false, error: "invalid_origin", detail: "origin must use http or https." };
+  }
+
+  const origin = `${target.protocol}//${target.host}`;
+  const hostname = target.hostname.toLowerCase();
+  const route = String(routeRaw || "").trim();
+  const [circleResult, agent402Result] = await Promise.allSettled([
+    fetch("https://agents.circle.com/sell/score/check", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ url: hostname }),
+      signal: AbortSignal.timeout(15_000),
+    }).then(async (response) => ({ status: response.status, body: await response.json() })),
+    fetch(
+      `https://agent402.tools/api/route?q=${encodeURIComponent(`${hostname} ${route}`.trim())}&include=external`,
+      { headers: { accept: "application/json" }, signal: AbortSignal.timeout(15_000) },
+    ).then(async (response) => ({ status: response.status, body: await response.json() })),
+  ]);
+
+  const circle =
+    circleResult.status === "fulfilled" && circleResult.value.status === 200
+      ? circleResult.value.body?.result || null
+      : null;
+  const agent402Body =
+    agent402Result.status === "fulfilled" && agent402Result.value.status === 200
+      ? agent402Result.value.body
+      : null;
+
+  const candidates = Array.isArray(agent402Body?.results) ? agent402Body.results : [];
+  const exact = candidates.find((item) => {
+    try {
+      const sellerHost = new URL(String(item?.seller || item?.sellerHome || "")).hostname.toLowerCase();
+      const routeMatches = !route || String(item?.route || "") === route;
+      return sellerHost === hostname && routeMatches;
+    } catch {
+      return false;
+    }
+  }) || null;
+
+  const runtimeVerified = circle?.trustTier === "runtimeVerified";
+  const health = typeof exact?.health === "number" ? exact.health : null;
+  const dispatchEligible = exact?.routerDispatchEligible === true;
+  const dispatchReason = exact?.routerDispatchReason || null;
+  const payers30d = exact?.bazaar?.payers30d ?? exact?.why?.bazaarPayers30d ?? null;
+  const calls30d = exact?.bazaar?.calls30d ?? null;
+
+  let decision = "repair_required";
+  if (runtimeVerified && exact && health === 1) {
+    decision = dispatchEligible ? "machine_buyable" : "contract_ready";
+  }
+
+  const nextActions = [];
+  if (!circle) nextActions.push("Circle readiness could not be verified; publish a valid OpenAPI 3.1 spec and retry.");
+  else {
+    if (Number(circle.score || 0) < 80) nextActions.push("Raise Circle seller-readiness above 80 by fixing the failed discovery/payment/agent metadata checks.");
+    if (!runtimeVerified) nextActions.push("Expose a live unpaid HTTP 402 challenge so runtime payment readiness can be verified.");
+  }
+  if (!exact) {
+    nextActions.push("Register or expose the exact paid route in a crawler-visible x402 manifest/OpenAPI document.");
+  } else {
+    if (health !== 1) nextActions.push("Restore route health so discovery crawlers can reach the seller consistently.");
+    if (dispatchReason === "settlement_required") {
+      nextActions.push("Earn independent on-chain buyer settlements to the advertised payTo; avoid self-funded settlement because routers discount it.");
+    } else if (dispatchReason && !dispatchEligible) {
+      nextActions.push(`Resolve router gate: ${dispatchReason}.`);
+    }
+  }
+
+  return {
+    ok: true,
+    service: "PAL x402 Seller Integrity Audit",
+    checked_at: nowIso(),
+    request: { origin, route: route || null },
+    decision,
+    runtime_verified: runtimeVerified,
+    circle: circle
+      ? {
+          score: circle.score,
+          grade: circle.grade,
+          tier: circle.tier,
+          trust_tier: circle.trustTier,
+          warnings: circle.warnings || [],
+        }
+      : null,
+    agent402: exact
+      ? {
+          seller: exact.seller || exact.sellerHome || null,
+          route: exact.route || null,
+          health,
+          price_usd: exact.priceUsd ?? null,
+          calls_30d: calls30d,
+          distinct_payers_30d: payers30d,
+          router_dispatch_eligible: dispatchEligible,
+          router_dispatch_reason: dispatchReason,
+          router_dispatch_by_chain: exact.routerDispatchByChain || null,
+          execute_via_callable_now: exact.executeViaCallableNow === true,
+          execute_via_lane: exact.executeViaLane || null,
+        }
+      : null,
+    next_actions: nextActions,
+    boundary: {
+      target_payment_sent: false,
+      target_payment_signed: false,
+      target_post_sent: false,
+      evidence_sources: ["Circle seller-readiness", "Agent402 public routing index"],
+    },
+  };
+}
+
+app.get("/v1/usdc/x402-seller-integrity", async (req, res) => {
+  const origin = String(req.query?.origin || "").trim();
+  if (!origin) {
+    return res.status(400).json({
+      error: "missing_origin",
+      detail: "Query parameter origin is required, for example ?origin=https://example.com&route=/api/data",
+    });
+  }
+
+  try {
+    const report = await buildSellerIntegrityAudit(origin, req.query?.route);
+    if (!report.ok) return res.status(400).json(report);
+
+    usdcPaidSellerIntegrityAudits += 1;
+    console.log(
+      `[revenue] usdc_x402_seller_integrity served price_usd=0.01 network=${USDC_X402_NETWORK} count=${usdcPaidSellerIntegrityAudits}`,
+    );
+
+    return res.json({
+      ...report,
+      payment: {
+        verified_by: "x402",
+        network: USDC_X402_NETWORK,
+        asset: "USDC",
+        price_usd: X402_SELLER_AUDIT_PRICE_USD,
+        pay_to: BASE_PAYOUT_ADDRESS,
+        facilitator: "PayAI",
+      },
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "seller_integrity_upstream_failed",
+      detail: error?.message || String(error),
+    });
+  }
 });
 
 app.post("/v1/usdc/x402-validate", (req, res) => {
