@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Deploy a Paid MCP Server or x402 API | Practical Automation Lab</title>
+  <meta name="description" content="Deploy an MCP server or x402 API, host it on Railway, and list it for agent-native discovery. A practical monetization path for developers building paid AI-agent tools.">
+  <link rel="canonical" href="https://practical-automation-lab.onrender.com/deploy-mcp-api.html">
+  <meta name="robots" content="index,follow">
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:920px;margin:0 auto;padding:48px 24px;color:#111827;line-height:1.65}
+    h1{font-size:2.5rem;line-height:1.12;margin-bottom:.5rem}h2{margin-top:2rem}.lead{font-size:1.16rem;color:#374151}
+    .card{border:1px solid #e5e7eb;border-radius:14px;padding:20px;margin:18px 0}.cta{display:inline-block;padding:12px 18px;border-radius:10px;background:#111827;color:#fff;text-decoration:none;font-weight:700}
+    code{background:#f3f4f6;padding:.14rem .35rem;border-radius:6px}a{color:#0f62fe}.muted{color:#6b7280}li{margin:.45rem 0}
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"HowTo",
+    "name":"Deploy a paid MCP server or x402 API",
+    "description":"A practical path for developers to deploy an MCP or x402 service, make it reachable, and add agent-native discovery and monetization.",
+    "totalTime":"PT20M",
+    "url":"https://practical-automation-lab.onrender.com/deploy-mcp-api.html"
+  }
+  </script>
+</head>
+<body>
+  <p><a href="/">← Practical Automation Lab</a></p>
+  <h1>Deploy a paid MCP server or x402 API</h1>
+  <p class="lead">A production-oriented path for developers who already have a useful API, tool, workflow, or agent capability and want it reachable by AI agents.</p>
+
+  <div class="card">
+    <h2>1. Put the service on a public HTTPS origin</h2>
+    <p>Railway is suitable for APIs, workers, MCP servers, background jobs, and databases. New referred users receive Railway credits; Practical Automation Lab may earn cash commission on qualifying referred spend.</p>
+    <p><a class="cta" href="https://railway.com?referralCode=cRbYoJ" rel="sponsored noopener noreferrer">Deploy on Railway →</a></p>
+    <p class="muted">Affiliate disclosure: Practical Automation Lab may earn 15% cash referral commission on qualifying referred customer invoices for the first 12 months.</p>
+  </div>
+
+  <div class="card">
+    <h2>2. Make the service machine-readable</h2>
+    <p>Expose an OpenAPI document or MCP server description. If the service is paid, make the payment contract machine-readable too. For x402, an unpaid request should return a standards-compliant <code>402 Payment Required</code> response.</p>
+    <ul>
+      <li>Keep <code>/health</code> or an equivalent health endpoint free.</li>
+      <li>Publish OpenAPI or MCP tool schemas.</li>
+      <li>Use deterministic request and response shapes.</li>
+      <li>Keep cold-start latency low enough for agent buyers.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>3. Add agent-native discovery</h2>
+    <p>AgenticTrade provides a marketplace/discovery channel for agent-facing APIs and services. If your API is already live, listing it adds distribution without rebuilding the product.</p>
+    <p><a class="cta" href="https://agentictrade.io/portal/register?ref=6HDHVHZ3" rel="sponsored noopener noreferrer">List on AgenticTrade →</a></p>
+    <p class="muted">Affiliate disclosure: Practical Automation Lab participates in AgenticTrade's referral program and may earn referral revenue from qualifying providers who join through this link.</p>
+  </div>
+
+  <div class="card">
+    <h2>4. Validate before buying traffic</h2>
+    <p>Check uptime, cold starts, payment metadata, input validation, and whether an unpaid request reliably returns the correct challenge. Do not spend money promoting an endpoint that fails machine checks.</p>
+    <p><a href="https://pal-full-catalog-remediation.onrender.com/marketplace"><strong>See PAL's production API setup →</strong></a></p>
+  </div>
+
+  <h2>Best-fit services</h2>
+  <p>This approach works best for deterministic capabilities that an agent may call repeatedly: enrichment, validation, scraping, data transforms, ecommerce diagnostics, monitoring, and other narrow workflows. Avoid publishing a generic endpoint merely to have something in a marketplace.</p>
+
+  <h2>Why this page exists</h2>
+  <p>Practical Automation Lab is building an autonomous-revenue stack around APIs, MCP tools, agent commerce, and commerce automation. This resource is designed to convert developer search intent into existing approved referral revenue without requiring manual sales calls.</p>
+
+  <p class="muted">This page contains sponsored affiliate links as disclosed above.</p>
+</body>
+</html>
