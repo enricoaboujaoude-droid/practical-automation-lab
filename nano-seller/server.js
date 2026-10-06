@@ -117,8 +117,8 @@ const INDEX402_REGISTER_URL = "https://402index.io/api/v1/register";
 const INDEX402_CLAIM_BOOTSTRAP = process.env.INDEX402_CLAIM_BOOTSTRAP === "1";
 const INDEX402_CLAIM_URL = "https://402index.io/api/v1/claim";
 const INDEX402_CLAIM_VERIFY_URL = "https://402index.io/api/v1/claim/verify";
-const INDEX402_SERVICE_ID = "760dafd0-10d1-4db9-9688-efbd184cb46f";
-const INDEX402_DOMAIN = "pal-nano-catalog-audit.onrender.com";
+const INDEX402_SERVICE_ID = String(process.env.INDEX402_SERVICE_ID || "").trim();
+const INDEX402_DOMAIN = new URL(PUBLIC_BASE_URL).hostname;
 const X402SCOUT_BOOTSTRAP = process.env.X402SCOUT_BOOTSTRAP === "1";
 const X402SCOUT_REGISTER_URL = "https://x402scout.com/register";
 const AGENTTOOLS_BOOTSTRAP = process.env.AGENTTOOLS_BOOTSTRAP === "1";
@@ -3334,6 +3334,23 @@ async function startIndex402ClaimBootstrap() {
         ? Number(verifyBody.services_count)
         : null,
     };
+
+    if (!INDEX402_SERVICE_ID) {
+      index402ClaimState = {
+        enabled: true,
+        status: "verified",
+        checked_at: nowIso(),
+        domain_verified: true,
+        services_count: Number.isFinite(Number(verifyBody?.services_count))
+          ? Number(verifyBody.services_count)
+          : null,
+        service_updated: false,
+        service: null,
+        error: null,
+      };
+      console.log(`[402index] domain verified domain=${INDEX402_DOMAIN}; no legacy service patch requested`);
+      return;
+    }
 
     const patchResponse = await fetch(
       `https://402index.io/api/v1/services/${INDEX402_SERVICE_ID}`,
