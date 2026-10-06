@@ -263,6 +263,7 @@ function buildPalMcpServer() {
           { name: "gtin_check", price_usd: 0.01 },
           { name: "single_gtin_check", price_usd: 0.01 },
           { name: "feed_diff", price_usd: 0.01 },
+          { name: "x402_seller_integrity", price_usd: 0.01, purpose: "runtime seller trust/discovery check" },
           { name: "x402_validate", price_usd: 0.05 },
         ],
         free_demo: `${PUBLIC_BASE_URL}/v1/sample/catalog-remediation`,
@@ -1683,6 +1684,7 @@ function true402Manifest() {
 
 function x402Manifest() {
   const commonAccepts = x402ManifestAccepts(X402_PRICE_ATOMIC);
+  const sellerAuditAccepts = x402ManifestAccepts(X402_SELLER_AUDIT_PRICE_ATOMIC);
   const validatorAccepts = x402ManifestAccepts(X402_VALIDATE_PRICE_ATOMIC);
   const remediationAccepts = x402ManifestAccepts(X402_REMEDIATE_PRICE_ATOMIC);
   const remediationBatchAccepts = x402ManifestAccepts(X402_REMEDIATE_BATCH_PRICE_ATOMIC);
@@ -1764,6 +1766,23 @@ function x402Manifest() {
         accepts: commonAccepts,
       },
       {
+        resource: X402_SELLER_AUDIT_URL,
+        name: "PAL x402 Seller Integrity Audit",
+        description:
+          "Audit one x402 seller origin and paid route using public Circle runtime-readiness plus Agent402 routing, health and settlement evidence. Returns machine_buyable, contract_ready or repair_required without paying the target.",
+        method: "GET",
+        price: X402_SELLER_AUDIT_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["origin"],
+          properties: {
+            origin: { type: "string", format: "uri" },
+            route: { type: "string" },
+          },
+        },
+        accepts: sellerAuditAccepts,
+      },
+      {
         resource: X402_VALIDATE_URL,
         name: "PAL x402 Declaration Validator",
         description:
@@ -1832,7 +1851,7 @@ function x402Manifest() {
       },
     },
     capabilities: {
-      tools: 8,
+      tools: 9,
       categories: [
         "commerce",
         "merchant-feed",
@@ -2153,6 +2172,36 @@ function x402OpenApi() {
             "402": { description: "x402 payment required." },
           },
           "x-payment-info": remediationPaymentInfo,
+        },
+      },
+      [X402_SELLER_AUDIT_PATH]: {
+        get: {
+          operationId: "auditX402SellerIntegrity",
+          summary: "Audit x402 seller integrity, discovery and machine-buyability",
+          tags: ["x402", "seller-trust", "integrity", "agent-commerce", "routing"],
+          parameters: [
+            {
+              name: "origin",
+              in: "query",
+              required: true,
+              schema: { type: "string", format: "uri" },
+              example: "https://example.com",
+            },
+            {
+              name: "route",
+              in: "query",
+              required: false,
+              schema: { type: "string" },
+              example: "/api/data",
+            },
+          ],
+          responses: {
+            "200": { description: "Runtime seller-integrity report after successful payment." },
+            "400": { description: "Invalid seller origin or route." },
+            "402": { description: "x402 payment required." },
+            "502": { description: "Public readiness/index upstream temporarily unavailable." },
+          },
+          "x-payment-info": paymentInfo,
         },
       },
       [X402_VALIDATE_PATH]: {
@@ -4673,6 +4722,7 @@ app.get("/", (_req, res) => {
       "POST /v1/usdc/gtin-check",
       "GET /v1/usdc/gtin-check-one?gtin=...",
       "POST /v1/usdc/feed-diff",
+      "GET /v1/usdc/x402-seller-integrity?origin=...&route=...",
       "POST /v1/usdc/x402-validate",
       "POST /v1/usdc/catalog-remediation",
       "POST /v1/usdc/catalog-remediation-canary",
@@ -5020,11 +5070,11 @@ OpenAPI: ${PUBLIC_BASE_URL}/openapi.json
 app.get("/.well-known/agent.json", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.type("application/json").json({
-    version: "1.5",
+    version: "1.6",
     origin: new URL(PUBLIC_BASE_URL).host,
     display_name: "PAL Commerce Catalog Intelligence",
     description:
-      "Eight deterministic pay-per-call commerce tools for autonomous agents, led by a $20 full-catalog Merchant Center remediation product plus batch/standard remediation, feed audit, GTIN validation, feed diff, and x402 diagnostics.",
+      "Nine deterministic pay-per-call tools for autonomous agents, including a demand-backed $0.01 x402 seller-integrity audit plus commerce remediation, feed audit, GTIN validation, feed diff, and x402 declaration diagnostics.",
     payout_address: BASE_PAYOUT_ADDRESS,
     payments: {
       x402: {
@@ -5092,6 +5142,14 @@ app.get("/.well-known/agent.json", (_req, res) => {
           "Compare two product-feed snapshots and report added, removed, and changed commerce fields.",
         endpoint: X402_FEED_DIFF_PATH,
         method: "POST",
+        price: { amount: 0.01, currency: "USDC" },
+      },
+      {
+        name: "x402_seller_integrity",
+        description:
+          "Audit one x402 seller origin/route for Circle runtime readiness, Agent402 discovery, health, settlement gating and machine-buyability.",
+        endpoint: X402_SELLER_AUDIT_PATH,
+        method: "GET",
         price: { amount: 0.01, currency: "USDC" },
       },
       {
