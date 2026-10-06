@@ -2389,9 +2389,9 @@ function x402OpenApi() {
       },
       [X402_SELLER_AUDIT_PATH]: {
         get: {
-          operationId: "auditX402SellerIntegrity",
-          summary: "Audit x402 seller integrity, discovery and machine-buyability",
-          tags: ["x402", "seller-trust", "integrity", "agent-commerce", "routing"],
+          operationId: "x402SellerAudit",
+          summary: "x402 Seller Audit and Payment Preflight",
+          tags: ["x402", "seller-audit", "endpoint-audit", "payment-preflight", "seller-trust", "verification", "agent-operations", "agent-commerce", "routing"],
           parameters: [
             {
               name: "origin",
@@ -2409,7 +2409,53 @@ function x402OpenApi() {
             },
           ],
           responses: {
-            "200": { description: "Runtime seller-integrity report after successful payment." },
+            "200": {
+              description: "Machine-readable seller audit after successful payment.",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    required: ["ok", "product", "decision", "target", "circle", "runtime_probe", "agent402", "next_actions", "checked_at"],
+                    properties: {
+                      ok: { type: "boolean", description: "Whether the audit completed." },
+                      product: { type: "string", description: "Stable PAL audit product identifier." },
+                      decision: {
+                        type: "string",
+                        enum: ["machine_buyable", "contract_ready", "repair_required"],
+                        description: "Buyer-oriented seller readiness decision."
+                      },
+                      target: {
+                        type: "object",
+                        description: "Normalized seller origin and audited route.",
+                        additionalProperties: true
+                      },
+                      circle: {
+                        type: "object",
+                        description: "Circle seller-readiness and trust evidence.",
+                        additionalProperties: true
+                      },
+                      runtime_probe: {
+                        type: "object",
+                        description: "Safe unpaid probe evidence for the exact target route.",
+                        additionalProperties: true
+                      },
+                      agent402: {
+                        type: ["object", "null"],
+                        description: "Agent402 health, routing and settlement evidence when available.",
+                        additionalProperties: true
+                      },
+                      next_actions: {
+                        type: "array",
+                        description: "Exact next corrective or commercialization actions.",
+                        items: { type: "string" }
+                      },
+                      checked_at: { type: "string", format: "date-time" }
+                    },
+                    additionalProperties: true
+                  }
+                }
+              }
+            },
             "400": { description: "Invalid seller origin or route." },
             "402": { description: "x402 payment required." },
             "502": { description: "Public readiness/index upstream temporarily unavailable." },
