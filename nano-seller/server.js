@@ -23,6 +23,7 @@ const PAYANAGENT_BASE = "https://payanagent.com";
 const PUBLIC_BASE_URL = String(
   process.env.PUBLIC_BASE_URL || "https://pal-nano-catalog-audit.onrender.com"
 ).replace(/\/$/, "");
+const MARKETPLACE_PUBLISHER = process.env.MARKETPLACE_PUBLISHER !== "0";
 const PAYANAGENT_OFFER_TITLE = "PAL Full Catalog Remediation";
 const PAYANAGENT_OFFER_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation-bulk`;
 const X402_NETWORK = "eip155:8453";
@@ -8943,7 +8944,11 @@ async function startFiatDockBootstrap() {
 }
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`PAL Nano seller listening on :${PORT}; pay_to=${PAY_TO}`);
+  console.log(`PAL Nano seller listening on :${PORT}; pay_to=${PAY_TO}; marketplace_publisher=${MARKETPLACE_PUBLISHER}`);
+  if (!MARKETPLACE_PUBLISHER) {
+    console.log("[marketplaces] publisher disabled on this serving origin; skipping duplicate marketplace bootstraps");
+    return;
+  }
   void startPayanAgentBootstrap();
   setTimeout(() => void startAgent402Bootstrap(), 4_000);
   setTimeout(() => void startIndex402Bootstrap(), 8_000);
