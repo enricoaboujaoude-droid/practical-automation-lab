@@ -98,6 +98,9 @@ const ALLOWED_EVENTS = new Set([
   'pal_afterlink_partnerstack_clicked',
   'pal_reputon_reviews_guide_viewed',
   'pal_reputon_customer_reviews_clicked',
+  'pal_deploy_mcp_viewed',
+  'pal_deploy_mcp_railway_clicked',
+  'pal_deploy_mcp_agentictrade_clicked',
 ]);
 
 if (!DATABASE_URL) {
@@ -190,7 +193,10 @@ async function initialize() {
         'pal_afterlink_shareasale_clicked',
         'pal_afterlink_partnerstack_clicked',
         'pal_reputon_reviews_guide_viewed',
-        'pal_reputon_customer_reviews_clicked'
+        'pal_reputon_customer_reviews_clicked',
+        'pal_deploy_mcp_viewed',
+        'pal_deploy_mcp_railway_clicked',
+        'pal_deploy_mcp_agentictrade_clicked'
       ))
   `);
   await pool.query(`
@@ -2565,6 +2571,11 @@ const server = http.createServer(async (req, res) => {
         'pal_afterlink_awin_clicked',
         'pal_afterlink_shareasale_clicked',
         'pal_afterlink_partnerstack_clicked',
+        'pal_reputon_reviews_guide_viewed',
+        'pal_reputon_customer_reviews_clicked',
+        'pal_deploy_mcp_viewed',
+        'pal_deploy_mcp_railway_clicked',
+        'pal_deploy_mcp_agentictrade_clicked',
       ];
       const events = await productionMetrics(names);
       const views =
@@ -2573,14 +2584,17 @@ const server = http.createServer(async (req, res) => {
         (events.pal_awin_audit_viewed?.total || 0) +
         (events.pal_shareasale_audit_viewed?.total || 0) +
         (events.pal_partnerstack_audit_viewed?.total || 0) +
-        (events.pal_reputon_reviews_guide_viewed?.total || 0);
+        (events.pal_reputon_reviews_guide_viewed?.total || 0) +
+        (events.pal_deploy_mcp_viewed?.total || 0);
       const clicks =
         (events.pal_afterlink_free_audit_clicked?.total || 0) +
         (events.pal_afterlink_impact_clicked?.total || 0) +
         (events.pal_afterlink_awin_clicked?.total || 0) +
         (events.pal_afterlink_shareasale_clicked?.total || 0) +
         (events.pal_afterlink_partnerstack_clicked?.total || 0) +
-        (events.pal_reputon_customer_reviews_clicked?.total || 0);
+        (events.pal_reputon_customer_reviews_clicked?.total || 0) +
+        (events.pal_deploy_mcp_railway_clicked?.total || 0) +
+        (events.pal_deploy_mcp_agentictrade_clicked?.total || 0);
       return sendJson(req, res, 200, {
         ok: true,
         scope: 'production_only',
