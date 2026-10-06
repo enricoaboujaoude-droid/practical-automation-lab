@@ -5925,7 +5925,7 @@ app.get("/marketplace", (_req, res) => {
     offers:{
       "@type":"AggregateOffer",
       lowPrice:"0.01",
-      highPrice:"5.00",
+      highPrice:"350.00",
       priceCurrency:"USD"
     },
     url:`${PUBLIC_BASE_URL}/marketplace`
@@ -5950,6 +5950,20 @@ app.get("/marketplace", (_req, res) => {
     <p>PAL is published in the <a href="https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence" rel="noopener noreferrer">Official MCP Registry</a> and exposes a production Streamable HTTP server.</p>
     <p><strong>Remote MCP:</strong> <code>${PUBLIC_BASE_URL}/mcp</code></p>
     <p>The MCP server exposes three free discovery/demo tools and eight x402-paid commerce tools. Paid MCP calls return the live Base-USDC payment requirement before any paid result is delivered.</p>
+  </div>
+
+  <div class="card">
+    <h2>Agent Commerce Go-Live <span class="price">$350.00 / call</span></h2>
+    <p>One autonomous paid call for an already-public agent service: verify runtime x402 readiness, generate machine-readable launch artifacts, submit the service to compatible buyer-discovery markets, and return registration receipts plus exact remaining blockers.</p>
+    <p><strong>Machine buyer:</strong> <code>POST /v1/usdc/agent-commerce-go-live</code></p>
+    <p><a href="https://agent-tools.cloud/services/pal-full-catalog-remediation-onrender-com-sub1198" rel="noopener noreferrer">Open the live AgentTools listing →</a></p>
+  </div>
+
+  <div class="card">
+    <h2>Agent Commerce Launch Kit <span class="price">$99.00 / call</span></h2>
+    <p>Generate a deployment-ready bundle for an existing public agent service: runtime readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads, and a prioritized deployment checklist.</p>
+    <p><strong>Machine buyer:</strong> <code>POST /v1/usdc/agent-commerce-launch-kit</code></p>
+    <p><a href="https://agent-tools.cloud/services/pal-full-catalog-remediation-onrender-com-sub1197" rel="noopener noreferrer">Open the live AgentTools listing →</a></p>
   </div>
 
   <div class="card">
