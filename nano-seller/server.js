@@ -13,6 +13,9 @@ const PRICE_NANO = "0.01";
 const VERIFY_BASE = process.env.NANO_VERIFY_BASE || "https://pursekeeper.dev/v1/verify";
 const PAY_TO = String(process.env.NANO_ADDRESS || "").trim();
 const BASE_PAYOUT_ADDRESS = String(process.env.PAL_BASE_PAYOUT_ADDRESS || "").trim();
+const FIATDOCK_GATEWAY_TOKEN = String(process.env.FIATDOCK_GATEWAY_TOKEN || "").trim();
+const FIATDOCK_SELLER_KEY = String(process.env.FIATDOCK_SELLER_KEY || "").trim();
+const FIATDOCK_BASE = "https://fiatdock.com";
 const PAYANAGENT_BOOTSTRAP = process.env.PAYANAGENT_BOOTSTRAP === "1";
 const PAYANAGENT_BASE = "https://payanagent.com";
 const PUBLIC_BASE_URL = String(
@@ -608,10 +611,113 @@ function buildPalMcpServer() {
   return server;
 }
 
+
+function buildFiatDockMcpServer() {
+  const server = new McpServer({
+    name: "pal-fiatdock-commerce-remediation",
+    title: "PAL Commerce Remediation for FiatDock",
+    version: "1.0.0",
+    description:
+      "Gateway-only ecommerce catalog remediation tools. FiatDock handles the buyer payment; this private MCP route returns the purchased remediation result without a second paywall.",
+  });
+
+  server.registerTool(
+    "pal_full_catalog_remediation",
+    {
+      title: "PAL Full Catalog Remediation",
+      description:
+        "Process 1-2,000 ecommerce product records and return one prioritized Google Merchant Center/product-feed remediation plan.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        required: ["records"],
+        properties: {
+          records: {
+            type: "array",
+            minItems: 1,
+            maxItems: 2000,
+            items: { type: "object", additionalProperties: true },
+          },
+        },
+        additionalProperties: false,
+      }),
+    },
+    async ({ records }) => {
+      if (!Array.isArray(records) || records.length < 1 || records.length > 2000) {
+        return {
+          isError: true,
+          content: mcpText({
+            ok: false,
+            error: "records must contain 1 to 2,000 product records",
+          }),
+        };
+      }
+      console.log(`[revenue] fiatdock_full_catalog served records=${records.length}`);
+      return {
+        content: mcpText({
+          ok: true,
+          service: "PAL Full Catalog Remediation",
+          gateway: "FiatDock",
+          result: catalogRemediationPlan(records),
+        }),
+      };
+    },
+  );
+
+  server.registerTool(
+    "pal_batch_catalog_remediation",
+    {
+      title: "PAL Batch Catalog Remediation",
+      description:
+        "Process 1-500 ecommerce product records and return a prioritized Google Merchant Center/product-feed remediation plan.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        required: ["records"],
+        properties: {
+          records: {
+            type: "array",
+            minItems: 1,
+            maxItems: 500,
+            items: { type: "object", additionalProperties: true },
+          },
+        },
+        additionalProperties: false,
+      }),
+    },
+    async ({ records }) => {
+      if (!Array.isArray(records) || records.length < 1 || records.length > 500) {
+        return {
+          isError: true,
+          content: mcpText({
+            ok: false,
+            error: "records must contain 1 to 500 product records",
+          }),
+        };
+      }
+      console.log(`[revenue] fiatdock_batch_catalog served records=${records.length}`);
+      return {
+        content: mcpText({
+          ok: true,
+          service: "PAL Batch Catalog Remediation",
+          gateway: "FiatDock",
+          result: catalogRemediationPlan(records),
+        }),
+      };
+    },
+  );
+
+  return server;
+}
+
+const fiatDockMcpHandler = createMcpHandler(() => buildFiatDockMcpServer());
+const fiatDockMcpNodeHandler = toNodeHandler(fiatDockMcpHandler);
+
 const palMcpHandler = createMcpHandler(() => buildPalMcpServer());
 const palMcpNodeHandler = toNodeHandler(palMcpHandler);
 
 const app = express();
+if (FIATDOCK_GATEWAY_TOKEN) {
+  app.all(`/mcp-fiatdock/${FIATDOCK_GATEWAY_TOKEN}`, fiatDockMcpNodeHandler);
+}
 // Mount MCP before Express JSON parsing so the official MCP Node adapter owns the request stream.
 app.all("/mcp", palMcpNodeHandler);
 
@@ -5220,6 +5326,86 @@ app.get("/v1/x402dash/status", (_req, res) => {
     payout_address: BASE_PAYOUT_ADDRESS,
     ...x402DashState,
   });
+});
+
+
+app.get("/v1/fiatdock/status", async (_req, res) => {
+  if (!FIATDOCK_SELLER_KEY) {
+    return res.json({
+      marketplace: "FiatDock",
+      enabled: false,
+      status: "unconfigured",
+      listings: [],
+      earnings: null,
+    });
+  }
+
+  const headers = {
+    accept: "application/json",
+    "X-Seller-Key": FIATDOCK_SELLER_KEY,
+  };
+
+  const read = async (pathname) => {
+    const response = await fetch(`${FIATDOCK_BASE}${pathname}`, {
+      headers,
+      signal: AbortSignal.timeout(12_000),
+    });
+    const text = await response.text();
+    let body = null;
+    try { body = text ? JSON.parse(text) : {}; } catch { body = { raw: text }; }
+    if (!response.ok) {
+      throw new Error(`${pathname} HTTP ${response.status}: ${body?.error || body?.message || "unknown error"}`);
+    }
+    return body;
+  };
+
+  try {
+    const [account, services, earnings] = await Promise.all([
+      read("/v1/marketplace/sellers/me"),
+      read("/v1/marketplace/sellers/me/services"),
+      read("/v1/marketplace/sellers/me/earnings"),
+    ]);
+
+    return res.json({
+      marketplace: "FiatDock",
+      enabled: true,
+      status: "live",
+      account: {
+        sellerId: account.sellerId || null,
+        displayName: account.displayName || null,
+        verified: Boolean(account.verified),
+        kycStatus: account.kycStatus || null,
+        feeBps: account.feeBps ?? null,
+        feeWaiverUntil: account.feeWaiverUntil || null,
+        notices: account.notices || [],
+        listingsBlocked: Boolean(account.listingsBlocked),
+      },
+      listings: (services.services || []).map((item) => ({
+        id: item.id,
+        name: item.name,
+        priceUsd: item.priceUsd,
+        status: item.status,
+        verified: Boolean(item.verified),
+        stats: item.stats || null,
+        suspendedReason: item.suspendedReason || null,
+      })),
+      earnings: {
+        totals: earnings.totals || null,
+        listings: earnings.listings || [],
+        lastSaleAt: earnings.lastSaleAt || null,
+        notices: earnings.notices || [],
+      },
+      checked_at: nowIso(),
+    });
+  } catch (error) {
+    return res.status(502).json({
+      marketplace: "FiatDock",
+      enabled: true,
+      status: "error",
+      error: error instanceof Error ? error.message : String(error),
+      checked_at: nowIso(),
+    });
+  }
 });
 
 app.get("/health", (_req, res) => {
