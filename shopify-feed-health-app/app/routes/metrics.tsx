@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "react-router";
 import prisma from "../db.server";
+import { fetchPartnerRevenueSummary } from "../lib/partner-api.server";
 
 export const loader = async (_args: LoaderFunctionArgs) => {
   const [
@@ -12,6 +13,7 @@ export const loader = async (_args: LoaderFunctionArgs) => {
     monitoringEnabled,
     monitoringRows,
     lastScan,
+    partnerRevenue,
   ] = await Promise.all([
     prisma.session.findMany({
       where: { isOnline: false },
@@ -36,6 +38,16 @@ export const loader = async (_args: LoaderFunctionArgs) => {
       orderBy: { generatedAt: "desc" },
       select: { generatedAt: true, plan: true, source: true },
     }),
+    fetchPartnerRevenueSummary("2026-09-22T00:00:00Z").catch(() => ({
+      configured: false,
+      createdAtMin: "2026-09-22T00:00:00Z",
+      saleCount: 0,
+      grossUsd: 0,
+      netUsd: 0,
+      nonUsdSaleCount: 0,
+      latestCreatedAt: null,
+      byType: {},
+    })),
   ]);
 
   const activeInstalledShops = sessionRows.length;
@@ -62,6 +74,16 @@ export const loader = async (_args: LoaderFunctionArgs) => {
             source: lastScan.source,
           }
         : null,
+      shopify_partner_revenue: {
+        configured: partnerRevenue.configured,
+        sale_count: partnerRevenue.saleCount,
+        gross_usd: partnerRevenue.grossUsd,
+        net_usd: partnerRevenue.netUsd,
+        non_usd_sale_count: partnerRevenue.nonUsdSaleCount,
+        latest_sale_at: partnerRevenue.latestCreatedAt,
+        by_type: partnerRevenue.byType,
+        since: partnerRevenue.createdAtMin,
+      },
       funnel: {
         install_to_scan_pct:
           activeInstalledShops > 0
