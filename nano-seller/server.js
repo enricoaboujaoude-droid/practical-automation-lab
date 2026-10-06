@@ -1173,10 +1173,10 @@ app.use(
       "GET /v1/usdc/x402-seller-integrity": {
         accepts: x402RouteAccepts(X402_SELLER_AUDIT_PRICE_USD),
         description:
-          "Audit one x402 seller origin and paid route using public Circle runtime-readiness plus Agent402 routing/settlement evidence. Returns machine_buyable, contract_ready, or repair_required with exact next actions. No target payment is sent.",
+          "Verify an x402 endpoint is alive and correctly configured before paying it. Runs a safe unpaid 402 preflight on the seller route and combines the live payment contract with Circle runtime-readiness plus Agent402 routing, health and independent-settlement evidence. Returns machine_buyable, contract_ready, or repair_required with exact next actions. No target payment is sent.",
         mimeType: "application/json",
-        serviceName: "PAL Agent Commerce Seller Audit",
-        tags: ["x402", "seller-trust", "integrity", "agent-commerce", "payments", "routing"],
+        serviceName: "PAL Verify x402 Endpoint Before Paying",
+        tags: ["x402", "x402-endpoint", "live-probe", "endpoint-health", "payment-contract", "payment-preflight", "before-paying", "seller-trust", "integrity", "agent-commerce", "payments", "routing"],
         extensions: {
           ...declareDiscoveryExtension({
             input: {
@@ -1984,9 +1984,9 @@ function x402Manifest() {
       },
       {
         resource: X402_SELLER_AUDIT_URL,
-        name: "PAL Agent Commerce Seller Audit",
+        name: "PAL Verify x402 Endpoint Before Paying",
         description:
-          "Audit one agent-commerce/x402 seller origin and paid route using Circle runtime-readiness plus Agent402 routing, health, buyer-settlement and machine-buyability evidence. Returns a scored decision and exact next actions without paying the target.",
+          "Verify an x402 endpoint is alive, returns a valid payment contract, and is safe to consider before paying. Checks the seller origin and exact paid route using a live unpaid HTTP 402 probe plus Circle runtime-readiness and Agent402 routing, health, independent-settlement and machine-buyability evidence. Returns machine_buyable, contract_ready, or repair_required with exact next actions. No target payment is sent.",
         method: "GET",
         price: X402_SELLER_AUDIT_PRICE_USD,
         inputSchema: {
@@ -2438,8 +2438,8 @@ function x402OpenApi() {
       [X402_SELLER_AUDIT_PATH]: {
         get: {
           operationId: "x402SellerAudit",
-          summary: "x402 Seller Audit and Payment Preflight",
-          tags: ["x402", "seller-audit", "endpoint-audit", "payment-preflight", "seller-trust", "verification", "agent-operations", "agent-commerce", "routing"],
+          summary: "Verify x402 endpoint alive and payment-ready before paying",
+          tags: ["x402", "x402-endpoint", "live-probe", "endpoint-health", "payment-contract", "payment-preflight", "before-paying", "seller-audit", "seller-trust", "verification", "agent-operations", "agent-commerce", "routing"],
           parameters: [
             {
               name: "origin",
