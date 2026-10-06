@@ -2494,16 +2494,16 @@ async function startX402ScoutBootstrap() {
         accept: "application/json",
       },
       body: JSON.stringify({
-        name: "PAL Catalog Feed Identifier Audit",
-        url: X402_AUDIT_URL,
-        price_usd: 0.01,
+        name: "PAL Full Catalog Remediation",
+        url: X402_REMEDIATE_BULK_URL,
+        price_usd: 20.0,
         category: "data",
         description:
-          "Deterministic Shopify and Google Merchant Center product-feed audit for 1-100 catalog records: duplicate IDs, GTIN/UPC/EAN checksum errors, product and image URL shape, price formatting, availability, and brand/MPN identifier consistency.",
+          "Full-catalog Shopify and Google Merchant Center remediation for 1-2,000 product records, returning prioritized corrective actions, severity, issue counts, and affected product IDs.",
         network: "base-mainnet",
         wallet: BASE_PAYOUT_ADDRESS,
         wallet_address: BASE_PAYOUT_ADDRESS,
-        tags: ["catalog", "ecommerce", "product-feed", "validation"],
+        tags: ["catalog", "ecommerce", "merchant-center", "product-feed", "remediation", "full-catalog"],
       }),
       signal: AbortSignal.timeout(45_000),
     });
@@ -2530,16 +2530,16 @@ async function startX402ScoutBootstrap() {
           accept: "application/json",
         },
         body: JSON.stringify({
-          name: "PAL Catalog Remediation Plan",
-          url: X402_REMEDIATE_URL,
-          price_usd: 1.0,
+          name: "PAL Batch Catalog Remediation",
+          url: X402_REMEDIATE_BATCH_URL,
+          price_usd: 5.0,
           category: "data",
           description:
-            "Prioritized Merchant Center and product-feed remediation plan for 1-100 catalog records with concrete corrective actions, severity, and affected products.",
+            "Batch Shopify and Google Merchant Center remediation for 1-500 product records, returning prioritized corrective actions, severity, issue counts, and affected products.",
           network: "base-mainnet",
           wallet: BASE_PAYOUT_ADDRESS,
           wallet_address: BASE_PAYOUT_ADDRESS,
-          tags: ["catalog", "ecommerce", "merchant-center", "product-feed", "remediation"],
+          tags: ["catalog", "ecommerce", "merchant-center", "product-feed", "remediation", "batch"],
         }),
         signal: AbortSignal.timeout(45_000),
       });
@@ -2562,7 +2562,7 @@ async function startX402ScoutBootstrap() {
       };
       if (remediationResponse.ok) {
         console.log(
-          `[x402scout] registered remediation route=${X402_REMEDIATE_URL} service_id=${remediation.service_id || "unknown"}`
+          `[x402scout] registered batch remediation route=${X402_REMEDIATE_BATCH_URL} service_id=${remediation.service_id || "unknown"}`
         );
       } else {
         console.warn(
@@ -2589,7 +2589,7 @@ async function startX402ScoutBootstrap() {
       checked_at: nowIso(),
       service_id: body?.service_id || body?.id || body?.service?.id || null,
       additional_services: remediation
-        ? [{ name: "PAL Catalog Remediation Plan", url: X402_REMEDIATE_URL, ...remediation }]
+        ? [{ name: "PAL Batch Catalog Remediation", url: X402_REMEDIATE_BATCH_URL, ...remediation }]
         : [],
       error: null,
     };
@@ -5101,10 +5101,10 @@ app.get("/v1/402index/status", (_req, res) => {
 app.get("/v1/x402scout/status", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({
-    service: "PAL Catalog Feed Identifier Audit",
+    service: "PAL Full Catalog Remediation",
     marketplace: "x402Scout",
-    route: X402_AUDIT_PATH,
-    price_usd: 0.01,
+    route: X402_REMEDIATE_BULK_PATH,
+    price_usd: 20.0,
     payout_network: X402_NETWORK,
     payout_asset: "USDC",
     payout_address: BASE_PAYOUT_ADDRESS,
