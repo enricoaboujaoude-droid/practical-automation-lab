@@ -7043,8 +7043,44 @@ app.get("/v1/revenue", async (_req, res) => {
     const ledger = await response.json();
     const transfers = Array.isArray(ledger?.transfers) ? ledger.transfers : [];
     const latest = transfers.length ? transfers[transfers.length - 1] : null;
+    const verificationTxHashes = new Set([
+      "0xd6d5a0238a350b8cb9e955ff6655181cdda79772853252b6f275da475472fa89",
+      "0x916ce48a02ceb864e3a8f20da0d672eb23f17dde080a9f1f77a116e5cca31d77",
+      "0xda3513b7f63cd1956372e0a10c383989e2a3bf8a8f5181eb49e9592a32a26c2b",
+    ]);
+    const classified = transfers.map((transfer) => {
+      const hash = String(transfer?.tx_hash || "").toLowerCase();
+      const amount = Number(transfer?.amount_usdc || 0);
+      const classification = verificationTxHashes.has(hash)
+        ? "verification_or_canary"
+        : "unclassified_external";
+      return { ...transfer, amount_usdc: amount, classification };
+    });
+    const verification = classified.filter((item) => item.classification === "verification_or_canary");
+    const unclassifiedExternal = classified.filter((item) => item.classification === "unclassified_external");
+    const verificationUsdc = verification.reduce((sum, item) => sum + Number(item.amount_usdc || 0), 0);
+    const unclassifiedUsdc = unclassifiedExternal.reduce((sum, item) => sum + Number(item.amount_usdc || 0), 0);
+
     return res.json({
-      realized: {
+      genuine_customer_revenue: {
+        confirmed_base_usdc: 0,
+        confirmed_transfer_count: 0,
+        note:
+          "Only independently attributable customer/client/referral payments count here. Marketplace verification, canary and platform test settlements are excluded. New unknown transfers remain unclassified until their source is verified.",
+      },
+      verification_and_test_money: {
+        base_usdc: Number(verificationUsdc.toFixed(6)),
+        transfer_count: verification.length,
+        transfers: verification,
+      },
+      unclassified_external_money: {
+        base_usdc: Number(unclassifiedUsdc.toFixed(6)),
+        transfer_count: unclassifiedExternal.length,
+        transfers: unclassifiedExternal,
+        note:
+          "Do not count these as genuine revenue until the buyer/source is independently identified.",
+      },
+      onchain_wallet_total: {
         base_usdc: Number(ledger?.total_usdc || 0),
         transfer_count: transfers.length,
         latest_settlement: latest,
