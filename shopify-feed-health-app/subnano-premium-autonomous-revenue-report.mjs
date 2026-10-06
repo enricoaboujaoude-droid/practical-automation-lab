@@ -326,7 +326,7 @@ A useful revenue agent is not "search -> report."
 
 It is:
 
-```
+~~~
 discover funded demand
   -> verify buyer + payout + constraints
   -> reserve/accept exact work
@@ -339,7 +339,7 @@ discover funded demand
   -> delete client data on schedule
   -> update revenue ledger
   -> learn which demand source converted
-```
+~~~
 
 Each stage needs a failure state.
 
@@ -402,7 +402,7 @@ It is:
 
 For any marketplace, collect this JSON before integration:
 
-```json
+~~~json
 {
   "external_buyers_verified": false,
   "funded_work_visible": false,
@@ -418,7 +418,7 @@ For any marketplace, collect this JSON before integration:
   "repeat_demand_evidence": null,
   "decision": "reject|bounded_test|execute"
 }
-```
+~~~
 
 Do not let unknown fields silently become "yes."
 
