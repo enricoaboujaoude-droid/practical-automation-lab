@@ -4704,6 +4704,13 @@ app.get("/marketplace", (_req, res) => {
     <p class="muted">Affiliate disclosure: Practical Automation Lab participates in AgenticTrade's referral program and may earn referral revenue from qualifying providers who join through this link.</p>
   </div>
 
+  <div class="card">
+    <h2>Developers: deploy your own API or MCP service</h2>
+    <p>Railway is a developer hosting platform for deploying APIs, workers, databases, and MCP services. New referred users receive $20 in Railway credits after signup.</p>
+    <p><a href="https://railway.com?referralCode=cRbYoJ" rel="sponsored noopener noreferrer"><strong>Deploy on Railway →</strong></a></p>
+    <p class="muted">Affiliate disclosure: Practical Automation Lab may earn 15% cash referral commission on qualifying referred customer spend for the first 12 months.</p>
+  </div>
+
   <h2>Machine-readable discovery</h2>
   <p>
     <a href="/.well-known/x402">x402 manifest</a> ·
