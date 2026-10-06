@@ -1,10 +1,11 @@
-name: Publish PAL Subnano revenue index
+name: Publish PAL Subnano revenue content
 
 on:
   push:
     branches: [main]
     paths:
       - "shopify-feed-health-app/subnano-revenue-index-publisher.mjs"
+      - "shopify-feed-health-app/subnano-premium-autonomous-revenue-report.mjs"
       - ".github/workflows/publish-subnano-revenue-index.yml"
   workflow_dispatch:
 
@@ -17,6 +18,7 @@ jobs:
     timeout-minutes: 5
     env:
       SUBNANO_PUBLISH_KEY: ${{ secrets.SUBNANO_PUBLISH_KEY }}
+
     steps:
       - name: Check publishing credential
         id: credential
@@ -39,14 +41,20 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Update or publish revenue index only
+      - name: Update free revenue index
         if: steps.credential.outputs.configured == 'true'
         working-directory: shopify-feed-health-app
         shell: bash
         run: |
           node --input-type=module <<'NODE'
           import { ensureSubnanoRevenueIndex } from "./subnano-revenue-index-publisher.mjs";
-
           const result = await ensureSubnanoRevenueIndex();
           console.log(JSON.stringify(result));
           NODE
+
+      - name: Publish premium autonomous revenue report
+        if: steps.credential.outputs.configured == 'true'
+        working-directory: shopify-feed-health-app
+        shell: bash
+        run: |
+          node subnano-premium-autonomous-revenue-report.mjs
