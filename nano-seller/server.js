@@ -1101,6 +1101,7 @@ let usdcPaidX402Validations = 0;
 let usdcPaidCatalogRemediations = 0;
 let usdcPaidCatalogRemediationBatches = 0;
 let usdcPaidCatalogRemediationBulks = 0;
+let payanAgentRetryScheduled = false;
 let payanAgentState = {
   enabled: PAYANAGENT_BOOTSTRAP,
   status: PAYANAGENT_BOOTSTRAP ? "pending" : "disabled",
@@ -1450,13 +1451,23 @@ async function startPayanAgentBootstrap() {
     };
     console.log(`[payanagent] live agent_id=${agentId} offer_id=${offerId}`);
   } catch (error) {
+    const message = safePayanAgentError(error);
     payanAgentState = {
       ...payanAgentState,
       status: "failed",
       checked_at: nowIso(),
-      error: safePayanAgentError(error),
+      error: message,
     };
-    console.error("[payanagent] bootstrap failed:", safePayanAgentError(error));
+    console.error("[payanagent] bootstrap failed:", message);
+
+    if (/HTTP 5\d\d|Server Error|timeout|fetch failed/i.test(message) && !payanAgentRetryScheduled) {
+      payanAgentRetryScheduled = true;
+      setTimeout(() => {
+        payanAgentRetryScheduled = false;
+        void startPayanAgentBootstrap();
+      }, 15 * 60 * 1000);
+      console.log("[payanagent] provider API unavailable; autonomous retry scheduled after 15 minutes");
+    }
   }
 }
 
