@@ -24,6 +24,8 @@ const PUBLIC_BASE_URL = String(
   process.env.PUBLIC_BASE_URL || "https://pal-nano-catalog-audit.onrender.com"
 ).replace(/\/$/, "");
 const MARKETPLACE_PUBLISHER = process.env.MARKETPLACE_PUBLISHER !== "0";
+const BASE_USDC_LEDGER_URL =
+  "https://raw.githubusercontent.com/enricoaboujaoude-droid/practical-automation-lab/main/revenue/base-usdc-ledger.json";
 const PAYANAGENT_OFFER_TITLE = "PAL Full Catalog Remediation";
 const PAYANAGENT_OFFER_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation-bulk`;
 const X402_NETWORK = "eip155:8453";
@@ -5475,7 +5477,7 @@ app.get("/", (_req, res) => {
       "POST /v1/usdc/catalog-remediation-bulk",
     ],
     agentpay_endpoint: "POST /v1/agentpay",
-    free_endpoints: ["GET /health", "GET /v1/price", "GET /v1/stats"],
+    free_endpoints: ["GET /health", "GET /v1/price", "GET /v1/stats", "GET /v1/revenue"],
     limits: { records_per_audit: 100, records_per_batch_remediation: 500, records_per_bulk_remediation: 2000, request_body: "4mb" },
     payment: {
       nano: {
@@ -6285,6 +6287,47 @@ app.get("/v1/price", (_req, res) => {
     price_raw: PRICE_RAW,
     pay_to: PAY_TO,
   });
+});
+
+app.get("/v1/revenue", async (_req, res) => {
+  try {
+    const response = await fetch(BASE_USDC_LEDGER_URL, {
+      headers: { accept: "application/json", "user-agent": "PAL-Revenue-Reconciler/1.0" },
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (!response.ok) throw new Error(`ledger HTTP ${response.status}`);
+    const ledger = await response.json();
+    const transfers = Array.isArray(ledger?.transfers) ? ledger.transfers : [];
+    const latest = transfers.length ? transfers[transfers.length - 1] : null;
+    return res.json({
+      realized: {
+        base_usdc: Number(ledger?.total_usdc || 0),
+        transfer_count: transfers.length,
+        latest_settlement: latest,
+      },
+      process: {
+        seller_integrity_calls: usdcPaidSellerIntegrityAudits,
+        seller_repair_plan_calls: usdcPaidSellerRepairPlans,
+        seller_portfolio_audit_calls: usdcPaidSellerPortfolioAudits,
+        catalog_bulk_calls: usdcPaidCatalogRemediationBulks,
+        catalog_batch_calls: usdcPaidCatalogRemediationBatches,
+      },
+      ledger: {
+        network: ledger?.network || "base-mainnet",
+        asset: ledger?.asset || "USDC",
+        last_scanned_block: ledger?.last_scanned_block || null,
+        updated_at: ledger?.updated_at || null,
+        source: BASE_USDC_LEDGER_URL,
+      },
+      checked_at: nowIso(),
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "revenue_ledger_unavailable",
+      detail: error instanceof Error ? error.message : String(error),
+      checked_at: nowIso(),
+    });
+  }
 });
 
 app.get("/v1/stats", (_req, res) => {
