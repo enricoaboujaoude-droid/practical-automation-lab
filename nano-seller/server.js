@@ -1204,7 +1204,7 @@ app.use(
           }),
         },
       },
-      "POST /v1/usdc/shopify-product-availability": {
+      "GET /v1/usdc/shopify-product-availability": {
         accepts: x402RouteAccepts(X402_SHOPIFY_PRODUCT_PRICE_USD),
         description:
           "Check a public Shopify product URL using Shopify's Ajax Product API. Returns live/sold-out/not-found status and current variants for $0.005 USDC. Public Shopify product URLs only; private and reserved networks are blocked.",
@@ -1225,7 +1225,6 @@ app.use(
                 },
               },
             },
-            bodyType: "json",
             output: {
               example: {
                 service: "PAL Shopify Product Availability",
@@ -1840,7 +1839,7 @@ function true402Manifest() {
       { name: "PAL Single GTIN Check", endpoint: X402_GTIN_ONE_URL, method: "GET", price: "0.01" },
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
       { name: "PAL x402 Seller Integrity Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.01" },
-      { name: "PAL Shopify Product Availability", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "POST", price: "0.005" },
+      { name: "PAL Shopify Product Availability", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "GET", price: "0.005" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
       { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
       { name: "PAL Full Catalog Remediation", endpoint: X402_REMEDIATE_BULK_URL, method: "POST", price: "20.00" },
@@ -1955,7 +1954,7 @@ function x402Manifest() {
         name: "PAL Shopify Product Availability",
         description:
           "Check a public Shopify storefront product URL using Shopify's documented Ajax Product API. Returns current live/sold-out/not-found status plus variants, raw presentment prices, SKU/barcode and images. Public Shopify product URLs only; private and reserved networks are blocked.",
-        method: "POST",
+        method: "GET",
         price: X402_SHOPIFY_PRODUCT_PRICE_USD,
         inputSchema: {
           type: "object",
@@ -2404,30 +2403,20 @@ function x402OpenApi() {
         },
       },
       [X402_SHOPIFY_PRODUCT_PATH]: {
-        post: {
+        get: {
           operationId: "checkShopifyProductAvailability",
           summary: "Check current Shopify product availability and variants",
           tags: ["shopify", "ecommerce", "product-availability", "product-detail", "variants"],
-          requestBody: {
-            required: true,
-            content: {
-              "application/json": {
-                schema: {
-                  type: "object",
-                  required: ["url"],
-                  additionalProperties: false,
-                  properties: {
-                    url: {
-                      type: "string",
-                      format: "uri",
-                      description: "Public Shopify storefront product URL containing /products/{handle}.",
-                    },
-                  },
-                },
-                example: { url: "https://example-shop.com/products/example-product" },
-              },
+          parameters: [
+            {
+              name: "url",
+              in: "query",
+              required: true,
+              description: "Public Shopify storefront product URL containing /products/{handle}.",
+              schema: { type: "string", format: "uri" },
+              example: "https://example-shop.com/products/example-product",
             },
-          },
+          ],
           responses: {
             "200": { description: "Current product and variant availability after successful payment." },
             "400": { description: "Invalid or unsafe product URL." },
@@ -2653,8 +2642,7 @@ async function startIndex402Bootstrap() {
       url: X402_SHOPIFY_PRODUCT_URL,
       name: "PAL Shopify Product Availability",
       protocol: "x402",
-      http_method: "POST",
-      probe_body: JSON.stringify({ url: "https://example-shop.com/products/example-product" }),
+      http_method: "GET",
       description:
         "Check one public Shopify storefront product URL for current live/sold-out/not-found status and variant availability using Shopify's documented Ajax Product API.",
       price_usd: 0.005,
@@ -6584,12 +6572,12 @@ async function buildSellerIntegrityAudit(originRaw, routeRaw = "") {
   };
 }
 
-app.post("/v1/usdc/shopify-product-availability", async (req, res) => {
-  const productUrl = String(req.body?.url || "").trim();
+app.get("/v1/usdc/shopify-product-availability", async (req, res) => {
+  const productUrl = String(req.query?.url || "").trim();
   if (!productUrl) {
     return res.status(400).json({
       error: "missing_url",
-      detail: "Body must contain a public Shopify storefront product URL in {\"url\":\"https://store.example/products/handle\"}.",
+      detail: "Query parameter url must contain a public Shopify storefront product URL, for example ?url=https%3A%2F%2Fstore.example%2Fproducts%2Fhandle.",
     });
   }
 
