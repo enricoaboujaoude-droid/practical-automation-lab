@@ -7452,7 +7452,10 @@ function sellerRepairPlan(report) {
     ),
   );
 
-  repairs.sort((a, b) => ({ P0: 0, P1: 1, P2: 2 }[a.priority] - ({ P0: 0, P1: 1, P2: 2 }[b.priority]));
+  const priorityRank = { P0: 0, P1: 1, P2: 2 };
+  repairs.sort(
+    (a, b) => (priorityRank[a.priority] ?? 9) - (priorityRank[b.priority] ?? 9),
+  );
 
   return {
     service: "PAL x402 Seller Revenue Repair Plan",
