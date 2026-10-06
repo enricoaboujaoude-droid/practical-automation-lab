@@ -55,6 +55,14 @@
   </div>
 
   <div class="card">
+    <h2>Prefer an autonomous done-for-you launch?</h2>
+    <p><strong>PAL Agent Commerce Launch Kit — $99 USDC:</strong> generates runtime readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads, and a prioritized launch checklist for an existing public service.</p>
+    <p><a id="launchkit-cta" class="cta" href="https://agent-tools.cloud/services/pal-full-catalog-remediation-onrender-com-sub1197" rel="noopener noreferrer">Buy the $99 Launch Kit →</a></p>
+    <p><strong>PAL Agent Commerce Go-Live — $350 USDC:</strong> verifies the existing paid service, generates the bundle, submits it to compatible machine-buyer directories, and returns registration receipts and remaining blockers.</p>
+    <p><a id="golive-cta" class="cta" href="https://agent-tools.cloud/services/pal-full-catalog-remediation-onrender-com-sub1198" rel="noopener noreferrer">Buy the $350 Go-Live →</a></p>
+  </div>
+
+  <div class="card">
     <h2>4. Validate before buying traffic</h2>
     <p>Check uptime, cold starts, payment metadata, input validation, and whether an unpaid request reliably returns the correct challenge. Do not spend money promoting an endpoint that fails machine checks.</p>
     <p><a href="https://pal-full-catalog-remediation.onrender.com/marketplace"><strong>See PAL's production API setup →</strong></a></p>
@@ -83,6 +91,8 @@
   palEvent("pal_deploy_mcp_viewed");
   document.getElementById("railway-cta")?.addEventListener("click", () => palEvent("pal_deploy_mcp_railway_clicked"));
   document.getElementById("agentictrade-cta")?.addEventListener("click", () => palEvent("pal_deploy_mcp_agentictrade_clicked"));
+  document.getElementById("launchkit-cta")?.addEventListener("click", () => palEvent("pal_deploy_mcp_launchkit_clicked"));
+  document.getElementById("golive-cta")?.addEventListener("click", () => palEvent("pal_deploy_mcp_golive_clicked"));
 </script>
 </body>
 </html>
