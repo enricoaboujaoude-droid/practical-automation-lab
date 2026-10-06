@@ -1186,6 +1186,7 @@ let market402State = {
   error: null,
 };
 let x402DashRetryScheduled = false;
+let noHumansRetryScheduled = false;
 let x402DashState = {
   enabled: true,
   status: "pending",
@@ -3818,6 +3819,22 @@ async function startNoHumansBootstrap() {
           ? null
           : `${failures.length} nohumans listing(s) failed`,
     };
+
+    const rateLimited =
+      failures.some((item) => item.status === 429 || /rate_limited/i.test(String(item.error || ""))) ||
+      (publicPatch?.status === 429) ||
+      (noHumansState.improvements || []).some((item) =>
+        /429|rate_limited/i.test(String(item?.error || ""))
+      );
+
+    if (rateLimited && !noHumansRetryScheduled) {
+      noHumansRetryScheduled = true;
+      setTimeout(() => {
+        noHumansRetryScheduled = false;
+        void startNoHumansBootstrap();
+      }, 70 * 60 * 1000);
+      console.log("[nohumans] rate limited; one autonomous retry scheduled after 70 minutes");
+    }
   } catch (error) {
     noHumansState = {
       ...noHumansState,
