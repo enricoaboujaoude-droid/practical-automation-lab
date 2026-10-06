@@ -6034,6 +6034,71 @@ app.get("/marketplace", (_req, res) => {
 </html>`);
 });
 
+app.get("/affiliate-link-audit", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.type("text/html").send(`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Free Affiliate Link Audit for Creators & Publishers | Practical Automation Lab</title>
+  <meta name="description" content="Find broken or outdated affiliate links before they leak commissions. Free audit path for Impact, Awin, ShareASale, PartnerStack and affiliate-heavy creator sites.">
+  <link rel="canonical" href="${PUBLIC_BASE_URL}/affiliate-link-audit">
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:860px;margin:0 auto;padding:48px 24px;color:#111827;line-height:1.65}
+    h1{font-size:2.35rem;line-height:1.15}.lead{font-size:1.15rem;color:#374151}
+    .card{border:1px solid #e5e7eb;border-radius:14px;padding:20px;margin:18px 0}
+    .cta{display:inline-block;padding:12px 18px;border-radius:10px;background:#111827;color:white;text-decoration:none;font-weight:700}
+    a{color:#0f62fe}.muted{color:#6b7280}li{margin:.45rem 0}
+  </style>
+  <script type="application/ld+json">
+  ${JSON.stringify({
+    "@context":"https://schema.org",
+    "@type":"HowTo",
+    name:"Affiliate Link Revenue Leak Audit",
+    description:"A practical checklist for creators and publishers to find broken, outdated, or non-tracking affiliate links before they lose commissions.",
+    totalTime:"PT10M",
+    url:`${PUBLIC_BASE_URL}/affiliate-link-audit`
+  })}
+  </script>
+</head>
+<body>
+  <p><a href="/marketplace">← Practical Automation Lab</a></p>
+  <h1>Audit affiliate links before they leak commissions</h1>
+  <p class="lead">Affiliate-heavy sites accumulate broken redirects, retired offers, migrated programs, and links that still resolve but no longer track. A fast audit is cheaper than discovering the problem after a month of missing commissions.</p>
+
+  <div class="card">
+    <h2>Fastest path: run the free audit</h2>
+    <p>Afterlink checks affiliate links and helps publishers identify link problems across common affiliate networks. You can start with its free audit before buying anything.</p>
+    <p><a class="cta" href="https://afterlink.io/?via=Enricoaj" rel="sponsored noopener noreferrer">Run the free Afterlink audit →</a></p>
+    <p class="muted">Affiliate disclosure: Practical Automation Lab may receive 50% of qualifying referred subscription payments for up to 36 months. The audit itself is free.</p>
+  </div>
+
+  <h2>What to check</h2>
+  <ul>
+    <li><strong>Redirect integrity:</strong> destination still exists and lands on the intended product or merchant.</li>
+    <li><strong>Tracking integrity:</strong> affiliate parameters survive redirects and do not get stripped.</li>
+    <li><strong>Program migrations:</strong> merchant moved networks or replaced an old program.</li>
+    <li><strong>Expired campaigns:</strong> seasonal or launch-specific URLs are no longer valid.</li>
+    <li><strong>High-value pages first:</strong> audit pages with the most traffic, clicks, or purchase intent before low-traffic archives.</li>
+  </ul>
+
+  <h2>Network-specific audit paths</h2>
+  <div class="card">
+    <p><a href="https://afterlink.io/networks/impact?via=Enricoaj" rel="sponsored noopener noreferrer">Impact affiliate-link audit →</a></p>
+    <p><a href="https://afterlink.io/networks/awin?via=Enricoaj" rel="sponsored noopener noreferrer">Awin affiliate-link audit →</a></p>
+    <p><a href="https://afterlink.io/networks/shareasale?via=Enricoaj" rel="sponsored noopener noreferrer">ShareASale affiliate-link audit →</a></p>
+    <p><a href="https://afterlink.io/networks/partnerstack?via=Enricoaj" rel="sponsored noopener noreferrer">PartnerStack affiliate-link audit →</a></p>
+  </div>
+
+  <h2>Priority rule</h2>
+  <p>Fix links where <strong>traffic × purchase intent × expected commission</strong> is highest. A broken affiliate link on a comparison page or buying guide usually matters more than dozens of broken links in low-intent archive posts.</p>
+
+  <p class="muted">Practical Automation Lab publishes automation and commerce tooling. This page is an educational resource and contains sponsored affiliate links as disclosed above.</p>
+</body>
+</html>`);
+});
+
 app.get("/llms.txt", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.type("text/plain").send(`# Practical Automation Lab — paid commerce-data tools
