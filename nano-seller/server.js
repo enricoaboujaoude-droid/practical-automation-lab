@@ -1,4 +1,6 @@
 import express from "express";
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
 import { facilitator } from "@payai/facilitator";
 import { HTTPFacilitatorClient } from "@x402/core/server";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
@@ -64,6 +66,9 @@ const X402_VALIDATE_PATH = "/v1/usdc/x402-validate";
 const X402_SELLER_AUDIT_PATH = "/v1/usdc/x402-seller-integrity";
 const X402_SELLER_AUDIT_PRICE_USD = "$0.01";
 const X402_SELLER_AUDIT_PRICE_ATOMIC = "10000";
+const X402_SHOPIFY_PRODUCT_PATH = "/v1/usdc/shopify-product-availability";
+const X402_SHOPIFY_PRODUCT_PRICE_USD = "$0.005";
+const X402_SHOPIFY_PRODUCT_PRICE_ATOMIC = "5000";
 const X402_VALIDATE_PRICE_USD = "$0.05";
 const X402_VALIDATE_PRICE_ATOMIC = "50000";
 const X402_REMEDIATE_PATH = "/v1/usdc/catalog-remediation";
@@ -84,6 +89,7 @@ const X402_GTIN_ONE_URL = `${PUBLIC_BASE_URL}${X402_GTIN_ONE_PATH}`;
 const X402_FEED_DIFF_URL = `${PUBLIC_BASE_URL}${X402_FEED_DIFF_PATH}`;
 const X402_VALIDATE_URL = `${PUBLIC_BASE_URL}${X402_VALIDATE_PATH}`;
 const X402_SELLER_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_SELLER_AUDIT_PATH}`;
+const X402_SHOPIFY_PRODUCT_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_PRODUCT_PATH}`;
 const X402_REMEDIATE_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_PATH}`;
 const X402_REMEDIATE_BATCH_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BATCH_PATH}`;
 const X402_REMEDIATE_BULK_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BULK_PATH}`;
@@ -354,7 +360,7 @@ function buildPalMcpServer() {
             price_usd_per_call: 0.01,
             max_products_per_call: 100,
             calls_required: calls,
-            estimated_total_usd: Number((calls * 0.01).toFixed(2)),
+            estimated_total_usd: Number((calls * 0.01).toFixed(3)),
             reason: "Catalog audit is billed per batch of up to 100 products.",
           },
           payment: {
@@ -1198,6 +1204,39 @@ app.use(
           }),
         },
       },
+      "POST /v1/usdc/shopify-product-availability": {
+        accepts: x402RouteAccepts(X402_SHOPIFY_PRODUCT_PRICE_USD),
+        description:
+          "Check a public Shopify product URL using Shopify's Ajax Product API. Returns live/sold-out/not-found status and current variants for $0.005 USDC. Public Shopify product URLs only; private and reserved networks are blocked.",
+        mimeType: "application/json",
+        serviceName: "PAL Shopify Product Availability",
+        tags: ["shopify", "ecommerce", "product-availability", "product-detail", "variants"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: { url: "https://example-shop.com/products/example-product" },
+            inputSchema: {
+              type: "object",
+              additionalProperties: false,
+              required: ["url"],
+              properties: {
+                url: {
+                  type: "string",
+                  description: "Public Shopify storefront product URL containing /products/{handle}.",
+                },
+              },
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL Shopify Product Availability",
+                status: "live",
+                available: true,
+                product: { title: "Example Product", variants_total: 2, available_variants: 1 },
+              },
+            },
+          }),
+        },
+      },
       "POST /v1/usdc/x402-validate": {
         accepts: x402RouteAccepts(X402_VALIDATE_PRICE_USD),
         description:
@@ -1251,6 +1290,7 @@ let usdcPaidSingleGtinChecks = 0;
 let usdcPaidFeedDiffs = 0;
 let usdcPaidX402Validations = 0;
 let usdcPaidSellerIntegrityAudits = 0;
+let usdcPaidShopifyProductChecks = 0;
 let usdcPaidCatalogRemediations = 0;
 let usdcPaidCatalogRemediationBatches = 0;
 let usdcPaidCatalogRemediationBulks = 0;
@@ -1391,6 +1431,131 @@ function validHttpUrl(value) {
   } catch {
     return false;
   }
+}
+
+function unsafePublicFetchAddress(address) {
+  const raw = String(address || "").trim().toLowerCase().replace(/^\[|\]$/g, "").split("%")[0];
+  const mapped = raw.startsWith("::ffff:") ? raw.slice(7) : raw;
+  const version = isIP(mapped);
+  if (version === 4) {
+    const parts = mapped.split(".").map(Number);
+    const [a, b] = parts;
+    return (
+      a === 0 ||
+      a === 10 ||
+      a === 127 ||
+      (a === 100 && b >= 64 && b <= 127) ||
+      (a === 169 && b === 254) ||
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 0) ||
+      (a === 192 && b === 168) ||
+      (a === 192 && b === 0 && parts[2] === 2) ||
+      (a === 198 && (b === 18 || b === 19)) ||
+      (a === 198 && b === 51 && parts[2] === 100) ||
+      (a === 203 && b === 0 && parts[2] === 113) ||
+      a >= 224
+    );
+  }
+  if (version === 6) {
+    return (
+      raw === "::" ||
+      raw === "::1" ||
+      raw.startsWith("fc") ||
+      raw.startsWith("fd") ||
+      /^fe[89ab]/.test(raw) ||
+      raw.startsWith("ff") ||
+      raw.startsWith("2001:db8")
+    );
+  }
+  return true;
+}
+
+async function assertPublicFetchHost(hostname) {
+  const host = String(hostname || "").trim().toLowerCase().replace(/^\[|\]$/g, "");
+  if (!host || host === "localhost" || host.endsWith(".localhost") || host.endsWith(".local")) {
+    throw new Error("private_or_local_host");
+  }
+  if (isIP(host)) {
+    if (unsafePublicFetchAddress(host)) throw new Error("private_or_reserved_address");
+    return [host];
+  }
+  const answers = await lookup(host, { all: true, verbatim: true });
+  if (!answers.length || answers.some((answer) => unsafePublicFetchAddress(answer.address))) {
+    throw new Error("private_or_reserved_address");
+  }
+  return answers.map((answer) => answer.address);
+}
+
+function shopifyProductJsonUrl(input) {
+  const source = new URL(String(input || "").trim());
+  if (source.protocol !== "https:" || source.username || source.password) {
+    throw new Error("shopify_url_must_be_public_https");
+  }
+
+  const segments = source.pathname.split("/").filter(Boolean);
+  const productsIndex = segments.indexOf("products");
+  if (productsIndex < 0 || productsIndex + 1 >= segments.length || productsIndex + 2 !== segments.length) {
+    throw new Error("shopify_product_url_must_match_products_handle");
+  }
+
+  const handle = decodeURIComponent(segments[productsIndex + 1]).replace(/\.js$/i, "");
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(handle)) {
+    throw new Error("invalid_shopify_product_handle");
+  }
+
+  const prefix = segments.slice(0, productsIndex);
+  const pathname = "/" + [...prefix, "products", `${handle}.js`].join("/");
+  return new URL(pathname, source.origin);
+}
+
+async function readShopifyProduct(input) {
+  let target = shopifyProductJsonUrl(input);
+  for (let redirect = 0; redirect <= 3; redirect += 1) {
+    await assertPublicFetchHost(target.hostname);
+    const response = await fetch(target, {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        "user-agent": "Practical-Automation-Lab-Shopify-Availability/1.0",
+      },
+      redirect: "manual",
+      signal: AbortSignal.timeout(12_000),
+    });
+
+    if ([301, 302, 303, 307, 308].includes(response.status)) {
+      const location = response.headers.get("location");
+      if (!location || redirect === 3) throw new Error("unsafe_or_excessive_redirect");
+      const next = new URL(location, target);
+      if (next.protocol !== "https:" || next.username || next.password) {
+        throw new Error("unsafe_redirect_target");
+      }
+      target = shopifyProductJsonUrl(next.toString());
+      continue;
+    }
+
+    if (response.status === 404) {
+      return { found: false, product_json_url: target.toString(), http_status: 404 };
+    }
+    if (!response.ok) throw new Error(`shopify_product_http_${response.status}`);
+
+    const length = Number(response.headers.get("content-length") || 0);
+    if (length > 2_000_000) throw new Error("shopify_product_response_too_large");
+    const raw = await response.text();
+    if (raw.length > 2_000_000) throw new Error("shopify_product_response_too_large");
+
+    let product;
+    try {
+      product = JSON.parse(raw);
+    } catch {
+      throw new Error("shopify_product_not_json");
+    }
+    if (!product || typeof product !== "object" || !Array.isArray(product.variants)) {
+      throw new Error("shopify_product_shape_invalid");
+    }
+
+    return { found: true, product_json_url: target.toString(), product };
+  }
+  throw new Error("shopify_product_redirect_limit");
 }
 
 function extractAgentPayRecords(messages) {
@@ -1675,6 +1840,7 @@ function true402Manifest() {
       { name: "PAL Single GTIN Check", endpoint: X402_GTIN_ONE_URL, method: "GET", price: "0.01" },
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
       { name: "PAL x402 Seller Integrity Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.01" },
+      { name: "PAL Shopify Product Availability", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "POST", price: "0.005" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
       { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
       { name: "PAL Full Catalog Remediation", endpoint: X402_REMEDIATE_BULK_URL, method: "POST", price: "20.00" },
@@ -1686,6 +1852,7 @@ function true402Manifest() {
 function x402Manifest() {
   const commonAccepts = x402ManifestAccepts(X402_PRICE_ATOMIC);
   const sellerAuditAccepts = x402ManifestAccepts(X402_SELLER_AUDIT_PRICE_ATOMIC);
+  const shopifyProductAccepts = x402ManifestAccepts(X402_SHOPIFY_PRODUCT_PRICE_ATOMIC);
   const validatorAccepts = x402ManifestAccepts(X402_VALIDATE_PRICE_ATOMIC);
   const remediationAccepts = x402ManifestAccepts(X402_REMEDIATE_PRICE_ATOMIC);
   const remediationBatchAccepts = x402ManifestAccepts(X402_REMEDIATE_BATCH_PRICE_ATOMIC);
@@ -1784,6 +1951,22 @@ function x402Manifest() {
         accepts: sellerAuditAccepts,
       },
       {
+        resource: X402_SHOPIFY_PRODUCT_URL,
+        name: "PAL Shopify Product Availability",
+        description:
+          "Check a public Shopify storefront product URL using Shopify's documented Ajax Product API. Returns current live/sold-out/not-found status plus variants, raw presentment prices, SKU/barcode and images. Public Shopify product URLs only; private and reserved networks are blocked.",
+        method: "POST",
+        price: X402_SHOPIFY_PRODUCT_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["url"],
+          properties: {
+            url: { type: "string", format: "uri", description: "Public Shopify storefront product URL containing /products/{handle}." },
+          },
+        },
+        accepts: shopifyProductAccepts,
+      },
+      {
         resource: X402_VALIDATE_URL,
         name: "PAL x402 Declaration Validator",
         description:
@@ -1852,11 +2035,13 @@ function x402Manifest() {
       },
     },
     capabilities: {
-      tools: 9,
+      tools: 10,
       categories: [
         "commerce",
         "merchant-feed",
         "product-feed",
+        "product-availability",
+        "shopify",
         "catalog-validation",
         "catalog-remediation",
         "gtin",
@@ -1884,6 +2069,19 @@ function x402OpenApi() {
     amount: X402_PRICE_ATOMIC,
     price: { mode: "fixed", currency: "USD", amount: X402_PRICE_USD.replace("$", "") },
     priceDisplay: X402_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
+
+  const shopifyProductPaymentInfo = {
+    protocol: "x402",
+    protocols: ["x402"],
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_SHOPIFY_PRODUCT_PRICE_ATOMIC,
+    price: { mode: "fixed", currency: "USD", amount: X402_SHOPIFY_PRODUCT_PRICE_USD.replace("$", "") },
+    priceDisplay: X402_SHOPIFY_PRODUCT_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
 
@@ -2205,6 +2403,41 @@ function x402OpenApi() {
           "x-payment-info": paymentInfo,
         },
       },
+      [X402_SHOPIFY_PRODUCT_PATH]: {
+        post: {
+          operationId: "checkShopifyProductAvailability",
+          summary: "Check current Shopify product availability and variants",
+          tags: ["shopify", "ecommerce", "product-availability", "product-detail", "variants"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  required: ["url"],
+                  additionalProperties: false,
+                  properties: {
+                    url: {
+                      type: "string",
+                      format: "uri",
+                      description: "Public Shopify storefront product URL containing /products/{handle}.",
+                    },
+                  },
+                },
+                example: { url: "https://example-shop.com/products/example-product" },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "Current product and variant availability after successful payment." },
+            "400": { description: "Invalid or unsafe product URL." },
+            "402": { description: "x402 payment required." },
+            "404": { description: "Product not found." },
+            "502": { description: "Shopify storefront could not be read safely." },
+          },
+          "x-payment-info": shopifyProductPaymentInfo,
+        },
+      },
       [X402_VALIDATE_PATH]: {
         post: {
           operationId: "validateX402Declaration",
@@ -2414,6 +2647,20 @@ async function startIndex402Bootstrap() {
       payment_asset: "USDC",
       payment_network: "Base",
       category: "x402/seller-trust",
+      provider: "Practical Automation Lab",
+    },
+    {
+      url: X402_SHOPIFY_PRODUCT_URL,
+      name: "PAL Shopify Product Availability",
+      protocol: "x402",
+      http_method: "POST",
+      probe_body: JSON.stringify({ url: "https://example-shop.com/products/example-product" }),
+      description:
+        "Check one public Shopify storefront product URL for current live/sold-out/not-found status and variant availability using Shopify's documented Ajax Product API.",
+      price_usd: 0.005,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      category: "ecommerce/product-availability",
       provider: "Practical Automation Lab",
     },
     {
@@ -3419,6 +3666,7 @@ async function startMarket402Bootstrap() {
     X402_GTIN_URL,
     X402_FEED_DIFF_URL,
     X402_SELLER_AUDIT_URL,
+    X402_SHOPIFY_PRODUCT_URL,
     X402_VALIDATE_URL,
     X402_REMEDIATE_URL,
     X402_REMEDIATE_BATCH_URL,
@@ -5599,6 +5847,7 @@ app.get("/v1/stats", (_req, res) => {
     usdc_x402_paid_single_gtin_checks_since_process_start: usdcPaidSingleGtinChecks,
     usdc_x402_paid_feed_diffs_since_process_start: usdcPaidFeedDiffs,
     usdc_x402_paid_seller_integrity_audits_since_process_start: usdcPaidSellerIntegrityAudits,
+    usdc_x402_paid_shopify_product_checks_since_process_start: usdcPaidShopifyProductChecks,
     usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
     usdc_x402_paid_catalog_remediations_since_process_start: usdcPaidCatalogRemediations,
     usdc_x402_paid_catalog_remediation_batches_since_process_start: usdcPaidCatalogRemediationBatches,
@@ -5609,6 +5858,7 @@ app.get("/v1/stats", (_req, res) => {
       usdcPaidSingleGtinChecks * 0.01 +
       usdcPaidFeedDiffs * 0.01 +
       usdcPaidSellerIntegrityAudits * 0.01 +
+      usdcPaidShopifyProductChecks * 0.005 +
       usdcPaidX402Validations * 0.05 +
       usdcPaidCatalogRemediations * 1.00 +
       usdcPaidCatalogRemediationBatches * 5.00 +
@@ -6333,6 +6583,99 @@ async function buildSellerIntegrityAudit(originRaw, routeRaw = "") {
     },
   };
 }
+
+app.post("/v1/usdc/shopify-product-availability", async (req, res) => {
+  const productUrl = String(req.body?.url || "").trim();
+  if (!productUrl) {
+    return res.status(400).json({
+      error: "missing_url",
+      detail: "Body must contain a public Shopify storefront product URL in {\"url\":\"https://store.example/products/handle\"}.",
+    });
+  }
+
+  let prepared;
+  try {
+    prepared = shopifyProductJsonUrl(productUrl);
+    await assertPublicFetchHost(prepared.hostname);
+  } catch (error) {
+    return res.status(400).json({
+      error: "invalid_or_unsafe_shopify_url",
+      detail: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  usdcPaidShopifyProductChecks += 1;
+  console.log(
+    `[revenue] usdc_x402_shopify_product_availability served price_usd=0.005 network=${USDC_X402_NETWORK} count=${usdcPaidShopifyProductChecks}`,
+  );
+
+  try {
+    const result = await readShopifyProduct(productUrl);
+    if (!result.found) {
+      return res.status(404).json({
+        service: "PAL Shopify Product Availability",
+        checked_at: nowIso(),
+        status: "not_found",
+        available: false,
+        source: "Shopify Ajax Product API",
+        product_url: productUrl,
+        product_json_url: result.product_json_url,
+        http_status: result.http_status,
+      });
+    }
+
+    const product = result.product;
+    const variants = product.variants.slice(0, 250).map((variant) => ({
+      id: variant.id ?? null,
+      title: variant.title ?? null,
+      available: variant.available === true,
+      price_raw: variant.price ?? null,
+      compare_at_price_raw: variant.compare_at_price ?? null,
+      sku: variant.sku || null,
+      barcode: variant.barcode || null,
+      option1: variant.option1 ?? null,
+      option2: variant.option2 ?? null,
+      option3: variant.option3 ?? null,
+      featured_image: variant.featured_image?.src || variant.featured_image || null,
+    }));
+    const availableVariants = variants.filter((variant) => variant.available).length;
+
+    return res.json({
+      service: "PAL Shopify Product Availability",
+      checked_at: nowIso(),
+      status: availableVariants > 0 ? "live" : "sold_out",
+      available: availableVariants > 0,
+      source: "Shopify Ajax Product API",
+      product_url: productUrl,
+      product_json_url: result.product_json_url,
+      product: {
+        id: product.id ?? null,
+        handle: product.handle ?? null,
+        title: product.title ?? null,
+        vendor: product.vendor ?? null,
+        product_type: product.type ?? null,
+        tags: Array.isArray(product.tags) ? product.tags : product.tags || null,
+        featured_image: product.featured_image || null,
+        images: Array.isArray(product.images) ? product.images.slice(0, 25) : [],
+        variants_total: product.variants.length,
+        available_variants: availableVariants,
+        variants_truncated: product.variants.length > variants.length,
+        variants,
+      },
+      payment: {
+        verified_by: "x402",
+        price_usd: X402_SHOPIFY_PRODUCT_PRICE_USD,
+        pay_to: BASE_PAYOUT_ADDRESS,
+      },
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "shopify_product_lookup_failed",
+      detail: error instanceof Error ? error.message : String(error),
+      checked_at: nowIso(),
+    });
+  }
+});
 
 app.get("/v1/usdc/x402-seller-integrity", async (req, res) => {
   const origin = String(req.query?.origin || "").trim();
