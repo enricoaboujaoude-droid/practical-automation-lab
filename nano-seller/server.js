@@ -7370,12 +7370,101 @@ async function startAgenticTradeFullCatalogOnboard() {
   }
 }
 
+
+async function startFiatDockBootstrap() {
+  if (!FIATDOCK_SELLER_KEY || !FIATDOCK_GATEWAY_TOKEN) {
+    console.log("[fiatdock] bootstrap disabled: seller key or gateway token missing");
+    return;
+  }
+
+  const headers = {
+    accept: "application/json",
+    "content-type": "application/json",
+    "X-Seller-Key": FIATDOCK_SELLER_KEY,
+  };
+
+  const request = async (pathname, method = "GET", body = undefined) => {
+    const response = await fetch(`${FIATDOCK_BASE}${pathname}`, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: AbortSignal.timeout(20_000),
+    });
+    const text = await response.text();
+    let payload = {};
+    try { payload = text ? JSON.parse(text) : {}; } catch { payload = { raw: text }; }
+    if (!response.ok) {
+      throw new Error(
+        `${method} ${pathname} HTTP ${response.status}: ${payload?.error || payload?.message || text || "unknown error"}`,
+      );
+    }
+    return payload;
+  };
+
+  try {
+    await request("/v1/marketplace/sellers/me/profile", "POST", {
+      displayName: "Practical Automation Lab",
+    });
+    await request("/v1/marketplace/sellers/me/payout", "POST", {
+      payoutWallet: BASE_PAYOUT_ADDRESS,
+    });
+
+    const existing = await request("/v1/marketplace/sellers/me/services");
+    const endpoint = `${PUBLIC_BASE_URL}/mcp-fiatdock/${FIATDOCK_GATEWAY_TOKEN}`;
+    const offers = [
+      {
+        name: "PAL Full Catalog Remediation",
+        mcpEndpoint: endpoint,
+        mcpTool: "pal_full_catalog_remediation",
+        priceUsd: 20,
+        summary: "Prioritized Merchant Center and product-feed remediation for up to 2,000 ecommerce products in one paid call.",
+        description:
+          "Deterministic full-store catalog remediation for Shopify, Google Merchant Center and shopping feeds. Returns issue severity, affected product IDs, and concrete corrective actions for up to 2,000 records.",
+        category: "data",
+        tags: ["ecommerce", "catalog", "merchant-center", "product-feed", "remediation", "shopify"],
+        networks: ["base"],
+        payoutWallet: BASE_PAYOUT_ADDRESS,
+      },
+      {
+        name: "PAL Batch Catalog Remediation",
+        mcpEndpoint: endpoint,
+        mcpTool: "pal_batch_catalog_remediation",
+        priceUsd: 5,
+        summary: "Prioritized Merchant Center and product-feed remediation for up to 500 ecommerce products in one paid call.",
+        description:
+          "Deterministic batch catalog remediation for Shopify, Google Merchant Center and shopping feeds. Returns issue severity, affected product IDs, and concrete corrective actions for up to 500 records.",
+        category: "data",
+        tags: ["ecommerce", "catalog", "merchant-center", "product-feed", "remediation", "shopify"],
+        networks: ["base"],
+        payoutWallet: BASE_PAYOUT_ADDRESS,
+      },
+    ];
+
+    const outcomes = [];
+    for (const offer of offers) {
+      const match = (existing.services || []).find((item) => item.name === offer.name);
+      if (match?.id) {
+        const updated = await request(`/v1/marketplace/services/${match.id}`, "PATCH", offer);
+        outcomes.push({ name: offer.name, id: match.id, action: "updated", status: updated.status || null });
+      } else {
+        const created = await request("/v1/marketplace/services", "POST", offer);
+        outcomes.push({ name: offer.name, id: created.id || created.service?.id || null, action: "created", status: created.status || created.service?.status || null });
+      }
+    }
+
+    console.log(`[fiatdock] bootstrap complete ${JSON.stringify(outcomes)}`);
+  } catch (error) {
+    console.error("[fiatdock] bootstrap failed:", error instanceof Error ? error.message : String(error));
+  }
+}
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`PAL Nano seller listening on :${PORT}; pay_to=${PAY_TO}`);
   void startPayanAgentBootstrap();
   setTimeout(() => void startAgent402Bootstrap(), 4_000);
   setTimeout(() => void startIndex402Bootstrap(), 8_000);
   setTimeout(() => void startIndex402ClaimBootstrap(), 20_000);
+  setTimeout(() => void startFiatDockBootstrap(), 12_000);
   setTimeout(() => void startX402ScoutBootstrap(), 12_000);
   setTimeout(() => void startAgentToolsBootstrap(), 16_000);
   setTimeout(() => void startOpenDexterAuditionBootstrap(), 24_000);
