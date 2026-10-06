@@ -69,6 +69,9 @@ const X402_SELLER_AUDIT_PRICE_ATOMIC = "10000";
 const X402_SHOPIFY_PRODUCT_PATH = "/v1/usdc/shopify-product-availability";
 const X402_SHOPIFY_PRODUCT_PRICE_USD = "$0.01";
 const X402_SHOPIFY_PRODUCT_PRICE_ATOMIC = "10000";
+const X402_SHOPIFY_COMPARE_PATH = "/v1/usdc/shopify-product-compare";
+const X402_SHOPIFY_COMPARE_PRICE_USD = "$0.05";
+const X402_SHOPIFY_COMPARE_PRICE_ATOMIC = "50000";
 const X402_VALIDATE_PRICE_USD = "$0.05";
 const X402_VALIDATE_PRICE_ATOMIC = "50000";
 const X402_REMEDIATE_PATH = "/v1/usdc/catalog-remediation";
@@ -90,6 +93,7 @@ const X402_FEED_DIFF_URL = `${PUBLIC_BASE_URL}${X402_FEED_DIFF_PATH}`;
 const X402_VALIDATE_URL = `${PUBLIC_BASE_URL}${X402_VALIDATE_PATH}`;
 const X402_SELLER_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_SELLER_AUDIT_PATH}`;
 const X402_SHOPIFY_PRODUCT_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_PRODUCT_PATH}`;
+const X402_SHOPIFY_COMPARE_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_COMPARE_PATH}`;
 const X402_REMEDIATE_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_PATH}`;
 const X402_REMEDIATE_BATCH_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BATCH_PATH}`;
 const X402_REMEDIATE_BULK_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BULK_PATH}`;
@@ -786,6 +790,7 @@ const USDC_X402_PATHS = new Set([
   X402_VALIDATE_PATH,
   X402_SELLER_AUDIT_PATH,
   X402_SHOPIFY_PRODUCT_PATH,
+  X402_SHOPIFY_COMPARE_PATH,
   X402_REMEDIATE_PATH,
   X402_REMEDIATE_BATCH_PATH,
   X402_REMEDIATE_BULK_PATH,
@@ -1237,6 +1242,47 @@ app.use(
           }),
         },
       },
+      "POST /v1/usdc/shopify-product-compare": {
+        accepts: x402RouteAccepts(X402_SHOPIFY_COMPARE_PRICE_USD),
+        description:
+          "Compare 2-4 public Shopify product pages using Shopify's live Ajax Product API. Returns normalized current prices, availability, variant counts and the cheapest available offer. Designed for shopping and deal-finding agents.",
+        mimeType: "application/json",
+        serviceName: "PAL Shopify Product Compare",
+        tags: ["shopify", "product-compare", "price-comparison", "shopping", "ecommerce", "availability", "deal-finding"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              urls: [
+                "https://store-a.example/products/example-product",
+                "https://store-b.example/products/example-product"
+              ]
+            },
+            inputSchema: {
+              type: "object",
+              additionalProperties: false,
+              required: ["urls"],
+              properties: {
+                urls: {
+                  type: "array",
+                  minItems: 2,
+                  maxItems: 4,
+                  items: { type: "string" }
+                }
+              }
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL Shopify Product Compare",
+                compared: 2,
+                available_offers: 2,
+                cheapest: { index: 0, price_raw: 1999, available: true },
+                offers: []
+              }
+            }
+          }),
+        },
+      },
       "POST /v1/usdc/x402-validate": {
         accepts: x402RouteAccepts(X402_VALIDATE_PRICE_USD),
         description:
@@ -1291,6 +1337,7 @@ let usdcPaidFeedDiffs = 0;
 let usdcPaidX402Validations = 0;
 let usdcPaidSellerIntegrityAudits = 0;
 let usdcPaidShopifyProductChecks = 0;
+let usdcPaidShopifyProductCompares = 0;
 let usdcPaidCatalogRemediations = 0;
 let usdcPaidCatalogRemediationBatches = 0;
 let usdcPaidCatalogRemediationBulks = 0;
@@ -1842,6 +1889,7 @@ function true402Manifest() {
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
       { name: "PAL Agent Commerce Seller Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.01" },
       { name: "PAL Shopify Live Product Offer", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "GET", price: "0.01" },
+      { name: "PAL Shopify Product Compare", endpoint: X402_SHOPIFY_COMPARE_URL, method: "POST", price: "0.05" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
       { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
       { name: "PAL Full Catalog Remediation", endpoint: X402_REMEDIATE_BULK_URL, method: "POST", price: "20.00" },
@@ -2538,6 +2586,70 @@ function x402OpenApi() {
           },
           "x-payment-info": shopifyProductPaymentInfo,
         },
+      },
+      [X402_SHOPIFY_COMPARE_PATH]: {
+        post: {
+          operationId: "compareShopifyLiveProductOffers",
+          summary: "Compare live Shopify product prices and availability",
+          tags: ["shopify", "product-compare", "price-comparison", "shopping", "ecommerce", "availability"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: ["urls"],
+                  properties: {
+                    urls: {
+                      type: "array",
+                      minItems: 2,
+                      maxItems: 4,
+                      items: { type: "string", format: "uri" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            "200": {
+              description: "Normalized live Shopify offers and cheapest available result after successful payment.",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    required: ["service", "checked_at", "compared", "available_offers", "offers", "cheapest"],
+                    properties: {
+                      service: { type: "string" },
+                      checked_at: { type: "string", format: "date-time" },
+                      compared: { type: "integer" },
+                      available_offers: { type: "integer" },
+                      offers: { type: "array", items: { type: "object", additionalProperties: true } },
+                      cheapest: { type: ["object", "null"], additionalProperties: true }
+                    },
+                    additionalProperties: true
+                  }
+                }
+              }
+            },
+            "400": { description: "Invalid URL list." },
+            "402": { description: "x402 payment required." },
+            "502": { description: "One or more Shopify product lookups failed." }
+          },
+          "x-payment-info": {
+            protocol: "x402",
+            protocols: ["x402"],
+            version: 2,
+            scheme: "exact",
+            network: X402_NETWORK,
+            asset: X402_ASSET,
+            amount: X402_SHOPIFY_COMPARE_PRICE_ATOMIC,
+            price: { mode: "fixed", currency: "USD", amount: X402_SHOPIFY_COMPARE_PRICE_USD.replace("$", "") },
+            priceDisplay: X402_SHOPIFY_COMPARE_PRICE_USD,
+            payTo: BASE_PAYOUT_ADDRESS
+          }
+        }
       },
       [X402_VALIDATE_PATH]: {
         post: {
@@ -3767,6 +3879,7 @@ async function startMarket402Bootstrap() {
     X402_FEED_DIFF_URL,
     X402_SELLER_AUDIT_URL,
     X402_SHOPIFY_PRODUCT_URL,
+    X402_SHOPIFY_COMPARE_URL,
     X402_VALIDATE_URL,
     X402_REMEDIATE_URL,
     X402_REMEDIATE_BATCH_URL,
@@ -6851,6 +6964,103 @@ app.get("/v1/usdc/shopify-product-availability", async (req, res) => {
   } catch (error) {
     return res.status(502).json({
       error: "shopify_product_lookup_failed",
+      detail: error instanceof Error ? error.message : String(error),
+      checked_at: nowIso(),
+    });
+  }
+});
+
+app.post("/v1/usdc/shopify-product-compare", async (req, res) => {
+  const urls = req.body?.urls;
+  if (!Array.isArray(urls) || urls.length < 2 || urls.length > 4) {
+    return res.status(400).json({
+      error: "invalid_urls",
+      detail: "Body must contain urls as an array with 2 to 4 public Shopify product URLs.",
+    });
+  }
+
+  usdcPaidShopifyProductCompares += 1;
+  console.log(
+    `[revenue] usdc_x402_shopify_product_compare served price_usd=0.05 network=${USDC_X402_NETWORK} count=${usdcPaidShopifyProductCompares}`,
+  );
+
+  try {
+    const reads = await Promise.all(
+      urls.map(async (url, index) => {
+        const result = await readShopifyProduct(url);
+        if (!result.found) {
+          return {
+            index,
+            url,
+            found: false,
+            available: false,
+            status: "not_found",
+            price_raw: null,
+            currency: null,
+            title: null,
+            vendor: null,
+            variants_total: 0,
+            available_variants: 0,
+          };
+        }
+
+        const product = result.product;
+        const variants = Array.isArray(product.variants) ? product.variants : [];
+        const available = variants.filter((variant) => variant?.available === true);
+        const priced = available
+          .map((variant) => ({
+            variant,
+            price: Number(variant?.price),
+          }))
+          .filter((entry) => Number.isFinite(entry.price));
+        priced.sort((a, b) => a.price - b.price);
+        const best = priced[0]?.variant || available[0] || variants[0] || null;
+
+        return {
+          index,
+          url,
+          found: true,
+          available: available.length > 0,
+          status: available.length > 0 ? "live" : "sold_out",
+          title: product.title ?? null,
+          vendor: product.vendor ?? null,
+          handle: product.handle ?? null,
+          product_id: product.id ?? null,
+          price_raw: best?.price ?? null,
+          compare_at_price_raw: best?.compare_at_price ?? null,
+          sku: best?.sku || null,
+          barcode: best?.barcode || null,
+          variants_total: variants.length,
+          available_variants: available.length,
+          source: "Shopify Ajax Product API",
+          product_json_url: result.product_json_url,
+        };
+      }),
+    );
+
+    const comparable = reads
+      .filter((offer) => offer.found && offer.available && Number.isFinite(Number(offer.price_raw)))
+      .sort((a, b) => Number(a.price_raw) - Number(b.price_raw));
+    const cheapest = comparable.length ? comparable[0] : null;
+
+    return res.json({
+      service: "PAL Shopify Product Compare",
+      checked_at: nowIso(),
+      compared: reads.length,
+      available_offers: reads.filter((offer) => offer.available).length,
+      cheapest,
+      offers: reads,
+      payment: {
+        verified_by: "x402",
+        price_usd: X402_SHOPIFY_COMPARE_PRICE_USD,
+        pay_to: BASE_PAYOUT_ADDRESS,
+      },
+      disclaimer:
+        "Prices are Shopify raw variant price values from the live Ajax Product API; compare only like-for-like currencies and product identity.",
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "shopify_product_compare_failed",
       detail: error instanceof Error ? error.message : String(error),
       checked_at: nowIso(),
     });
