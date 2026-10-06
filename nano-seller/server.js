@@ -257,7 +257,7 @@ function buildPalMcpServer() {
     title: "PAL Commerce Catalog Intelligence",
     version: "1.1.0",
     description:
-      "Paid ecommerce catalog intelligence for Merchant Center feed audits, prioritized remediation, GTIN validation, feed changes, and x402 diagnostics.",
+      "Autonomous paid commerce and agent-commerce services: x402 go-live/distribution, launch kits, seller readiness, Merchant Center catalog remediation, GTIN validation, feed changes, and API diagnostics.",
   });
 
   server.registerTool(
@@ -284,6 +284,10 @@ function buildPalMcpServer() {
           pay_to: BASE_PAYOUT_ADDRESS,
         },
         paid_tools: [
+          { name: "agent_commerce_go_live", price_usd: 350.0, route: X402_AGENT_COMMERCE_GO_LIVE_PATH, purpose: "verify and distribute an already-public paid agent service, returning registration receipts" },
+          { name: "agent_commerce_launch_kit", price_usd: 99.0, route: X402_AGENT_COMMERCE_KIT_PATH, purpose: "generate deployment-ready agent-card, llms.txt, OpenAPI/x402 and marketplace artifacts" },
+          { name: "x402_seller_portfolio_audit", price_usd: 20.0, route: X402_SELLER_PORTFOLIO_PATH, purpose: "audit and rank up to five paid seller routes" },
+          { name: "x402_seller_repair_plan", price_usd: 5.0, route: X402_SELLER_REPAIR_PATH, purpose: "turn seller-readiness evidence into prioritized repairs" },
           { name: "catalog_remediation", price_usd: 1.0 },
           { name: "catalog_remediation_batch", price_usd: 5.0 },
           { name: "catalog_remediation_bulk", price_usd: 20.0, max_products: 2000 },
@@ -391,6 +395,80 @@ function buildPalMcpServer() {
             asset: "USDC",
             network: USDC_X402_NETWORK,
             pay_to: BASE_PAYOUT_ADDRESS,
+          },
+        }),
+      };
+    },
+  );
+
+  server.registerTool(
+    "recommend_agent_commerce_offer",
+    {
+      title: "Choose the best PAL agent-commerce offer",
+      description:
+        "Free router for providers launching or repairing a paid agent service. Returns the right PAL offer and exact USDC price before any payment.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        required: ["goal"],
+        properties: {
+          goal: {
+            type: "string",
+            enum: ["repair_one", "audit_portfolio", "generate_launch_bundle", "go_live_and_distribute"],
+          },
+          seller_count: {
+            type: "integer",
+            minimum: 1,
+            maximum: 5,
+          },
+        },
+        additionalProperties: false,
+      }),
+    },
+    async ({ goal, seller_count }) => {
+      const offers = {
+        repair_one: {
+          name: "PAL x402 Seller Revenue Repair Plan",
+          method: "GET",
+          route: X402_SELLER_REPAIR_PATH,
+          price_usdc: 5,
+        },
+        audit_portfolio: {
+          name: "PAL x402 Seller Portfolio Audit",
+          method: "POST",
+          route: X402_SELLER_PORTFOLIO_PATH,
+          price_usdc: 20,
+          max_sellers: 5,
+        },
+        generate_launch_bundle: {
+          name: "PAL Agent Commerce Launch Kit",
+          method: "POST",
+          route: X402_AGENT_COMMERCE_KIT_PATH,
+          price_usdc: 99,
+        },
+        go_live_and_distribute: {
+          name: "PAL Agent Commerce Go-Live",
+          method: "POST",
+          route: X402_AGENT_COMMERCE_GO_LIVE_PATH,
+          price_usdc: 350,
+        },
+      };
+      const offer = offers[goal];
+      return {
+        content: mcpText({
+          ok: true,
+          goal,
+          seller_count: seller_count ?? null,
+          recommended_offer: offer,
+          payment: {
+            protocol: "x402",
+            version: 2,
+            network: USDC_X402_NETWORK,
+            asset: "USDC",
+            pay_to: BASE_PAYOUT_ADDRESS,
+          },
+          discovery: {
+            openapi: `${PUBLIC_BASE_URL}/openapi.json`,
+            x402_manifest: `${PUBLIC_BASE_URL}/.well-known/x402`,
           },
         }),
       };
