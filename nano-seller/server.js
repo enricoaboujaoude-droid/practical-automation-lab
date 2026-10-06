@@ -1146,6 +1146,7 @@ let x402ScoutState = {
   error: null,
 };
 let agentToolsVerificationToken = AGENTTOOLS_VERIFY_TOKEN;
+let agentToolsRetryScheduled = false;
 let agentToolsState = {
   enabled: AGENTTOOLS_BOOTSTRAP,
   status: AGENTTOOLS_BOOTSTRAP ? "pending" : "disabled",
@@ -2784,6 +2785,17 @@ async function startAgentToolsBootstrap() {
       console.log(
         `[agenttools] owner proof persisted host=${AGENTTOOLS_HOST} listing=${listingSlug} additional=${additionalServices.filter((item) => item.status !== "failed").length}`
       );
+      const retryable = additionalServices.some(
+        (item) => item.status === "failed" && /429|rate/i.test(String(item.error || ""))
+      );
+      if (retryable && !agentToolsRetryScheduled) {
+        agentToolsRetryScheduled = true;
+        setTimeout(() => {
+          agentToolsRetryScheduled = false;
+          void startAgentToolsBootstrap();
+        }, 70 * 60 * 1000);
+        console.log("[agenttools] rate limited; one autonomous retry scheduled after 70 minutes");
+      }
       return;
     }
 
@@ -2902,6 +2914,17 @@ async function startAgentToolsBootstrap() {
     console.log(
       `[agenttools] owner verified host=${AGENTTOOLS_HOST} listing=${listingSlug}`
     );
+    const retryable = additionalServices.some(
+      (item) => item.status === "failed" && /429|rate/i.test(String(item.error || ""))
+    );
+    if (retryable && !agentToolsRetryScheduled) {
+      agentToolsRetryScheduled = true;
+      setTimeout(() => {
+        agentToolsRetryScheduled = false;
+        void startAgentToolsBootstrap();
+      }, 70 * 60 * 1000);
+      console.log("[agenttools] rate limited; one autonomous retry scheduled after 70 minutes");
+    }
   } catch (error) {
     agentToolsState = {
       ...agentToolsState,
