@@ -5885,6 +5885,8 @@ app.get("/sitemap.xml", (_req, res) => {
   res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>${PUBLIC_BASE_URL}/marketplace</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>${PUBLIC_BASE_URL}/deploy-mcp-api</loc><changefreq>weekly</changefreq><priority>0.95</priority></url>
+  <url><loc>${PUBLIC_BASE_URL}/affiliate-link-audit</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>${PUBLIC_BASE_URL}/llms.txt</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>${PUBLIC_BASE_URL}/skill.md</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>${PUBLIC_BASE_URL}/openapi.json</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
@@ -6030,6 +6032,72 @@ app.get("/marketplace", (_req, res) => {
     <a href="https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence" rel="noopener noreferrer">Official MCP Registry</a>
   </p>
   <p class="muted">Payment: x402 v2 exact · USDC on Base mainnet · no account or API key required for direct paid calls.</p>
+</body>
+</html>`);
+});
+
+app.get("/deploy-mcp-api", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.type("text/html").send(`<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Deploy a Paid MCP Server or x402 API | Practical Automation Lab</title>
+  <meta name="description" content="Deploy an MCP server or x402 API, host it on Railway, and list it for agent-native discovery. Practical setup path for developers building paid AI-agent tools.">
+  <link rel="canonical" href="${PUBLIC_BASE_URL}/deploy-mcp-api">
+  <style>
+    body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:900px;margin:0 auto;padding:48px 24px;color:#111827;line-height:1.65}
+    h1{font-size:2.45rem;line-height:1.12}.lead{font-size:1.16rem;color:#374151}.card{border:1px solid #e5e7eb;border-radius:14px;padding:20px;margin:18px 0}
+    .cta{display:inline-block;padding:12px 18px;border-radius:10px;background:#111827;color:#fff;text-decoration:none;font-weight:700}
+    code{background:#f3f4f6;padding:.14rem .35rem;border-radius:6px}a{color:#0f62fe}.muted{color:#6b7280}
+  </style>
+  <script type="application/ld+json">
+  ${JSON.stringify({
+    "@context":"https://schema.org",
+    "@type":"HowTo",
+    name:"Deploy a paid MCP server or x402 API",
+    description:"A practical path for developers to deploy an MCP or x402 service, make it reachable, and add agent-native discovery and monetization.",
+    totalTime:"PT20M",
+    url:`${PUBLIC_BASE_URL}/deploy-mcp-api`
+  })}
+  </script>
+</head>
+<body>
+  <p><a href="/marketplace">← Practical Automation Lab</a></p>
+  <h1>Deploy a paid MCP server or x402 API</h1>
+  <p class="lead">A short, production-oriented path for developers who already have a useful API, tool, workflow, or agent capability and want it reachable by AI agents.</p>
+
+  <div class="card">
+    <h2>1. Put the service on a public HTTPS origin</h2>
+    <p>Railway is suitable for long-running APIs, workers, MCP servers, background jobs, and databases. PAL uses a referral link below; new referred users receive Railway credits while PAL may earn cash commission on qualifying spend.</p>
+    <p><a class="cta" href="https://railway.com?referralCode=cRbYoJ" rel="sponsored noopener noreferrer">Deploy on Railway →</a></p>
+    <p class="muted">Affiliate disclosure: Practical Automation Lab may earn 15% cash referral commission on qualifying referred customer invoices for the first 12 months.</p>
+  </div>
+
+  <div class="card">
+    <h2>2. Make the tool machine-readable</h2>
+    <p>Expose an OpenAPI document or MCP server description. For agent-native payments, return a standards-compliant HTTP <code>402 Payment Required</code> challenge on paid routes and keep free health/discovery endpoints publicly reachable.</p>
+    <p>PAL example discovery: <a href="/openapi.json">OpenAPI</a> · <a href="/.well-known/x402">x402 manifest</a> · <a href="/mcp">remote MCP endpoint</a>.</p>
+  </div>
+
+  <div class="card">
+    <h2>3. Add an agent-native marketplace channel</h2>
+    <p>AgenticTrade accepts agent-facing API and service listings with automated usage billing. If the service is already live, listing it gives machine buyers another discovery surface without rebuilding the product.</p>
+    <p><a class="cta" href="https://agentictrade.io/portal/register?ref=6HDHVHZ3" rel="sponsored noopener noreferrer">List on AgenticTrade →</a></p>
+    <p class="muted">Affiliate disclosure: Practical Automation Lab participates in AgenticTrade's referral program and may earn referral revenue from qualifying providers who join through this link.</p>
+  </div>
+
+  <div class="card">
+    <h2>4. Validate before sending traffic</h2>
+    <p>Check uptime, deterministic inputs/outputs, payment metadata, cold-start latency, and whether an unpaid request reliably returns the expected challenge. PAL's marketplace page exposes working examples and paid commerce tools.</p>
+    <p><a href="/marketplace"><strong>Inspect PAL's production setup →</strong></a></p>
+  </div>
+
+  <h2>When this path makes sense</h2>
+  <p>Use it when you already have a capability that agents can call repeatedly: data lookup, enrichment, validation, scraping, transformation, commerce diagnostics, or another deterministic workflow. Do not build a generic endpoint merely to have something listed.</p>
+
+  <p class="muted">Practical Automation Lab publishes automation and commerce tooling. This page contains sponsored affiliate links as disclosed above.</p>
 </body>
 </html>`);
 });
