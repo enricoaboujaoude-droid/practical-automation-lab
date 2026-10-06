@@ -1,6 +1,11 @@
 import fs from "node:fs";
 
-const RPC_URL = process.env.BASE_RPC_URL || "https://mainnet.base.org";
+const RPC_URLS = [
+  process.env.BASE_RPC_URL,
+  "https://base-rpc.publicnode.com",
+  "https://mainnet.base.org",
+  "https://base.llamarpc.com",
+].filter((value, index, all) => value && all.indexOf(value) === index);
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const PAYOUT = "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF".toLowerCase();
 const LEDGER_PATH = process.env.REVENUE_LEDGER_PATH || "revenue/base-usdc-ledger.json";
@@ -15,22 +20,45 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function rpc(method, params) {
   let lastError;
-  for (let attempt = 0; attempt < 6; attempt += 1) {
-    const response = await fetch(RPC_URL, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
-    });
-    if (response.ok) {
-      const body = await response.json();
-      if (body.error) throw new Error(`${method}: ${JSON.stringify(body.error)}`);
-      return body.result;
+  const maxAttempts = Math.max(9, RPC_URLS.length * 3);
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const rpcUrl = RPC_URLS[attempt % RPC_URLS.length];
+    try {
+      const response = await fetch(rpcUrl, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "user-agent": "practical-automation-lab-revenue-ledger/1.1",
+        },
+        body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+      });
+
+      if (response.ok) {
+        const body = await response.json();
+        if (body.error) {
+          const message = `${method} RPC error via ${rpcUrl}: ${JSON.stringify(body.error)}`;
+          const retryable =
+            Number(body.error.code) === -32005 ||
+            /rate|limit|busy|timeout|temporar/i.test(String(body.error.message || ""));
+          if (!retryable) throw new Error(message);
+          lastError = new Error(message);
+        } else {
+          return body.result;
+        }
+      } else {
+        lastError = new Error(`${method} HTTP ${response.status} via ${rpcUrl}`);
+        if (response.status !== 429 && response.status < 500) throw lastError;
+      }
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
     }
-    lastError = new Error(`${method} HTTP ${response.status}`);
-    if (response.status !== 429 && response.status < 500) throw lastError;
-    await sleep(750 * 2 ** attempt);
+
+    const round = Math.floor(attempt / Math.max(1, RPC_URLS.length));
+    await sleep(Math.min(8000, 500 * 2 ** round));
   }
-  throw lastError;
+
+  throw lastError || new Error(`${method} failed across all configured Base RPCs`);
 }
 
 function readLedger() {
