@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "network": "base-mainnet",
+  "asset": "USDC",
+  "asset_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+  "payout_address": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+  "transfers": [],
+  "total_usdc": 0,
+  "last_scanned_block": null,
+  "updated_at": null
+}
