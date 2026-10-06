@@ -104,7 +104,3 @@ export const loader = async (_args: LoaderFunctionArgs) => {
     },
   );
 };
-
-export default function MetricsRoute() {
-  return null;
-}
