@@ -103,6 +103,9 @@ const ALLOWED_EVENTS = new Set([
   'pal_deploy_mcp_agentictrade_clicked',
   'pal_deploy_mcp_launchkit_clicked',
   'pal_deploy_mcp_golive_clicked',
+  'pal_shopify_store_audit_viewed',
+  'pal_shopify_store_preflight_run',
+  'pal_shopify_store_audit_buy_clicked',
 ]);
 
 if (!DATABASE_URL) {
@@ -200,7 +203,10 @@ async function initialize() {
         'pal_deploy_mcp_railway_clicked',
         'pal_deploy_mcp_agentictrade_clicked',
         'pal_deploy_mcp_launchkit_clicked',
-        'pal_deploy_mcp_golive_clicked'
+        'pal_deploy_mcp_golive_clicked',
+        'pal_shopify_store_audit_viewed',
+        'pal_shopify_store_preflight_run',
+        'pal_shopify_store_audit_buy_clicked'
       ))
   `);
   await pool.query(`
@@ -2582,6 +2588,9 @@ const server = http.createServer(async (req, res) => {
         'pal_deploy_mcp_agentictrade_clicked',
         'pal_deploy_mcp_launchkit_clicked',
         'pal_deploy_mcp_golive_clicked',
+        'pal_shopify_store_audit_viewed',
+        'pal_shopify_store_preflight_run',
+        'pal_shopify_store_audit_buy_clicked',
       ];
       const events = await productionMetrics(names);
       const views =
@@ -2591,7 +2600,8 @@ const server = http.createServer(async (req, res) => {
         (events.pal_shareasale_audit_viewed?.total || 0) +
         (events.pal_partnerstack_audit_viewed?.total || 0) +
         (events.pal_reputon_reviews_guide_viewed?.total || 0) +
-        (events.pal_deploy_mcp_viewed?.total || 0);
+        (events.pal_deploy_mcp_viewed?.total || 0) +
+        (events.pal_shopify_store_audit_viewed?.total || 0);
       const clicks =
         (events.pal_afterlink_free_audit_clicked?.total || 0) +
         (events.pal_afterlink_impact_clicked?.total || 0) +
@@ -2602,7 +2612,9 @@ const server = http.createServer(async (req, res) => {
         (events.pal_deploy_mcp_railway_clicked?.total || 0) +
         (events.pal_deploy_mcp_agentictrade_clicked?.total || 0) +
         (events.pal_deploy_mcp_launchkit_clicked?.total || 0) +
-        (events.pal_deploy_mcp_golive_clicked?.total || 0);
+        (events.pal_deploy_mcp_golive_clicked?.total || 0) +
+        (events.pal_shopify_store_preflight_run?.total || 0) +
+        (events.pal_shopify_store_audit_buy_clicked?.total || 0);
       return sendJson(req, res, 200, {
         ok: true,
         scope: 'production_only',
