@@ -1,0 +1,27 @@
+name: Keep PAL full-catalog revenue service warm
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pal-full-catalog-keepalive
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify revenue service health and discovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 45 --retry 2 --retry-delay 3             "https://pal-full-catalog-remediation.onrender.com/health"
+          echo
+          curl --fail --silent --show-error --max-time 45 --retry 2 --retry-delay 3             "https://pal-full-catalog-remediation.onrender.com/v1/stats"
+          echo
