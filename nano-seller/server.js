@@ -64,8 +64,8 @@ const X402_GTIN_ONE_PATH = "/v1/usdc/gtin-check-one";
 const X402_FEED_DIFF_PATH = "/v1/usdc/feed-diff";
 const X402_VALIDATE_PATH = "/v1/usdc/x402-validate";
 const X402_SELLER_AUDIT_PATH = "/v1/usdc/x402-seller-integrity";
-const X402_SELLER_AUDIT_PRICE_USD = "$0.01";
-const X402_SELLER_AUDIT_PRICE_ATOMIC = "10000";
+const X402_SELLER_AUDIT_PRICE_USD = "$0.25";
+const X402_SELLER_AUDIT_PRICE_ATOMIC = "250000";
 const X402_SHOPIFY_PRODUCT_PATH = "/v1/usdc/shopify-product-availability";
 const X402_SHOPIFY_PRODUCT_PRICE_USD = "$0.005";
 const X402_SHOPIFY_PRODUCT_PRICE_ATOMIC = "5000";
@@ -1170,7 +1170,7 @@ app.use(
         description:
           "Audit one x402 seller origin and paid route using public Circle runtime-readiness plus Agent402 routing/settlement evidence. Returns machine_buyable, contract_ready, or repair_required with exact next actions. No target payment is sent.",
         mimeType: "application/json",
-        serviceName: "PAL x402 Seller Integrity Audit",
+        serviceName: "PAL Agent Commerce Seller Audit",
         tags: ["x402", "seller-trust", "integrity", "agent-commerce", "payments", "routing"],
         extensions: {
           ...declareDiscoveryExtension({
@@ -1194,7 +1194,7 @@ app.use(
             },
             output: {
               example: {
-                service: "PAL x402 Seller Integrity Audit",
+                service: "PAL Agent Commerce Seller Audit",
                 decision: "contract_ready",
                 runtime_verified: true,
                 router_dispatch_eligible: false,
@@ -1839,7 +1839,7 @@ function true402Manifest() {
       { name: "PAL GTIN Check", endpoint: X402_GTIN_URL, method: "POST", price: "0.01" },
       { name: "PAL Single GTIN Check", endpoint: X402_GTIN_ONE_URL, method: "GET", price: "0.01" },
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
-      { name: "PAL x402 Seller Integrity Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.01" },
+      { name: "PAL Agent Commerce Seller Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.25" },
       { name: "PAL Shopify Product Availability", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "GET", price: "0.005" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
       { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
@@ -1935,9 +1935,9 @@ function x402Manifest() {
       },
       {
         resource: X402_SELLER_AUDIT_URL,
-        name: "PAL x402 Seller Integrity Audit",
+        name: "PAL Agent Commerce Seller Audit",
         description:
-          "Audit one x402 seller origin and paid route using public Circle runtime-readiness plus Agent402 routing, health and settlement evidence. Returns machine_buyable, contract_ready or repair_required without paying the target.",
+          "Audit one agent-commerce/x402 seller origin and paid route using Circle runtime-readiness plus Agent402 routing, health, buyer-settlement and machine-buyability evidence. Returns a scored decision and exact next actions without paying the target.",
         method: "GET",
         price: X402_SELLER_AUDIT_PRICE_USD,
         inputSchema: {
@@ -2072,6 +2072,19 @@ function x402OpenApi() {
     payTo: BASE_PAYOUT_ADDRESS,
   };
 
+  const sellerAuditPaymentInfo = {
+    protocol: "x402",
+    protocols: ["x402"],
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_SELLER_AUDIT_PRICE_ATOMIC,
+    price: { mode: "fixed", currency: "USD", amount: X402_SELLER_AUDIT_PRICE_USD.replace("$", "") },
+    priceDisplay: X402_SELLER_AUDIT_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
+
   const shopifyProductPaymentInfo = {
     protocol: "x402",
     protocols: ["x402"],
@@ -2138,12 +2151,12 @@ function x402OpenApi() {
   return {
     openapi: "3.1.0",
     info: {
-      title: "PAL Commerce Data x402 API",
-      version: "1.5.1",
+      title: "PAL Agent Commerce & Commerce Data x402 API",
+      version: "1.6.0",
       description:
-        "Deterministic utilities paid per call with x402 Base USDC: catalog audit, GTIN validation, product-feed diff, x402 declaration validation, and standard or batch prioritized catalog remediation.",
+        "Deterministic paid utilities for autonomous agents: agent-commerce seller verification, x402 readiness diagnostics, catalog QA, GTIN validation, product-feed diff, and prioritized ecommerce remediation.",
       "x-guidance":
-        "Use this API when an autonomous agent needs deterministic ecommerce catalog QA or remediation. Choose the $20 bulk remediation route for up to 2,000 records, the $5 batch route for up to 500 records, the $1 standard remediation route for smaller catalogs, and the lower-cost audit, GTIN, feed-diff, or x402 validation tools for focused checks. Send only the fields required by each operation schema. Successful paid calls return structured JSON with concrete findings or corrective actions; unpaid calls return an x402 payment challenge.",
+        "Use the $0.25 Agent Commerce Seller Audit when an autonomous agent needs to verify whether an x402 seller is runtime-ready, discoverable, healthy, settlement-backed, and machine-buyable. Use the $20 bulk remediation route for up to 2,000 commerce records, the $5 batch route for up to 500, and the lower-cost validation tools for focused checks. Successful paid calls return structured JSON with a decision, evidence, and exact next actions; unpaid calls return an x402 payment challenge.",
       contact: {
         email: "enricoaboujaoude@gmail.com",
       },
@@ -2400,7 +2413,7 @@ function x402OpenApi() {
             "402": { description: "x402 payment required." },
             "502": { description: "Public readiness/index upstream temporarily unavailable." },
           },
-          "x-payment-info": paymentInfo,
+          "x-payment-info": sellerAuditPaymentInfo,
         },
       },
       [X402_SHOPIFY_PRODUCT_PATH]: {
@@ -4996,6 +5009,13 @@ app.get("/", (_req, res) => {
     description:
       "Agent-ready ecommerce catalog intelligence for Merchant Center feed auditing, prioritized remediation, GTIN validation, feed change detection, and x402 diagnostics. Pay per call in USDC on Base; Nano remains available as a legacy rail.",
     primary_offer: {
+      name: "PAL Agent Commerce Seller Audit",
+      endpoint: "GET /v1/usdc/x402-seller-integrity?origin=...&route=...",
+      price_usd: 0.25,
+      purpose: "Verify x402 seller readiness, discovery, health, settlement evidence and machine-buyability.",
+      payment: "x402 v2 exact, USDC on Base",
+    },
+    high_value_offer: {
       name: "PAL Full Catalog Remediation",
       endpoint: "POST /v1/usdc/catalog-remediation-bulk",
       price_usd: 20.0,
@@ -6534,7 +6554,7 @@ async function buildSellerIntegrityAudit(originRaw, routeRaw = "") {
 
   return {
     ok: true,
-    service: "PAL x402 Seller Integrity Audit",
+    service: "PAL Agent Commerce Seller Audit",
     checked_at: nowIso(),
     request: { origin, route: route || null },
     decision,
@@ -6681,7 +6701,7 @@ app.get("/v1/usdc/x402-seller-integrity", async (req, res) => {
 
     usdcPaidSellerIntegrityAudits += 1;
     console.log(
-      `[revenue] usdc_x402_seller_integrity served price_usd=0.01 network=${USDC_X402_NETWORK} count=${usdcPaidSellerIntegrityAudits}`,
+      `[revenue] usdc_x402_seller_integrity served price_usd=0.25 network=${USDC_X402_NETWORK} count=${usdcPaidSellerIntegrityAudits}`,
     );
 
     return res.json({
