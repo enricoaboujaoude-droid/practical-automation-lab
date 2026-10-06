@@ -66,6 +66,12 @@ const X402_VALIDATE_PATH = "/v1/usdc/x402-validate";
 const X402_SELLER_AUDIT_PATH = "/v1/usdc/x402-seller-integrity";
 const X402_SELLER_AUDIT_PRICE_USD = "$0.01";
 const X402_SELLER_AUDIT_PRICE_ATOMIC = "10000";
+const X402_SELLER_REPAIR_PATH = "/v1/usdc/x402-seller-repair-plan";
+const X402_SELLER_REPAIR_PRICE_USD = "$5.00";
+const X402_SELLER_REPAIR_PRICE_ATOMIC = "5000000";
+const X402_SELLER_PORTFOLIO_PATH = "/v1/usdc/x402-seller-portfolio-audit";
+const X402_SELLER_PORTFOLIO_PRICE_USD = "$20.00";
+const X402_SELLER_PORTFOLIO_PRICE_ATOMIC = "20000000";
 const X402_SHOPIFY_PRODUCT_PATH = "/v1/usdc/shopify-product-availability";
 const X402_SHOPIFY_PRODUCT_PRICE_USD = "$0.01";
 const X402_SHOPIFY_PRODUCT_PRICE_ATOMIC = "10000";
@@ -92,6 +98,8 @@ const X402_GTIN_ONE_URL = `${PUBLIC_BASE_URL}${X402_GTIN_ONE_PATH}`;
 const X402_FEED_DIFF_URL = `${PUBLIC_BASE_URL}${X402_FEED_DIFF_PATH}`;
 const X402_VALIDATE_URL = `${PUBLIC_BASE_URL}${X402_VALIDATE_PATH}`;
 const X402_SELLER_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_SELLER_AUDIT_PATH}`;
+const X402_SELLER_REPAIR_URL = `${PUBLIC_BASE_URL}${X402_SELLER_REPAIR_PATH}`;
+const X402_SELLER_PORTFOLIO_URL = `${PUBLIC_BASE_URL}${X402_SELLER_PORTFOLIO_PATH}`;
 const X402_SHOPIFY_PRODUCT_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_PRODUCT_PATH}`;
 const X402_SHOPIFY_COMPARE_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_COMPARE_PATH}`;
 const X402_REMEDIATE_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_PATH}`;
@@ -789,6 +797,8 @@ const USDC_X402_PATHS = new Set([
   X402_FEED_DIFF_PATH,
   X402_VALIDATE_PATH,
   X402_SELLER_AUDIT_PATH,
+  X402_SELLER_REPAIR_PATH,
+  X402_SELLER_PORTFOLIO_PATH,
   X402_SHOPIFY_PRODUCT_PATH,
   X402_SHOPIFY_COMPARE_PATH,
   X402_REMEDIATE_PATH,
@@ -1210,6 +1220,85 @@ app.use(
           }),
         },
       },
+      "GET /v1/usdc/x402-seller-repair-plan": {
+        accepts: x402RouteAccepts(X402_SELLER_REPAIR_PRICE_USD),
+        description:
+          "Turn a live x402 seller audit into an implementation-ready revenue repair plan. Returns ranked blockers, exact marketplace/payment fixes, proof gaps, and the next commercialization actions for one seller route. Built from live Circle readiness, Agent402 routing and an unpaid runtime 402 probe.",
+        mimeType: "application/json",
+        serviceName: "PAL x402 Seller Revenue Repair Plan",
+        tags: ["x402", "seller-repair", "revenue-readiness", "agent-commerce", "payments", "routing", "marketplace", "commercialization"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: { origin: "https://example.com", route: "/api/data" },
+            inputSchema: {
+              type: "object",
+              additionalProperties: false,
+              required: ["origin"],
+              properties: {
+                origin: { type: "string", description: "Seller origin to diagnose." },
+                route: { type: "string", description: "Exact paid route when known." },
+              },
+            },
+            output: {
+              example: {
+                service: "PAL x402 Seller Revenue Repair Plan",
+                decision: "repair_required",
+                revenue_readiness_score: 70,
+                blockers: [],
+                prioritized_repairs: [],
+                commercialization_next_step: "Earn an independent buyer settlement.",
+              },
+            },
+          }),
+        },
+      },
+      "POST /v1/usdc/x402-seller-portfolio-audit": {
+        accepts: x402RouteAccepts(X402_SELLER_PORTFOLIO_PRICE_USD),
+        description:
+          "Audit up to five x402 seller origins/routes in one paid call and return a ranked portfolio view: which sellers are machine-buyable, which are contract-ready, which need repair, and the highest-impact repair actions across the portfolio.",
+        mimeType: "application/json",
+        serviceName: "PAL x402 Seller Portfolio Audit",
+        tags: ["x402", "seller-portfolio", "portfolio-audit", "agent-commerce", "payments", "routing", "marketplace", "commercialization"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              targets: [
+                { origin: "https://seller-a.example", route: "/api/data" },
+                { origin: "https://seller-b.example", route: "/api/search" },
+              ],
+            },
+            inputSchema: {
+              type: "object",
+              additionalProperties: false,
+              required: ["targets"],
+              properties: {
+                targets: {
+                  type: "array",
+                  minItems: 1,
+                  maxItems: 5,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    required: ["origin"],
+                    properties: {
+                      origin: { type: "string" },
+                      route: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL x402 Seller Portfolio Audit",
+                summary: { checked: 2, machine_buyable: 1, contract_ready: 1, repair_required: 0 },
+                ranked_targets: [],
+              },
+            },
+          }),
+        },
+      },
       "GET /v1/usdc/shopify-product-availability": {
         accepts: x402RouteAccepts(X402_SHOPIFY_PRODUCT_PRICE_USD),
         description:
@@ -1336,6 +1425,8 @@ let usdcPaidSingleGtinChecks = 0;
 let usdcPaidFeedDiffs = 0;
 let usdcPaidX402Validations = 0;
 let usdcPaidSellerIntegrityAudits = 0;
+let usdcPaidSellerRepairPlans = 0;
+let usdcPaidSellerPortfolioAudits = 0;
 let usdcPaidShopifyProductChecks = 0;
 let usdcPaidShopifyProductCompares = 0;
 let usdcPaidCatalogRemediations = 0;
@@ -1888,6 +1979,8 @@ function true402Manifest() {
       { name: "PAL Single GTIN Check", endpoint: X402_GTIN_ONE_URL, method: "GET", price: "0.01" },
       { name: "PAL Feed Diff", endpoint: X402_FEED_DIFF_URL, method: "POST", price: "0.01" },
       { name: "PAL Agent Commerce Seller Audit", endpoint: X402_SELLER_AUDIT_URL, method: "GET", price: "0.01" },
+      { name: "PAL x402 Seller Revenue Repair Plan", endpoint: X402_SELLER_REPAIR_URL, method: "GET", price: "5.00" },
+      { name: "PAL x402 Seller Portfolio Audit", endpoint: X402_SELLER_PORTFOLIO_URL, method: "POST", price: "20.00" },
       { name: "PAL Shopify Product Availability & Price Check", endpoint: X402_SHOPIFY_PRODUCT_URL, method: "GET", price: "0.01" },
       { name: "PAL Shopify Product Compare", endpoint: X402_SHOPIFY_COMPARE_URL, method: "POST", price: "0.05" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
@@ -1901,6 +1994,8 @@ function true402Manifest() {
 function x402Manifest() {
   const commonAccepts = x402ManifestAccepts(X402_PRICE_ATOMIC);
   const sellerAuditAccepts = x402ManifestAccepts(X402_SELLER_AUDIT_PRICE_ATOMIC);
+  const sellerRepairAccepts = x402ManifestAccepts(X402_SELLER_REPAIR_PRICE_ATOMIC);
+  const sellerPortfolioAccepts = x402ManifestAccepts(X402_SELLER_PORTFOLIO_PRICE_ATOMIC);
   const shopifyProductAccepts = x402ManifestAccepts(X402_SHOPIFY_PRODUCT_PRICE_ATOMIC);
   const validatorAccepts = x402ManifestAccepts(X402_VALIDATE_PRICE_ATOMIC);
   const remediationAccepts = x402ManifestAccepts(X402_REMEDIATE_PRICE_ATOMIC);
@@ -1998,6 +2093,51 @@ function x402Manifest() {
           },
         },
         accepts: sellerAuditAccepts,
+      },
+      {
+        resource: X402_SELLER_REPAIR_URL,
+        name: "PAL x402 Seller Revenue Repair Plan",
+        description:
+          "Convert live Circle readiness, runtime x402 challenge and Agent402 routing evidence into a ranked implementation-ready repair plan for one seller route.",
+        method: "GET",
+        price: X402_SELLER_REPAIR_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["origin"],
+          properties: {
+            origin: { type: "string" },
+            route: { type: "string" },
+          },
+        },
+        accepts: sellerRepairAccepts,
+      },
+      {
+        resource: X402_SELLER_PORTFOLIO_URL,
+        name: "PAL x402 Seller Portfolio Audit",
+        description:
+          "Audit and rank up to five x402 seller origins/routes in one paid call, including runtime readiness, routing eligibility and exact revenue repair priorities.",
+        method: "POST",
+        price: X402_SELLER_PORTFOLIO_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["targets"],
+          properties: {
+            targets: {
+              type: "array",
+              minItems: 1,
+              maxItems: 5,
+              items: {
+                type: "object",
+                required: ["origin"],
+                properties: {
+                  origin: { type: "string" },
+                  route: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        accepts: sellerPortfolioAccepts,
       },
       {
         resource: X402_SHOPIFY_PRODUCT_URL,
@@ -2170,6 +2310,30 @@ function x402OpenApi() {
     amount: X402_REMEDIATE_PRICE_ATOMIC,
     price: { mode: "fixed", currency: "USD", amount: X402_REMEDIATE_PRICE_USD.replace("$", "") },
     priceDisplay: X402_REMEDIATE_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
+  const sellerRepairPaymentInfo = {
+    protocol: "x402",
+    protocols: ["x402"],
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_SELLER_REPAIR_PRICE_ATOMIC,
+    price: { mode: "fixed", currency: "USD", amount: X402_SELLER_REPAIR_PRICE_USD.replace("$", "") },
+    priceDisplay: X402_SELLER_REPAIR_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
+  const sellerPortfolioPaymentInfo = {
+    protocol: "x402",
+    protocols: ["x402"],
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_SELLER_PORTFOLIO_PRICE_ATOMIC,
+    price: { mode: "fixed", currency: "USD", amount: X402_SELLER_PORTFOLIO_PRICE_USD.replace("$", "") },
+    priceDisplay: X402_SELLER_PORTFOLIO_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
   const remediationBatchPaymentInfo = {
@@ -2509,6 +2673,66 @@ function x402OpenApi() {
             "502": { description: "Public readiness/index upstream temporarily unavailable." },
           },
           "x-payment-info": sellerAuditPaymentInfo,
+        },
+      },
+      [X402_SELLER_REPAIR_PATH]: {
+        get: {
+          operationId: "x402SellerRepairPlan",
+          summary: "Generate an implementation-ready x402 seller revenue repair plan",
+          tags: ["x402", "seller-repair", "revenue-readiness", "agent-commerce", "payments", "routing"],
+          parameters: [
+            { name: "origin", in: "query", required: true, schema: { type: "string", format: "uri" } },
+            { name: "route", in: "query", required: false, schema: { type: "string" } },
+          ],
+          responses: {
+            "200": { description: "Ranked seller revenue repair plan after successful payment." },
+            "400": { description: "Invalid seller origin or route." },
+            "402": { description: "x402 payment required." },
+            "502": { description: "Public readiness/index upstream temporarily unavailable." },
+          },
+          "x-payment-info": sellerRepairPaymentInfo,
+        },
+      },
+      [X402_SELLER_PORTFOLIO_PATH]: {
+        post: {
+          operationId: "x402SellerPortfolioAudit",
+          summary: "Audit and rank up to five x402 seller routes",
+          tags: ["x402", "seller-portfolio", "portfolio-audit", "agent-commerce", "payments", "routing"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: ["targets"],
+                  properties: {
+                    targets: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 5,
+                      items: {
+                        type: "object",
+                        additionalProperties: false,
+                        required: ["origin"],
+                        properties: {
+                          origin: { type: "string", format: "uri" },
+                          route: { type: "string" },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          responses: {
+            "200": { description: "Ranked multi-seller audit after successful payment." },
+            "400": { description: "Invalid seller targets." },
+            "402": { description: "x402 payment required." },
+            "502": { description: "Public readiness/index upstream temporarily unavailable." },
+          },
+          "x-payment-info": sellerPortfolioPaymentInfo,
         },
       },
       [X402_SHOPIFY_PRODUCT_PATH]: {
@@ -5227,10 +5451,11 @@ app.get("/", (_req, res) => {
       payment: "x402 v2 exact, USDC on Base",
     },
     high_value_offer: {
-      name: "PAL Full Catalog Remediation",
-      endpoint: "POST /v1/usdc/catalog-remediation-bulk",
+      name: "PAL x402 Seller Portfolio Audit",
+      endpoint: "POST /v1/usdc/x402-seller-portfolio-audit",
       price_usd: 20.0,
-      records_per_call: 2000,
+      sellers_per_call: 5,
+      reason: "This offer is the paid upgrade from the seller-integrity product that has already produced an independent on-chain payment.",
       payment: "x402 v2 exact, USDC on Base",
     },
     paid_endpoint: "POST /v1/audit",
@@ -5240,6 +5465,8 @@ app.get("/", (_req, res) => {
       "GET /v1/usdc/gtin-check-one?gtin=...",
       "POST /v1/usdc/feed-diff",
       "GET /v1/usdc/x402-seller-integrity?origin=...&route=...",
+      "GET /v1/usdc/x402-seller-repair-plan?origin=...&route=...",
+      "POST /v1/usdc/x402-seller-portfolio-audit",
       "POST /v1/usdc/x402-validate",
       "POST /v1/usdc/catalog-remediation",
       "POST /v1/usdc/catalog-remediation-canary",
@@ -6067,6 +6294,8 @@ app.get("/v1/stats", (_req, res) => {
     usdc_x402_paid_single_gtin_checks_since_process_start: usdcPaidSingleGtinChecks,
     usdc_x402_paid_feed_diffs_since_process_start: usdcPaidFeedDiffs,
     usdc_x402_paid_seller_integrity_audits_since_process_start: usdcPaidSellerIntegrityAudits,
+    usdc_x402_paid_seller_repair_plans_since_process_start: usdcPaidSellerRepairPlans,
+    usdc_x402_paid_seller_portfolio_audits_since_process_start: usdcPaidSellerPortfolioAudits,
     usdc_x402_paid_shopify_product_checks_since_process_start: usdcPaidShopifyProductChecks,
     usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
     usdc_x402_paid_catalog_remediations_since_process_start: usdcPaidCatalogRemediations,
@@ -6078,6 +6307,8 @@ app.get("/v1/stats", (_req, res) => {
       usdcPaidSingleGtinChecks * 0.01 +
       usdcPaidFeedDiffs * 0.01 +
       usdcPaidSellerIntegrityAudits * 0.01 +
+      usdcPaidSellerRepairPlans * 5.00 +
+      usdcPaidSellerPortfolioAudits * 20.00 +
       usdcPaidShopifyProductChecks * 0.005 +
       usdcPaidX402Validations * 0.05 +
       usdcPaidCatalogRemediations * 1.00 +
@@ -7095,10 +7326,202 @@ app.get("/v1/usdc/x402-seller-integrity", async (req, res) => {
         pay_to: BASE_PAYOUT_ADDRESS,
         facilitator: "PayAI",
       },
+      upgrade_offers: [
+        {
+          name: "PAL x402 Seller Revenue Repair Plan",
+          method: "GET",
+          url: `${X402_SELLER_REPAIR_URL}?origin=${encodeURIComponent(report.request.origin)}${report.request.route ? `&route=${encodeURIComponent(report.request.route)}` : ""}`,
+          price_usdc: 5,
+          purpose: "Convert the audit evidence into ranked, implementation-ready revenue repairs.",
+        },
+        {
+          name: "PAL x402 Seller Portfolio Audit",
+          method: "POST",
+          url: X402_SELLER_PORTFOLIO_URL,
+          price_usdc: 20,
+          purpose: "Audit and rank up to five seller routes in one call.",
+        },
+      ],
     });
   } catch (error) {
     return res.status(502).json({
       error: "seller_integrity_upstream_failed",
+      detail: error?.message || String(error),
+    });
+  }
+});
+
+function sellerRepairPlan(report) {
+  const blockers = [];
+  const repairs = [];
+
+  if (!report.runtime_verified) {
+    blockers.push("runtime_not_verified");
+    repairs.push({
+      priority: "P0",
+      action: "Expose a valid unpaid x402 HTTP 402 challenge and re-run Circle runtime verification.",
+    });
+  }
+
+  if (!report.agent402) {
+    blockers.push("not_in_agent402_router");
+    repairs.push({
+      priority: "P1",
+      action: "Publish the exact route in crawler-visible x402/OpenAPI metadata and register the seller origin with Agent402.",
+    });
+  } else {
+    if (report.agent402.health !== 1) {
+      blockers.push("route_health_below_1");
+      repairs.push({ priority: "P0", action: "Restore route health and cold-start reliability before buying traffic." });
+    }
+    if (!report.agent402.router_dispatch_eligible) {
+      blockers.push(report.agent402.router_dispatch_reason || "router_dispatch_ineligible");
+      repairs.push({
+        priority: "P1",
+        action:
+          report.agent402.router_dispatch_reason === "settlement_required"
+            ? "Earn an independent buyer settlement to the advertised payTo; do not self-fund it."
+            : `Resolve router gate: ${report.agent402.router_dispatch_reason || "unknown"}.`,
+      });
+    }
+  }
+
+  const circleScore = Number(report.circle?.score || 0);
+  if (circleScore < 100) {
+    blockers.push("circle_readiness_below_100");
+    repairs.push({
+      priority: circleScore < 80 ? "P0" : "P2",
+      action: "Fix the failed Circle seller-readiness checks until the service reaches Grade A / 100.",
+    });
+  }
+
+  const readinessScore = Math.max(
+    0,
+    Math.min(
+      100,
+      Math.round(
+        circleScore * 0.55 +
+          (report.runtime_probe?.live_payment_challenge ? 20 : 0) +
+          (report.agent402?.health === 1 ? 10 : 0) +
+          (report.agent402?.router_dispatch_eligible ? 15 : 0),
+      ),
+    ),
+  );
+
+  repairs.sort((a, b) => ({ P0: 0, P1: 1, P2: 2 }[a.priority] - ({ P0: 0, P1: 1, P2: 2 }[b.priority]));
+
+  return {
+    service: "PAL x402 Seller Revenue Repair Plan",
+    checked_at: nowIso(),
+    decision: report.decision,
+    revenue_readiness_score: readinessScore,
+    blockers,
+    prioritized_repairs: repairs,
+    evidence: {
+      circle: report.circle,
+      runtime_probe: report.runtime_probe,
+      agent402: report.agent402,
+    },
+    commercialization_next_step:
+      repairs[0]?.action ||
+      "Seller is machine-buyable. Focus on buyer discovery, independent settlements, pricing and repeat usage rather than more protocol repair.",
+    boundary: report.boundary,
+  };
+}
+
+app.get("/v1/usdc/x402-seller-repair-plan", async (req, res) => {
+  const origin = String(req.query?.origin || "").trim();
+  if (!origin) {
+    return res.status(400).json({ error: "missing_origin", detail: "Query parameter origin is required." });
+  }
+  try {
+    const report = await buildSellerIntegrityAudit(origin, req.query?.route);
+    if (!report.ok) return res.status(400).json(report);
+
+    usdcPaidSellerRepairPlans += 1;
+    console.log(
+      `[revenue] usdc_x402_seller_repair_plan served price_usd=5 network=${USDC_X402_NETWORK} count=${usdcPaidSellerRepairPlans}`,
+    );
+
+    return res.json({
+      ...sellerRepairPlan(report),
+      request: report.request,
+      payment: {
+        verified_by: "x402",
+        network: USDC_X402_NETWORK,
+        asset: "USDC",
+        price_usd: X402_SELLER_REPAIR_PRICE_USD,
+        pay_to: BASE_PAYOUT_ADDRESS,
+        facilitator: "PayAI",
+      },
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "seller_repair_plan_failed",
+      detail: error?.message || String(error),
+    });
+  }
+});
+
+app.post("/v1/usdc/x402-seller-portfolio-audit", async (req, res) => {
+  const targets = req.body?.targets;
+  if (!Array.isArray(targets) || targets.length < 1 || targets.length > 5) {
+    return res.status(400).json({
+      error: "invalid_targets",
+      detail: "Body must contain targets as an array with 1 to 5 seller origins.",
+    });
+  }
+
+  try {
+    const reports = [];
+    for (const target of targets) {
+      const origin = String(target?.origin || "").trim();
+      if (!origin) {
+        reports.push({ ok: false, error: "missing_origin", request: target || null });
+        continue;
+      }
+      const report = await buildSellerIntegrityAudit(origin, target?.route);
+      reports.push(report.ok ? { ...sellerRepairPlan(report), request: report.request } : report);
+    }
+
+    const successful = reports.filter((item) => item && !item.error);
+    const rank = { machine_buyable: 0, contract_ready: 1, repair_required: 2 };
+    successful.sort((a, b) => {
+      const decisionDelta = (rank[a.decision] ?? 9) - (rank[b.decision] ?? 9);
+      if (decisionDelta !== 0) return decisionDelta;
+      return Number(b.revenue_readiness_score || 0) - Number(a.revenue_readiness_score || 0);
+    });
+
+    usdcPaidSellerPortfolioAudits += 1;
+    console.log(
+      `[revenue] usdc_x402_seller_portfolio_audit served price_usd=20 targets=${targets.length} network=${USDC_X402_NETWORK} count=${usdcPaidSellerPortfolioAudits}`,
+    );
+
+    return res.json({
+      service: "PAL x402 Seller Portfolio Audit",
+      checked_at: nowIso(),
+      summary: {
+        checked: reports.length,
+        successful: successful.length,
+        failed: reports.length - successful.length,
+        machine_buyable: successful.filter((item) => item.decision === "machine_buyable").length,
+        contract_ready: successful.filter((item) => item.decision === "contract_ready").length,
+        repair_required: successful.filter((item) => item.decision === "repair_required").length,
+      },
+      ranked_targets: successful,
+      failures: reports.filter((item) => item?.error),
+      payment: {
+        verified_by: "x402",
+        network: USDC_X402_NETWORK,
+        asset: "USDC",
+        price_usd: X402_SELLER_PORTFOLIO_PRICE_USD,
+        pay_to: BASE_PAYOUT_ADDRESS,
+        facilitator: "PayAI",
+      },
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "seller_portfolio_audit_failed",
       detail: error?.message || String(error),
     });
   }
