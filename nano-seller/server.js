@@ -6301,6 +6301,17 @@ app.get("/.well-known/talkshi-verification/b3651fcd-64a4-4f27-beae-24874a353da5"
   });
 });
 
+app.get("/.well-known/talkshi-verification/005cdcc6-b01f-4f9f-8a65-d1cf277f12a5", (_req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  return res.json({
+    service: "talkshi.com",
+    challenge_id: "005cdcc6-b01f-4f9f-8a65-d1cf277f12a5",
+    challenge: "talkshi-domain-275201f9140742c882d7254bb08544ade5781330e71c43d5857966253da4811f",
+    domain: "pal-full-catalog-remediation.onrender.com",
+    agent_name: "Practical Automation Lab",
+  });
+});
+
 app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "pal-nano-catalog-identifier-audit", time: nowIso() });
 });
