@@ -118,6 +118,8 @@ const X402_REMEDIATE_BATCH_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BATCH_PATH}
 const X402_REMEDIATE_BULK_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_BULK_PATH}`;
 const X402_REMEDIATE_CANARY_URL = `${PUBLIC_BASE_URL}${X402_REMEDIATE_CANARY_PATH}`;
 const AGENT402_BOOTSTRAP = process.env.AGENT402_BOOTSTRAP === "1";
+const AGENT_BAZAAR_SUBMIT_URL = "https://bazaar.saylorinnovations.com/submit";
+const AGENT_BAZAAR_MANIFEST_URL = `${PUBLIC_BASE_URL}/.well-known/x402`;
 const AGENT402_REGISTER_URL = "https://agent402.tools/api/index/register";
 let agent402RetryScheduled = false;
 const INDEX402_BOOTSTRAP = process.env.INDEX402_BOOTSTRAP === "1";
@@ -9674,6 +9676,25 @@ async function startAgenticTradeFullCatalogOnboard() {
   }
 }
 
+
+async function startAgentBazaarBootstrap() {
+  try {
+    const response = await fetch(AGENT_BAZAAR_SUBMIT_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ manifestUrl: AGENT_BAZAAR_MANIFEST_URL }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    const raw = await response.text();
+    if (!response.ok) {
+      console.log(`[agent-bazaar] submit failed status=${response.status} body=${raw.slice(0, 300)}`);
+      return;
+    }
+    console.log(`[agent-bazaar] manifest submitted status=${response.status} body=${raw.slice(0, 300)}`);
+  } catch (error) {
+    console.log(`[agent-bazaar] submit error=${String(error?.message || error).slice(0, 180)}`);
+  }
+}
 
 async function startFiatDockBootstrap() {
   if (!FIATDOCK_SELLER_KEY || !FIATDOCK_GATEWAY_TOKEN) {
