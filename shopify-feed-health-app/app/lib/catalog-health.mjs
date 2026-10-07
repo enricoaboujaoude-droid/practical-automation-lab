@@ -27,6 +27,9 @@ export function auditCatalog(products = [], options = {}) {
     const productId = product.id || "unknown";
     const title = String(product.title || "Untitled product");
     const vendor = String(product.vendor || "").trim();
+    const description = String(product.description || "").replace(/\s+/g, " ").trim();
+    const productType = String(product.productType || "").trim();
+    const tags = Array.isArray(product.tags) ? product.tags.map((tag) => String(tag || "").trim()).filter(Boolean) : [];
     const variants = product.variants?.nodes || [];
     const images = product.images?.nodes || [];
     let productHasImageRisk = false;
@@ -37,6 +40,14 @@ export function auditCatalog(products = [], options = {}) {
     if (!vendor) {
       issues.push(issue(ISSUE_LEVEL.WARNING, "MISSING_BRAND", productId, title, "Vendor/brand is blank.", "Add the real brand/vendor where applicable; do not invent identifiers."));
     }
+    if (!description) {
+      issues.push(issue(ISSUE_LEVEL.WARNING, "AIEO_MISSING_DESCRIPTION", productId, title, "Product description is blank, leaving AI shopping systems with little factual context beyond the title.", "Add a factual product description covering what the item is, important materials/specifications, intended use, compatibility or fit where relevant. Avoid keyword stuffing."));
+    } else if (description.length < 80) {
+      issues.push(issue(ISSUE_LEVEL.WARNING, "AIEO_THIN_DESCRIPTION", productId, title, "Product description is very short, which can limit the context available to AI shopping systems.", "Expand the description with accurate product-specific details such as materials, dimensions/specifications, use case and compatibility where relevant."));
+    }
+    if (!productType) {
+      issues.push(issue(ISSUE_LEVEL.WARNING, "AIEO_MISSING_PRODUCT_TYPE", productId, title, "Product type is blank, reducing machine-readable category context.", "Assign an accurate Shopify product type or taxonomy category so systems can understand what kind of product this is."));
+    }
     if (!product.onlineStoreUrl) {
       issues.push(issue(ISSUE_LEVEL.WARNING, "NO_ONLINE_STORE_URL", productId, title, "No Online Store product URL is currently available.", "Confirm the product is published to the intended sales channel before relying on it in a shopping feed."));
     }
@@ -44,6 +55,8 @@ export function auditCatalog(products = [], options = {}) {
       productsMissingImages += 1;
       productHasImageRisk = true;
       issues.push(issue(ISSUE_LEVEL.ERROR, "MISSING_IMAGE", productId, title, "Product has no image.", "Add at least one accurate product image before feed submission."));
+    } else if (!images.some((image) => String(image.altText || "").trim())) {
+      issues.push(issue(ISSUE_LEVEL.WARNING, "AIEO_MISSING_IMAGE_ALT", productId, title, "Product images have no descriptive alt text in the scanned set.", "Add concise, factual alt text that identifies the product and meaningful visible attributes. Do not stuff keywords."));
     }
 
     for (const image of images) {
@@ -108,6 +121,14 @@ export function auditCatalog(products = [], options = {}) {
     errors,
     warnings,
     score,
+    aieoReadiness: {
+      productsMissingDescriptions: issues.filter((entry) => entry.code === "AIEO_MISSING_DESCRIPTION").length,
+      productsWithThinDescriptions: issues.filter((entry) => entry.code === "AIEO_THIN_DESCRIPTION").length,
+      productsMissingProductType: issues.filter((entry) => entry.code === "AIEO_MISSING_PRODUCT_TYPE").length,
+      productsMissingImageAlt: issues.filter((entry) => entry.code === "AIEO_MISSING_IMAGE_ALT").length,
+      signalModel: "heuristic-readiness",
+      note: "AIEO findings are catalog-quality signals, not guarantees of ranking or recommendation by any AI platform.",
+    },
     imageReadiness: {
       enforcementDate: "2027-01-31",
       productsMissingImages,
