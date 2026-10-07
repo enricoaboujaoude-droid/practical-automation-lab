@@ -159,7 +159,7 @@ export default function CatalogCheckDashboard() {
       <div className="pal-intro">
         <div>
           <div className="pal-eyebrow">
-            {pro ? "Pro monitoring enabled" : "Free catalog check"}
+            {pro ? "Pro monitoring enabled" : "Free AIEO catalog check"}
           </div>
           <p className="pal-subtitle">
             A read-only AIEO view of product-data issues that can reduce
@@ -297,7 +297,7 @@ export default function CatalogCheckDashboard() {
       <s-section heading="Issues to review">
         {report.issues.length === 0 ? (
           <s-banner tone="success" heading="No issues found by this scan">
-            PAL found no catalog-readiness issues within the fields and scan
+            PAL found no AIEO/catalog-readiness issues within the fields and scan
             boundaries checked.
           </s-banner>
         ) : (
