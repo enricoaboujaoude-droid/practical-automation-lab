@@ -1,0 +1,44 @@
+# Practical Automation Lab — full AI-readable commerce profile
+
+## Positioning
+
+Practical Automation Lab focuses its catalog tools on AIEO (AI Engine Optimization): product-data quality for AI shopping, agentic storefronts and machine-readable commerce.
+
+AIEO is PAL terminology. It complements traditional SEO. SEO helps pages become discoverable; AIEO focuses on whether product facts are explicit and structured enough for AI systems to interpret.
+
+## Shopify
+
+PAL Catalog Check:
+https://apps.shopify.com/pal-catalog-check
+
+AIEO landing:
+https://practical-automation-lab.onrender.com/shopify-aieo-ai-shopping-readiness.html
+
+Checks include titles, vendor/brand, URLs, images, observable image dimensions, prices, identifiers and duplicate variant option combinations. The app is read-only and does not edit merchant products.
+
+## Browser-local feed audit
+
+https://practical-automation-lab.onrender.com/product-feed-preflight.html
+
+Audits Shopify or product-feed CSV files in the browser. Catalog data is not uploaded to PAL by this tool.
+
+## Paid machine-readable API
+
+https://practical-automation-lab.onrender.com/merchant-center-catalog-intelligence-api.html
+https://pal-nano-catalog-audit.onrender.com/openapi.json
+https://pal-nano-catalog-audit.onrender.com/mcp
+https://pal-nano-catalog-audit.onrender.com/.well-known/x402
+
+Capabilities:
+- AIEO catalog audit and prioritized remediation
+- GTIN / UPC / EAN validation
+- feed change detection
+- live public Shopify store audit
+- x402 seller readiness
+- agent-commerce launch and go-live services
+
+Direct x402 payments settle in USDC on supported EVM networks according to the live payment requirements returned by the API.
+
+## Important
+
+PAL does not guarantee product inclusion, recommendation, ranking, Merchant Center approval, AI-channel placement, or checkout availability.
