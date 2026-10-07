@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shopify & Google Merchant Product Feed Preflight Auditor</title>
-<meta name="description" content="Audit a Shopify or product-feed CSV in your browser for import risks, missing identifiers, image issues and Merchant Center readiness. Your catalog stays in your browser.">
+<title>PAL AIEO Product Feed Auditor — Shopify AI Discoverability Preflight</title>
+<meta name="description" content="Audit a Shopify or product-feed CSV for AI discoverability: identity, identifiers, images, variants, price, availability and machine-readable product data. Your catalog stays in your browser.">
 <link rel="canonical" href="https://practical-automation-lab.onrender.com/product-feed-preflight.html">
 <style>
 body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:1040px;margin:auto;padding:32px 18px 60px;color:#18181b;line-height:1.5}a{color:inherit}.hero{max-width:800px}.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;opacity:.6}h1{font-size:clamp(2rem,5vw,3.5rem);line-height:1.03;margin:.4rem 0 1rem}.lead{font-size:1.08rem;opacity:.74}.drop{margin:28px 0;border:2px dashed #a1a1aa;border-radius:18px;padding:34px;text-align:center;background:#fafafa}.drop.drag{background:#f4f4f5;border-color:#18181b}button,.button{border:0;border-radius:10px;padding:11px 15px;background:#18181b;color:white;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}.secondary{background:white;color:#18181b;border:1px solid #d4d4d8}.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:22px 0}.metric{border:1px solid #e4e4e7;border-radius:14px;padding:15px}.metric b{display:block;font-size:1.55rem}.issue{border:1px solid #e4e4e7;border-radius:12px;padding:14px;margin:9px 0}.error{border-left:5px solid #b91c1c}.warning{border-left:5px solid #a16207}.info{border-left:5px solid #0369a1}.tag{font-size:.75rem;font-weight:800;text-transform:uppercase}.muted{opacity:.67}.privacy{font-size:.9rem;margin-top:12px}.hidden{display:none}.good{padding:18px;border:1px solid #86efac;background:#f0fdf4;border-radius:14px}.commercial{margin-top:34px;border:1px solid #d4d4d8;border-radius:18px;padding:24px;background:#fafafa}.commercial h2{margin-top:0}.intent-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.intent{background:white;color:#18181b;border:1px solid #d4d4d8;text-align:left}.intent:hover,.intent.active{border-color:#18181b;background:#f4f4f5}.pro-note{border-left:4px solid #18181b;padding:10px 14px;background:white;border-radius:8px}.inquiry{margin-top:16px;padding:16px;border:1px solid #d4d4d8;border-radius:12px;background:white}.inquiry textarea{width:100%;box-sizing:border-box;min-height:120px;border:1px solid #d4d4d8;border-radius:10px;padding:10px;font:inherit;resize:vertical}.small{font-size:.88rem}.status{font-size:.88rem;font-weight:700;margin-left:8px}.pro-access{margin-top:28px;border:2px solid #18181b;border-radius:18px;padding:24px;background:#fff}.pro-access h2{margin-top:0}.pro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.pro-card{border:1px solid #e4e4e7;border-radius:12px;padding:14px}.pro-card b{display:block;margin-bottom:5px}.pro-lock{padding:14px;border:1px solid #d4d4d8;border-radius:12px;background:#fafafa}.batch-results{margin-top:14px}.batch-table{width:100%;border-collapse:collapse;font-size:.9rem}.batch-table th,.batch-table td{padding:9px;border-bottom:1px solid #e4e4e7;text-align:left;vertical-align:top}.pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#f4f4f5;font-size:.78rem;font-weight:700}
@@ -13,9 +13,9 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:10
 </head>
 <body>
 <header class="hero">
-<div class="eyebrow">Practical Automation Lab · Feed Health</div>
-<h1>Catch product-feed problems before they become import failures or Merchant Center warnings.</h1>
-<p class="lead">Drop a Shopify export or product-feed CSV. The audit runs locally in your browser and flags structural errors, identifier gaps, image risks and variant inconsistencies. Your catalog is not uploaded to us.</p>
+<div class="eyebrow">Practical Automation Lab · AIEO / AI Commerce Readiness</div>
+<h1>Find the catalog gaps that make AI shopping systems guess.</h1>
+<p class="lead">Drop a Shopify export or product-feed CSV. PAL AIEO runs locally in your browser and flags the structural, identifier, image, variant and product-data gaps that can reduce machine understanding across AI shopping and traditional commerce channels. Your catalog is not uploaded to us.</p>
 </header>
 <main>
 <div id="drop" class="drop">
@@ -34,11 +34,11 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:10
 </div>
 <div id="issues"></div>
 <div class="pro-access" id="pro-access">
-<h2>PAL Pro — batch catalog auditing</h2>
+<h2>PAL Pro — batch AIEO catalog auditing</h2>
 <p>Audit multiple CSV feeds in one browser-local batch, compare issue counts across files, and export a consolidated machine-readable remediation CSV. Feed contents stay in your browser.</p>
 <div class="pro-grid">
   <div class="pro-card"><b>Batch audits</b><span class="small muted">Process up to 20 CSV files in one run.</span></div>
-  <div class="pro-card"><b>Portfolio summary</b><span class="small muted">Compare readiness, errors and warnings across feeds.</span></div>
+  <div class="pro-card"><b>Portfolio summary</b><span class="small muted">Compare AI discoverability readiness, errors and warnings across feeds.</span></div>
   <div class="pro-card"><b>Structured export</b><span class="small muted">Download one consolidated remediation CSV for operational follow-up.</span></div>
 </div>
 <div id="pro-locked" class="pro-lock">
@@ -59,8 +59,8 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:10
 </div>
 
 <div class="commercial" id="commercial">
-<h2>Run the same kind of readiness check directly inside Shopify</h2>
-<p><strong>PAL Catalog Check is live on the Shopify App Store.</strong> Install the Free plan for a read-only catalog scan. Pro is listed at <b>$19/month</b> or <b>$199/year</b> for merchants who need ongoing monitoring, history and reporting.</p>
+<h2>Run the same AIEO readiness check directly inside Shopify</h2>
+<p><strong>PAL Catalog Check is live on the Shopify App Store.</strong> Install the Free plan for a read-only AIEO catalog scan. Pro is listed at <b>$19/month</b> or <b>$199/year</b> for merchants who need ongoing AI-discoverability monitoring, history and reporting.</p>
 <div class="pro-note"><b>Fastest path:</b> install Free, run one real scan, and only consider Pro if the recurring workflow is useful.</div>
 <p><b>Which paid capability would matter most?</b></p>
 <div class="intent-grid">
@@ -78,14 +78,14 @@ body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:10
 </div>
 </section>
 <section id="shopify-beta" class="commercial">
-<h2>PAL Catalog Check is live on Shopify</h2>
-<p>The native read-only Shopify app scans catalog readiness directly after installation, including product, image, identifier, price and variant checks.</p>
+<h2>PAL AIEO Catalog Check is live on Shopify</h2>
+<p>The native read-only Shopify app scans AI-commerce catalog readiness directly after installation, including product identity, image, identifier, price, availability and variant checks.</p>
 <p class="small muted">The Free plan is available now. No Merchant Center credentials are required, and PAL does not edit products or variants.</p>
 <a id="shopifyBetaInterest" class="button" href="https://apps.shopify.com/pal-catalog-check" data-pal-event="pal_feed_auditor_shopify_clicked">Install PAL Catalog Check — Free</a>
 </section>
 <section style="margin-top:36px">
 <h2>What this checks</h2>
-<p class="muted">CSV structure and encoding signals; Shopify handle/title/price/fulfillment issues; duplicate variant combinations; missing GTIN/MPN/brand signals; invalid URLs; and upcoming Google Merchant Center image-resolution readiness when dimensions are encoded in an image URL or explicit width/height columns are present. A browser-only CSV audit cannot fetch every remote image safely, so unknown image dimensions are reported as unknown rather than guessed.</p>
+<p class="muted">AIEO checks CSV structure and encoding; Shopify handle/title/price/fulfillment issues; duplicate variant combinations; missing GTIN/MPN/brand signals; invalid URLs; and image readiness. These same clean product-data fundamentals support traditional SEO, Merchant Center and AI shopping systems. A browser-only CSV audit cannot fetch every remote image safely, so unknown image dimensions are reported as unknown rather than guessed.</p>
 <p class="small">Google announced that product images below 500×500 will be subject to the updated minimum beginning January 31, 2027, with warnings beginning April 14, 2026. Always verify final diagnostics in Merchant Center and Shopify before making catalog changes.</p>
 </section>
 </main>
