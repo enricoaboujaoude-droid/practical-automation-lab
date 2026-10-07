@@ -1,8 +1,8 @@
-# PAL Nano Catalog Identifier Audit
+# PAL AIEO Catalog & Identifier Audit
 
-A small deterministic paid API from Practical Automation Lab.
+A deterministic paid AIEO (AI Engine Optimization) API from Practical Automation Lab for AI-readable ecommerce product data.
 
-It audits product-catalog records for identifier and feed consistency:
+It audits product-catalog records for machine readability across AI shopping, agentic commerce and traditional feed systems. AIEO complements SEO; it focuses on structured product facts rather than page ranking:
 
 - duplicate product IDs
 - malformed or non-HTTP(S) product/image URLs
@@ -56,4 +56,4 @@ The service verifies the send against the public Pursekeeper `/v1/verify` endpoi
 
 ## Scope
 
-This is a deterministic consistency audit, not a guarantee of Google Merchant Center approval or regulatory compliance. It does not fetch submitted URLs and it does not retain submitted product records.
+This is a deterministic AIEO/data-consistency audit, not a guarantee of AI-channel inclusion, ranking, recommendation, Google Merchant Center approval, or regulatory compliance. It does not fetch submitted URLs and it does not retain submitted product records.
