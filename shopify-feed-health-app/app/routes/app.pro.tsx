@@ -338,8 +338,8 @@ export default function ProMonitoringDashboard() {
         <div>
           <div className="pal-eyebrow">Pro workspace</div>
           <p className="pal-subtitle">
-            Automate catalog checks, keep a saved history, track changes, and
-            export scheduled readiness reports without editing Shopify data.
+            Automate AIEO catalog checks, keep a saved history, track changes, and
+            export scheduled AI-commerce readiness reports without editing Shopify data.
           </p>
         </div>
         <div className="pal-status-row">
