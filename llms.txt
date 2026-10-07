@@ -2,15 +2,19 @@
 
 Practical Automation Lab publishes privacy-conscious business software and browser-local preflight tools.
 
-## Primary products
+## Primary AIEO and commerce products
 
-- PAL Catalog Check for Shopify
+- AIEO for Shopify / AI Commerce Discoverability
+  https://practical-automation-lab.onrender.com/aieo-shopify-catalog.html
+  Explains how PAL helps ecommerce catalogs become easier for AI assistants and shopping agents to understand, compare and recommend. AIEO complements rather than replaces SEO.
+
+- PAL AIEO Catalog Check for Shopify
   https://practical-automation-lab.onrender.com/shopify-catalog-check.html
-  Read-only Shopify catalog-readiness scanning for product, image, identifier, price and variant issues.
+  Read-only Shopify AI Engine Optimization (AIEO) scanning for product identity, attributes, images, GTIN/MPN, variants, price, availability and machine-readable catalog readiness.
 
-- Product Feed Preflight Auditor
+- AIEO Product Feed Preflight Auditor
   https://practical-automation-lab.onrender.com/product-feed-preflight.html
-  Browser-local Shopify and Google Merchant CSV preflight for structural errors, identifier gaps, image risks and variant inconsistencies.
+  Browser-local Shopify and Google Merchant CSV preflight for AI discoverability, structural errors, identifier gaps, image risks and variant inconsistencies.
 
 - Google Merchant API Migration Preflight
   https://practical-automation-lab.onrender.com/google-merchant-api-migration-preflight.html
