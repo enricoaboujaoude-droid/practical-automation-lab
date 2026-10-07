@@ -145,7 +145,7 @@ export default function CatalogCheckDashboard() {
   }, [fetcher.data, fetcher.state]);
 
   return (
-    <s-page heading="Catalog readiness">
+    <s-page heading="AI commerce readiness">
       <s-button
         slot="primary-action"
         onClick={() =>
@@ -162,8 +162,8 @@ export default function CatalogCheckDashboard() {
             {pro ? "Pro monitoring enabled" : "Free catalog check"}
           </div>
           <p className="pal-subtitle">
-            A read-only view of the catalog issues most likely to create
-            product-feed friction. PAL never edits products or variants.
+            A read-only AIEO view of product-data issues that can reduce
+            machine readability across AI shopping and feed channels. PAL never edits products or variants.
           </p>
         </div>
         <div className="pal-status-row">
@@ -176,10 +176,10 @@ export default function CatalogCheckDashboard() {
 
       <div className="pal-metric-grid">
         <div className="pal-metric-card">
-          <div className="pal-metric-label">Readiness score</div>
+          <div className="pal-metric-label">AIEO readiness score</div>
           <div className="pal-metric-value">{report.score}%</div>
           <div className="pal-metric-note">
-            Overall catalog readiness from this scan
+            AI-commerce catalog readiness from this scan
           </div>
         </div>
 
@@ -187,7 +187,7 @@ export default function CatalogCheckDashboard() {
           <div className="pal-metric-label">Critical issues</div>
           <div className="pal-metric-value">{report.errors}</div>
           <div className="pal-metric-note">
-            Issues that can block reliable feed preparation
+            Issues that can block reliable machine-readable product data
           </div>
         </div>
 
@@ -195,7 +195,7 @@ export default function CatalogCheckDashboard() {
           <div className="pal-metric-label">Warnings</div>
           <div className="pal-metric-value">{report.warnings}</div>
           <div className="pal-metric-note">
-            Fields worth reviewing before distribution
+            Fields worth reviewing before AI and feed distribution
           </div>
         </div>
 
@@ -334,11 +334,12 @@ export default function CatalogCheckDashboard() {
         ) : null}
       </s-section>
 
-      <s-section heading="What PAL checks">
+      <s-section heading="What PAL checks for AIEO">
         <s-paragraph>
           Product titles, vendor/brand presence, Online Store URLs, product
           images, image dimensions when Shopify provides them, variant
-          identifiers, prices, and duplicate option combinations.
+          identifiers, prices, availability signals, and duplicate option combinations.
+          AIEO complements SEO by improving the structured catalog data AI systems can parse.
         </s-paragraph>
 
         <div className="pal-actions-row">
