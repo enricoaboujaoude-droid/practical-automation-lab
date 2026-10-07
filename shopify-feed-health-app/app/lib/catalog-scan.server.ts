@@ -37,6 +37,9 @@ const QUERY = `#graphql
       nodes {
         id
         title
+        description
+        productType
+        tags
         vendor
         handle
         onlineStoreUrl
