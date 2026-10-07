@@ -951,7 +951,7 @@ app.use(
         description:
           "Shopify and Google Merchant Center / Google Shopping product-feed audit for 1-100 catalog records. Detect feed errors, duplicate IDs, invalid GTIN/UPC/EAN checksums, malformed URLs and prices, availability issues, and brand/MPN identifier inconsistencies before feed submission.",
         mimeType: "application/json",
-        serviceName: "PAL Catalog Feed Audit",
+        serviceName: "PAL AIEO Catalog Audit",
         tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "gtin"],
         extensions: {
           ...declareDiscoveryExtension({
@@ -1169,7 +1169,7 @@ app.use(
             bodyType: "json",
             output: {
               example: {
-                service: "PAL Catalog Remediation Plan",
+                service: "PAL AIEO Catalog Remediation Plan",
                 readiness: "ready",
                 summary: { records: 1, issues: 0, errors: 0, warnings: 0 },
                 prioritized_actions: [],
@@ -1183,7 +1183,7 @@ app.use(
         description:
           "Full-catalog Shopify, Google Merchant Center, and Google Shopping remediation for 1-2,000 product records in one paid call. Returns one prioritized plan covering GTIN/UPC/EAN identifiers, duplicate IDs, prices, URLs, availability, brand/MPN issues, concrete fix actions, and affected product IDs.",
         mimeType: "application/json",
-        serviceName: "PAL Full Catalog Remediation",
+        serviceName: "PAL AIEO Full Catalog Remediation",
         tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "remediation", "google-shopping", "bulk", "full-catalog"],
         extensions: {
           ...declareDiscoveryExtension({
@@ -1218,7 +1218,7 @@ app.use(
             bodyType: "json",
             output: {
               example: {
-                service: "PAL Catalog Remediation Plan",
+                service: "PAL AIEO Catalog Remediation Plan",
                 readiness: "ready",
                 summary: { records: 1, issues: 0, errors: 0, warnings: 0 },
                 prioritized_actions: [],
@@ -1267,7 +1267,7 @@ app.use(
             bodyType: "json",
             output: {
               example: {
-                service: "PAL Catalog Remediation Plan",
+                service: "PAL AIEO Catalog Remediation Plan",
                 readiness: "ready",
                 summary: { records: 1, errors: 0, warnings: 0, actions: 0 },
                 prioritized_actions: [],
@@ -2347,8 +2347,8 @@ function true402Manifest() {
       { name: "PAL Shopify Product Compare", endpoint: X402_SHOPIFY_COMPARE_URL, method: "POST", price: "0.05" },
       { name: "PAL x402 Declaration Validator", endpoint: X402_VALIDATE_URL, method: "POST", price: "0.05" },
       { name: "PAL Catalog Remediation Plan", endpoint: X402_REMEDIATE_URL, method: "POST", price: "1.00" },
-      { name: "PAL Full Catalog Remediation", endpoint: X402_REMEDIATE_BULK_URL, method: "POST", price: "20.00" },
-      { name: "PAL Batch Catalog Remediation", endpoint: X402_REMEDIATE_BATCH_URL, method: "POST", price: "5.00" },
+      { name: "PAL AIEO Full Catalog Remediation", endpoint: X402_REMEDIATE_BULK_URL, method: "POST", price: "20.00" },
+      { name: "PAL AIEO Batch Catalog Remediation", endpoint: X402_REMEDIATE_BATCH_URL, method: "POST", price: "5.00" },
     ],
   };
 }
@@ -2605,7 +2605,7 @@ function x402Manifest() {
       },
       {
         resource: X402_REMEDIATE_BULK_URL,
-        name: "PAL Full Catalog Remediation",
+        name: "PAL AIEO Full Catalog Remediation",
         description:
           "Generate one prioritized Merchant Center and product-feed remediation plan for 1-2,000 catalog records in one paid call.",
         method: "POST",
@@ -2621,7 +2621,7 @@ function x402Manifest() {
       },
       {
         resource: X402_REMEDIATE_BATCH_URL,
-        name: "PAL Batch Catalog Remediation",
+        name: "PAL AIEO Batch Catalog Remediation",
         description:
           "Generate a prioritized Merchant Center and product-feed remediation plan for 1-500 catalog records in one paid call.",
         method: "POST",
@@ -3595,7 +3595,7 @@ async function startIndex402Bootstrap() {
   const listings = [
     {
       url: X402_REMEDIATE_BULK_URL,
-      name: "PAL Full Catalog Remediation",
+      name: "PAL AIEO Full Catalog Remediation",
       protocol: "x402",
       http_method: "POST",
       probe_body: JSON.stringify(catalogAuditExample()),
@@ -3663,7 +3663,7 @@ async function startIndex402Bootstrap() {
     },
     {
       url: X402_REMEDIATE_BATCH_URL,
-      name: "PAL Batch Catalog Remediation",
+      name: "PAL AIEO Batch Catalog Remediation",
       protocol: "x402",
       http_method: "POST",
       probe_body: JSON.stringify(catalogAuditExample()),
@@ -3977,7 +3977,7 @@ async function startX402ScoutBootstrap() {
         accept: "application/json",
       },
       body: JSON.stringify({
-        name: "PAL Full Catalog Remediation",
+        name: "PAL AIEO Full Catalog Remediation",
         url: X402_REMEDIATE_BULK_URL,
         price_usd: 20.0,
         category: "data",
@@ -4013,7 +4013,7 @@ async function startX402ScoutBootstrap() {
           accept: "application/json",
         },
         body: JSON.stringify({
-          name: "PAL Batch Catalog Remediation",
+          name: "PAL AIEO Batch Catalog Remediation",
           url: X402_REMEDIATE_BATCH_URL,
           price_usd: 5.0,
           category: "data",
@@ -4072,7 +4072,7 @@ async function startX402ScoutBootstrap() {
       checked_at: nowIso(),
       service_id: body?.service_id || body?.id || body?.service?.id || null,
       additional_services: remediation
-        ? [{ name: "PAL Batch Catalog Remediation", url: X402_REMEDIATE_BATCH_URL, ...remediation }]
+        ? [{ name: "PAL AIEO Batch Catalog Remediation", url: X402_REMEDIATE_BATCH_URL, ...remediation }]
         : [],
       error: null,
     };
@@ -4157,7 +4157,7 @@ async function startAgentToolsBootstrap() {
     const additionalListings = [
       {
         url: X402_REMEDIATE_BULK_URL,
-        name: "PAL Full Catalog Remediation",
+        name: "PAL AIEO Full Catalog Remediation",
         description:
           "Turn a 1-2,000 record ecommerce catalog into one prioritized AIEO catalog remediation with Merchant Center/feed compatibility plan with concrete fixes, issue counts, affected products, and the underlying deterministic audit. Live x402 endpoint; $20.00 USDC per request on Base.",
         category: "ecommerce",
@@ -4197,7 +4197,7 @@ async function startAgentToolsBootstrap() {
       },
       {
         url: X402_REMEDIATE_BATCH_URL,
-        name: "PAL Batch Catalog Remediation",
+        name: "PAL AIEO Batch Catalog Remediation",
         description:
           "Turn a 1-500 record ecommerce catalog into one prioritized AIEO catalog remediation with Merchant Center/feed compatibility plan with concrete fixes, issue counts, affected products, and the underlying deterministic audit. Live x402 endpoint; $5.00 USDC per request on Base.",
         category: "ecommerce",
@@ -4745,7 +4745,7 @@ async function startX402DashBootstrap() {
   const listings = [
     {
       url: X402_REMEDIATE_BULK_URL,
-      name: "PAL Full Catalog Remediation",
+      name: "PAL AIEO Full Catalog Remediation",
       description:
         "Full-store Merchant Center and product-feed remediation for 1-2,000 catalog records in one paid call with prioritized fixes and affected product IDs. Paid directly over x402 Base USDC.",
       category: "Data",
@@ -4962,7 +4962,7 @@ async function improveNoHumansExistingListings() {
       id: "1c8b1145-935",
       path: X402_GTIN_ONE_PATH,
       metadata: {
-        name: "PAL Batch Catalog Remediation",
+        name: "PAL AIEO Batch Catalog Remediation",
         description:
           "Premium Google Merchant Center and ecommerce product-feed remediation for 1-500 records, returning prioritized corrective actions, issue severity, and affected product IDs. Paid $5 USDC per call over x402 on Base.",
         endpoint_url: X402_REMEDIATE_BATCH_URL,
@@ -5082,7 +5082,7 @@ async function startNoHumansBootstrap() {
 
   const listings = [
     {
-      name: "PAL Full Catalog Remediation",
+      name: "PAL AIEO Full Catalog Remediation",
       description:
         "Full-store ecommerce catalog remediation for 1-2,000 product records. Returns prioritized Merchant Center/product-feed corrective actions, issue severity, and affected product IDs in one paid call.",
       endpoint_url: X402_REMEDIATE_BULK_URL,
@@ -5997,7 +5997,7 @@ function catalogRemediationPlan(records) {
         : "ready";
 
   return {
-    service: "PAL Catalog Remediation Plan",
+    service: "PAL AIEO Catalog Remediation Plan",
     generated_at: nowIso(),
     readiness,
     summary: {
@@ -6127,6 +6127,9 @@ app.get("/", (_req, res) => {
       rapidapi_pricing: "https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor/pricing",
     },
     categories: [
+      "aieo",
+      "ai-commerce",
+      "ai-shopping",
       "ecommerce",
       "commerce",
       "google-shopping",
@@ -6246,25 +6249,25 @@ app.get("/marketplace", (_req, res) => {
   </div>
 
   <div class="card">
-    <h2>Full Catalog Remediation <span class="price">$20.00 / call</span></h2>
+    <h2>AIEO Full Catalog Remediation <span class="price">$20.00 / call</span></h2>
     <p>Process up to 2,000 product records in one paid call and receive a single prioritized AIEO catalog remediation with Merchant Center/feed compatibility plan. Designed for full-store audits where splitting the catalog into many small purchases is inefficient.</p>
     <code>POST /v1/usdc/catalog-remediation-bulk</code>
   </div>
 
   <div class="card">
-    <h2>Batch Catalog Remediation <span class="price">$5.00 / call</span></h2>
+    <h2>AIEO Batch Catalog Remediation <span class="price">$5.00 / call</span></h2>
     <p>Process up to 500 product records in one paid call and receive a prioritized AIEO catalog remediation with Merchant Center/feed compatibility plan with concrete corrective actions.</p>
     <code>POST /v1/usdc/catalog-remediation-batch</code>
   </div>
 
   <div class="card">
-    <h2>Catalog Remediation Plan <span class="price">$1.00 / call</span></h2>
+    <h2>AIEO Catalog Remediation Plan <span class="price">$1.00 / call</span></h2>
     <p>Turn 1-100 product records into a prioritized Merchant Center and product-feed remediation plan with concrete corrective actions and affected product IDs.</p>
     <code>POST /v1/usdc/catalog-remediation</code>
   </div>
 
   <div class="card">
-    <h2>Catalog Feed Audit <span class="price">$0.01 / call</span></h2>
+    <h2>AIEO Catalog Audit <span class="price">$0.01 / call</span></h2>
     <p>Check duplicate IDs, GTIN format and checksum, URL shape, price formatting, availability, and brand/MPN consistency.</p>
     <code>POST /v1/usdc/catalog-audit</code>
   </div>
@@ -6472,7 +6475,7 @@ x402 manifest: ${PUBLIC_BASE_URL}/.well-known/x402
 
 ## Paid tools
 
-### PAL Catalog Feed Identifier Audit
+### PAL AIEO Catalog Audit
 POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-audit
 Price: $0.01 USDC per successful call
 Input: {"records":[...]} with 1-100 product records.
@@ -6502,19 +6505,19 @@ Price: $0.05 USDC per successful call
 Input: an x402 v2 PaymentRequired object directly, or wrap it as {"declaration":{...}} or {"payment_required":{...}}.
 Returns deterministic protocol-shape findings, Base/EVM readiness, amount/address/asset checks, duplicate accepts, and warnings. It never fetches or pays the declared resource.
 
-### PAL Full Catalog Remediation
+### PAL AIEO Full Catalog Remediation
 POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation-bulk
 Price: $20.00 USDC per successful call
 Input: {"records":[...]} with 1-2,000 product records.
 Use for full-store catalogs when a buyer wants one prioritized AIEO catalog remediation with Merchant Center/feed compatibility plan in one purchase instead of splitting work across multiple calls.
 
-### PAL Batch Catalog Remediation
+### PAL AIEO Batch Catalog Remediation
 POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation-batch
 Price: $5.00 USDC per successful call
 Input: {"records":[...]} with 1-500 product records.
 Use for larger catalogs when a buyer wants one prioritized AIEO catalog remediation with Merchant Center/feed compatibility plan in a single paid call.
 
-### PAL Catalog Remediation Plan
+### PAL AIEO Catalog Remediation Plan
 POST ${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation
 Price: $1.00 USDC per successful call
 Input: {"records":[...]} with 1-100 product records.
@@ -7480,7 +7483,7 @@ app.get("/v1/sample/catalog-audit", (_req, res) => {
   const input = catalogAuditExample();
   res.set("Cache-Control", "public, max-age=300");
   return res.json({
-    service: "PAL Catalog Feed Audit",
+    service: "PAL AIEO Catalog Audit",
     sample: true,
     input,
     result: audit(input.records),
@@ -7572,7 +7575,7 @@ app.get("/v1/sample/catalog-remediation", (_req, res) => {
   };
   res.set("Cache-Control", "public, max-age=300");
   return res.json({
-    service: "PAL Catalog Remediation Plan",
+    service: "PAL AIEO Catalog Remediation Plan",
     sample: true,
     demo_note:
       "This intentionally flawed sample shows the prioritized actions returned for common feed problems.",
@@ -9094,7 +9097,7 @@ app.post("/v1/upstream/catalog-remediation", requireMarketplaceGateway, (req, re
   return res.json({
     ...catalogRemediationPlan(records),
     provider_upstream: {
-      service: "PAL Catalog Remediation Plan",
+      service: "PAL AIEO Catalog Remediation Plan",
       billing: "handled_by_marketplace",
     },
     generated_at: nowIso(),
@@ -9693,14 +9696,14 @@ app.get("/v1/upstream/status", (_req, res) => {
         recommended_marketplace_tier: "premium",
       },
       {
-        name: "PAL Batch Catalog Remediation",
+        name: "PAL AIEO Batch Catalog Remediation",
         method: "POST",
         url: `${PUBLIC_BASE_URL}/v1/upstream/catalog-remediation-batch`,
         max_items: 500,
         recommended_marketplace_tier: "premium",
       },
       {
-        name: "PAL Full Catalog Remediation",
+        name: "PAL AIEO Full Catalog Remediation",
         method: "POST",
         url: `${PUBLIC_BASE_URL}/v1/upstream/catalog-remediation-bulk`,
         max_items: 2000,
@@ -10003,7 +10006,7 @@ const AGENTICTRADE_PREMIUM_SERVICES = [
     tags: ["ecommerce", "merchant-center", "google-shopping", "catalog", "product-feed", "remediation"],
   },
   {
-    name: "PAL Batch Catalog Remediation",
+    name: "PAL AIEO Batch Catalog Remediation",
     description:
       "Batch Google Merchant Center and product-feed remediation for up to 500 products in one deterministic call, with prioritized fixes and affected product IDs.",
     endpoint: `${AGENTICTRADE_PREMIUM_ORIGIN}/v1/agentpay/catalog-remediation-batch`,
@@ -10012,7 +10015,7 @@ const AGENTICTRADE_PREMIUM_SERVICES = [
     tags: ["ecommerce", "merchant-center", "catalog", "batch", "product-feed", "remediation"],
   },
   {
-    name: "PAL Full Catalog Remediation",
+    name: "PAL AIEO Full Catalog Remediation",
     description:
       "Full-store Merchant Center and ecommerce feed remediation for up to 2,000 products. Produces a prioritized implementation-ready corrective plan for large catalogs.",
     endpoint: `${AGENTICTRADE_PREMIUM_ORIGIN}/v1/agentpay/catalog-remediation-bulk`,
@@ -10242,7 +10245,7 @@ async function startFiatDockBootstrap() {
     const endpoint = `${PUBLIC_BASE_URL}/mcp-fiatdock/${FIATDOCK_GATEWAY_TOKEN}`;
     const offers = [
       {
-        name: "PAL Full Catalog Remediation",
+        name: "PAL AIEO Full Catalog Remediation",
         mcpEndpoint: endpoint,
         mcpTool: "pal_full_catalog_remediation",
         priceUsd: 20,
@@ -10255,7 +10258,7 @@ async function startFiatDockBootstrap() {
         payoutWallet: BASE_PAYOUT_ADDRESS,
       },
       {
-        name: "PAL Batch Catalog Remediation",
+        name: "PAL AIEO Batch Catalog Remediation",
         mcpEndpoint: endpoint,
         mcpTool: "pal_batch_catalog_remediation",
         priceUsd: 5,
