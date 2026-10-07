@@ -1132,7 +1132,7 @@ app.use(
             bodyType: "json",
             output: {
               example: {
-                service: "PAL Catalog Remediation Plan",
+                service: "PAL AIEO Catalog Remediation Plan",
                 readiness: "ready",
                 summary: { records: 1, issues: 0, errors: 0, warnings: 0 },
                 prioritized_actions: [],
@@ -5771,8 +5771,11 @@ function audit(records) {
     const row = record && typeof record === "object" && !Array.isArray(record) ? record : {};
     const id = cleanString(row.id);
     const title = cleanString(row.title);
+    const description = cleanString(row.description ?? row.body_html ?? row.body);
+    const productType = cleanString(row.product_type ?? row.google_product_category ?? row.category);
     const link = cleanString(row.link);
     const imageLink = cleanString(row.image_link);
+    const imageAlt = cleanString(row.image_alt ?? row.alt_text ?? row.image_alt_text);
     const gtin = cleanString(row.gtin).replace(/\s+/g, "");
     const brand = cleanString(row.brand);
     const mpn = cleanString(row.mpn);
@@ -5785,6 +5788,26 @@ function audit(records) {
 
     if (!id) add("ID_MISSING", "id", "Product id is empty.");
     if (!title) add("TITLE_MISSING", "title", "Product title is empty.");
+    if (!description) {
+      add("AIEO_DESCRIPTION_MISSING", "description", "Product description is empty, limiting the factual context available to AI shopping systems.", "warning");
+    } else if (description.length < 80) {
+      add("AIEO_DESCRIPTION_THIN", "description", "Product description is very short for reliable AI product understanding.", "warning");
+    }
+    if (!productType) {
+      add("AIEO_PRODUCT_TYPE_MISSING", "product_type", "Product type/category context is missing, making machine classification less reliable.", "warning");
+    }
+    if (!brand) {
+      add("AIEO_BRAND_MISSING", "brand", "Brand/vendor is missing, reducing product identity context for AI commerce.", "warning");
+    }
+    if (!price) {
+      add("AIEO_PRICE_MISSING", "price", "Price is missing, preventing reliable machine comparison and purchase readiness.", "warning");
+    }
+    if (!availability) {
+      add("AIEO_AVAILABILITY_MISSING", "availability", "Availability is missing, preventing AI systems from knowing whether the product can currently be purchased.", "warning");
+    }
+    if (imageLink && !imageAlt) {
+      add("AIEO_IMAGE_ALT_MISSING", "image_alt", "Product image has no descriptive alt text in this record.", "warning");
+    }
 
     if (id) {
       if (ids.has(id)) {
@@ -5879,6 +5902,34 @@ function catalogRemediationPlan(records) {
       priority: "high",
       action: "Add a clear product title that identifies the product and differentiates the variant.",
     },
+    AIEO_DESCRIPTION_MISSING: {
+      priority: "high",
+      action: "Add a factual product description covering what the item is, important materials/specifications, intended use, compatibility or fit where relevant. Avoid keyword stuffing.",
+    },
+    AIEO_DESCRIPTION_THIN: {
+      priority: "medium",
+      action: "Expand the product description with accurate product-specific details that help AI systems distinguish and compare the item.",
+    },
+    AIEO_PRODUCT_TYPE_MISSING: {
+      priority: "medium",
+      action: "Assign an accurate product type or taxonomy category so AI shopping systems have explicit classification context.",
+    },
+    AIEO_BRAND_MISSING: {
+      priority: "medium",
+      action: "Add the real brand/vendor when applicable so AI systems can identify the product source consistently.",
+    },
+    AIEO_PRICE_MISSING: {
+      priority: "high",
+      action: "Provide a current sell price with currency so machine buyers can compare and evaluate the product.",
+    },
+    AIEO_AVAILABILITY_MISSING: {
+      priority: "high",
+      action: "Provide current availability so AI shopping systems can avoid recommending products that cannot be purchased.",
+    },
+    AIEO_IMAGE_ALT_MISSING: {
+      priority: "low",
+      action: "Add concise factual image alt text describing the product and meaningful visible attributes; do not keyword-stuff.",
+    },
     LINK_INVALID: {
       priority: "high",
       action: "Replace the product link with a public absolute HTTPS product URL.",
@@ -5961,7 +6012,7 @@ function catalogRemediationPlan(records) {
     prioritized_actions: prioritizedActions,
     audit: auditResult,
     disclaimer:
-      "Deterministic feed remediation guidance only; not a guarantee of Google Merchant Center approval or regulatory compliance.",
+      "AIEO readiness findings are deterministic catalog-quality signals, not guarantees of ranking, recommendation, inclusion, or approval by ChatGPT, Google, Shopify, or any other AI or commerce platform.",
   };
 }
 
