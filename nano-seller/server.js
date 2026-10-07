@@ -278,7 +278,7 @@ function buildPalMcpServer() {
     },
     async () => ({
       content: mcpText({
-        service: "PAL Commerce Catalog Intelligence",
+        service: "PAL AIEO Commerce Catalog Intelligence",
         provider: "Practical Automation Lab",
         payment: {
           protocol: "x402",
@@ -314,9 +314,9 @@ function buildPalMcpServer() {
   server.registerTool(
     "recommend_catalog_offer",
     {
-      title: "Choose the best PAL paid catalog tool",
+      title: "Choose the best PAL AIEO catalog tool",
       description:
-        "Free pricing/router tool. Give the number of products and whether you need remediation or audit; PAL returns the best paid route and exact price before you spend anything.",
+        "Free AIEO pricing/router tool. Give the number of products and whether you need remediation or audit; PAL returns the best paid AI-commerce catalog route and exact price before you spend anything.",
       inputSchema: fromJsonSchema({
         type: "object",
         required: ["product_count", "goal"],
@@ -482,7 +482,7 @@ function buildPalMcpServer() {
   server.registerTool(
     "free_remediation_sample",
     {
-      title: "Free catalog remediation sample",
+      title: "Free AIEO catalog remediation sample",
       description:
         "Returns PAL's fixed intentionally-flawed sample catalog and the prioritized remediation plan it produces. This demo does not process caller data and requires no payment.",
       inputSchema: fromJsonSchema({
@@ -740,7 +740,7 @@ function buildFiatDockMcpServer() {
   server.registerTool(
     "pal_full_catalog_remediation",
     {
-      title: "PAL Full Catalog Remediation",
+      title: "PAL AIEO Full Catalog Remediation",
       description:
         "Process 1-2,000 ecommerce product records and return one prioritized Google AIEO catalog remediation with Merchant Center/feed compatibility plan.",
       inputSchema: fromJsonSchema({
@@ -782,7 +782,7 @@ function buildFiatDockMcpServer() {
   server.registerTool(
     "pal_batch_catalog_remediation",
     {
-      title: "PAL Batch Catalog Remediation",
+      title: "PAL AIEO Batch Catalog Remediation",
       description:
         "Process 1-500 ecommerce product records and return a prioritized Google AIEO catalog remediation with Merchant Center/feed compatibility plan.",
       inputSchema: fromJsonSchema({
@@ -6004,7 +6004,7 @@ async function verifyPayment(hash) {
 
 app.get("/", (_req, res) => {
   res.json({
-    service: "PAL Commerce Catalog Intelligence",
+    service: "PAL AIEO Commerce Catalog Intelligence",
     version: "1.5.0",
     description:
       "Agent-ready ecommerce catalog intelligence for Merchant Center feed auditing, prioritized remediation, GTIN validation, feed change detection, and x402 diagnostics. Pay per call in USDC on Base; Nano remains available as a legacy rail.",
