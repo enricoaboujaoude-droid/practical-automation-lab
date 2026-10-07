@@ -52,7 +52,7 @@ export default function IndexRoute() {
       </h1>
       <p style={{ color: "#6d7175", lineHeight: 1.6, fontSize: 16 }}>
         PAL Catalog Check is an embedded Shopify Admin app for read-only
-        catalog-readiness scanning, issue diagnostics, monitoring and reports.
+        AIEO and AI-commerce catalog readiness scanning, issue diagnostics, monitoring and reports.
       </p>
       <p style={{ color: "#6d7175", lineHeight: 1.6, fontSize: 16 }}>
         Open the app from <strong>Apps → PAL Catalog Check</strong> inside your
