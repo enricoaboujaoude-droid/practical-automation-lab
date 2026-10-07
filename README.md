@@ -1,12 +1,12 @@
 # Practical Automation Lab
 
-Practical Automation Lab builds privacy-conscious tools for product data, commerce operations, integration readiness, compliance-data preparation, and business economics.
+Practical Automation Lab builds privacy-conscious AIEO and AI-commerce tools for product data, commerce operations, integration readiness, compliance-data preparation, and business economics.
 
 **Live products:** https://practical-automation-lab.onrender.com/
 
-## Paid commerce API and MCP server
+## Paid AIEO commerce API and MCP server
 
-**PAL Commerce Catalog Intelligence** is a live pay-per-call API and remote MCP server for Google Merchant Center and ecommerce product-feed workflows.
+**PAL AIEO Commerce Catalog Intelligence** is a live pay-per-call API and remote MCP server for AI-shopping and agentic-commerce product data, with Google Merchant Center/feed compatibility. PAL uses **AIEO (AI Engine Optimization)** as shorthand for improving structured product data for machine understanding; it complements SEO.
 
 - Primary paid x402 origin: https://pal-full-catalog-remediation.onrender.com
 - Direct x402 OpenAPI 3.1: https://pal-full-catalog-remediation.onrender.com/openapi.json
@@ -22,7 +22,7 @@ Practical Automation Lab builds privacy-conscious tools for product data, commer
 | --- | ---: | --- |
 | `POST /v1/usdc/agent-commerce-go-live` | **$350.00 USDC** | Verify, package, and distribute an already-public paid agent service; returns launch artifacts and registration receipts |
 | `POST /v1/usdc/agent-commerce-launch-kit` | **$99.00 USDC** | Generate an agent-commerce launch bundle: runtime evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads, and checklist |
-| `GET /v1/usdc/shopify-store-audit?url=...` | **$25.00 USDC** | Fetch a public Shopify storefront and audit up to 250 live variants for Merchant Center/catalog readiness |
+| `GET /v1/usdc/shopify-store-audit?url=...` | **$25.00 USDC** | Fetch a public Shopify storefront and audit up to 250 live variants for AIEO / AI-shopping readiness plus Merchant Center compatibility |
 | `POST /v1/usdc/catalog-remediation-bulk` | $20.00 USDC | Prioritized remediation for up to 2,000 product records |
 | `POST /v1/usdc/catalog-remediation-batch` | $5.00 USDC | Batch catalog remediation for up to 500 records |
 
@@ -49,7 +49,7 @@ PAL's paid services are distributed across agent-commerce discovery surfaces inc
 
 **Current merchant pilot:** We’re looking for 5 Shopify merchants to run one real Free-plan scan and send practical feedback on what the scanner catches or misses. No testimonial is required. Feedback: enricoaboujaoude@gmail.com
 
-PAL Catalog Check is a read-only Shopify catalog-readiness scanner. It reviews product and variant data for issues that can create product-feed problems and provides remediation guidance without editing the store.
+PAL Catalog Check is a read-only Shopify AIEO scanner. It reviews product and variant data for issues that reduce machine readability across AI-shopping and product-feed channels, and provides remediation guidance without editing the store.
 
 - Shopify scope: `read_products`
 - no customer or order access
@@ -60,6 +60,9 @@ PAL Catalog Check is a read-only Shopify catalog-readiness scanner. It reviews p
 Product information:
 https://practical-automation-lab.onrender.com/shopify-catalog-check.html
 
+AIEO guide for Shopify and AI shopping:
+https://practical-automation-lab.onrender.com/shopify-aieo-ai-shopping-readiness.html
+
 Support:
 https://practical-automation-lab.onrender.com/pal-catalog-check-support.html
 
@@ -68,7 +71,7 @@ https://practical-automation-lab.onrender.com/pal-catalog-check-privacy.html
 
 ## Product Feed Preflight Auditor
 
-Browser-local Shopify and Google Merchant product-feed preflight checks for structural errors, identifier gaps, image risks, and variant inconsistencies.
+Browser-local AIEO preflight checks for Shopify and commerce feeds: structural errors, identifier gaps, image risks, variant inconsistencies, links and pricing that affect machine-readable product data.
 
 https://practical-automation-lab.onrender.com/product-feed-preflight.html
 
