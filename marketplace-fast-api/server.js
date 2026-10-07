@@ -39,15 +39,15 @@ function openApi(base){
   return {
     openapi:"3.0.3",
     info:{
-      title:"PAL Commerce Catalog Intelligence API",
+      title:"PAL AIEO Commerce Catalog Intelligence API",
       version:"1.0.0",
-      description:"Low-latency ecommerce catalog intelligence for marketplaces and AI agents."
+      description:"Low-latency AIEO catalog intelligence for AI shopping, agentic commerce, marketplaces and Merchant Center-compatible product data."
     },
     servers:[{url:base}],
     paths:{
       "/api/health":{get:{summary:"Health check",responses:{"200":{description:"OK"}}}},
-      "/api/catalog-audit":{post:{summary:"Audit ecommerce product catalog records",responses:{"200":{description:"Audit result"}}}},
-      "/api/catalog-remediation":{post:{summary:"Generate prioritized Merchant Center remediation",responses:{"200":{description:"Remediation result"}}}},
+      "/api/catalog-audit":{post:{summary:"Audit ecommerce product records for AIEO and AI-shopping readiness",responses:{"200":{description:"Audit result"}}}},
+      "/api/catalog-remediation":{post:{summary:"Generate prioritized AIEO remediation with Merchant Center compatibility",responses:{"200":{description:"Remediation result"}}}},
       "/api/gtin-check":{post:{summary:"Validate GTIN UPC EAN identifiers",responses:{"200":{description:"GTIN result"}}}},
       "/api/feed-diff":{post:{summary:"Compare product-feed snapshots",responses:{"200":{description:"Feed diff result"}}}},
       "/api/agentpay":{
@@ -77,9 +77,9 @@ const server=http.createServer(async (req,res)=>{
 
     if(path==="/api/agentpay" && req.method==="GET"){
       return send(res,200,{
-        ok:true,ready:true,service:"PAL Catalog Feed Auditor",marketplace:"AgenticTrade",
+        ok:true,ready:true,service:"PAL AIEO Catalog Auditor",marketplace:"AgenticTrade",
         method:"POST",price_per_call_usdc:"5",
-        capabilities:["catalog-audit","gtin-validation","duplicate-id-detection","merchant-center-readiness"],
+        capabilities:["aieo","ai-shopping-readiness","agentic-commerce","catalog-audit","gtin-validation","duplicate-id-detection","merchant-center-readiness"],
         limits:{records_per_audit:100}
       });
     }
