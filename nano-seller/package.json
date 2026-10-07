@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Agent-ready paid ecommerce catalog intelligence for Merchant Center feeds, GTIN validation, remediation, and x402.",
+  "description": "AIEO-first paid ecommerce catalog intelligence for AI shopping, agentic commerce, Merchant Center compatibility, GTIN validation, remediation, and x402.",
   "scripts": {
     "start": "node server.js"
   },
