@@ -1,16 +1,16 @@
 # Practical Automation Lab
 
-Practical Automation Lab publishes privacy-conscious business software and browser-local preflight tools.
+Practical Automation Lab publishes privacy-conscious AIEO, AI-commerce and browser-local catalog-readiness tools. AIEO is PAL shorthand for making product data easier for AI shopping systems and agents to parse; it complements traditional SEO.
 
 ## Primary products
 
 - PAL Catalog Check for Shopify
   https://practical-automation-lab.onrender.com/shopify-catalog-check.html
-  Read-only Shopify catalog-readiness scanning for product, image, identifier, price and variant issues.
+  Read-only Shopify AIEO scanning for AI-readable product, image, identifier, variant, price and availability data.
 
 - Product Feed Preflight Auditor
   https://practical-automation-lab.onrender.com/product-feed-preflight.html
-  Browser-local Shopify and Google Merchant CSV preflight for structural errors, identifier gaps, image risks and variant inconsistencies.
+  Browser-local AIEO preflight for Shopify and commerce CSV data: structural errors, identifier gaps, image risks, variant inconsistencies, links and pricing.
 
 - Google Merchant API Migration Preflight
   https://practical-automation-lab.onrender.com/google-merchant-api-migration-preflight.html
@@ -43,7 +43,7 @@ https://practical-automation-lab.onrender.com/privacy.html
 
 > Practical Automation Lab builds privacy-conscious commerce and automation utilities.
 
-## Paid commerce-data API
+## AIEO and paid commerce-data API
 
 - Product page: https://practical-automation-lab.onrender.com/merchant-center-catalog-intelligence-api.html
 - x402 OpenAPI: https://pal-nano-catalog-audit.onrender.com/openapi.json
@@ -51,10 +51,17 @@ https://practical-automation-lab.onrender.com/privacy.html
 - Postman collection: https://practical-automation-lab.onrender.com/pal-commerce-catalog-intelligence.postman_collection.json
 - Live marketplace-upstream status: https://pal-nano-catalog-audit.onrender.com/v1/upstream/status
 
-Core capabilities: Google Merchant Center product-feed audit, prioritized catalog remediation, GTIN/UPC/EAN validation, feed change detection, and x402 v2 declaration validation.
+Core capabilities: AIEO catalog audit, prioritized AI-commerce remediation, Merchant Center-compatible feed checks, GTIN/UPC/EAN validation, feed change detection, and x402 v2 declaration validation.
 
 Primary paid operation: POST https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-remediation — $1.00 USDC per successful call on Base via x402.
 
 Catalog audit: POST https://pal-nano-catalog-audit.onrender.com/v1/usdc/catalog-audit — $0.01 USDC per successful call on Base via x402.
 
 The API does not require merchant credentials, Shopify login, customer data, order data, or private keys.
+
+
+## AIEO merchant guide
+
+https://practical-automation-lab.onrender.com/shopify-aieo-ai-shopping-readiness.html
+
+PAL's AIEO framing: SEO supports page discovery; AIEO improves structured product data for AI shopping and agentic commerce. No ranking or inclusion guarantee.
