@@ -59,7 +59,7 @@ export default function CatalogCheckDashboard() {
   const displayedIssueLimit = pro ? 250 : 100;
 
   return (
-    <s-page heading="Catalog readiness">
+    <s-page heading="AIEO catalog readiness">
       <s-button
         slot="primary-action"
         onClick={() =>
@@ -73,11 +73,11 @@ export default function CatalogCheckDashboard() {
       <div className="pal-intro">
         <div>
           <div className="pal-eyebrow">
-            {pro ? "Pro monitoring enabled" : "Free catalog check"}
+            {pro ? "Pro monitoring enabled" : "Free AIEO catalog check"}
           </div>
           <p className="pal-subtitle">
             A read-only view of the catalog issues most likely to create
-            product-feed friction. PAL never edits products or variants.
+            AI-discoverability, product-feed and machine-readability friction. PAL never edits products or variants.
           </p>
         </div>
         <div className="pal-status-row">
@@ -93,7 +93,7 @@ export default function CatalogCheckDashboard() {
           <div className="pal-metric-label">Readiness score</div>
           <div className="pal-metric-value">{report.score}%</div>
           <div className="pal-metric-note">
-            Overall catalog readiness from this scan
+            Overall AI-commerce readiness from this scan
           </div>
         </div>
 
@@ -101,7 +101,7 @@ export default function CatalogCheckDashboard() {
           <div className="pal-metric-label">Critical issues</div>
           <div className="pal-metric-value">{report.errors}</div>
           <div className="pal-metric-note">
-            Issues that can block reliable feed preparation
+            Issues that can reduce reliable AI/product-feed understanding
           </div>
         </div>
 
@@ -176,7 +176,7 @@ export default function CatalogCheckDashboard() {
       <s-section heading="Issues to review">
         {report.issues.length === 0 ? (
           <s-banner tone="success" heading="No issues found by this scan">
-            PAL found no catalog-readiness issues within the fields and scan
+            PAL found no AIEO/catalog-readiness issues within the fields and scan
             boundaries checked.
           </s-banner>
         ) : (
