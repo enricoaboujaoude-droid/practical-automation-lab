@@ -2307,7 +2307,7 @@ function catalogAuditExample() {
 function true402Manifest() {
   return {
     x402: "1.0",
-    name: "PAL Live Shopify Store Commerce Audit",
+    name: "PAL Live Shopify AIEO Commerce Audit",
     description:
       "Audit a live public Shopify storefront without a feed upload or store login. Fetches the public Shopify catalog, inspects up to 250 live variants, and returns prioritized Merchant Center/catalog remediation.",
     capabilities: [
@@ -2822,12 +2822,12 @@ function x402OpenApi() {
   return {
     openapi: "3.1.0",
     info: {
-      title: "PAL Agent Commerce & Commerce Data x402 API",
+      title: "PAL AIEO, Agent Commerce & Commerce Data x402 API",
       version: "1.6.0",
       description:
-        "Deterministic paid utilities for autonomous agents: agent-commerce seller verification, x402 readiness diagnostics, catalog QA, GTIN validation, product-feed diff, and prioritized ecommerce remediation.",
+        "Deterministic paid utilities for autonomous agents: AIEO catalog QA/remediation for AI shopping, agent-commerce seller verification, x402 readiness diagnostics, GTIN validation, product-feed diff, and Merchant Center-compatible ecommerce remediation.",
       "x-guidance":
-        "Use the $0.01 Agent Commerce Seller Audit when an autonomous agent needs to verify whether an x402 seller is runtime-ready, discoverable, healthy, settlement-backed, and machine-buyable. Use the $20 bulk remediation route for up to 2,000 commerce records, the $5 batch route for up to 500, and the lower-cost validation tools for focused checks. Successful paid calls return structured JSON with a decision, evidence, and exact next actions; unpaid calls return an x402 payment challenge.",
+        "For commerce catalogs, use PAL AIEO routes to improve the structured product data AI shopping systems can parse: identifiers, links, images, variants, price and availability. Use the $20 bulk remediation route for up to 2,000 records, the $5 batch route for up to 500, or focused validation tools. AIEO complements SEO and does not guarantee ranking or inclusion. Successful paid calls return structured JSON; unpaid calls return an x402 payment challenge.",
       contact: {
         email: "enricoaboujaoude@gmail.com",
       },
@@ -2841,8 +2841,8 @@ function x402OpenApi() {
       [X402_AUDIT_PATH]: {
         post: {
           operationId: "auditCatalogFeedIdentifiers",
-          summary: "Shopify and Google Merchant Center product feed audit",
-          tags: ["ecommerce", "shopify", "merchant-feed", "google-shopping", "merchant-center", "catalog-validation", "feed-errors", "gtin", "upc", "ean"],
+          summary: "AIEO audit for Shopify and AI-readable product feeds",
+          tags: ["aieo", "ai-commerce", "agentic-commerce", "ai-shopping", "ecommerce", "shopify", "merchant-feed", "google-shopping", "merchant-center", "catalog-validation", "feed-errors", "gtin", "upc", "ean"],
           requestBody: {
             required: true,
             content: {
@@ -2961,8 +2961,8 @@ function x402OpenApi() {
       [X402_REMEDIATE_BULK_PATH]: {
         post: {
           operationId: "remediateCatalogFeedBulk",
-          summary: "Generate a prioritized remediation plan for up to 2,000 products",
-          tags: ["ecommerce", "merchant-feed", "google-shopping", "catalog-remediation", "bulk", "full-catalog"],
+          summary: "Generate full-catalog AIEO remediation for up to 2,000 products",
+          tags: ["aieo", "ai-commerce", "agentic-commerce", "ai-shopping", "ecommerce", "merchant-feed", "google-shopping", "catalog-remediation", "bulk", "full-catalog"],
           requestBody: {
             required: true,
             content: {
@@ -2994,8 +2994,8 @@ function x402OpenApi() {
       [X402_REMEDIATE_BATCH_PATH]: {
         post: {
           operationId: "remediateCatalogFeedBatch",
-          summary: "Generate a prioritized remediation plan for up to 500 products",
-          tags: ["ecommerce", "merchant-feed", "google-shopping", "catalog-remediation", "batch"],
+          summary: "Generate batch AIEO remediation for up to 500 products",
+          tags: ["aieo", "ai-commerce", "agentic-commerce", "ai-shopping", "ecommerce", "merchant-feed", "google-shopping", "catalog-remediation", "batch"],
           requestBody: {
             required: true,
             content: {
@@ -3027,8 +3027,8 @@ function x402OpenApi() {
       [X402_REMEDIATE_PATH]: {
         post: {
           operationId: "remediateCatalogFeed",
-          summary: "Generate a prioritized catalog remediation plan",
-          tags: ["ecommerce", "merchant-feed", "google-shopping", "catalog-remediation"],
+          summary: "Generate a prioritized AIEO catalog remediation plan",
+          tags: ["aieo", "ai-commerce", "agentic-commerce", "ai-shopping", "ecommerce", "merchant-feed", "google-shopping", "catalog-remediation"],
           requestBody: {
             required: true,
             content: {
@@ -6007,12 +6007,12 @@ app.get("/", (_req, res) => {
     service: "PAL AIEO Commerce Catalog Intelligence",
     version: "1.5.0",
     description:
-      "Agent-ready ecommerce catalog intelligence for Merchant Center feed auditing, prioritized remediation, GTIN validation, feed change detection, and x402 diagnostics. Pay per call in USDC on Base; Nano remains available as a legacy rail.",
+      "AIEO-first ecommerce catalog intelligence for AI shopping and agentic commerce: machine-readable catalog auditing, prioritized remediation, GTIN validation, feed changes, Merchant Center compatibility and x402 diagnostics. Pay per call in USDC; Nano remains available as a legacy rail.",
     primary_offer: {
       name: "PAL Live Shopify Store Commerce Audit",
       endpoint: "GET /v1/usdc/shopify-store-audit?url=...",
       price_usd: 25.0,
-      purpose: "Fetch and audit a live public Shopify storefront for Merchant Center/catalog readiness without store login or feed upload.",
+      purpose: "Fetch and audit a live public Shopify storefront for AIEO and AI-shopping readiness, with Merchant Center compatibility, without store login or feed upload.",
       free_preflight: "GET /v1/shopify-store-preflight?url=...",
       payment: "x402 v2 exact, USDC on Base",
     },
@@ -6130,8 +6130,8 @@ app.get("/marketplace", (_req, res) => {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Google Merchant Center Product Feed Audit API | PAL Commerce Catalog Intelligence</title>
-  <meta name="description" content="Pay-per-call ecommerce catalog intelligence for Google Merchant Center feed audits, prioritized remediation, GTIN/UPC/EAN validation, feed diffs, and x402 diagnostics.">
+  <title>AIEO Product Feed Audit API | PAL AI Commerce Catalog Intelligence</title>
+  <meta name="description" content="Pay-per-call AIEO catalog intelligence for AI-shopping product data, prioritized remediation, GTIN validation, feed diffs, Merchant Center compatibility and x402.">
   <link rel="canonical" href="${PUBLIC_BASE_URL}/marketplace">
   <link rel="icon" href="${PUBLIC_BASE_URL}/favicon.svg" type="image/svg+xml">
   <style>
@@ -6146,10 +6146,10 @@ app.get("/marketplace", (_req, res) => {
   ${JSON.stringify({
     "@context":"https://schema.org",
     "@type":"SoftwareApplication",
-    name:"PAL Commerce Catalog Intelligence API",
+    name:"PAL AIEO Commerce Catalog Intelligence API",
     applicationCategory:"DeveloperApplication",
     operatingSystem:"Web API",
-    description:"Pay-per-call ecommerce catalog intelligence for Merchant Center feed audits, catalog remediation, GTIN validation, feed comparison, and x402 diagnostics.",
+    description:"Pay-per-call AIEO catalog intelligence for AI-readable product data, Merchant Center-compatible remediation, GTIN validation, feed comparison, and x402 diagnostics.",
     offers:{
       "@type":"AggregateOffer",
       lowPrice:"0.01",
@@ -6161,8 +6161,8 @@ app.get("/marketplace", (_req, res) => {
   </script>
 </head>
 <body>
-  <h1>PAL Commerce Catalog Intelligence API</h1>
-  <p class="lead">Deterministic, agent-ready ecommerce catalog intelligence for Google Merchant Center, shopping feeds, marketplaces, and automated commerce workflows.</p>
+  <h1>PAL AIEO Commerce Catalog Intelligence API</h1>
+  <p class="lead">Deterministic AIEO catalog intelligence for AI shopping, agentic storefronts, shopping feeds, marketplaces and Merchant Center-compatible commerce workflows. SEO helps pages get discovered; AIEO improves the structured product data machines act on.</p>
   <p><a href="/v1/sample/catalog-remediation"><strong>See a free remediation result →</strong></a> &nbsp; <a href="/v1/sample/catalog-audit">See audit sample</a> &nbsp; <a href="/v1/sample/gtin-check">See GTIN sample</a></p>
 
   <div class="card">
@@ -6544,9 +6544,9 @@ app.get("/.well-known/agent.json", (_req, res) => {
   res.type("application/json").json({
     version: "1.6",
     origin: new URL(PUBLIC_BASE_URL).host,
-    display_name: "PAL Commerce Catalog Intelligence",
+    display_name: "PAL AIEO Commerce Catalog Intelligence",
     description:
-      "Nine deterministic pay-per-call tools for autonomous agents, including a demand-backed $0.01 x402 seller-integrity audit plus commerce remediation, feed audit, GTIN validation, feed diff, and x402 declaration diagnostics.",
+      "Deterministic pay-per-call AIEO and agent-commerce tools, including AI-readable catalog remediation, live Shopify audits, GTIN validation, feed diff, x402 seller readiness and payment diagnostics.",
     payout_address: BASE_PAYOUT_ADDRESS,
     payments: {
       x402: {
@@ -9188,10 +9188,10 @@ app.get("/marketplace-openapi.json", (_req, res) => {
   res.json({
     openapi: "3.0.3",
     info: {
-      title: "PAL Commerce Catalog Intelligence API",
+      title: "PAL AIEO Commerce Catalog Intelligence API",
       version: "1.1.0",
       description:
-        "Marketplace-ready ecommerce catalog intelligence for Merchant Center feed audits, remediation, GTIN validation, feed change detection, and x402 declaration validation.",
+        "Marketplace-ready AIEO catalog intelligence for AI-shopping data quality, Merchant Center-compatible remediation, GTIN validation, feed changes, and x402 declaration validation.",
     },
     servers: [{ url: PUBLIC_BASE_URL }],
     paths: {
