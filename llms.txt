@@ -2,7 +2,11 @@
 
 Practical Automation Lab publishes privacy-conscious AIEO, AI-commerce and browser-local catalog-readiness tools. AIEO is PAL shorthand for making product data easier for AI shopping systems and agents to parse; it complements traditional SEO.
 
-## Primary products
+## Primary AIEO and commerce products
+
+- AIEO for Shopify / AI Commerce Discoverability
+  https://practical-automation-lab.onrender.com/aieo-shopify-catalog.html
+  Explains how PAL helps ecommerce catalogs become easier for AI assistants and shopping agents to understand, compare and recommend. AIEO complements rather than replaces SEO.
 
 - PAL Catalog Check for Shopify
   https://practical-automation-lab.onrender.com/shopify-catalog-check.html
