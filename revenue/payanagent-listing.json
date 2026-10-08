@@ -1,0 +1,33 @@
+{
+  "marketplace": "PayanAgent",
+  "provider": "Practical Automation Lab",
+  "provider_agent_id": "j57eeka0x0jgdbq3th55ms988x8fx49e",
+  "payout_wallet": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+  "registered_at": "2026-10-08T17:46:29Z",
+  "offers": [
+    {
+      "title": "PAL Ecommerce Catalog Audit",
+      "price_usd": 5,
+      "endpoint": "https://pal-marketplace-fast-api.onrender.com/api/catalog-audit",
+      "offer_id": "kh78atc50yh3hr3yqjkmkj43xx8fxm7j"
+    },
+    {
+      "title": "PAL Catalog Remediation Plan",
+      "price_usd": 15,
+      "endpoint": "https://pal-marketplace-fast-api.onrender.com/api/catalog-remediation",
+      "offer_id": "kh7fgcr2ms3ztxn94apv5f32n18fxdde"
+    },
+    {
+      "title": "PAL GTIN / UPC / EAN Validator",
+      "price_usd": 3,
+      "endpoint": "https://pal-marketplace-fast-api.onrender.com/api/gtin-check",
+      "offer_id": "kh787ytcvxd0mg7hg59mp8df0h8fwt9z"
+    },
+    {
+      "title": "PAL Product Feed Diff",
+      "price_usd": 8,
+      "endpoint": "https://pal-marketplace-fast-api.onrender.com/api/feed-diff",
+      "offer_id": "kh7cnbzh8hf4kbaq0ar2hbj1vn8fwdvm"
+    }
+  ]
+}
