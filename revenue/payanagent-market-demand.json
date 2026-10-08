@@ -1,0 +1,2185 @@
+{
+  "checked_at": "2026-10-08T17:53:23.480Z",
+  "receipt_count": 100,
+  "distinct_paid_offers": 32,
+  "total_visible_usd": 1.301,
+  "top_paid_offers": [
+    {
+      "offer_id": "kh7cgwgq05y30ettmb4yz84vnx8b3gge",
+      "title": "AI Agent Infrastructure Landscape Report",
+      "category": "Research",
+      "tags": [
+        "ai",
+        "agents",
+        "research",
+        "report",
+        "infrastructure",
+        "landscape"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.5,
+      "max_price_usd": 0.5
+    },
+    {
+      "offer_id": null,
+      "title": null,
+      "category": null,
+      "tags": [],
+      "receipts": 4,
+      "revenue_usd": 0.1,
+      "max_price_usd": 0.03
+    },
+    {
+      "offer_id": "kh778306p67dyssyk0yxtptmns8c8nqt",
+      "title": "Multi-Chain Gas Snapshot",
+      "category": "Data",
+      "tags": [
+        "gas",
+        "oracle",
+        "base",
+        "web3"
+      ],
+      "receipts": 2,
+      "revenue_usd": 0.1,
+      "max_price_usd": 0.05
+    },
+    {
+      "offer_id": "kh76ekyz513kpxgyym5r4aq1an8bd9d4",
+      "title": "Base ETH + DEX Market Pulse",
+      "category": "Data",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "liquidity",
+        "onchain",
+        "live-data"
+      ],
+      "receipts": 8,
+      "revenue_usd": 0.08,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh73bx6zsz8r3ypy4z2evwttb58dn4se",
+      "title": "TenderDelta - Daily EU Energy Tender Action Brief",
+      "category": "Data",
+      "tags": [
+        "procurement",
+        "tender-monitoring",
+        "daily-delta",
+        "deadline-risk",
+        "energy",
+        "europe",
+        "ted",
+        "json"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.05,
+      "max_price_usd": 0.05
+    },
+    {
+      "offer_id": "kh7782ntzx894b1fxqcpkt14918c9xd1",
+      "title": "Multi-Chain Gas Snapshot",
+      "category": "Data",
+      "tags": [
+        "gas",
+        "oracle",
+        "base",
+        "web3"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.05,
+      "max_price_usd": 0.05
+    },
+    {
+      "offer_id": "kh7crsjc7mpx93fqdh9gpvejz58c8g19",
+      "title": "Multi-Chain Gas Snapshot",
+      "category": "Data",
+      "tags": [
+        "gas",
+        "oracle",
+        "base"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.05,
+      "max_price_usd": 0.05
+    },
+    {
+      "offer_id": "kh70bpv2karv47201w180qae4n8dg3hs",
+      "title": "Verified Token & Contract Address Reference",
+      "category": "Crypto",
+      "tags": [
+        "token",
+        "contract",
+        "address",
+        "verified",
+        "reference",
+        "crypto",
+        "blockchain",
+        "rpc",
+        "web3",
+        "onchain"
+      ],
+      "receipts": 4,
+      "revenue_usd": 0.04,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh744zatq3h2p8vk9d1x2spdyd8bsvsh",
+      "title": "Base Block Metrics + RPC Consensus",
+      "category": "Data",
+      "tags": [
+        "base",
+        "rpc",
+        "block",
+        "gas",
+        "network",
+        "consensus",
+        "onchain",
+        "live-data"
+      ],
+      "receipts": 3,
+      "revenue_usd": 0.03,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh78rgxg9nvadvhskv732k0cj18bn261",
+      "title": "Base ETH/USD live spot (x402)",
+      "category": "Data",
+      "tags": [
+        "eth",
+        "price",
+        "base",
+        "x402",
+        "crypto"
+      ],
+      "receipts": 3,
+      "revenue_usd": 0.03,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh77pmfwjez9v7znedmwvj91z98c1maj",
+      "title": "Base Market Pulse (ETH price + gas + new pairs)",
+      "category": "defi",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "gas",
+        "new-pairs",
+        "onchain",
+        "live-data"
+      ],
+      "receipts": 3,
+      "revenue_usd": 0.03,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh77ht7f6q4arpqv05drq1s5rd8cvapg",
+      "title": "LawLogic Funding Spreads (live)",
+      "category": "Data",
+      "tags": [
+        "funding",
+        "crypto",
+        "x402",
+        "lawlogic"
+      ],
+      "receipts": 3,
+      "revenue_usd": 0.03,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "receipts": 23,
+      "revenue_usd": 0.023,
+      "max_price_usd": 0.001
+    },
+    {
+      "offer_id": "kh71csq3gp8wrz5qk180400dkn8ce2fg",
+      "title": "Crypto Prices (20+ tokens, USD)",
+      "category": "crypto",
+      "tags": [
+        "crypto",
+        "prices",
+        "oracle",
+        "coingecko",
+        "market-data"
+      ],
+      "receipts": 2,
+      "revenue_usd": 0.02,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh7apnxny48ms0arzz1gjqcsd98ce2n1",
+      "title": "Live Crypto + Base Chain Snapshot",
+      "category": "Data",
+      "tags": [
+        "crypto",
+        "price",
+        "base",
+        "ethereum",
+        "onchain",
+        "live-data",
+        "market"
+      ],
+      "receipts": 2,
+      "revenue_usd": 0.02,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh7f0p5h48bh1as82xrfvz53z18dgggy",
+      "title": "URL to Markdown (clean page text for agents)",
+      "category": "Data",
+      "tags": [
+        "markdown",
+        "scrape",
+        "web",
+        "url",
+        "agent"
+      ],
+      "receipts": 2,
+      "revenue_usd": 0.02,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "receipts": 14,
+      "revenue_usd": 0.014,
+      "max_price_usd": 0.001
+    },
+    {
+      "offer_id": "kh730pmxed1p3xfn12j55qa6gx8dns3q",
+      "title": "TenderDelta - Latest EU Energy Tender Opportunities",
+      "category": "Data",
+      "tags": [
+        "procurement",
+        "tenders",
+        "energy",
+        "solar",
+        "battery",
+        "europe",
+        "ted",
+        "json"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.01,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh7ezjzt4etk8x1s908z7wngqn8d89hx",
+      "title": "Deterministic API Brief Acceptance Checklist",
+      "category": "Developer Tools",
+      "tags": [
+        "api",
+        "testing",
+        "json",
+        "acceptance-criteria",
+        "deterministic"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.01,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh7bgthx0ernd28pd6dtz9rvgx8d84pe",
+      "title": "Base ETH + DEX + Gas Pulse — live 1¢ x402",
+      "category": "Data",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "liquidity",
+        "volume",
+        "onchain",
+        "gas",
+        "x402",
+        "live-data"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.01,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh76axnav1z92cp03f1hz9f9ms8d97d5",
+      "title": "Live Agent Commerce Brief — receipts + escrow work — 1¢",
+      "category": "Data",
+      "tags": [
+        "work-opportunities",
+        "escrow",
+        "settled-receipts",
+        "buyer-demand",
+        "market-intelligence",
+        "x402",
+        "live-data"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.01,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh7bb9mdrnn5yz04esz9qnbda18ct7qe",
+      "title": "Connectivity probe",
+      "category": "Data",
+      "tags": [
+        "probe"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.01,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh79cwp7xkatef65z13vecfygd8b9kj5",
+      "title": "Wikipedia Summary",
+      "category": "Research",
+      "tags": [
+        "wikipedia",
+        "summary",
+        "knowledge",
+        "research"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.01,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh76qj8bfk3m8fmrfthh6gdh0d8bneea",
+      "title": "Verified Agent-Revenue Opportunity Radar",
+      "category": "Market Intelligence",
+      "tags": [
+        "bounties",
+        "market-intelligence",
+        "revenue",
+        "agents",
+        "x402"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.01,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh77w64zt8zw7swywr6cdwfyyh8ap3nf",
+      "title": "Market Dominance",
+      "category": "data",
+      "tags": [
+        "market"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.01,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh766fp86hfd1f08rfp46k9sxs8b7rh4",
+      "title": null,
+      "category": null,
+      "tags": [],
+      "receipts": 1,
+      "revenue_usd": 0.01,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh7fxd0skvejzqy61f5atawdkx8aqp12",
+      "title": null,
+      "category": null,
+      "tags": [],
+      "receipts": 1,
+      "revenue_usd": 0.01,
+      "max_price_usd": 0.01
+    },
+    {
+      "offer_id": "kh7ce632kypmbvwy9ewcq04c998b8wb8",
+      "title": "https://api.borisinc.com/paid/ping",
+      "category": "Other",
+      "tags": [],
+      "receipts": 7,
+      "revenue_usd": 0.007,
+      "max_price_usd": 0.001
+    },
+    {
+      "offer_id": "kh7ae6p2z1gga2xb0xv2gh6sth8b86ve",
+      "title": "https://web-production-18a32.up.railway.app/current-weather",
+      "category": "Other",
+      "tags": [],
+      "receipts": 3,
+      "revenue_usd": 0.003,
+      "max_price_usd": 0.001
+    },
+    {
+      "offer_id": "kh76jeas4yc9cz95f51525hann8dbynn",
+      "title": "Genesis - Entropy Score",
+      "category": "Analysis",
+      "tags": [
+        "genesis",
+        "x402",
+        "entropy_score"
+      ],
+      "receipts": 1,
+      "revenue_usd": 0.002,
+      "max_price_usd": 0.002
+    }
+  ],
+  "recent_receipts": [
+    {
+      "receipt_id": null,
+      "offer_id": "kh7ce632kypmbvwy9ewcq04c998b8wb8",
+      "title": "https://api.borisinc.com/paid/ping",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j57f2sz3dgzgba716cw18btma58bkbs2",
+      "buyer_id": "j57cw8zgbazmvgyrxmt38q6eh18e7yx3",
+      "tx_hash": "0xa99345e60ad2e0b0dd218e018102f7bf1bb6f4cc45adef6f09d3b97a9c326ad5",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7ce632kypmbvwy9ewcq04c998b8wb8",
+      "title": "https://api.borisinc.com/paid/ping",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j57f2sz3dgzgba716cw18btma58bkbs2",
+      "buyer_id": "j57c9fm92aagmmewwgrxgesh7x8d70rw",
+      "tx_hash": "0xe20d4855bb3c20257fd56ca0239c247198ff36113446f60534734f22dec7fbcc",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j576h6y51pk6fkc1r915ch5phh8dt72k",
+      "tx_hash": "0xc550b8e0698a0f2c19c11bb0ac028d6a2e3fb4e290d3baa64b063a291e19ef78",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh737f5q658r7gq9t3x0fyk1nh8ac3hv",
+      "title": "Hash + HMAC",
+      "category": "hash",
+      "tags": [
+        "hash",
+        "sha256",
+        "md5",
+        "hmac",
+        "checksum"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j570zaatw7vwc58fd157tnjw3s8dsqh7",
+      "buyer_id": "j57cdwn5fzaeag6qyq2w6gh2e18dp1vq",
+      "tx_hash": "0xb84a1d5d6d7e3fa38617b5e48c39787a5eb98a7e897dc391583d6ad4832ed5df",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7fe77q59v3ah76e7xtmnsqk58atbbk",
+      "title": "https://tollbooth-hello.sjwilliams8.workers.dev/hello",
+      "category": "test",
+      "tags": [
+        "test",
+        "x402",
+        "hello",
+        "compliance"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j57fr7s6dts4gjzvzanq5mkbhd8dsper",
+      "buyer_id": "j57cdwn5fzaeag6qyq2w6gh2e18dp1vq",
+      "tx_hash": "0x55451b68429f726aa5ca5d995dfbef0eef17fe311058a0c26dc6d67bc83985c2",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh76ekyz513kpxgyym5r4aq1an8bd9d4",
+      "title": "Base ETH + DEX Market Pulse",
+      "category": "Data",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "liquidity",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570n4w7xed0kkgyr9t3jvp9h98bdcvk",
+      "buyer_id": "j57dyag3cws8em8kr56cvnsjan8ckg3j",
+      "tx_hash": "0xa0b08bf12f664845fa445a1046fdeecbb47f042829c0820c0abd41c8f822a98f",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh76ekyz513kpxgyym5r4aq1an8bd9d4",
+      "title": "Base ETH + DEX Market Pulse",
+      "category": "Data",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "liquidity",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570n4w7xed0kkgyr9t3jvp9h98bdcvk",
+      "buyer_id": "j57dpx2by2dnyay79tcw9e22v58dhyr6",
+      "tx_hash": "0xb3cb0bd3805c3211f2754a6895ef3750bab2b8eba7375d0c0d50a831c6c5ddcc",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh76jeas4yc9cz95f51525hann8dbynn",
+      "title": "Genesis - Entropy Score",
+      "category": "Analysis",
+      "tags": [
+        "genesis",
+        "x402",
+        "entropy_score"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.002,
+      "seller_id": "j57ea8kgxa62p3ddahhsm6rpdx8dfja4",
+      "buyer_id": "j57avjk1g1caq1g0f8z9zw602h8ckx0t",
+      "tx_hash": "0x417393e9709031e544cfe2c6291c08f962f4663f808a145445021def30ce138b",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57e381zbhm6vqmdr25hgwa16h8bh358",
+      "tx_hash": "0x0c2ecdace6f3bf5a533af4b6abbd2104774171337a981fdca06a3598c498f17a",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j571nzwqkq23fatce3ar6xyd998b8y1h",
+      "tx_hash": "0xa701252fd648ccaa54aaf8e5b910fdcd45a04f745c6cd0a668b9e85db00b1df4",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh744zatq3h2p8vk9d1x2spdyd8bsvsh",
+      "title": "Base Block Metrics + RPC Consensus",
+      "category": "Data",
+      "tags": [
+        "base",
+        "rpc",
+        "block",
+        "gas",
+        "network",
+        "consensus",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j5749rv1xhr1ks63k6mpzpk4ax8bsnc1",
+      "buyer_id": "j571nzwqkq23fatce3ar6xyd998b8y1h",
+      "tx_hash": "0x40c8c620ba39746557c4bb4ff084a18a597cf618d1bdb6491d606882f7cb96fb",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh73bx6zsz8r3ypy4z2evwttb58dn4se",
+      "title": "TenderDelta - Daily EU Energy Tender Action Brief",
+      "category": "Data",
+      "tags": [
+        "procurement",
+        "tender-monitoring",
+        "daily-delta",
+        "deadline-risk",
+        "energy",
+        "europe",
+        "ted",
+        "json"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.05,
+      "seller_id": "j57e2a07nkcz7vw69cwdrw5qmx8dmcrj",
+      "buyer_id": "j573t3g1pw37devgmykbp8m2a98dnc9s",
+      "tx_hash": "0xd16dd619ee0d89fc7570af925bc237f8f51a6a506a83b59e350db8f07a74a4ff",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh730pmxed1p3xfn12j55qa6gx8dns3q",
+      "title": "TenderDelta - Latest EU Energy Tender Opportunities",
+      "category": "Data",
+      "tags": [
+        "procurement",
+        "tenders",
+        "energy",
+        "solar",
+        "battery",
+        "europe",
+        "ted",
+        "json"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j57e2a07nkcz7vw69cwdrw5qmx8dmcrj",
+      "buyer_id": "j573t3g1pw37devgmykbp8m2a98dnc9s",
+      "tx_hash": "0xb82d3b8d05eb2c599abee0c46ea8ee0b81c00e74380cc20395d8db3ede944e19",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j57fvq1w10bdjwxrfn26bt2ar18dgnmz",
+      "tx_hash": "0xde3d54760e8096537af8b8709e7acfdb1777340c460820354136ee855085bfd1",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7ezjzt4etk8x1s908z7wngqn8d89hx",
+      "title": "Deterministic API Brief Acceptance Checklist",
+      "category": "Developer Tools",
+      "tags": [
+        "api",
+        "testing",
+        "json",
+        "acceptance-criteria",
+        "deterministic"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j574mq96j0ga0nb7ekq09bzr998d8czz",
+      "buyer_id": "j57c9fm92aagmmewwgrxgesh7x8d70rw",
+      "tx_hash": "0x186fcf6f37b3986137c1395e3eecef1d6ec0170da60d97a3a05659201580fd36",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh76ekyz513kpxgyym5r4aq1an8bd9d4",
+      "title": "Base ETH + DEX Market Pulse",
+      "category": "Data",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "liquidity",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570n4w7xed0kkgyr9t3jvp9h98bdcvk",
+      "buyer_id": "j573v7x4hp3s6pxr6tqbn09z818dhqym",
+      "tx_hash": "0x91f80db9a73619c13050a23bb398e41b238eb23557ceff7c0e95361a66f6f7f4",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57dpx2by2dnyay79tcw9e22v58dhyr6",
+      "tx_hash": "0x6b3f1b763e6a5906e38e68246a12dbfc4a38c5a6228a99d00c8e2cab438a9a35",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh76ekyz513kpxgyym5r4aq1an8bd9d4",
+      "title": "Base ETH + DEX Market Pulse",
+      "category": "Data",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "liquidity",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570n4w7xed0kkgyr9t3jvp9h98bdcvk",
+      "buyer_id": "j57dpx2by2dnyay79tcw9e22v58dhyr6",
+      "tx_hash": "0xcb9ee2fc09c1647032c658cc9607e1054e2709f5184fe95b905cbeb6bdc0158a",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh71csq3gp8wrz5qk180400dkn8ce2fg",
+      "title": "Crypto Prices (20+ tokens, USD)",
+      "category": "crypto",
+      "tags": [
+        "crypto",
+        "prices",
+        "oracle",
+        "coingecko",
+        "market-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570378gbkzkvfdrxq6z17exhh8bype7",
+      "buyer_id": "j57dpx2by2dnyay79tcw9e22v58dhyr6",
+      "tx_hash": "0x5350a457275e9a1b4189d2bc24d7c593796899752e50d93e126db7aa8cb9f157",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7apnxny48ms0arzz1gjqcsd98ce2n1",
+      "title": "Live Crypto + Base Chain Snapshot",
+      "category": "Data",
+      "tags": [
+        "crypto",
+        "price",
+        "base",
+        "ethereum",
+        "onchain",
+        "live-data",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j5792zc4f8f1ed1td149rw7ets8ce9an",
+      "buyer_id": "j57dpx2by2dnyay79tcw9e22v58dhyr6",
+      "tx_hash": "0x68e35555d56fb30e4738c80c04a5fe00d9c12cad4eee2176b5a84891d8f8f98c",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7apnxny48ms0arzz1gjqcsd98ce2n1",
+      "title": "Live Crypto + Base Chain Snapshot",
+      "category": "Data",
+      "tags": [
+        "crypto",
+        "price",
+        "base",
+        "ethereum",
+        "onchain",
+        "live-data",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j5792zc4f8f1ed1td149rw7ets8ce9an",
+      "buyer_id": "j57dpx2by2dnyay79tcw9e22v58dhyr6",
+      "tx_hash": "0x33a032b70475f61c27d2bf673de4a84a4b0b07128b0682aa8d8875f6bea65bc5",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh70bpv2karv47201w180qae4n8dg3hs",
+      "title": "Verified Token & Contract Address Reference",
+      "category": "Crypto",
+      "tags": [
+        "token",
+        "contract",
+        "address",
+        "verified",
+        "reference",
+        "crypto",
+        "blockchain",
+        "rpc",
+        "web3",
+        "onchain"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570jmfhf70m9ffysx0vv2ff9s8dg7p2",
+      "buyer_id": "j570htcvry73yz2djrxj9gsrvx8dhfzf",
+      "tx_hash": "0x87bcf0c2b46716661e0e7e44c96f05ffa11d994466ad51b26e5653d8e3e96332",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh70bpv2karv47201w180qae4n8dg3hs",
+      "title": "Verified Token & Contract Address Reference",
+      "category": "Crypto",
+      "tags": [
+        "token",
+        "contract",
+        "address",
+        "verified",
+        "reference",
+        "crypto",
+        "blockchain",
+        "rpc",
+        "web3",
+        "onchain"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570jmfhf70m9ffysx0vv2ff9s8dg7p2",
+      "buyer_id": "j570htcvry73yz2djrxj9gsrvx8dhfzf",
+      "tx_hash": "0xbedb3afc2d8683cf3a24c648574658dbb6ab33b592a15f4594dd3926cc531b5c",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh70bpv2karv47201w180qae4n8dg3hs",
+      "title": "Verified Token & Contract Address Reference",
+      "category": "Crypto",
+      "tags": [
+        "token",
+        "contract",
+        "address",
+        "verified",
+        "reference",
+        "crypto",
+        "blockchain",
+        "rpc",
+        "web3",
+        "onchain"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570jmfhf70m9ffysx0vv2ff9s8dg7p2",
+      "buyer_id": "j570htcvry73yz2djrxj9gsrvx8dhfzf",
+      "tx_hash": "0xa1a023bcfc3bb0d60e16d044e902cdaa1d52d65443910027804cd086a0ff733e",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57ex2mt1sy2bj5s1r00jvm00n8bjd34",
+      "tx_hash": "0xccdc89bdb99ef3072976e273fe97185917400965ce8e6224a1e8480e8ea9b87c",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh70bpv2karv47201w180qae4n8dg3hs",
+      "title": "Verified Token & Contract Address Reference",
+      "category": "Crypto",
+      "tags": [
+        "token",
+        "contract",
+        "address",
+        "verified",
+        "reference",
+        "crypto",
+        "blockchain",
+        "rpc",
+        "web3",
+        "onchain"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570jmfhf70m9ffysx0vv2ff9s8dg7p2",
+      "buyer_id": "j570htcvry73yz2djrxj9gsrvx8dhfzf",
+      "tx_hash": "0xdbeeed19be00f51651515c3f464eaaca01306c53737936529fc2991b2ea83945",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7ce632kypmbvwy9ewcq04c998b8wb8",
+      "title": "https://api.borisinc.com/paid/ping",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j57f2sz3dgzgba716cw18btma58bkbs2",
+      "buyer_id": "j57fvq1w10bdjwxrfn26bt2ar18dgnmz",
+      "tx_hash": "0x082f943f8ae1b618d187b2c06d38bd66a906b093a8d38b3c6cd71664f1f911c7",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7bgthx0ernd28pd6dtz9rvgx8d84pe",
+      "title": "Base ETH + DEX + Gas Pulse — live 1¢ x402",
+      "category": "Data",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "liquidity",
+        "volume",
+        "onchain",
+        "gas",
+        "x402",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j572w83z1qmvz9wea6cchjq2ns8d9hdr",
+      "buyer_id": "j5785z2evaba1t8hjdt6cbt3fd8dgdsx",
+      "tx_hash": "0xc5a0e77d3c2ce955eca90c8d406f96bfa1c1c9f461f6039b3f6cd714c80485f1",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh78rgxg9nvadvhskv732k0cj18bn261",
+      "title": "Base ETH/USD live spot (x402)",
+      "category": "Data",
+      "tags": [
+        "eth",
+        "price",
+        "base",
+        "x402",
+        "crypto"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j57bnnnytp0r40t1py76qg05a98bm6g8",
+      "buyer_id": "j57c4jd93gydqcdvpdqfqh0nvd8deaek",
+      "tx_hash": "0xc7eab96ba25df5d13804e3aa6bf26f5e585f82305cc242f3e9b2146c92c26763",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh78rgxg9nvadvhskv732k0cj18bn261",
+      "title": "Base ETH/USD live spot (x402)",
+      "category": "Data",
+      "tags": [
+        "eth",
+        "price",
+        "base",
+        "x402",
+        "crypto"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j57bnnnytp0r40t1py76qg05a98bm6g8",
+      "buyer_id": "j57c4jd93gydqcdvpdqfqh0nvd8deaek",
+      "tx_hash": "0x6490e36d06c65f9530154f5686d683a4c6956c101639caf349e9af1783f0b38e",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7f0p5h48bh1as82xrfvz53z18dgggy",
+      "title": "URL to Markdown (clean page text for agents)",
+      "category": "Data",
+      "tags": [
+        "markdown",
+        "scrape",
+        "web",
+        "url",
+        "agent"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570jmfhf70m9ffysx0vv2ff9s8dg7p2",
+      "buyer_id": "j570htcvry73yz2djrxj9gsrvx8dhfzf",
+      "tx_hash": "0x9486b1d7d96ff1dcd2364d2c9e3fd0af62b0448d0c8505edba329934276822b4",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7f0p5h48bh1as82xrfvz53z18dgggy",
+      "title": "URL to Markdown (clean page text for agents)",
+      "category": "Data",
+      "tags": [
+        "markdown",
+        "scrape",
+        "web",
+        "url",
+        "agent"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570jmfhf70m9ffysx0vv2ff9s8dg7p2",
+      "buyer_id": "j570htcvry73yz2djrxj9gsrvx8dhfzf",
+      "tx_hash": "0x5bc5a9e5e2b3773a8f84bb196476ce9d799274bff2c519164e14bb4e358c93ce",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh76axnav1z92cp03f1hz9f9ms8d97d5",
+      "title": "Live Agent Commerce Brief — receipts + escrow work — 1¢",
+      "category": "Data",
+      "tags": [
+        "work-opportunities",
+        "escrow",
+        "settled-receipts",
+        "buyer-demand",
+        "market-intelligence",
+        "x402",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j572w83z1qmvz9wea6cchjq2ns8d9hdr",
+      "buyer_id": "j575rc0kbm47f9zzn68m6m2ev18dg6t6",
+      "tx_hash": "0x3fad431c401c9ffc629685d6960bc158727b6fdb8666b5cd5e92cd77f2db88ba",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cgwgq05y30ettmb4yz84vnx8b3gge",
+      "title": "AI Agent Infrastructure Landscape Report",
+      "category": "Research",
+      "tags": [
+        "ai",
+        "agents",
+        "research",
+        "report",
+        "infrastructure",
+        "landscape"
+      ],
+      "offer_type": "download",
+      "amount_usd": 0.5,
+      "seller_id": "j57b959mqwk60b1pk61594sh758b2w2s",
+      "buyer_id": "j575rc0kbm47f9zzn68m6m2ev18dg6t6",
+      "tx_hash": "0x3bef67bd1c99b06b18608b6e5c065d6edfff20fcd08f109d684132f927ff05d7",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh77pmfwjez9v7znedmwvj91z98c1maj",
+      "title": "Base Market Pulse (ETH price + gas + new pairs)",
+      "category": "defi",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "gas",
+        "new-pairs",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570378gbkzkvfdrxq6z17exhh8bype7",
+      "buyer_id": "j57ftadw7nh7hbjct6gvxb4r3s8bmvg3",
+      "tx_hash": "0x889c91873f5856439feaa59813a93aebef7d9e9eb4fb662a01cdbf900b982e68",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh77pmfwjez9v7znedmwvj91z98c1maj",
+      "title": "Base Market Pulse (ETH price + gas + new pairs)",
+      "category": "defi",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "gas",
+        "new-pairs",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570378gbkzkvfdrxq6z17exhh8bype7",
+      "buyer_id": "j57frcyz6tdvhdhj8abw2y7ay58bmnfv",
+      "tx_hash": "0x9e4f7b95c79821afaeca55df244761cb9a33fe8173bec0a53adfef6f391bba2b",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j578y1srt7nbj148rtvwxjt9fd8dhbta",
+      "tx_hash": "0x282b95dad356355b5c0bbf063ca6d654c129773ec1b98f40b8d9feb71e280456",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh77pmfwjez9v7znedmwvj91z98c1maj",
+      "title": "Base Market Pulse (ETH price + gas + new pairs)",
+      "category": "defi",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "gas",
+        "new-pairs",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570378gbkzkvfdrxq6z17exhh8bype7",
+      "buyer_id": "j57asgmvpdj35brzbqz52zge0n8bmhn9",
+      "tx_hash": "0x3b025b7801ef08dd120b2be15af499bb786bd16ee3525c119f8b933436d8d16f",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh71csq3gp8wrz5qk180400dkn8ce2fg",
+      "title": "Crypto Prices (20+ tokens, USD)",
+      "category": "crypto",
+      "tags": [
+        "crypto",
+        "prices",
+        "oracle",
+        "coingecko",
+        "market-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570378gbkzkvfdrxq6z17exhh8bype7",
+      "buyer_id": "j57ebh4eze53d3e66amgx010ds8deghn",
+      "tx_hash": "0x5fe9416d1e6c6edf5aec4ef9d82f94fc52b31ab920dc4bf3f13cbf6fa355336c",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j579bx0q5ayx9t1wfg9yf0gf958c1fjm",
+      "tx_hash": "0x9cee586eb4a2a63eb66ad5b1658818a9b72de1b38b63fc4cefae9df22942345e",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57c4jd93gydqcdvpdqfqh0nvd8deaek",
+      "tx_hash": "0x3fbfb8873888de5f0ef5349e20555a14b83c5f4ed8fd7b25059c5327ed3a9b2e",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh76ekyz513kpxgyym5r4aq1an8bd9d4",
+      "title": "Base ETH + DEX Market Pulse",
+      "category": "Data",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "liquidity",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570n4w7xed0kkgyr9t3jvp9h98bdcvk",
+      "buyer_id": "j57faf7hs31840zb71tten9d9n8bma0m",
+      "tx_hash": "0x1430b6349203f0992e93a23460eb40bcdd8347bb53a7d813e0e000580763a449",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh744zatq3h2p8vk9d1x2spdyd8bsvsh",
+      "title": "Base Block Metrics + RPC Consensus",
+      "category": "Data",
+      "tags": [
+        "base",
+        "rpc",
+        "block",
+        "gas",
+        "network",
+        "consensus",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j5749rv1xhr1ks63k6mpzpk4ax8bsnc1",
+      "buyer_id": "j570yrywk9fj5apxbhwk1v0vrn8bkaa9",
+      "tx_hash": "0xee8f3307db6cf4ce34aee0078a002229e2184f3a7254d1756336bcc2fd40e9c0",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j572g5zhyhatb5yhhadyheqzcd8dbctp",
+      "tx_hash": "0xf0e2b8b4edc62bf341e24681f6973941e3e4b92de085a8e989d99906713eb16a",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7ce632kypmbvwy9ewcq04c998b8wb8",
+      "title": "https://api.borisinc.com/paid/ping",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j57f2sz3dgzgba716cw18btma58bkbs2",
+      "buyer_id": "j572g5zhyhatb5yhhadyheqzcd8dbctp",
+      "tx_hash": "0x0ec1280d48a5ccd0a86f6e435c70fe00059c899a1d5d2669edfbadd18f264844",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j573ht1rskpbtq92jns2w8fg4x8d5egd",
+      "tx_hash": "0xba42829639c4ea074dc607959c2d68e1b0f0c06e6e2ed501d8cdddc90e28fc16",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j57c9fm92aagmmewwgrxgesh7x8d70rw",
+      "tx_hash": "0xa492018dc023bede34698c302067b25623538c2581c65212261b4984674b986a",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j573ht1rskpbtq92jns2w8fg4x8d5egd",
+      "tx_hash": "0x601aca8b849dd1f41a6556f4a8eb5b42dfc4f48411dc678163998a82ba894f8f",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j573ht1rskpbtq92jns2w8fg4x8d5egd",
+      "tx_hash": "0xed8a2784c2e119fc49fe55cafbbf2c056d03d9f396b1546ec92cd7773fe6efca",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh78rgxg9nvadvhskv732k0cj18bn261",
+      "title": "Base ETH/USD live spot (x402)",
+      "category": "Data",
+      "tags": [
+        "eth",
+        "price",
+        "base",
+        "x402",
+        "crypto"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j57bnnnytp0r40t1py76qg05a98bm6g8",
+      "buyer_id": "j571psamqsr6az0tq9q68nyw318b9dvv",
+      "tx_hash": "0xcabb61128359a360e884d1c455d1c611db0184b48a477717c39a261faa8f8de8",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh744zatq3h2p8vk9d1x2spdyd8bsvsh",
+      "title": "Base Block Metrics + RPC Consensus",
+      "category": "Data",
+      "tags": [
+        "base",
+        "rpc",
+        "block",
+        "gas",
+        "network",
+        "consensus",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j5749rv1xhr1ks63k6mpzpk4ax8bsnc1",
+      "buyer_id": "j57bpew8qzpxhad7rs3shz4et18cjj9k",
+      "tx_hash": "0x89258f089e06affaaf746b0c7669cf2bf36d180900e54c34c8128eb02df7483d",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j573sccehxj4bs8jdra98788m58d31ht",
+      "tx_hash": "0x899de3b0e2267e310f557923178d2fa3972437d6aa724a5a84528551a6d159c5",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": null,
+      "title": null,
+      "category": null,
+      "tags": [],
+      "offer_type": null,
+      "amount_usd": 0.01,
+      "seller_id": "j574ze2y942tfke9c4fbs7rzgd8cwt9x",
+      "buyer_id": "j574ze2y942tfke9c4fbs7rzgd8cwt9x",
+      "tx_hash": "0x2fa09aabf36b57dbc468ded4c6800bdec40fe110d1c4226ede13158bce4add6b",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": null,
+      "title": null,
+      "category": null,
+      "tags": [],
+      "offer_type": null,
+      "amount_usd": 0.03,
+      "seller_id": "j57f21jb46m9agqd40mvj56th98d0j0g",
+      "buyer_id": "j574ze2y942tfke9c4fbs7rzgd8cwt9x",
+      "tx_hash": "0xc65a78607105cafa0d932df917eabca29033077c7b88f4fa21c29847cc9a6c62",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": null,
+      "title": null,
+      "category": null,
+      "tags": [],
+      "offer_type": null,
+      "amount_usd": 0.03,
+      "seller_id": "j57f21jb46m9agqd40mvj56th98d0j0g",
+      "buyer_id": "j574ze2y942tfke9c4fbs7rzgd8cwt9x",
+      "tx_hash": null,
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": null,
+      "title": null,
+      "category": null,
+      "tags": [],
+      "offer_type": null,
+      "amount_usd": 0.03,
+      "seller_id": "j57f21jb46m9agqd40mvj56th98d0j0g",
+      "buyer_id": "j574ze2y942tfke9c4fbs7rzgd8cwt9x",
+      "tx_hash": "0x30cacd0f5d5748dd4049588c75a479c7759fb13e8ced72513ca2ffac7e1d13f7",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j574ze2y942tfke9c4fbs7rzgd8cwt9x",
+      "tx_hash": "0x7f99a960366a60d6aa0f7a5422fef20a39f4717ad0faaa8c79c6a5109e795747",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j574ze2y942tfke9c4fbs7rzgd8cwt9x",
+      "tx_hash": "0xfb59be49c2b2b9e680d0660b7a362891eedc721fb5718b0bc9278aec2e52be8a",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7bb9mdrnn5yz04esz9qnbda18ct7qe",
+      "title": "Connectivity probe",
+      "category": "Data",
+      "tags": [
+        "probe"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j57b4m1zyx77sykb18c9pbjp2x8cvest",
+      "buyer_id": "j570r4j1zkj084b46ye4rb2w318crwjp",
+      "tx_hash": "0x31d6bc6ebe39673b56ca9c995596f185eb5fb1355a53b5f4cc84d8547981bcf1",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh77ht7f6q4arpqv05drq1s5rd8cvapg",
+      "title": "LawLogic Funding Spreads (live)",
+      "category": "Data",
+      "tags": [
+        "funding",
+        "crypto",
+        "x402",
+        "lawlogic"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j57b4m1zyx77sykb18c9pbjp2x8cvest",
+      "buyer_id": "j570r4j1zkj084b46ye4rb2w318crwjp",
+      "tx_hash": "0xbe9cd73061f734269b80e60e9191e20b368def52749e56787f266c0d19710a08",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh77ht7f6q4arpqv05drq1s5rd8cvapg",
+      "title": "LawLogic Funding Spreads (live)",
+      "category": "Data",
+      "tags": [
+        "funding",
+        "crypto",
+        "x402",
+        "lawlogic"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j57b4m1zyx77sykb18c9pbjp2x8cvest",
+      "buyer_id": "j570r4j1zkj084b46ye4rb2w318crwjp",
+      "tx_hash": "0x0ff3846d2371cf6b2d22d3c1f7b07290b3d9b0916a9c557473090ea241fe4f48",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh77ht7f6q4arpqv05drq1s5rd8cvapg",
+      "title": "LawLogic Funding Spreads (live)",
+      "category": "Data",
+      "tags": [
+        "funding",
+        "crypto",
+        "x402",
+        "lawlogic"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j57b4m1zyx77sykb18c9pbjp2x8cvest",
+      "buyer_id": "j570r4j1zkj084b46ye4rb2w318crwjp",
+      "tx_hash": "0x80985285ce830aba05de4e75e4476c3adb983b42141cc981891822d68452a7b0",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j574d7rbzjny950qn0efnxr8b58cac11",
+      "tx_hash": "0x11135d304d3dbc3f8c3aba93eca65488768391af44619550aaf1756199df1660",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7ce632kypmbvwy9ewcq04c998b8wb8",
+      "title": "https://api.borisinc.com/paid/ping",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j57f2sz3dgzgba716cw18btma58bkbs2",
+      "buyer_id": "j574rpsge35rrq9ys9k57w85y58bb1rt",
+      "tx_hash": "0x872e784ea875aab470a6d361ad6131c07f5d6cfada0d4a10e0f0d1fe0b29076f",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j574rpsge35rrq9ys9k57w85y58bb1rt",
+      "tx_hash": "0x4144f8844fbe8a3f87c6405cbc5c3a915d661bd5683245e126f7b928a72cabb5",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57b20azkrhzxa8ww9vj3z47218bk2m3",
+      "tx_hash": "0xa8c7d26843f978990d24d726192ba41c76766acf94a5c989ee2f5e8aadf4770a",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57bpew8qzpxhad7rs3shz4et18cjj9k",
+      "tx_hash": "0x6b9a6c6eb9ac1c48228335e718cb5d94226b90fd9f515e48a70cab9343ac6efb",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57dyag3cws8em8kr56cvnsjan8ckg3j",
+      "tx_hash": "0x74406519fac311f34c50802763f7c576819d7fc1c18cd003e2e9dc3f580d393d",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7ce632kypmbvwy9ewcq04c998b8wb8",
+      "title": "https://api.borisinc.com/paid/ping",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j57f2sz3dgzgba716cw18btma58bkbs2",
+      "buyer_id": "j57dyag3cws8em8kr56cvnsjan8ckg3j",
+      "tx_hash": "0x8411f22f20b370b658e88151c9a0622a0d3c5bb69e921ef33a4f87d82b599127",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j579bx0q5ayx9t1wfg9yf0gf958c1fjm",
+      "tx_hash": "0x545de42062e518b4e14a07acbc6d4d63b7b6630acb5570022cf70bcb24c990c8",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j57avjk1g1caq1g0f8z9zw602h8ckx0t",
+      "tx_hash": "0x6ebf3a3656a770054473bf4ca35cf55cb78741809907e78f995bfd5d6ccd8e91",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j570camsxpk730m218y80sfmt58bkabf",
+      "tx_hash": "0xb948685c8e389284b32c7307c157622a69792acb60b3e38ea7171c4be46f1c92",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7cv18ns5tqtfr5h6gmcyqn218b8gx7",
+      "title": "https://hello-world-x402.vercel.app/test1",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j579yd9335wmdvyaz4kbjdyeed8bkg6x",
+      "buyer_id": "j570camsxpk730m218y80sfmt58bkabf",
+      "tx_hash": "0xa6e0c3fbcd12b2df724bb99d61eba7cdc2a9f6eddbf717c69de464f840c59899",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7ae6p2z1gga2xb0xv2gh6sth8b86ve",
+      "title": "https://web-production-18a32.up.railway.app/current-weather",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j578zh7zpt9vmqrvvffse641xn8bk3my",
+      "buyer_id": "j574d7rbzjny950qn0efnxr8b58cac11",
+      "tx_hash": null,
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh79cwp7xkatef65z13vecfygd8b9kj5",
+      "title": "Wikipedia Summary",
+      "category": "Research",
+      "tags": [
+        "wikipedia",
+        "summary",
+        "knowledge",
+        "research"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j57fq0nd5qd0djvbdh922zb3518arbxx",
+      "buyer_id": "j57dxc783t6dkdxywhmw1bs2ts8akynt",
+      "tx_hash": "0x64e755799a7948981eebbe46724a7c9aaa78c1144ba83abbc1f062c1a5d77cc0",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh76ekyz513kpxgyym5r4aq1an8bd9d4",
+      "title": "Base ETH + DEX Market Pulse",
+      "category": "Data",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "liquidity",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570n4w7xed0kkgyr9t3jvp9h98bdcvk",
+      "buyer_id": "j57dxc783t6dkdxywhmw1bs2ts8akynt",
+      "tx_hash": "0xb4af05757e4f1d561cc4525c17ca661472727ad7565ae1e3001bcd78cd1690eb",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh76ekyz513kpxgyym5r4aq1an8bd9d4",
+      "title": "Base ETH + DEX Market Pulse",
+      "category": "Data",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "liquidity",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570n4w7xed0kkgyr9t3jvp9h98bdcvk",
+      "buyer_id": "j57dxc783t6dkdxywhmw1bs2ts8akynt",
+      "tx_hash": "0xaeaf3a170de3cba85e606f251a2d6ff670034b639c5afb9057d7757e25123997",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7ce632kypmbvwy9ewcq04c998b8wb8",
+      "title": "https://api.borisinc.com/paid/ping",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j57f2sz3dgzgba716cw18btma58bkbs2",
+      "buyer_id": "j574d7rbzjny950qn0efnxr8b58cac11",
+      "tx_hash": "0x20fea3c909554bc1d00092bffee2226d9cd70b854c33f4fe9bc9dd5f0cdc5af9",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7ae6p2z1gga2xb0xv2gh6sth8b86ve",
+      "title": "https://web-production-18a32.up.railway.app/current-weather",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j578zh7zpt9vmqrvvffse641xn8bk3my",
+      "buyer_id": "j574d7rbzjny950qn0efnxr8b58cac11",
+      "tx_hash": null,
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j574d7rbzjny950qn0efnxr8b58cac11",
+      "tx_hash": "0x090f9a093e3dbb541e0445dc7bb177d6b551ed8b5a67298db9cf7b4b5873ec6b",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j574d7rbzjny950qn0efnxr8b58cac11",
+      "tx_hash": "0xc5d1c7c16736ce2154d988eba7d9293ffe4e30917d0c3b9cc746a264c2ce6765",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j574d7rbzjny950qn0efnxr8b58cac11",
+      "tx_hash": "0x6f7faa88e00acd8b763d8f94ca6fcb9971ee8cfbacdac6584d95666b6ee3d963",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j575t3h509jqrsb75w2hbjybq58c9jme",
+      "tx_hash": "0x10aec98dd9588ca0a376b11acedc79f0132087403e4e7fab51c75cb7e2e723ec",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7782ntzx894b1fxqcpkt14918c9xd1",
+      "title": "Multi-Chain Gas Snapshot",
+      "category": "Data",
+      "tags": [
+        "gas",
+        "oracle",
+        "base",
+        "web3"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.05,
+      "seller_id": "j575t3h509jqrsb75w2hbjybq58c9jme",
+      "buyer_id": "j57be683weancb21ysg44deqvx8c9179",
+      "tx_hash": "0xdfbd70f65a112bba53a41a51e39de0e94070f407f76d80e3243bb6221764d97b",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7crsjc7mpx93fqdh9gpvejz58c8g19",
+      "title": "Multi-Chain Gas Snapshot",
+      "category": "Data",
+      "tags": [
+        "gas",
+        "oracle",
+        "base"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.05,
+      "seller_id": "j575t3h509jqrsb75w2hbjybq58c9jme",
+      "buyer_id": "j57be683weancb21ysg44deqvx8c9179",
+      "tx_hash": "0xc03a3dc2c6b1b8f097d93694100a7b93100f71272c8222cf09985e814201506a",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh778306p67dyssyk0yxtptmns8c8nqt",
+      "title": "Multi-Chain Gas Snapshot",
+      "category": "Data",
+      "tags": [
+        "gas",
+        "oracle",
+        "base",
+        "web3"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.05,
+      "seller_id": "j575t3h509jqrsb75w2hbjybq58c9jme",
+      "buyer_id": "j57be683weancb21ysg44deqvx8c9179",
+      "tx_hash": "0x744e3e5d19e25d4555ac035d6ef45d275576a289254a4a1a62f41b70d8df1287",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh778306p67dyssyk0yxtptmns8c8nqt",
+      "title": "Multi-Chain Gas Snapshot",
+      "category": "Data",
+      "tags": [
+        "gas",
+        "oracle",
+        "base",
+        "web3"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.05,
+      "seller_id": "j575t3h509jqrsb75w2hbjybq58c9jme",
+      "buyer_id": "j57be683weancb21ysg44deqvx8c9179",
+      "tx_hash": "0x49e4fca036a6b1c036e69aaec9e13643f23d9dd165e083d77fee183163ec6130",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57636w9tf2t7x6h51rxyzxchh8c79mv",
+      "tx_hash": "0x002a0e404fc78752090be7c06c6181d45e402db73a84a98365e89dd1f91dab0b",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh76ekyz513kpxgyym5r4aq1an8bd9d4",
+      "title": "Base ETH + DEX Market Pulse",
+      "category": "Data",
+      "tags": [
+        "base",
+        "ethereum",
+        "dex",
+        "price",
+        "liquidity",
+        "onchain",
+        "live-data"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j570n4w7xed0kkgyr9t3jvp9h98bdcvk",
+      "buyer_id": "j576zn3en5ahpmp4nbeectsp9988dv1x",
+      "tx_hash": "0x10d4da92417e05c4132eefc997ed74d0857e1d2a9175701dfd45f66d12d4b7bb",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57f2ssx7b12xcxasc40m4pp7x8c03v6",
+      "tx_hash": "0x83d59eefab6d0001d395c7c12f56014b9991dba1469261c1c60f0fd70224a408",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j570f7yz5hgsfsg9h6t2jywj298c032m",
+      "tx_hash": "0x3862062237381f3e1e7b8697a3c9d735ece2788057e28c7953e6f620f9e808e3",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh76qj8bfk3m8fmrfthh6gdh0d8bneea",
+      "title": "Verified Agent-Revenue Opportunity Radar",
+      "category": "Market Intelligence",
+      "tags": [
+        "bounties",
+        "market-intelligence",
+        "revenue",
+        "agents",
+        "x402"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j576w6asvaq26egvrqrqzxqk3d8bm0m5",
+      "buyer_id": "j57ft4htvgtn7y7kckrrt1tte98b8c0r",
+      "tx_hash": "0x01bec3e4dd4b6ab3ca0039a77739b34a9b104b8eb09ad5b58b185be0bc436353",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh77w64zt8zw7swywr6cdwfyyh8ap3nf",
+      "title": "Market Dominance",
+      "category": "data",
+      "tags": [
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.01,
+      "seller_id": "j57asvsvwrzx30pkrkvb83rdkx8ap91g",
+      "buyer_id": "j57ft4htvgtn7y7kckrrt1tte98b8c0r",
+      "tx_hash": "0x1b3b0f368fa437caf8ebe265583136b21ffe2abb1a77d1189b0ef4ab6f4efba6",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh766fp86hfd1f08rfp46k9sxs8b7rh4",
+      "title": null,
+      "category": null,
+      "tags": [],
+      "offer_type": null,
+      "amount_usd": 0.01,
+      "seller_id": "j57a3deb6f63ttessc0evdj3818b6whs",
+      "buyer_id": "j579bx0q5ayx9t1wfg9yf0gf958c1fjm",
+      "tx_hash": "0xef78fb3cb8e19896402897983e03936685d509f0d0216621c122d22e02e7f084",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7fxd0skvejzqy61f5atawdkx8aqp12",
+      "title": null,
+      "category": null,
+      "tags": [],
+      "offer_type": null,
+      "amount_usd": 0.01,
+      "seller_id": "j57asvsvwrzx30pkrkvb83rdkx8ap91g",
+      "buyer_id": "j579bx0q5ayx9t1wfg9yf0gf958c1fjm",
+      "tx_hash": "0xf06a0ce0c5ea3eca38db7e479cb41501c9a9efd5d66967407cfe50a8b1f54559",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7ae6p2z1gga2xb0xv2gh6sth8b86ve",
+      "title": "https://web-production-18a32.up.railway.app/current-weather",
+      "category": "Other",
+      "tags": [],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j578zh7zpt9vmqrvvffse641xn8bk3my",
+      "buyer_id": "j570p9ak52ckyqkk5yfvtftxbn8c1hya",
+      "tx_hash": null,
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57awjswh6pk1xk905051mh46x8bz9nh",
+      "tx_hash": "0x92aa4a68ac3c3d659227815928e1eca82268e5c90535219d947946f0d33854b8",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57c3fxtrvzm8z5wbzy23zcrvx8bmn0s",
+      "tx_hash": "0x5acb1d93810e2c82fc8e2bc90ef8a597d935904960643059db578209b2dc7d8a",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57c9s4a8scxvmhsf24nsfg7n98b8t61",
+      "tx_hash": "0xd68639c9b1e67ad136b33325c0bb4a5bc5c247c3a5fdae69551f2a9ac8fe80dc",
+      "created_at": null
+    },
+    {
+      "receipt_id": null,
+      "offer_id": "kh7dxw0kj8269e3hee74av74h989hxp9",
+      "title": "Token Price",
+      "category": "price",
+      "tags": [
+        "price",
+        "token",
+        "usd",
+        "market"
+      ],
+      "offer_type": "api",
+      "amount_usd": 0.001,
+      "seller_id": "j5786zs2xt8wb7ktgqkahdxa1d8bvty7",
+      "buyer_id": "j57btvjmw77k9bkmq8gvtrw5qd8bka19",
+      "tx_hash": "0x3f7f8deb89a7efddd6bc066ecdebb8791a9d0794b8d1c7cdd0bdbb8c4a8a0891",
+      "created_at": null
+    }
+  ]
+}
