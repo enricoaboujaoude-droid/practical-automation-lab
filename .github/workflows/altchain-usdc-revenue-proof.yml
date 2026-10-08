@@ -1,0 +1,44 @@
+name: Altchain USDC revenue proof
+
+on:
+  push:
+    paths:
+      - "scripts/reconcile-altchain-usdc.mjs"
+      - ".github/workflows/altchain-usdc-revenue-proof.yml"
+  schedule:
+    - cron: "37 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: altchain-usdc-revenue-proof
+  cancel-in-progress: true
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Scan Polygon and Arbitrum USDC receipts
+        run: node scripts/reconcile-altchain-usdc.mjs
+
+      - name: Persist settlement evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- revenue/altchain-usdc-ledger.json)" ]; then
+            echo "No evidence change."
+            exit 0
+          fi
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/altchain-usdc-ledger.json
+          git commit -m "revenue: reconcile Polygon Arbitrum USDC receipts"
+          git push origin HEAD:main
