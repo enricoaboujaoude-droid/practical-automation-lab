@@ -1,0 +1,44 @@
+name: Multichain USDC revenue ledger
+
+on:
+  push:
+    paths:
+      - "scripts/reconcile-multichain-usdc.mjs"
+      - ".github/workflows/multichain-usdc-revenue-ledger.yml"
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: multichain-usdc-revenue-ledger
+  cancel-in-progress: true
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Reconcile Base Polygon Arbitrum USDC settlements
+        run: node scripts/reconcile-multichain-usdc.mjs
+
+      - name: Persist ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- revenue/usdc-multichain-ledger.json; then
+            echo "No multichain ledger change."
+            exit 0
+          fi
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/usdc-multichain-ledger.json
+          git commit -m "revenue: reconcile multichain USDC settlements"
+          git push origin HEAD:main
