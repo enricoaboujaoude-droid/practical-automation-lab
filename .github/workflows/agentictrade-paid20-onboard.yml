@@ -1,0 +1,33 @@
+name: AgenticTrade paid $20 onboarding
+
+on:
+  push:
+    paths:
+      - "scripts/onboard-agentictrade-paid20.mjs"
+      - ".github/workflows/agentictrade-paid20-onboard.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  onboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Onboard explicit paid service
+        run: node scripts/onboard-agentictrade-paid20.mjs
+      - name: Persist sanitized marketplace state
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/agentictrade-paid20-service.json
+          git diff --cached --quiet && exit 0
+          git commit -m "revenue: record paid AgenticTrade service state"
+          git push origin HEAD:main
