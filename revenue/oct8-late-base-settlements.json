@@ -1,0 +1,17 @@
+{
+  "payout_address": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+  "network": "base-mainnet",
+  "event_window": {
+    "start": "2026-10-08T14:45:00Z",
+    "end": "2026-10-08T17:35:00Z"
+  },
+  "checked_at": "2026-10-08T18:12:50.376Z",
+  "scanned_blocks": {
+    "from": 52340677,
+    "to": 52345777
+  },
+  "transfers": [],
+  "total_usdc": 0,
+  "exact_25_count": 0,
+  "exact_25_usdc": 0
+}
