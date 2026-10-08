@@ -13,7 +13,7 @@ const clean=pal.map(s=>({
  description:s.description||null,
  provider_id:s.provider_id||s.providerId||null,
  endpoint:s.endpoint||null,
- price_per_call:Number(s.price_per_call??s.pricing?.price_per_call??s.price??0),
+ pricing:s.pricing??null,\n price_per_call:Number(s.price_per_call??s.pricing?.price_per_call??s.price??0),
  currency:s.currency||s.pricing?.currency||null,
  free_tier_calls:Number(s.free_tier_calls??s.free_calls??s.pricing?.free_tier_calls??0),
  total_calls:Number(s.total_calls??s.call_count??s.calls??s.usage_count??0),
