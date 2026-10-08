@@ -10088,8 +10088,7 @@ app.use((error, _req, res, _next) => {
 const AGENTICTRADE_PROVIDER_ID = "e6251fd3-fe50-4d17-9950-2bfd402c1ad7";
 const AGENTICTRADE_API_BASE = "https://agentictrade.io/api/v1";
 const AGENTICTRADE_PREMIUM_ORIGIN = "https://pal-full-catalog-remediation.onrender.com";
-const AGENTICTRADE_PREMIUM_BOOTSTRAP_ENABLED =
-  PUBLIC_BASE_URL === "https://pal-nano-catalog-audit.onrender.com";
+const AGENTICTRADE_PREMIUM_BOOTSTRAP_ENABLED = MARKETPLACE_PUBLISHER;
 
 const AGENTICTRADE_PREMIUM_SERVICES = [
   {
