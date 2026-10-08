@@ -7383,6 +7383,102 @@ app.post("/v1/agentpay-remediation-bulk", (req, res) => {
   });
 });
 
+app.post("/v1/agentpay/shopify-store-audit", async (req, res) => {
+  const storeUrl = String(req.body?.url || req.body?.store_url || "").trim();
+  if (!storeUrl) {
+    return res.status(400).json({
+      error: "missing_url",
+      detail: "Body field url must contain a public HTTPS Shopify storefront URL.",
+    });
+  }
+
+  try {
+    const prepared = shopifyStoreOrigin(storeUrl);
+    await assertPublicFetchHost(prepared.hostname);
+  } catch (error) {
+    return res.status(400).json({
+      error: "invalid_or_unsafe_shopify_store_url",
+      detail: error instanceof Error ? error.message : String(error),
+    });
+  }
+
+  try {
+    const live = await readShopifyStoreCatalog(storeUrl);
+    const remediation = catalogRemediationPlan(live.records);
+    return res.json({
+      service: "PAL Live Shopify Store Commerce Audit",
+      marketplace: {
+        provider: "AgenticTrade",
+        billing: "handled_upstream",
+        price_per_call_usdc: "25",
+      },
+      checked_at: nowIso(),
+      source: "Shopify public storefront APIs",
+      storefront: {
+        origin: live.origin,
+        products_json_url: live.products_json_url,
+        cart_json_url: live.cart_json_url,
+        currency: live.currency,
+        products_seen: live.products_seen,
+        variants_seen: live.variants_seen,
+        variants_audited: live.variants_audited,
+        variants_truncated: live.variants_truncated,
+      },
+      readiness: remediation.readiness,
+      summary: remediation.summary,
+      prioritized_actions: remediation.prioritized_actions,
+      audit: remediation.audit,
+      boundary: {
+        authenticated_access: false,
+        private_data_access: false,
+        store_mutation: false,
+        records_cap: 250,
+      },
+      disclaimer:
+        "Public-storefront deterministic audit only; not a guarantee of Google Merchant Center approval, full private-catalog coverage, or regulatory compliance.",
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "shopify_store_audit_failed",
+      detail: error instanceof Error ? error.message : String(error),
+      checked_at: nowIso(),
+    });
+  }
+});
+
+app.post("/v1/agentpay/agent-commerce-launch-kit", async (req, res) => {
+  const origin = String(req.body?.origin || "").trim();
+  const serviceName = String(req.body?.service_name || "").trim();
+  const serviceDescription = String(req.body?.service_description || "").trim();
+
+  if (!origin || serviceName.length < 3 || serviceDescription.length < 20) {
+    return res.status(400).json({
+      error: "invalid_launch_kit_input",
+      detail:
+        "origin, service_name (>=3 chars), and service_description (>=20 chars) are required.",
+    });
+  }
+
+  try {
+    const report = await buildSellerIntegrityAudit(origin, req.body?.route);
+    if (!report.ok) return res.status(400).json(report);
+
+    return res.json({
+      ...buildAgentCommerceLaunchKit(report, req.body),
+      marketplace: {
+        provider: "AgenticTrade",
+        billing: "handled_upstream",
+        price_per_call_usdc: "99",
+      },
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "agent_commerce_launch_kit_failed",
+      detail: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
 app.get("/v1/payanagent/status", (_req, res) => {
   res.set("Cache-Control", "no-store");
   res.json({
@@ -10022,6 +10118,24 @@ const AGENTICTRADE_PREMIUM_SERVICES = [
     price_per_call: "20.00",
     category: "data",
     tags: ["ecommerce", "merchant-center", "catalog", "full-catalog", "product-feed", "remediation"],
+  },
+  {
+    name: "PAL Live Shopify Store Commerce Audit",
+    description:
+      "Audit a live public Shopify storefront for Merchant Center and AI-shopping readiness without requiring store login. Inspects up to 250 sellable variants and returns prioritized fixes.",
+    endpoint: `${AGENTICTRADE_PREMIUM_ORIGIN}/v1/agentpay/shopify-store-audit`,
+    price_per_call: "25.00",
+    category: "data",
+    tags: ["shopify", "ecommerce", "merchant-center", "catalog-audit", "ai-shopping", "storefront"],
+  },
+  {
+    name: "PAL Agent Commerce Launch Kit",
+    description:
+      "Generate a deployment-ready agent-commerce package for an existing public service: runtime readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads and deployment steps.",
+    endpoint: `${AGENTICTRADE_PREMIUM_ORIGIN}/v1/agentpay/agent-commerce-launch-kit`,
+    price_per_call: "99.00",
+    category: "developer-tools",
+    tags: ["agent-commerce", "x402", "mcp", "openapi", "agent-card", "marketplace", "deployment"],
   },
 ];
 
