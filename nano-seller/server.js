@@ -6593,6 +6593,94 @@ OpenAPI: ${PUBLIC_BASE_URL}/openapi.json
 `);
 });
 
+app.get("/.well-known/agent-card.json", (_req, res) => {
+  res.set("Cache-Control", "public, max-age=300");
+  res.type("application/json").json({
+    name: "PAL AIEO Commerce Catalog Intelligence",
+    description:
+      "Deterministic paid agent-commerce and ecommerce intelligence: live Shopify audits, catalog remediation, agent-commerce launch packaging, GTIN validation and x402 seller readiness.",
+    version: "1.0.0",
+    supportedInterfaces: [
+      {
+        url: `${PUBLIC_BASE_URL}/a2a`,
+        protocolBinding: "JSONRPC",
+        protocolVersion: "1.0",
+      },
+    ],
+    capabilities: {
+      streaming: false,
+      pushNotifications: false,
+    },
+    defaultInputModes: ["application/json"],
+    defaultOutputModes: ["application/json"],
+    skills: [
+      {
+        id: "commerce-intelligence",
+        name: "Commerce intelligence",
+        tags: ["ecommerce", "shopify", "merchant-center", "catalog", "x402"],
+        description:
+          "Discover PAL's machine-payable commerce intelligence and remediation services. Paid operations and schemas are exposed through the service OpenAPI and x402 manifests.",
+      },
+      {
+        id: "agent-commerce-launch",
+        name: "Agent commerce launch",
+        tags: ["agent-commerce", "x402", "mcp", "openapi", "distribution"],
+        description:
+          "Package and distribute an already-public paid agent service using machine-readable agent-commerce artifacts and marketplace registration payloads.",
+      },
+    ],
+    provider: {
+      organization: "Practical Automation Lab",
+      url: PUBLIC_BASE_URL,
+    },
+    documentationUrl: `${PUBLIC_BASE_URL}/openapi.json`,
+    "x-registry": {
+      agentId: "practical-automation-lab-commerce",
+    },
+  });
+});
+
+app.post("/a2a", (req, res) => {
+  const id = req.body?.id ?? null;
+  const method = String(req.body?.method || "");
+
+  res.set("Cache-Control", "no-store");
+  res.type("application/json");
+
+  if (method === "GetTask" || method === "tasks/get") {
+    return res.json({
+      jsonrpc: "2.0",
+      id,
+      error: {
+        code: -32001,
+        message: "TaskNotFound",
+        data: { detail: "PAL exposes stateless commerce skills; the requested probe task does not exist." },
+      },
+    });
+  }
+
+  if (method === "SendMessage" || method === "message/send") {
+    return res.json({
+      jsonrpc: "2.0",
+      id,
+      error: {
+        code: -32602,
+        message: "InvalidParams",
+        data: {
+          detail:
+            "Use PAL's documented HTTPS API/x402 operations for commerce calls; this A2A endpoint advertises and verifies agent reachability without creating stateful tasks.",
+        },
+      },
+    });
+  }
+
+  return res.json({
+    jsonrpc: "2.0",
+    id,
+    error: { code: -32601, message: "MethodNotFound" },
+  });
+});
+
 app.get("/.well-known/agent.json", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.type("application/json").json({
@@ -10403,6 +10491,52 @@ async function startFiatDockBootstrap() {
   }
 }
 
+const IP402_REGISTRY_BASE = "https://registry.ip402.xyz";
+
+async function startIp402RegistryBootstrap() {
+  if (!MARKETPLACE_PUBLISHER) return;
+
+  try {
+    const validateResponse = await fetch(`${IP402_REGISTRY_BASE}/v1/agents/validate`, {
+      method: "POST",
+      headers: { accept: "application/json", "content-type": "application/json" },
+      body: JSON.stringify({ url: PUBLIC_BASE_URL }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const validation = await validateResponse.json().catch(() => ({}));
+
+    if (!validateResponse.ok) {
+      console.log(
+        `[ip402-registry] validation failed status=${validateResponse.status} payload=${JSON.stringify(validation).slice(0, 700)}`,
+      );
+      return;
+    }
+
+    if (!validation?.registerable || !validation?.validation_id) {
+      console.log(
+        `[ip402-registry] validation not registerable mode=${validation?.mode || "unknown"} payload=${JSON.stringify(validation).slice(0, 900)}`,
+      );
+      return;
+    }
+
+    const registerResponse = await fetch(`${IP402_REGISTRY_BASE}/v1/agents`, {
+      method: "POST",
+      headers: { accept: "application/json", "content-type": "application/json" },
+      body: JSON.stringify({ validation_id: validation.validation_id }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const registered = await registerResponse.json().catch(() => ({}));
+
+    console.log(
+      `[ip402-registry] register status=${registerResponse.status} ok=${registerResponse.ok} id=${registered?.id || registered?.agent_id || "unknown"} mode=${validation?.mode || "register"}`,
+    );
+  } catch (error) {
+    console.log(
+      `[ip402-registry] bootstrap error=${String(error?.message || error).slice(0, 240)}`,
+    );
+  }
+}
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`PAL Nano seller listening on :${PORT}; pay_to=${PAY_TO}; marketplace_publisher=${MARKETPLACE_PUBLISHER}`);
   if (!MARKETPLACE_PUBLISHER) {
@@ -10423,4 +10557,5 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startNoHumansBootstrap(), 40_000);
   setTimeout(() => void startAgenticTradePremiumBootstrap(), 44_000);
   setTimeout(() => void startAgenticTradeFullCatalogOnboard(), 52_000);
+  setTimeout(() => void startIp402RegistryBootstrap(), 60_000);
 });
