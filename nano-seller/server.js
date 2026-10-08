@@ -10585,6 +10585,33 @@ async function startFiatDockBootstrap() {
   }
 }
 
+const AGENT_BAZAAR_SUBMIT_URL = "https://bazaar.saylorinnovations.com/submit";
+
+async function startAgentBazaarBootstrap() {
+  if (!MARKETPLACE_PUBLISHER) return;
+
+  try {
+    const manifestUrl = `${PUBLIC_BASE_URL}/.well-known/x402`;
+    const response = await fetch(AGENT_BAZAAR_SUBMIT_URL, {
+      method: "POST",
+      headers: { accept: "application/json", "content-type": "application/json" },
+      body: JSON.stringify({ manifestUrl }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const payload = await response.json().catch(async () => ({
+      raw: (await response.text().catch(() => "")).slice(0, 900),
+    }));
+
+    console.log(
+      `[agent-bazaar] submit status=${response.status} ok=${response.ok} manifest=${manifestUrl} payload=${JSON.stringify(payload).slice(0, 900)}`,
+    );
+  } catch (error) {
+    console.log(
+      `[agent-bazaar] bootstrap error=${String(error?.message || error).slice(0, 240)}`,
+    );
+  }
+}
+
 const IP402_REGISTRY_BASE = "https://registry.ip402.xyz";
 
 async function startIp402RegistryBootstrap() {
@@ -10652,5 +10679,6 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startAgenticTradePremiumBootstrap(), 44_000);
   setTimeout(() => void startAgenticTradeFullCatalogOnboard(), 52_000);
   setTimeout(() => void startAgenticTradeHighValueOnboard(), 56_000);
-  setTimeout(() => void startIp402RegistryBootstrap(), 64_000);
+  setTimeout(() => void startAgentBazaarBootstrap(), 60_000);
+  setTimeout(() => void startIp402RegistryBootstrap(), 68_000);
 });
