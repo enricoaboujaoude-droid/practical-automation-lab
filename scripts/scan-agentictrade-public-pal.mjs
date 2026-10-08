@@ -24,7 +24,16 @@ const clean=pal.map(s=>({
  created_at:s.created_at||null,
  updated_at:s.updated_at||null
 }));
-const out={checked_at:new Date().toISOString(),service_count:clean.length,services:clean,raw_keys:pal.map(s=>({id:s.id||s.service_id||null,keys:Object.keys(s)}))};
+const reputations={};
+for(const s of clean){
+  if(!s.id) continue;
+  try{
+    const rr=await fetch("https://agentictrade.io/api/v1/services/"+encodeURIComponent(s.id)+"/reputation?period=all-time",{headers:{accept:"application/json","user-agent":"PAL-Public-Revenue-Audit/1.0"},signal:AbortSignal.timeout(15000)});
+    const rt=await rr.text();
+    reputations[s.id]=rr.ok?(rt?JSON.parse(rt):{}):{http_status:rr.status,body:rt.slice(0,500)};
+  }catch(e){reputations[s.id]={error:e instanceof Error?e.message:String(e)};}
+}
+const out={checked_at:new Date().toISOString(),service_count:clean.length,services:clean,reputations,raw_keys:pal.map(s=>({id:s.id||s.service_id||null,keys:Object.keys(s)}))};
 fs.mkdirSync("revenue",{recursive:true});
 fs.writeFileSync("revenue/agentictrade-public-pal-services.json",JSON.stringify(out,null,2)+"\n");
 console.log(JSON.stringify(out,null,2));
