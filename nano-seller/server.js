@@ -8774,6 +8774,70 @@ async function registerAgentCommerceService(input, launchKit) {
   return { resource, registrations };
 }
 
+app.post("/v1/agentpay/agent-commerce-go-live", async (req, res) => {
+  const origin = String(req.body?.origin || "").trim();
+  const route = String(req.body?.route || "").trim();
+  const serviceName = String(req.body?.service_name || "").trim();
+  const serviceDescription = String(req.body?.service_description || "").trim();
+  const priceUsd = Number(req.body?.price_usd);
+  if (
+    !origin ||
+    !route ||
+    serviceName.length < 3 ||
+    serviceDescription.length < 20 ||
+    !Number.isFinite(priceUsd) ||
+    priceUsd <= 0
+  ) {
+    return res.status(400).json({
+      error: "invalid_go_live_input",
+      detail:
+        "origin, route, service_name, service_description, and positive price_usd are required.",
+    });
+  }
+
+  try {
+    const report = await buildSellerIntegrityAudit(origin, route);
+    if (!report.ok) return res.status(400).json(report);
+
+    const launchKit = buildAgentCommerceLaunchKit(report, req.body);
+    const registration = await registerAgentCommerceService(req.body, launchKit);
+    const remainingBlockers = [
+      ...(launchKit.readiness?.blockers || []),
+      ...Object.entries(registration.registrations)
+        .filter(([, value]) => value?.ok !== true)
+        .map(([name]) => `${name}_registration_failed`),
+    ];
+
+    console.log(
+      "[revenue] agentictrade agent-commerce-go-live served marketplace_billing=upstream price_usdc=350",
+    );
+
+    return res.json({
+      service: "PAL Agent Commerce Go-Live",
+      completed_at: nowIso(),
+      target: launchKit.target,
+      readiness: launchKit.readiness,
+      files: launchKit.files,
+      registrations: registration.registrations,
+      registered_resource: registration.resource,
+      deployment_checklist: launchKit.deployment_checklist,
+      remaining_blockers: remainingBlockers,
+      marketplace: {
+        provider: "AgenticTrade",
+        billing: "handled_upstream",
+        price_per_call_usdc: "350",
+      },
+      boundary:
+        "This service operates only on the buyer-supplied public origin/route. It does not access private repositories, sign buyer transactions, custody wallets, or create fake settlement history.",
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "agent_commerce_go_live_failed",
+      detail: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
 app.post("/v1/usdc/agent-commerce-go-live", async (req, res) => {
   const origin = String(req.body?.origin || "").trim();
   const route = String(req.body?.route || "").trim();
@@ -10425,6 +10489,16 @@ async function startAgenticTradeHighValueOnboard() {
         "Generate a deployment-ready agent-commerce package for an existing public service: runtime readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads and deployment steps.",
       category: "developer-tools",
       tags: ["agent-commerce", "x402", "mcp", "openapi", "marketplace"],
+    },
+    {
+      name: "PAL Agent Commerce Go-Live",
+      endpoint:
+        "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/agent-commerce-go-live",
+      price: "350",
+      description:
+        "One-call go-live for an already-public paid agent service: verify runtime x402 readiness, generate launch artifacts, submit the public service to compatible discovery markets, and return registration receipts plus exact remaining blockers.",
+      category: "developer-tools",
+      tags: ["agent-commerce", "x402", "distribution", "marketplace", "go-live", "mcp"],
     },
   ];
 
