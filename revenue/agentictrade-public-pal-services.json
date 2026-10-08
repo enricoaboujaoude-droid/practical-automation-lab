@@ -1,0 +1,107 @@
+{
+  "checked_at": "2026-10-08T18:01:00.711Z",
+  "service_count": 3,
+  "services": [
+    {
+      "id": "a995b693-1db4-4b25-95b4-512b4c4dca42",
+      "name": "PAL Catalog Feed Auditor",
+      "description": "Deterministic product-catalog identifier and feed consistency audit for AI agents and commerce tooling. Accepts POST JSON through the marketplace proxy and returns duplicate-ID, URL, GTIN checksum/format, identifier, price-format, brand/MPN and availability findings.",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "endpoint": "https://pal-nano-catalog-audit.onrender.com/v1/agentpay",
+      "price_per_call": 0.1,
+      "currency": "USDC",
+      "free_tier_calls": 0,
+      "total_calls": 0,
+      "paid_calls": 0,
+      "revenue_usd": 0,
+      "status": "active",
+      "health_score": null,
+      "created_at": "2026-10-02T09:49:01.592274+00:00",
+      "updated_at": "2026-10-03T12:06:26"
+    },
+    {
+      "id": "00cf5f52-d0d9-4118-b47c-58f7e33cb2d2",
+      "name": "PAL Full Catalog Remediation 2000",
+      "description": "Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for product-feed, identifier, GTIN, price, URL, brand/MPN and availability issues.",
+      "provider_id": "agent_0fbddb484e02",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/agentpay-remediation-bulk",
+      "price_per_call": 20,
+      "currency": "USDC",
+      "free_tier_calls": 0,
+      "total_calls": 0,
+      "paid_calls": 0,
+      "revenue_usd": 0,
+      "status": "active",
+      "health_score": null,
+      "created_at": "2026-10-05T21:04:14.582925+00:00",
+      "updated_at": "2026-10-05T21:04:39.843237+00:00"
+    },
+    {
+      "id": "00c78e8f-be6d-4371-b94b-82262767f40a",
+      "name": "PAL Full Catalog Remediation",
+      "description": "Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for feed, identifier, GTIN, price, URL, brand/MPN and availability issues.",
+      "provider_id": "agent_d42665baaa45",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/usdc/catalog-remediation-bulk",
+      "price_per_call": 20,
+      "currency": "USDC",
+      "free_tier_calls": 0,
+      "total_calls": 0,
+      "paid_calls": 0,
+      "revenue_usd": 0,
+      "status": "active",
+      "health_score": null,
+      "created_at": "2026-10-06T08:13:11.623875+00:00",
+      "updated_at": "2026-10-06T08:13:31.911054+00:00"
+    }
+  ],
+  "raw_keys": [
+    {
+      "id": "a995b693-1db4-4b25-95b4-512b4c4dca42",
+      "keys": [
+        "id",
+        "provider_id",
+        "name",
+        "description",
+        "endpoint",
+        "pricing",
+        "status",
+        "category",
+        "tags",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "id": "00cf5f52-d0d9-4118-b47c-58f7e33cb2d2",
+      "keys": [
+        "id",
+        "provider_id",
+        "name",
+        "description",
+        "endpoint",
+        "pricing",
+        "status",
+        "category",
+        "tags",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    {
+      "id": "00c78e8f-be6d-4371-b94b-82262767f40a",
+      "keys": [
+        "id",
+        "provider_id",
+        "name",
+        "description",
+        "endpoint",
+        "pricing",
+        "status",
+        "category",
+        "tags",
+        "created_at",
+        "updated_at"
+      ]
+    }
+  ]
+}
