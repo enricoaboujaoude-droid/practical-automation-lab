@@ -1,0 +1,22 @@
+name: AgenticTrade paid $20 onboarding v2
+
+on:
+  push:
+    paths:
+      - "scripts/onboard-agentictrade-paid20-v2.mjs"
+      - ".github/workflows/agentictrade-paid20-onboard-v2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  onboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Create paid x402 service
+        run: node scripts/onboard-agentictrade-paid20-v2.mjs
