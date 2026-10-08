@@ -1,5 +1,5 @@
 import fs from "node:fs";
-const URL="https://agentictrade.io/api/v1/services?query=PAL&limit=100";
+const URL="https://agentictrade.io/api/v1/services?query=PAL&limit=100"; // rescan paid listings
 const res=await fetch(URL,{headers:{accept:"application/json","user-agent":"PAL-Public-Revenue-Audit/1.0"},signal:AbortSignal.timeout(15000)});
 const text=await res.text();
 if(!res.ok) throw new Error(`HTTP ${res.status}: ${text.slice(0,500)}`);
