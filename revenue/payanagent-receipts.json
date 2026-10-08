@@ -1,0 +1,13 @@
+{
+  "marketplace": "PayanAgent",
+  "seller_agent_id": "j57eeka0x0jgdbq3th55ms988x8fx49e",
+  "checked_at": "2026-10-08T17:51:13.286Z",
+  "receipt_count": 0,
+  "settled_receipt_count": 0,
+  "settled_total_usd": 0,
+  "receipts": [],
+  "raw_shape_keys": [
+    "stats",
+    "receipts"
+  ]
+}
