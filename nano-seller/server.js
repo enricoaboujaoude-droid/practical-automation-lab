@@ -8080,7 +8080,7 @@ app.get("/v1/usdc/shopify-store-audit", async (req, res) => {
   }
 
   usdcPaidShopifyStoreAudits += 1;
-  console.log(`[revenue] usdc_x402_shopify_store_audit served price_usd=25 network=${USDC_X402_NETWORK} count=${usdcPaidShopifyStoreAudits}`);
+  console.log(`[fulfillment] usdc_x402_shopify_store_audit executed listed_price_usd=25 advertised_network=${USDC_X402_NETWORK} count=${usdcPaidShopifyStoreAudits} settlement_proof=external_ledger_required`);
 
   try {
     const live = await readShopifyStoreCatalog(storeUrl);
