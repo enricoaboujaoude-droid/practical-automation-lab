@@ -8809,7 +8809,7 @@ app.post("/v1/agentpay/agent-commerce-go-live", async (req, res) => {
     ];
 
     console.log(
-      "[revenue] agentictrade agent-commerce-go-live served marketplace_billing=upstream price_usdc=350",
+      "[revenue] agentictrade agent-commerce-go-live served marketplace_billing=upstream price_usdc=100",
     );
 
     return res.json({
@@ -8825,7 +8825,7 @@ app.post("/v1/agentpay/agent-commerce-go-live", async (req, res) => {
       marketplace: {
         provider: "AgenticTrade",
         billing: "handled_upstream",
-        price_per_call_usdc: "350",
+        price_per_call_usdc: "100",
       },
       boundary:
         "This service operates only on the buyer-supplied public origin/route. It does not access private repositories, sign buyer transactions, custody wallets, or create fake settlement history.",
@@ -10494,7 +10494,7 @@ async function startAgenticTradeHighValueOnboard() {
       name: "PAL Agent Commerce Go-Live",
       endpoint:
         "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/agent-commerce-go-live",
-      price: "350",
+      price: "100",
       description:
         "One-call go-live for an already-public paid agent service: verify runtime x402 readiness, generate launch artifacts, submit the public service to compatible discovery markets, and return registration receipts plus exact remaining blockers.",
       category: "developer-tools",
