@@ -10612,6 +10612,48 @@ async function startAgentBazaarBootstrap() {
   }
 }
 
+app.get("/v1/distribution/agent-bazaar/submit", async (_req, res) => {
+  if (!MARKETPLACE_PUBLISHER) {
+    return res.status(404).json({ error: "not_publisher" });
+  }
+
+  const manifestUrl = `${PUBLIC_BASE_URL}/.well-known/x402`;
+  try {
+    const response = await fetch(AGENT_BAZAAR_SUBMIT_URL, {
+      method: "POST",
+      headers: { accept: "application/json", "content-type": "application/json" },
+      body: JSON.stringify({ manifestUrl }),
+      signal: AbortSignal.timeout(30_000),
+    });
+    const raw = await response.text();
+    let payload;
+    try {
+      payload = JSON.parse(raw);
+    } catch {
+      payload = { raw: raw.slice(0, 1600) };
+    }
+
+    console.log(
+      `[agent-bazaar] forced submit status=${response.status} ok=${response.ok} manifest=${manifestUrl} payload=${JSON.stringify(payload).slice(0, 900)}`,
+    );
+    return res.status(response.ok ? 200 : 502).json({
+      ok: response.ok,
+      upstream_status: response.status,
+      manifest_url: manifestUrl,
+      upstream: payload,
+    });
+  } catch (error) {
+    console.log(
+      `[agent-bazaar] forced submit error=${String(error?.message || error).slice(0, 240)}`,
+    );
+    return res.status(502).json({
+      ok: false,
+      error: "agent_bazaar_submit_failed",
+      detail: String(error?.message || error),
+    });
+  }
+});
+
 const IP402_REGISTRY_BASE = "https://registry.ip402.xyz";
 
 async function startIp402RegistryBootstrap() {
