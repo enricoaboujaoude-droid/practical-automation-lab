@@ -10686,6 +10686,27 @@ async function startAgentBazaarBootstrap() {
   }
 }
 
+app.get("/v1/distribution/agentictrade/high-value", async (_req, res) => {
+  if (!MARKETPLACE_PUBLISHER) {
+    return res.status(404).json({ error: "not_publisher" });
+  }
+  try {
+    await startAgenticTradeHighValueOnboard();
+    return res.json({
+      ok: true,
+      action: "agentictrade_high_value_onboard_attempted",
+      checked_at: nowIso(),
+      verify_via: "https://agentictrade.io/api/v1/discover?query=PAL%20Agent%20Commerce%20Go-Live",
+    });
+  } catch (error) {
+    return res.status(502).json({
+      ok: false,
+      error: "agentictrade_high_value_onboard_failed",
+      detail: String(error?.message || error),
+    });
+  }
+});
+
 app.get("/v1/distribution/agent-bazaar/submit", async (_req, res) => {
   if (!MARKETPLACE_PUBLISHER) {
     return res.status(404).json({ error: "not_publisher" });
