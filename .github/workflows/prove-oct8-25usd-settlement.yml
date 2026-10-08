@@ -1,0 +1,33 @@
+name: Prove Oct8 $25 settlement
+
+on:
+  push:
+    paths:
+      - "scripts/prove-oct8-25usd-settlement.mjs"
+      - ".github/workflows/prove-oct8-25usd-settlement.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  prove:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Target Polygon and Arbitrum event window
+        run: node scripts/prove-oct8-25usd-settlement.mjs
+      - name: Persist proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/oct8-25usd-settlement-proof.json
+          git diff --cached --quiet && exit 0
+          git commit -m "revenue: record Oct 8 $25 settlement proof"
+          git push origin HEAD:main
