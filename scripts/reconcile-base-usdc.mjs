@@ -9,7 +9,7 @@ const RPC_URLS = [
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const PAYOUT = "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF".toLowerCase();
 const LEDGER_PATH = process.env.REVENUE_LEDGER_PATH || "revenue/base-usdc-ledger.json";
-const BLOCK_WINDOW = Number(process.env.BLOCK_WINDOW || 5000);
+const BLOCK_WINDOW = Number(process.env.BLOCK_WINDOW || 30000);
 const CHUNK = 450;
 const RPC_DELAY_MS = Number(process.env.RPC_DELAY_MS || 300);
 const TRANSFER_TOPIC =
@@ -100,7 +100,7 @@ const latest = Number.parseInt(await rpc("eth_blockNumber", []), 16);
 const safeStart = Math.max(0, latest - BLOCK_WINDOW);
 const overlapStart =
   Number.isInteger(ledger.last_scanned_block) && ledger.last_scanned_block > 0
-    ? Math.max(safeStart, ledger.last_scanned_block - 1000)
+    ? Math.max(safeStart, ledger.last_scanned_block - BLOCK_WINDOW)
     : safeStart;
 
 const logs = [];
