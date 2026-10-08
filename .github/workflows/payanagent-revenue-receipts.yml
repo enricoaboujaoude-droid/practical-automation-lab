@@ -1,0 +1,44 @@
+name: PayanAgent revenue receipts
+
+on:
+  push:
+    paths:
+      - "scripts/reconcile-payanagent-receipts.mjs"
+      - ".github/workflows/payanagent-revenue-receipts.yml"
+  schedule:
+    - cron: "27 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: payanagent-revenue-receipts
+  cancel-in-progress: true
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Reconcile PayanAgent seller receipts
+        run: node scripts/reconcile-payanagent-receipts.mjs
+
+      - name: Persist receipt evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- revenue/payanagent-receipts.json)" ]; then
+            echo "No receipt evidence change."
+            exit 0
+          fi
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/payanagent-receipts.json
+          git commit -m "revenue: reconcile PayanAgent receipts"
+          git push origin HEAD:main
