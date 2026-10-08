@@ -10404,6 +10404,100 @@ async function startAgenticTradeFullCatalogOnboard() {
 }
 
 
+async function startAgenticTradeHighValueOnboard() {
+  const offers = [
+    {
+      name: "PAL Live Shopify Store Commerce Audit",
+      endpoint:
+        "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/shopify-store-audit",
+      price: "25",
+      description:
+        "Audit a live public Shopify storefront for Merchant Center and AI-shopping readiness without store login. Inspects up to 250 sellable variants and returns prioritized fixes.",
+      category: "data",
+      tags: ["shopify", "ecommerce", "merchant-center", "catalog-audit", "ai-shopping"],
+    },
+    {
+      name: "PAL Agent Commerce Launch Kit",
+      endpoint:
+        "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/agent-commerce-launch-kit",
+      price: "99",
+      description:
+        "Generate a deployment-ready agent-commerce package for an existing public service: runtime readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads and deployment steps.",
+      category: "developer-tools",
+      tags: ["agent-commerce", "x402", "mcp", "openapi", "marketplace"],
+    },
+  ];
+
+  for (const offer of offers) {
+    try {
+      const search = await agenticTradeRequest(
+        `/services?query=${encodeURIComponent(offer.name)}&limit=100`,
+      );
+      const existing = Array.isArray(search.payload?.services)
+        ? search.payload.services.find(
+            (service) =>
+              String(service?.name || "") === offer.name ||
+              String(service?.endpoint || "") === offer.endpoint,
+          )
+        : null;
+
+      if (existing) {
+        console.log(
+          `[agentictrade-high] already listed name="${offer.name}" id=${existing.id || "unknown"} price=${existing?.pricing?.price_per_call ?? existing?.price_per_call ?? "unknown"}`,
+        );
+        continue;
+      }
+
+      const result = await agenticTradeRequest("/agents/onboard", {
+        method: "POST",
+        body: JSON.stringify({
+          agent_name: offer.name,
+          owner_email: "enricoaboujaoude@gmail.com",
+          description: offer.description,
+          endpoint: offer.endpoint,
+          price_per_call: offer.price,
+          category: offer.category,
+          tags: offer.tags,
+        }),
+      });
+
+      if (!result.response.ok) {
+        console.log(
+          `[agentictrade-high] onboard failed name="${offer.name}" status=${result.response.status} payload=${JSON.stringify(result.payload || {}).slice(0, 500)}`,
+        );
+        continue;
+      }
+
+      const agentId = String(result.payload?.agent_id || "");
+      const serviceId = String(result.payload?.service_id || "");
+      const apiKey = String(result.payload?.api_key || "");
+      if (!agentId || !serviceId || !apiKey) {
+        console.log(
+          `[agentictrade-high] incomplete success name="${offer.name}" agent_id=${Boolean(agentId)} service_id=${Boolean(serviceId)} api_key=${Boolean(apiKey)}`,
+        );
+        continue;
+      }
+
+      const walletUpdate = await agenticTradeRequest(
+        `/agents/${encodeURIComponent(agentId)}`,
+        {
+          method: "PATCH",
+          headers: { authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({ wallet_address: BASE_PAYOUT_ADDRESS }),
+        },
+      );
+
+      console.log(
+        `[agentictrade-high] created name="${offer.name}" agent_id=${agentId} service_id=${serviceId} price=${offer.price} wallet_bound=${walletUpdate.response.ok}`,
+      );
+    } catch (error) {
+      console.log(
+        `[agentictrade-high] error name="${offer.name}" detail=${String(error?.message || error).slice(0, 220)}`,
+      );
+    }
+  }
+}
+
 async function startFiatDockBootstrap() {
   if (!FIATDOCK_SELLER_KEY || !FIATDOCK_GATEWAY_TOKEN) {
     console.log("[fiatdock] bootstrap disabled: seller key or gateway token missing");
@@ -10557,5 +10651,6 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startNoHumansBootstrap(), 40_000);
   setTimeout(() => void startAgenticTradePremiumBootstrap(), 44_000);
   setTimeout(() => void startAgenticTradeFullCatalogOnboard(), 52_000);
-  setTimeout(() => void startIp402RegistryBootstrap(), 60_000);
+  setTimeout(() => void startAgenticTradeHighValueOnboard(), 56_000);
+  setTimeout(() => void startIp402RegistryBootstrap(), 64_000);
 });
