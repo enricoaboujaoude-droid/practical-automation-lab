@@ -576,3 +576,5 @@ export function startPremiumAutonomousRevenueReportPublisher() {
       });
   }, 22_000).unref();
 }
+
+// Revenue conversion trigger: publish or reconcile the 100 XNO premium report.
