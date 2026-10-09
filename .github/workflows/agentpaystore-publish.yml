@@ -1,0 +1,42 @@
+name: Publish PAL to AgentPay Store
+
+on:
+  push:
+    paths:
+      - "scripts/publish-agentpaystore.mjs"
+      - ".github/workflows/agentpaystore-publish.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agentpaystore-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Register PAL marketplace-billed endpoints
+        run: node scripts/publish-agentpaystore.mjs
+
+      - name: Persist listing receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- revenue/agentpaystore-listings.json; then
+            echo "No listing metadata change."
+            exit 0
+          fi
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/agentpaystore-listings.json
+          git commit -m "revenue: publish AgentPay Store listings"
+          git push origin HEAD:main
