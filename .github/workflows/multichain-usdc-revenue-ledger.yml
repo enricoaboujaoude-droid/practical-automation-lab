@@ -33,7 +33,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if git diff --quiet -- revenue/usdc-multichain-ledger.json; then
+          if [ -z "$(git status --porcelain -- revenue/usdc-multichain-ledger.json)" ]; then
             echo "No multichain ledger change."
             exit 0
           fi
