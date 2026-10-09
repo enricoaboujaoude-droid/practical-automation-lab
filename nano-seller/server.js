@@ -11623,6 +11623,7 @@ async function startAgenticTradeFullCatalogOnboard() {
           "Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for product-feed, identifier, GTIN, price, URL, brand/MPN and availability issues.",
         endpoint,
         price_per_call: "20",
+        free_tier_calls: 0,
         category: "data",
         tags: [
           "ecommerce",
@@ -11762,6 +11763,7 @@ async function startAgenticTradeHighValueOnboard() {
           description: offer.description,
           endpoint: offer.endpoint,
           price_per_call: offer.price,
+          free_tier_calls: 0,
           category: offer.category,
           tags: offer.tags,
         }),
