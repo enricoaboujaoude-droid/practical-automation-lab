@@ -1,13 +1,18 @@
 {
   "payout_address": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
-  "checked_at": "2026-10-09T16:50:52.473Z",
+  "checked_at": "2026-10-09T17:48:51.403Z",
   "source": "revenue/usdc-multichain-ledger.json",
-  "source_updated_at": "2026-10-09T16:38:27.134Z",
+  "source_updated_at": "2026-10-09T17:35:01.588Z",
   "chains_checked": [
     "polygon",
     "arbitrum"
   ],
-  "source_scan_errors": [],
+  "source_scan_errors": [
+    {
+      "chain": "polygon",
+      "error": "eth_getLogs HTTP 403 via https://polygon-bor-rpc.publicnode.com"
+    }
+  ],
   "transfer_count": 0,
   "total_usdc_visible": 0,
   "since_2026_10_08_usdc": 0,
