@@ -1,0 +1,25 @@
+name: Probe VIA MCP seller onboarding
+
+on:
+  push:
+    paths:
+      - ".github/workflows/probe-via-mcp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: List VIA MCP tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --silent --show-error --fail-with-body \
+            --request POST "https://app.getvia.xyz/mcp" \
+            --header 'Content-Type: application/json' \
+            --header 'Accept: application/json, text/event-stream' \
+            --data '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
