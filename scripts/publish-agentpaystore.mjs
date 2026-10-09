@@ -4,6 +4,22 @@ const REGISTER_URL = "https://agentpaystore.com/custom/api/register";
 const PAYMENT_ADDRESS = "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF";
 const DEVELOPER_NAME = "Practical Automation Lab";
 const DEVELOPER_EMAIL = "enricoaboujaoude@gmail.com";
+const RECEIPT_PATH = "revenue/agentpaystore-listings.json";
+const FORCE_REGISTER = process.env.FORCE_AGENTPAYSTORE_REGISTER === "1";
+
+if (!FORCE_REGISTER && fs.existsSync(RECEIPT_PATH)) {
+  const existing = JSON.parse(fs.readFileSync(RECEIPT_PATH, "utf8"));
+  if (Number(existing?.successful || 0) >= 4) {
+    console.log(JSON.stringify({
+      skipped: true,
+      reason: "canonical_agentpaystore_listings_already_registered",
+      successful: existing.successful,
+      checked_at: existing.checked_at,
+      listing_ids: (existing.offers || []).map((offer) => offer?.response?.listing_id).filter(Boolean)
+    }, null, 2));
+    process.exit(0);
+  }
+}
 
 const offers = [
   {
@@ -38,13 +54,7 @@ const offers = [
 
 function sanitize(body) {
   if (!body || typeof body !== "object" || Array.isArray(body)) return body;
-  const {
-    api_key,
-    apiKey,
-    token,
-    secret,
-    ...safe
-  } = body;
+  const { api_key, apiKey, token, secret, ...safe } = body;
   return safe;
 }
 
@@ -54,7 +64,7 @@ async function register(offer) {
     headers: {
       "content-type": "application/json",
       "accept": "application/json",
-      "user-agent": "PAL-Revenue-Publisher/1.1"
+      "user-agent": "PAL-Revenue-Publisher/1.2"
     },
     body: JSON.stringify({
       ...offer,
@@ -123,11 +133,6 @@ const output = {
 };
 
 fs.mkdirSync("revenue", { recursive: true });
-fs.writeFileSync(
-  "revenue/agentpaystore-listings.json",
-  JSON.stringify(output, null, 2) + "\n"
-);
-
+fs.writeFileSync(RECEIPT_PATH, JSON.stringify(output, null, 2) + "\n");
 console.log(JSON.stringify(output, null, 2));
-
 if (successful === 0) process.exit(1);
