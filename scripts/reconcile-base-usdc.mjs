@@ -2,8 +2,13 @@ import fs from "node:fs";
 
 const RPC_URLS = [
   process.env.BASE_RPC_URL,
+  "https://base.drpc.org",
+  "https://base-mainnet.public.blastapi.io",
+  "https://base.blockpi.network/v1/rpc/public",
+  "https://base.api.onfinality.io/public",
+  "https://base.rpc.subquery.network/public",
   "https://public.1rpc.io/base",
-  "https://base-rpc.publicnode.com",
+  "https://base.publicnode.com",
   "https://mainnet.base.org",
 ].filter((value, index, all) => value && all.indexOf(value) === index);
 const USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
