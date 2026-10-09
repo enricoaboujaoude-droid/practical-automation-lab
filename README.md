@@ -4,12 +4,12 @@ Practical Automation Lab builds privacy-conscious tools for product data, commer
 
 **Live products:** https://practical-automation-lab.onrender.com/
 
-## Paid Commerce Catalog Intelligence API
+## Paid Agent Commerce & Revenue API
 
-PAL exposes a production **MCP + x402 API** for ecommerce product-feed intelligence. It is designed for AI agents, commerce automation, feed-management systems, and developers working with Google Merchant Center data.
+PAL exposes a production **MCP + x402 API** for agent-commerce launch/distribution, Shopify intelligence, affiliate revenue-leak auditing, and ecommerce catalog remediation.
 
-**Live marketplace:** https://pal-nano-catalog-audit.onrender.com/marketplace  
-**Remote MCP:** https://pal-nano-catalog-audit.onrender.com/mcp  
+**Live marketplace:** https://pal-full-catalog-remediation.onrender.com/marketplace  
+**Remote MCP:** https://pal-full-catalog-remediation.onrender.com/mcp  
 **Official MCP Registry:** https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence  
 **RapidAPI paid plans:** https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor/pricing  
 **RapidAPI API page:** https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor  
@@ -24,6 +24,11 @@ RapidAPI public plans are now live: **BASIC $0 (10 requests/month)**, **PRO $25 
 
 Paid operations include:
 
+- **Agent Commerce Fleet Go-Live — $749.00/call:** audit, package and distribute up to three already-public paid agent services.
+- **Agent Commerce Go-Live — $350.00/call:** verify, package and distribute one already-public paid agent service.
+- **Agent Commerce Launch Kit — $99.00/call:** generate runtime evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads and launch checklist.
+- **Affiliate Revenue Leak Audit — $99.00/call:** audit up to 25 public affiliate URLs for broken links, redirect drift and attribution-risk signals.
+- **Live Shopify Store Commerce Audit — $25.00/call:** audit up to 250 public Shopify variants without store credentials.
 - **Full catalog remediation — $20.00/call:** one prioritized Merchant Center/product-feed remediation plan for up to 2,000 products.
 - **Batch catalog remediation — $5.00/call:** prioritized Merchant Center/product-feed remediation for up to 500 products in one payment.
 - **Catalog remediation plan — $1.00/call:** prioritized Merchant Center/product-feed fixes for up to 100 products.
