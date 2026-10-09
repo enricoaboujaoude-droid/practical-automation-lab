@@ -1,0 +1,29 @@
+name: Request MPP32 review
+
+on:
+  push:
+    paths:
+      - ".github/workflows/request-mpp32-review.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  request:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Request review of verified $25 provider listing
+        shell: bash
+        run: |
+          set -euo pipefail
+          CODE="$(curl -sS --max-time 30 -o /tmp/result.json -w '%{http_code}'             -X POST 'https://mpp32.org/api/contact'             -H 'content-type: application/json'             -H 'accept: application/json'             --data '{
+              "name":"Enrico Abou Jaoude / Practical Automation Lab",
+              "email":"enricoaboujaoude@gmail.com",
+              "subject":"Review verified provider listing: PAL Base Token Portfolio Risk Rank",
+              "message":"The PAL Base Token Portfolio Risk Rank provider submission is registered at slug pal-base-token-portfolio-risk-rank, ownership verification succeeded today, and the endpoint is live at https://pal-base-risk-revenue.onrender.com/v1/base-token-portfolio-rank. Price is $25/query with direct Base USDC settlement to the registered provider wallet. Please complete the quick moderation review so the verified listing becomes public in the MPP32 catalog and MCP discovery."
+            }')"
+          cat /tmp/result.json
+          echo "HTTP_STATUS=$CODE"
+          test "$CODE" = "200"
