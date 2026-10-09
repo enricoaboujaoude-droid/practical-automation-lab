@@ -17,6 +17,7 @@ const chains = [
     overlap: 2500,
     chunk: 2000,
     rpcs: [
+      "https://polygon.api.onfinality.io/public",
       "https://polygon.drpc.org",
       "https://public.1rpc.io/matic",
       "https://polygon-bor-rpc.publicnode.com",
