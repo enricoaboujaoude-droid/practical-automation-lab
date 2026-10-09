@@ -821,6 +821,129 @@ function buildFiatDockMcpServer() {
     },
   );
 
+
+  server.registerTool(
+    "pal_agent_commerce_launch_kit",
+    {
+      title: "PAL Agent Commerce Launch Kit",
+      description:
+        "Generate a deployment-ready agent-commerce launch bundle for an existing public paid service. FiatDock handles buyer payment; PAL returns readiness evidence, agent-card/llms/OpenAPI artifacts, marketplace payloads, and deployment steps without a second paywall.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        additionalProperties: false,
+        required: ["origin", "service_name", "service_description"],
+        properties: {
+          origin: { type: "string", format: "uri" },
+          route: { type: "string" },
+          service_name: { type: "string", minLength: 3, maxLength: 120 },
+          service_description: { type: "string", minLength: 20, maxLength: 1000 },
+          contact_email: { type: "string" },
+        },
+      }),
+    },
+    async ({ origin, route, service_name, service_description, contact_email }) => {
+      try {
+        const report = await buildSellerIntegrityAudit(String(origin || ""), route);
+        if (!report.ok) {
+          return { isError: true, content: mcpText(report) };
+        }
+        const result = buildAgentCommerceLaunchKit(report, {
+          origin,
+          route,
+          service_name,
+          service_description,
+          contact_email,
+        });
+        console.log("[revenue] fiatdock_agent_commerce_launch_kit served price_usd=99");
+        return {
+          content: mcpText({
+            ok: true,
+            service: "PAL Agent Commerce Launch Kit",
+            gateway: "FiatDock",
+            result,
+          }),
+        };
+      } catch (error) {
+        return {
+          isError: true,
+          content: mcpText({
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+          }),
+        };
+      }
+    },
+  );
+
+  server.registerTool(
+    "pal_agent_commerce_go_live",
+    {
+      title: "PAL Agent Commerce Go-Live",
+      description:
+        "Verify and distribute an already-public paid agent service. FiatDock handles buyer payment; PAL returns launch artifacts, marketplace registration receipts, and remaining blockers without a second paywall.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        additionalProperties: false,
+        required: ["origin", "route", "service_name", "service_description", "price_usd"],
+        properties: {
+          origin: { type: "string", format: "uri" },
+          route: { type: "string", minLength: 1 },
+          service_name: { type: "string", minLength: 3, maxLength: 120 },
+          service_description: { type: "string", minLength: 20, maxLength: 1000 },
+          contact_email: { type: "string" },
+          price_usd: { type: "number", exclusiveMinimum: 0 },
+        },
+      }),
+    },
+    async ({ origin, route, service_name, service_description, contact_email, price_usd }) => {
+      try {
+        const report = await buildSellerIntegrityAudit(String(origin || ""), route);
+        if (!report.ok) {
+          return { isError: true, content: mcpText(report) };
+        }
+        const input = {
+          origin,
+          route,
+          service_name,
+          service_description,
+          contact_email,
+          price_usd,
+        };
+        const launchKit = buildAgentCommerceLaunchKit(report, input);
+        const registration = await registerAgentCommerceService(input, launchKit);
+        const remainingBlockers = [
+          ...(launchKit.readiness?.blockers || []),
+          ...Object.entries(registration.registrations || {})
+            .filter(([, value]) => value?.ok !== true)
+            .map(([name]) => `${name}_registration_failed`),
+        ];
+        console.log("[revenue] fiatdock_agent_commerce_go_live served price_usd=350");
+        return {
+          content: mcpText({
+            ok: true,
+            service: "PAL Agent Commerce Go-Live",
+            gateway: "FiatDock",
+            target: launchKit.target,
+            readiness: launchKit.readiness,
+            files: launchKit.files,
+            registrations: registration.registrations,
+            registered_resource: registration.resource,
+            deployment_checklist: launchKit.deployment_checklist,
+            remaining_blockers: remainingBlockers,
+          }),
+        };
+      } catch (error) {
+        return {
+          isError: true,
+          content: mcpText({
+            ok: false,
+            error: error instanceof Error ? error.message : String(error),
+          }),
+        };
+      }
+    },
+  );
+
   return server;
 }
 
@@ -10718,6 +10841,32 @@ async function startFiatDockBootstrap() {
           "Deterministic batch catalog remediation for Shopify, Google Merchant Center and shopping feeds. Returns issue severity, affected product IDs, and concrete corrective actions for up to 500 records.",
         category: "data",
         tags: ["ecommerce", "catalog", "merchant-center", "product-feed", "remediation", "shopify"],
+        networks: ["base"],
+        payoutWallet: BASE_PAYOUT_ADDRESS,
+      },
+      {
+        name: "PAL Agent Commerce Launch Kit",
+        mcpEndpoint: endpoint,
+        mcpTool: "pal_agent_commerce_launch_kit",
+        priceUsd: 99,
+        summary: "Deployment-ready agent-commerce launch bundle for an existing public paid service.",
+        description:
+          "Runtime readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads, and prioritized deployment steps without requiring private repository access.",
+        category: "data",
+        tags: ["agent-commerce", "x402", "mcp", "openapi", "agent-card", "marketplace", "deployment"],
+        networks: ["base"],
+        payoutWallet: BASE_PAYOUT_ADDRESS,
+      },
+      {
+        name: "PAL Agent Commerce Go-Live",
+        mcpEndpoint: endpoint,
+        mcpTool: "pal_agent_commerce_go_live",
+        priceUsd: 350,
+        summary: "One-call go-live and distribution for an already-public paid agent service.",
+        description:
+          "Verify public x402 runtime readiness, generate launch artifacts, submit the public service to compatible discovery markets, and return registration receipts plus exact remaining blockers.",
+        category: "data",
+        tags: ["agent-commerce", "x402", "distribution", "marketplace", "go-live", "mcp"],
         networks: ["base"],
         payoutWallet: BASE_PAYOUT_ADDRESS,
       },
