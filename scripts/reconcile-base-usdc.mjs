@@ -4,10 +4,11 @@ const RPC_URLS = [
   process.env.BASE_RPC_URL,
   "https://base.drpc.org",
   "https://base-mainnet.public.blastapi.io",
-  "https://base.blockpi.network/v1/rpc/public",
+  "https://base.public.blockpi.network/v1/rpc/public",
   "https://base.api.onfinality.io/public",
   "https://base.rpc.subquery.network/public",
   "https://public.1rpc.io/base",
+  "https://base-rpc.publicnode.com",
   "https://base.publicnode.com",
   "https://mainnet.base.org",
 ].filter((value, index, all) => value && all.indexOf(value) === index);
