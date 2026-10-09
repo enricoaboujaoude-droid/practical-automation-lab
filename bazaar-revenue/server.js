@@ -13,6 +13,7 @@ const PAY_TO = String(process.env.PAL_BASE_PAYOUT_ADDRESS || "").trim();
 const FACILITATOR_URL = "https://facilitator.payai.network";
 const NETWORK = "eip155:8453";
 const PUBLIC_ORIGIN = String(process.env.PUBLIC_BASE_URL || "https://pal-base-risk-revenue.onrender.com").replace(/\/$/, "");
+let index402VerificationHash = "";
 
 if (!/^0x[a-fA-F0-9]{40}$/.test(PAY_TO)) {
   throw new Error("PAL_BASE_PAYOUT_ADDRESS must be a valid public EVM address");
@@ -274,6 +275,14 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "pal-bazaar-revenue", checked_at: new Date().toISOString() });
 });
 
+app.get("/.well-known/402index-verify.txt", (_req, res) => {
+  res.set("Cache-Control", "no-store");
+  if (!index402VerificationHash) {
+    return res.status(404).type("text/plain").send("verification_not_ready");
+  }
+  return res.type("text/plain").send(index402VerificationHash);
+});
+
 app.get("/.well-known/x402-service.json", (_req, res) => {
   res.json({
     x402: "1.0",
@@ -438,6 +447,51 @@ app.post("/v1/base-token-portfolio-rank", async (req, res) => {
   }
 });
 
+async function verify402IndexDomain() {
+  const domain = new URL(PUBLIC_ORIGIN).hostname;
+  try {
+    const claim = await fetch("https://402index.io/api/v1/claim", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ domain, contact_email: "enricoaboujaoude@gmail.com" }),
+      signal: AbortSignal.timeout(30_000)
+    });
+    const claimBody = await claim.json().catch(() => ({}));
+
+    if (claim.status === 409) {
+      console.log("[402index] domain already verified");
+      return;
+    }
+    if (!claim.ok) {
+      console.log(`[402index] claim failed status=${claim.status}`);
+      return;
+    }
+
+    const hash = String(claimBody?.verification_hash || "").trim();
+    if (!/^[a-fA-F0-9]{64}$/.test(hash)) {
+      console.log("[402index] claim returned no verification hash");
+      return;
+    }
+    index402VerificationHash = hash;
+
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    const verify = await fetch("https://402index.io/api/v1/claim/verify", {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify({ domain }),
+      signal: AbortSignal.timeout(30_000)
+    });
+    const verifyBody = await verify.json().catch(() => ({}));
+    console.log(
+      `[402index] verify status=${verify.status} result=${String(verifyBody?.status || "unknown")} services=${verifyBody?.services_count ?? "unknown"}`
+    );
+  } catch (error) {
+    console.log(`[402index] domain verification error=${String(error?.message || error).slice(0,200)}`);
+  }
+}
+
 app.listen(PORT, () => {
   console.log(`PAL Bazaar revenue service listening on :${PORT} facilitator=${FACILITATOR_URL}`);
+  setTimeout(() => void verify402IndexDomain(), 3000);
 });
