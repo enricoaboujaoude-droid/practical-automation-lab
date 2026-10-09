@@ -24,6 +24,11 @@ const PUBLIC_BASE_URL = String(
   process.env.PUBLIC_BASE_URL || "https://pal-nano-catalog-audit.onrender.com"
 ).replace(/\/$/, "");
 const MARKETPLACE_PUBLISHER = process.env.MARKETPLACE_PUBLISHER !== "0";
+const REPUTON_PARTNER_CAMPAIGN = "e9442";
+const REPUTON_CUSTOMER_REVIEWS_REFERRAL_URL =
+  `https://reputon.com/referral?aid=1&c=${REPUTON_PARTNER_CAMPAIGN}`;
+const REPUTON_GOOGLE_REVIEWS_REFERRAL_URL =
+  `https://reputon.com/referral?aid=2&c=${REPUTON_PARTNER_CAMPAIGN}`;
 const BASE_USDC_LEDGER_URL =
   "https://raw.githubusercontent.com/enricoaboujaoude-droid/practical-automation-lab/main/revenue/base-usdc-ledger.json";
 const PAYANAGENT_OFFER_TITLE = "PAL Full Catalog Remediation";
@@ -954,6 +959,89 @@ function buildFiatDockMcpServer() {
           }),
         };
       }
+    },
+  );
+
+  server.registerTool(
+    "pal_agent_commerce_fleet_go_live",
+    {
+      title: "PAL Agent Commerce Fleet Go-Live",
+      description:
+        "Audit, package and distribute 1-3 already-public paid agent services as one portfolio. FiatDock handles buyer payment; PAL returns per-service launch artifacts, marketplace registration receipts and remaining blockers without a second paywall.",
+      inputSchema: fromJsonSchema({
+        type: "object",
+        additionalProperties: false,
+        required: ["services"],
+        properties: {
+          services: {
+            type: "array",
+            minItems: 1,
+            maxItems: 3,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["origin", "route", "service_name", "service_description", "price_usd"],
+              properties: {
+                origin: { type: "string", format: "uri" },
+                route: { type: "string", minLength: 1 },
+                service_name: { type: "string", minLength: 3, maxLength: 120 },
+                service_description: { type: "string", minLength: 20, maxLength: 1000 },
+                contact_email: { type: "string" },
+                price_usd: { type: "number", exclusiveMinimum: 0 },
+              },
+            },
+          },
+        },
+      }),
+    },
+    async ({ services }) => {
+      if (!Array.isArray(services) || services.length < 1 || services.length > 3) {
+        return { isError: true, content: mcpText({ ok: false, error: "services must contain 1 to 3 public paid services" }) };
+      }
+      const results = await Promise.all(
+        services.map(async (input, index) => {
+          try {
+            const report = await buildSellerIntegrityAudit(String(input?.origin || ""), input?.route);
+            if (!report.ok) return { index, ok: false, target: input, error: report.error || "seller_integrity_failed" };
+            const launchKit = buildAgentCommerceLaunchKit(report, input);
+            const registration = await registerAgentCommerceService(input, launchKit);
+            return {
+              index,
+              ok: true,
+              target: launchKit.target,
+              readiness: launchKit.readiness,
+              files: launchKit.files,
+              registrations: registration.registrations,
+              registered_resource: registration.resource,
+              deployment_checklist: launchKit.deployment_checklist,
+              remaining_blockers: [
+                ...(launchKit.readiness?.blockers || []),
+                ...Object.entries(registration.registrations || {})
+                  .filter(([, value]) => value?.ok !== true)
+                  .map(([name]) => `${name}_registration_failed`),
+              ],
+            };
+          } catch (error) {
+            return { index, ok: false, target: input, error: error instanceof Error ? error.message : String(error) };
+          }
+        }),
+      );
+      console.log(`[revenue] fiatdock_agent_commerce_fleet_go_live served price_usd=749 services=${services.length}`);
+      return {
+        content: mcpText({
+          ok: true,
+          service: "PAL Agent Commerce Fleet Go-Live",
+          gateway: "FiatDock",
+          bundle: {
+            services_included: services.length,
+            max_services: 3,
+            price_usdc: 749,
+            comparable_single_service_total_usdc: services.length * 350,
+            savings_usdc: Math.max(0, services.length * 350 - 749),
+          },
+          results,
+        }),
+      };
     },
   );
 
@@ -4009,6 +4097,28 @@ async function startIndex402Bootstrap() {
       category: "developer-tools/agent-commerce",
       provider: "Practical Automation Lab",
     },
+    {
+      url: X402_AGENT_COMMERCE_FLEET_URL,
+      name: "PAL Agent Commerce Fleet Go-Live",
+      protocol: "x402",
+      http_method: "POST",
+      probe_body: JSON.stringify({
+        services: [{
+          origin: "https://example-agent-service.com",
+          route: "/v1/paid",
+          service_name: "Example Agent Service",
+          service_description: "Example public paid agent service used only for unpaid x402 discovery probing.",
+          price_usd: 25
+        }]
+      }),
+      description:
+        "Portfolio go-live for 1-3 public paid agent services: audit readiness, generate launch artifacts, distribute to compatible markets, and return per-service registration receipts and blockers.",
+      price_usd: 749.0,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      category: "developer-tools/agent-commerce",
+      provider: "Practical Automation Lab",
+    },
   ];
 
   const registrationResults = [];
@@ -5008,6 +5118,7 @@ async function startMarket402Bootstrap() {
     X402_REMEDIATE_BATCH_URL,
     X402_AGENT_COMMERCE_KIT_URL,
     X402_AGENT_COMMERCE_GO_LIVE_URL,
+    X402_AGENT_COMMERCE_FLEET_URL,
   ];
   const results = [];
 
@@ -5126,6 +5237,14 @@ async function startX402DashBootstrap() {
         "One-call go-live and distribution for an already-public paid agent service: verify x402 readiness, generate launch artifacts, submit to compatible buyer-discovery markets, and return registration receipts plus remaining blockers. Paid directly over x402 Base USDC.",
       category: "Developer Tools",
       tags: ["agent-commerce", "x402", "distribution", "marketplace", "go-live", "mcp"],
+    },
+    {
+      url: X402_AGENT_COMMERCE_FLEET_URL,
+      name: "PAL Agent Commerce Fleet Go-Live",
+      description:
+        "Portfolio go-live for 1-3 already-public paid agent services: readiness, launch artifacts, buyer-discovery submissions and per-service receipts in one paid call.",
+      category: "Developer Tools",
+      tags: ["agent-commerce", "x402", "portfolio", "fleet", "distribution", "marketplace", "go-live"],
     },
   ];
 
@@ -5640,6 +5759,38 @@ async function startNoHumansBootstrap() {
           price_usd: { type: "number" },
         },
         required: ["origin", "route", "service_name", "service_description", "price_usd"],
+      },
+    },
+    {
+      name: "PAL Agent Commerce Fleet Go-Live",
+      description:
+        "Portfolio go-live and buyer-discovery distribution for 1-3 already-public paid agent services, with per-service readiness, launch artifacts, registration receipts and exact blockers.",
+      endpoint_url: X402_AGENT_COMMERCE_FLEET_URL,
+      category: "developer.agent-commerce",
+      price_amount: 749.0,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          services: {
+            type: "array",
+            minItems: 1,
+            maxItems: 3,
+            items: {
+              type: "object",
+              properties: {
+                origin: { type: "string", format: "uri" },
+                route: { type: "string" },
+                service_name: { type: "string" },
+                service_description: { type: "string" },
+                contact_email: { type: "string" },
+                price_usd: { type: "number" },
+              },
+              required: ["origin", "route", "service_name", "service_description", "price_usd"],
+            },
+          },
+        },
+        required: ["services"],
       },
     },
   ];
@@ -6608,7 +6759,7 @@ app.get("/marketplace", (_req, res) => {
     offers:{
       "@type":"AggregateOffer",
       lowPrice:"0.01",
-      highPrice:"350.00",
+      highPrice:"749.00",
       priceCurrency:"USD"
     },
     url:`${PUBLIC_BASE_URL}/marketplace`
@@ -7669,6 +7820,7 @@ app.get("/v1/stats", (_req, res) => {
     usdc_x402_paid_seller_portfolio_audits_since_process_start: usdcPaidSellerPortfolioAudits,
     usdc_x402_paid_agent_commerce_launch_kits_since_process_start: usdcPaidAgentCommerceLaunchKits,
     usdc_x402_paid_agent_commerce_go_lives_since_process_start: usdcPaidAgentCommerceGoLives,
+    usdc_x402_paid_agent_commerce_fleet_go_lives_since_process_start: usdcPaidAgentCommerceFleetGoLives,
     usdc_x402_paid_shopify_product_checks_since_process_start: usdcPaidShopifyProductChecks,
     usdc_x402_paid_shopify_store_audits_since_process_start: usdcPaidShopifyStoreAudits,
     usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
@@ -7685,6 +7837,7 @@ app.get("/v1/stats", (_req, res) => {
       usdcPaidSellerPortfolioAudits * 20.00 +
       usdcPaidAgentCommerceLaunchKits * 99.00 +
       usdcPaidAgentCommerceGoLives * 350.00 +
+      usdcPaidAgentCommerceFleetGoLives * 749.00 +
       usdcPaidShopifyProductChecks * 0.005 +
       usdcPaidShopifyStoreAudits * 25.00 +
       usdcPaidX402Validations * 0.05 +
@@ -8630,6 +8783,13 @@ app.get("/v1/shopify-store-preflight", async (req, res) => {
         url: paidUrl.toString(),
         scope: "Fetch and audit up to 250 public Shopify variants with prioritized Merchant Center/catalog remediation.",
       },
+      optional_review_growth: {
+        customer_reviews_app: REPUTON_CUSTOMER_REVIEWS_REFERRAL_URL,
+        google_reviews_app: REPUTON_GOOGLE_REVIEWS_REFERRAL_URL,
+        referred_customer_benefit: "Partner dashboard currently states 10% discount for Customer Reviews and an extended 30-day trial for other apps upon request.",
+        relevance: "Optional only for Shopify merchants who also need review collection or review-display tooling; not required for the PAL audit.",
+        affiliate_disclosure: "Practical Automation Lab may earn a commission if a merchant installs or subscribes through these Reputon partner links.",
+      },
       boundary: {
         free_preflight_only: true,
         full_audit_included: false,
@@ -8694,6 +8854,12 @@ app.get("/v1/usdc/shopify-store-audit", async (req, res) => {
         asset: "USDC",
         price_usd: X402_SHOPIFY_STORE_AUDIT_PRICE_USD,
         pay_to: BASE_PAYOUT_ADDRESS,
+      },
+      optional_review_growth: {
+        customer_reviews_app: REPUTON_CUSTOMER_REVIEWS_REFERRAL_URL,
+        google_reviews_app: REPUTON_GOOGLE_REVIEWS_REFERRAL_URL,
+        relevance: "Optional remediation-adjacent tooling for merchants who need review collection or review display; not required to use PAL.",
+        affiliate_disclosure: "Practical Automation Lab may earn a commission from qualifying Reputon installs or subscriptions through these partner links.",
       },
       boundary: { authenticated_access: false, private_data_access: false, store_mutation: false, records_cap: 250 },
       disclaimer: "Public-storefront deterministic audit only; not a guarantee of Google Merchant Center approval, full private-catalog coverage, or regulatory compliance.",
@@ -9210,7 +9376,7 @@ app.post("/v1/agentpay/agent-commerce-go-live", async (req, res) => {
     ];
 
     console.log(
-      "[revenue] agentictrade agent-commerce-go-live served marketplace_billing=upstream price_usdc=100",
+      "[revenue] agentictrade agent-commerce-go-live served marketplace_billing=upstream price_usdc=350",
     );
 
     return res.json({
@@ -9226,7 +9392,7 @@ app.post("/v1/agentpay/agent-commerce-go-live", async (req, res) => {
       marketplace: {
         provider: "AgenticTrade",
         billing: "handled_upstream",
-        price_per_call_usdc: "100",
+        price_per_call_usdc: "350",
       },
       boundary:
         "This service operates only on the buyer-supplied public origin/route. It does not access private repositories, sign buyer transactions, custody wallets, or create fake settlement history.",
@@ -9303,6 +9469,60 @@ app.post("/v1/usdc/agent-commerce-go-live", async (req, res) => {
       error: "agent_commerce_go_live_failed",
       detail: error instanceof Error ? error.message : String(error),
     });
+  }
+});
+
+app.post("/v1/agentpay/agent-commerce-fleet-go-live", async (req, res) => {
+  const services = req.body?.services;
+  if (!Array.isArray(services) || services.length < 1 || services.length > 3) {
+    return res.status(400).json({ error: "invalid_fleet_input", detail: "services must contain 1 to 3 already-public paid services." });
+  }
+  try {
+    const results = await Promise.all(
+      services.map(async (input, index) => {
+        try {
+          const report = await buildSellerIntegrityAudit(String(input?.origin || ""), input?.route);
+          if (!report.ok) return { index, ok: false, target: input, error: report.error || "seller_integrity_failed" };
+          const launchKit = buildAgentCommerceLaunchKit(report, input);
+          const registration = await registerAgentCommerceService(input, launchKit);
+          return {
+            index,
+            ok: true,
+            target: launchKit.target,
+            readiness: launchKit.readiness,
+            files: launchKit.files,
+            registrations: registration.registrations,
+            registered_resource: registration.resource,
+            deployment_checklist: launchKit.deployment_checklist,
+            remaining_blockers: [
+              ...(launchKit.readiness?.blockers || []),
+              ...Object.entries(registration.registrations || {})
+                .filter(([, value]) => value?.ok !== true)
+                .map(([name]) => `${name}_registration_failed`),
+            ],
+          };
+        } catch (error) {
+          return { index, ok: false, target: input, error: error instanceof Error ? error.message : String(error) };
+        }
+      }),
+    );
+    console.log(`[revenue] agentictrade agent-commerce-fleet-go-live served marketplace_billing=upstream price_usdc=749 services=${services.length}`);
+    return res.json({
+      service: "PAL Agent Commerce Fleet Go-Live",
+      completed_at: nowIso(),
+      bundle: {
+        services_included: services.length,
+        max_services: 3,
+        price_usdc: 749,
+        comparable_single_service_total_usdc: services.length * 350,
+        savings_usdc: Math.max(0, services.length * 350 - 749),
+      },
+      results,
+      marketplace: { provider: "AgenticTrade", billing: "handled_upstream", price_per_call_usdc: "749" },
+      boundary: "Public origins/routes only; no private repository access, wallet custody, buyer transaction signing, or fabricated settlement history.",
+    });
+  } catch (error) {
+    return res.status(502).json({ error: "agent_commerce_fleet_go_live_failed", detail: error instanceof Error ? error.message : String(error) });
   }
 });
 
@@ -10801,6 +11021,24 @@ const AGENTICTRADE_PREMIUM_SERVICES = [
     category: "developer-tools",
     tags: ["agent-commerce", "x402", "mcp", "openapi", "agent-card", "marketplace", "deployment"],
   },
+  {
+    name: "PAL Agent Commerce Go-Live",
+    description:
+      "One-call go-live and distribution for an already-public paid agent service: runtime readiness, launch artifacts, compatible marketplace submissions, registration receipts and exact remaining blockers.",
+    endpoint: `${AGENTICTRADE_PREMIUM_ORIGIN}/v1/agentpay/agent-commerce-go-live`,
+    price_per_call: "350.00",
+    category: "developer-tools",
+    tags: ["agent-commerce", "x402", "distribution", "marketplace", "go-live", "mcp"],
+  },
+  {
+    name: "PAL Agent Commerce Fleet Go-Live",
+    description:
+      "Portfolio go-live for 1-3 already-public paid agent services with per-service readiness, launch artifacts, marketplace submissions, registration receipts and blockers.",
+    endpoint: `${AGENTICTRADE_PREMIUM_ORIGIN}/v1/agentpay/agent-commerce-fleet-go-live`,
+    price_per_call: "749.00",
+    category: "developer-tools",
+    tags: ["agent-commerce", "x402", "portfolio", "fleet", "distribution", "marketplace", "go-live"],
+  },
 ];
 
 async function agenticTradeRequest(path, options = {}) {
@@ -10841,7 +11079,7 @@ async function startAgenticTradePremiumBootstrap() {
     );
 
     if (missing.length === 0) {
-      console.log("[agentictrade] premium services already listed 3/3");
+      console.log(`[agentictrade] premium services already listed ${AGENTICTRADE_PREMIUM_SERVICES.length}/${AGENTICTRADE_PREMIUM_SERVICES.length}`);
       return;
     }
 
@@ -11017,11 +11255,21 @@ async function startAgenticTradeHighValueOnboard() {
       name: "PAL Agent Commerce Go-Live",
       endpoint:
         "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/agent-commerce-go-live",
-      price: "100",
+      price: "350",
       description:
         "One-call go-live for an already-public paid agent service: verify runtime x402 readiness, generate launch artifacts, submit the public service to compatible discovery markets, and return registration receipts plus exact remaining blockers.",
       category: "developer-tools",
       tags: ["agent-commerce", "x402", "distribution", "marketplace", "go-live", "mcp"],
+    },
+    {
+      name: "PAL Agent Commerce Fleet Go-Live",
+      endpoint:
+        "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/agent-commerce-fleet-go-live",
+      price: "749",
+      description:
+        "Portfolio go-live for 1-3 already-public paid agent services with per-service runtime readiness, launch artifacts, compatible marketplace submissions, registration receipts and exact blockers.",
+      category: "developer-tools",
+      tags: ["agent-commerce", "x402", "portfolio", "fleet", "distribution", "marketplace", "go-live"],
     },
   ];
 
@@ -11248,6 +11496,19 @@ async function startFiatDockBootstrap() {
           "Verify public x402 runtime readiness, generate launch artifacts, submit the public service to compatible discovery markets, and return registration receipts plus exact remaining blockers.",
         category: "data",
         tags: ["agent-commerce", "x402", "distribution", "marketplace", "go-live", "mcp"],
+        networks: ["base"],
+        payoutWallet: BASE_PAYOUT_ADDRESS,
+      },
+      {
+        name: "PAL Agent Commerce Fleet Go-Live",
+        mcpEndpoint: endpoint,
+        mcpTool: "pal_agent_commerce_fleet_go_live",
+        priceUsd: 749,
+        summary: "Portfolio go-live and distribution for up to three already-public paid agent services.",
+        description:
+          "Audit, package and distribute 1-3 public paid services, returning per-service readiness, launch artifacts, marketplace receipts and remaining blockers in one purchase.",
+        category: "data",
+        tags: ["agent-commerce", "x402", "portfolio", "fleet", "distribution", "marketplace", "go-live"],
         networks: ["base"],
         payoutWallet: BASE_PAYOUT_ADDRESS,
       },
