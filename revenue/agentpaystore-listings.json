@@ -1,0 +1,110 @@
+{
+  "provider": "Practical Automation Lab",
+  "marketplace": "AgentPay Store",
+  "registration_url": "https://agentpaystore.com/custom/api/register",
+  "payment_network": "Base",
+  "payment_asset": "USDC",
+  "payment_address": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+  "revenue_share_percent": 82,
+  "checked_at": "2026-10-09T09:40:54.032Z",
+  "successful": 4,
+  "total": 4,
+  "offers": [
+    {
+      "name": "PAL Ecommerce Catalog Audit",
+      "description": "Audit ecommerce catalog records for Merchant Center and AI-shopping readiness, identifiers, prices, links, availability, and feed quality.",
+      "category": "data",
+      "endpoint_url": "https://pal-marketplace-fast-api.onrender.com/api/catalog-audit",
+      "price_per_call": 5,
+      "registered": true,
+      "duplicate": false,
+      "status": 201,
+      "response": {
+        "endpoint_ping": "unreachable",
+        "latency_ms": 111,
+        "listing_id": "c288d9e5-7708-4d0e-8644-ae3dc2230098",
+        "manage_url": "https://agentpaystore.com/custom/api/status/c288d9e5-7708-4d0e-8644-ae3dc2230098",
+        "note": "Your agent is pending review. Verification typically takes minutes.",
+        "price_per_call": 5,
+        "revenue_split": {
+          "agentstore": "18%",
+          "you": "82%"
+        },
+        "slug": "pal-ecommerce-catalog-audit-c288d9",
+        "status": "registered"
+      }
+    },
+    {
+      "name": "PAL Catalog Remediation Plan",
+      "description": "Generate a prioritized remediation plan for ecommerce catalog and product-feed issues with concrete corrective actions.",
+      "category": "custom",
+      "endpoint_url": "https://pal-marketplace-fast-api.onrender.com/api/catalog-remediation",
+      "price_per_call": 15,
+      "registered": true,
+      "duplicate": false,
+      "status": 201,
+      "response": {
+        "endpoint_ping": "unreachable",
+        "latency_ms": 143,
+        "listing_id": "b4f36fe4-f4e1-4cd4-90e8-04649f0481e4",
+        "manage_url": "https://agentpaystore.com/custom/api/status/b4f36fe4-f4e1-4cd4-90e8-04649f0481e4",
+        "note": "Your agent is pending review. Verification typically takes minutes.",
+        "price_per_call": 15,
+        "revenue_split": {
+          "agentstore": "18%",
+          "you": "82%"
+        },
+        "slug": "pal-catalog-remediation-plan-b4f36f",
+        "status": "registered"
+      }
+    },
+    {
+      "name": "PAL GTIN UPC EAN Validator",
+      "description": "Validate GTIN-8, UPC/GTIN-12, GTIN-13 and GTIN-14 identifiers including checksum correctness for product catalogs.",
+      "category": "data",
+      "endpoint_url": "https://pal-marketplace-fast-api.onrender.com/api/gtin-check",
+      "price_per_call": 3,
+      "registered": true,
+      "duplicate": false,
+      "status": 201,
+      "response": {
+        "endpoint_ping": "unreachable",
+        "latency_ms": 103,
+        "listing_id": "388386bf-793d-435f-bf45-bc07e28d15f3",
+        "manage_url": "https://agentpaystore.com/custom/api/status/388386bf-793d-435f-bf45-bc07e28d15f3",
+        "note": "Your agent is pending review. Verification typically takes minutes.",
+        "price_per_call": 3,
+        "revenue_split": {
+          "agentstore": "18%",
+          "you": "82%"
+        },
+        "slug": "pal-gtin-upc-ean-validator-388386",
+        "status": "registered"
+      }
+    },
+    {
+      "name": "PAL Product Feed Diff",
+      "description": "Compare ecommerce product-feed snapshots and return added, removed and changed commerce fields for automated catalog monitoring.",
+      "category": "data",
+      "endpoint_url": "https://pal-marketplace-fast-api.onrender.com/api/feed-diff",
+      "price_per_call": 8,
+      "registered": true,
+      "duplicate": false,
+      "status": 201,
+      "response": {
+        "endpoint_ping": "unreachable",
+        "latency_ms": 163,
+        "listing_id": "8f448a8b-877f-4999-8c75-96240093d923",
+        "manage_url": "https://agentpaystore.com/custom/api/status/8f448a8b-877f-4999-8c75-96240093d923",
+        "note": "Your agent is pending review. Verification typically takes minutes.",
+        "price_per_call": 8,
+        "revenue_split": {
+          "agentstore": "18%",
+          "you": "82%"
+        },
+        "slug": "pal-product-feed-diff-8f448a",
+        "status": "registered"
+      }
+    }
+  ]
+}
