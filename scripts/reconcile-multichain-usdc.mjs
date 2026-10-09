@@ -15,7 +15,7 @@ const chains = [
     window: 12000,
     overlap: 2500,
     chunk: 2000,
-    rpcs: ["https://public.1rpc.io/base", "https://base-rpc.publicnode.com", "https://mainnet.base.org"],
+    rpcs: ["https://base.drpc.org", "https://base-mainnet.public.blastapi.io", "https://public.1rpc.io/base", "https://base-rpc.publicnode.com", "https://mainnet.base.org"],
   },
   {
     key: "polygon",
@@ -37,7 +37,7 @@ const chains = [
     window: 60000,
     overlap: 15000,
     chunk: 5000,
-    rpcs: ["https://arbitrum-one-rpc.publicnode.com", "https://arb1.arbitrum.io/rpc"],
+    rpcs: ["https://arbitrum.drpc.org", "https://arbitrum-one-rpc.publicnode.com", "https://arb1.arbitrum.io/rpc"],
   },
 ];
 
