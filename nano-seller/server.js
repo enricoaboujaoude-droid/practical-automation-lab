@@ -2287,10 +2287,7 @@ async function startPayanAgentBootstrap() {
       payanAgentRetryScheduled = true;
       setTimeout(() => {
         payanAgentRetryScheduled = false;
-        if (String(process.env.AGENTICTRADE_VERIFY_URLS || "").trim()) {
-    setTimeout(() => void startAgenticTradeOwnerVerificationBootstrap(), 6_000);
-  }
-  void startPayanAgentBootstrap();
+        void startPayanAgentBootstrap();
       }, 15 * 60 * 1000);
       console.log("[payanagent] provider API unavailable; autonomous retry scheduled after 15 minutes");
     }
@@ -10885,6 +10882,9 @@ app.listen(PORT, "0.0.0.0", () => {
   if (!MARKETPLACE_PUBLISHER) {
     console.log("[marketplaces] publisher disabled on this serving origin; skipping duplicate marketplace bootstraps");
     return;
+  }
+  if (String(process.env.AGENTICTRADE_VERIFY_URLS || "").trim()) {
+    setTimeout(() => void startAgenticTradeOwnerVerificationBootstrap(), 6_000);
   }
   void startPayanAgentBootstrap();
   setTimeout(() => void startAgent402Bootstrap(), 4_000);
