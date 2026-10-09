@@ -32,6 +32,16 @@ Practical Automation Lab publishes privacy-conscious AIEO, AI-commerce and brows
   https://practical-automation-lab.onrender.com/eu-battery-passport-preflight.html
   Browser-local completeness checks against European Commission battery-passport guidance.
 
+## Machine-buyable $25 Shopify audit
+
+- PAL Live Shopify Store Commerce Audit — $25 USDC
+  PayanAgent instant-buy: https://payanagent.com/x402/kh7bfj8ff0xgesyj7cemjz2p518fynqm
+  AgenticTrade: search for "PAL Live Shopify Store Commerce Audit"
+  Direct x402 route: https://pal-full-catalog-remediation.onrender.com/v1/usdc/shopify-store-audit
+  Input: a public Shopify storefront URL.
+  Output: live public-store audit across up to 250 products/variants with AI-shopping/AIEO readiness, identifier gaps, structural catalog issues and prioritized Merchant Center remediation.
+  No Shopify login, merchant credentials, customer data or private API keys are required.
+
 ## Commercial access
 
 For paid access, team licensing, batch validation, recurring monitoring or implementation:
