@@ -1,0 +1,37 @@
+name: Submit PAL revenue pages to IndexNow
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/indexnow-pal-revenue-pages.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Submit revenue pages
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://pal-full-catalog-remediation.onrender.com"
+          key_path=$(curl --silent --show-error "$base/robots.txt" >/dev/null; printf '%s' "a308e807eac54897f390bd401091a89b.txt")
+          key=$(curl --silent --show-error "$base/$key_path")
+          urls=(
+            "$base/marketplace"
+            "$base/deploy-mcp-api"
+            "$base/affiliate-link-audit"
+            "$base/sitemap.xml"
+          )
+          for url in "${urls[@]}"; do
+            code=$(curl --silent --show-error --output /tmp/indexnow.txt --write-out "%{http_code}"               --get "https://api.indexnow.org/indexnow"               --data-urlencode "url=$url"               --data-urlencode "key=$key")
+            echo "$url -> HTTP $code"
+            if [ "$code" != "200" ] && [ "$code" != "202" ]; then
+              cat /tmp/indexnow.txt || true
+              exit 1
+            fi
+          done
