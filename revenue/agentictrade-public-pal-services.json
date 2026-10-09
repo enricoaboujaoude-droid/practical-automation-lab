@@ -1,6 +1,14 @@
 {
-  "checked_at": "2026-10-08T18:01:00.711Z",
-  "service_count": 3,
+  "checked_at": "2026-10-09T17:51:15.950Z",
+  "mode": "public",
+  "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+  "authenticated_metrics_available": false,
+  "service_count": 8,
+  "public_totals": {
+    "total_calls": 0,
+    "paid_calls": 0,
+    "revenue_usd": 0
+  },
   "services": [
     {
       "id": "a995b693-1db4-4b25-95b4-512b4c4dca42",
@@ -11,9 +19,9 @@
       "price_per_call": 0.1,
       "currency": "USDC",
       "free_tier_calls": 0,
-      "total_calls": 0,
-      "paid_calls": 0,
-      "revenue_usd": 0,
+      "total_calls": null,
+      "paid_calls": null,
+      "revenue_usd": null,
       "status": "active",
       "health_score": null,
       "created_at": "2026-10-02T09:49:01.592274+00:00",
@@ -23,85 +31,147 @@
       "id": "00cf5f52-d0d9-4118-b47c-58f7e33cb2d2",
       "name": "PAL Full Catalog Remediation 2000",
       "description": "Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for product-feed, identifier, GTIN, price, URL, brand/MPN and availability issues.",
-      "provider_id": "agent_0fbddb484e02",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
       "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/agentpay-remediation-bulk",
       "price_per_call": 20,
       "currency": "USDC",
       "free_tier_calls": 0,
-      "total_calls": 0,
-      "paid_calls": 0,
-      "revenue_usd": 0,
+      "total_calls": null,
+      "paid_calls": null,
+      "revenue_usd": null,
       "status": "active",
       "health_score": null,
       "created_at": "2026-10-05T21:04:14.582925+00:00",
-      "updated_at": "2026-10-05T21:04:39.843237+00:00"
+      "updated_at": "2026-10-09T11:53:28"
     },
     {
       "id": "00c78e8f-be6d-4371-b94b-82262767f40a",
       "name": "PAL Full Catalog Remediation",
       "description": "Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for feed, identifier, GTIN, price, URL, brand/MPN and availability issues.",
-      "provider_id": "agent_d42665baaa45",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
       "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/usdc/catalog-remediation-bulk",
       "price_per_call": 20,
       "currency": "USDC",
       "free_tier_calls": 0,
-      "total_calls": 0,
-      "paid_calls": 0,
-      "revenue_usd": 0,
+      "total_calls": null,
+      "paid_calls": null,
+      "revenue_usd": null,
       "status": "active",
       "health_score": null,
       "created_at": "2026-10-06T08:13:11.623875+00:00",
-      "updated_at": "2026-10-06T08:13:31.911054+00:00"
+      "updated_at": "2026-10-09T11:53:28"
+    },
+    {
+      "id": "85762eec-1b47-41b7-afe4-601de8bd1b29",
+      "name": "PAL Paid Full Catalog Remediation",
+      "description": "Paid full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products. Returns prioritized corrective actions for identifiers, GTINs, price formatting, URLs, brand/MPN, availability and feed readiness.",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/agentpay-remediation-bulk",
+      "price_per_call": 20,
+      "currency": "USDC",
+      "free_tier_calls": 0,
+      "total_calls": null,
+      "paid_calls": null,
+      "revenue_usd": null,
+      "status": "active",
+      "health_score": null,
+      "created_at": "2026-10-08T18:07:55.388313+00:00",
+      "updated_at": "2026-10-09T11:53:28"
+    },
+    {
+      "id": "a370c578-beed-4e04-afd9-bdc6f1da4f79",
+      "name": "PAL Live Shopify Store Commerce Audit",
+      "description": "Audit a live public Shopify storefront for Merchant Center and AI-shopping readiness without store login. Inspects up to 250 sellable variants and returns prioritized fixes.",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/shopify-store-audit",
+      "price_per_call": 25,
+      "currency": "USDC",
+      "free_tier_calls": 0,
+      "total_calls": null,
+      "paid_calls": null,
+      "revenue_usd": null,
+      "status": "active",
+      "health_score": null,
+      "created_at": "2026-10-08T22:49:41.668098+00:00",
+      "updated_at": "2026-10-09T11:53:28"
+    },
+    {
+      "id": "9ca1ac6b-ff8d-4ef2-945f-8c1c7aa31ba9",
+      "name": "PAL Agent Commerce Launch Kit",
+      "description": "Generate a deployment-ready agent-commerce package for an existing public service: runtime readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads and deployment steps.",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/agent-commerce-launch-kit",
+      "price_per_call": 99,
+      "currency": "USDC",
+      "free_tier_calls": 0,
+      "total_calls": null,
+      "paid_calls": null,
+      "revenue_usd": null,
+      "status": "active",
+      "health_score": null,
+      "created_at": "2026-10-08T22:49:42.667249+00:00",
+      "updated_at": "2026-10-09T11:53:28"
+    },
+    {
+      "id": "3f06bc02-ce96-40b9-98d8-091f82f580dd",
+      "name": "PAL Agent Commerce Go-Live",
+      "description": "One-call go-live for an already-public paid agent service: verify runtime x402 readiness, generate launch artifacts, submit the public service to compatible discovery markets, and return registration receipts plus exact remaining blockers.",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/agent-commerce-go-live",
+      "price_per_call": 100,
+      "currency": "USDC",
+      "free_tier_calls": 0,
+      "total_calls": null,
+      "paid_calls": null,
+      "revenue_usd": null,
+      "status": "active",
+      "health_score": null,
+      "created_at": "2026-10-09T09:29:27.466923+00:00",
+      "updated_at": "2026-10-09T11:53:28"
+    },
+    {
+      "id": "33a615ae-6e6c-404b-851f-036013181a92",
+      "name": "PAL AIEO Quick Shopify Audit",
+      "description": "Automated public-storefront audit for Shopify merchants and shopping agents. Give one public Shopify URL and receive an AI-shopping/AIEO readiness score, identifier coverage, brand/category coverage, description and image-alt coverage, structural catalog findings, and prioritized fixes. No store login required.",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "endpoint": "https://pal-marketplace-fast-api.onrender.com/api/shopify-aieo-quick-audit",
+      "price_per_call": 5,
+      "currency": "USDC",
+      "free_tier_calls": 0,
+      "total_calls": null,
+      "paid_calls": null,
+      "revenue_usd": null,
+      "status": "active",
+      "health_score": null,
+      "created_at": "2026-10-09T10:03:14.722440+00:00",
+      "updated_at": "2026-10-09T11:53:28"
     }
   ],
-  "raw_keys": [
-    {
-      "id": "a995b693-1db4-4b25-95b4-512b4c4dca42",
-      "keys": [
-        "id",
-        "provider_id",
-        "name",
-        "description",
-        "endpoint",
-        "pricing",
-        "status",
-        "category",
-        "tags",
-        "created_at",
-        "updated_at"
-      ]
+  "reputations": {
+    "a995b693-1db4-4b25-95b4-512b4c4dca42": {
+      "error": "GET https://agentictrade.io/api/v1/services/a995b693-1db4-4b25-95b4-512b4c4dca42/reputation?period=all-time -> 404: {\"error\":\"Not found\"}"
     },
-    {
-      "id": "00cf5f52-d0d9-4118-b47c-58f7e33cb2d2",
-      "keys": [
-        "id",
-        "provider_id",
-        "name",
-        "description",
-        "endpoint",
-        "pricing",
-        "status",
-        "category",
-        "tags",
-        "created_at",
-        "updated_at"
-      ]
+    "00cf5f52-d0d9-4118-b47c-58f7e33cb2d2": {
+      "error": "GET https://agentictrade.io/api/v1/services/00cf5f52-d0d9-4118-b47c-58f7e33cb2d2/reputation?period=all-time -> 404: {\"error\":\"Not found\"}"
     },
-    {
-      "id": "00c78e8f-be6d-4371-b94b-82262767f40a",
-      "keys": [
-        "id",
-        "provider_id",
-        "name",
-        "description",
-        "endpoint",
-        "pricing",
-        "status",
-        "category",
-        "tags",
-        "created_at",
-        "updated_at"
-      ]
+    "00c78e8f-be6d-4371-b94b-82262767f40a": {
+      "error": "GET https://agentictrade.io/api/v1/services/00c78e8f-be6d-4371-b94b-82262767f40a/reputation?period=all-time -> 404: {\"error\":\"Not found\"}"
+    },
+    "85762eec-1b47-41b7-afe4-601de8bd1b29": {
+      "error": "GET https://agentictrade.io/api/v1/services/85762eec-1b47-41b7-afe4-601de8bd1b29/reputation?period=all-time -> 404: {\"error\":\"Not found\"}"
+    },
+    "a370c578-beed-4e04-afd9-bdc6f1da4f79": {
+      "error": "GET https://agentictrade.io/api/v1/services/a370c578-beed-4e04-afd9-bdc6f1da4f79/reputation?period=all-time -> 404: {\"error\":\"Not found\"}"
+    },
+    "9ca1ac6b-ff8d-4ef2-945f-8c1c7aa31ba9": {
+      "error": "GET https://agentictrade.io/api/v1/services/9ca1ac6b-ff8d-4ef2-945f-8c1c7aa31ba9/reputation?period=all-time -> 404: {\"error\":\"Not found\"}"
+    },
+    "3f06bc02-ce96-40b9-98d8-091f82f580dd": {
+      "error": "GET https://agentictrade.io/api/v1/services/3f06bc02-ce96-40b9-98d8-091f82f580dd/reputation?period=all-time -> 404: {\"error\":\"Not found\"}"
+    },
+    "33a615ae-6e6c-404b-851f-036013181a92": {
+      "error": "GET https://agentictrade.io/api/v1/services/33a615ae-6e6c-404b-851f-036013181a92/reputation?period=all-time -> 404: {\"error\":\"Not found\"}"
     }
-  ]
+  },
+  "evidence_note": "Revenue is counted only when AgenticTrade exposes an explicit revenue/paid-call field. Missing public fields are null, never inferred from views, ratings, or listing presence."
 }
