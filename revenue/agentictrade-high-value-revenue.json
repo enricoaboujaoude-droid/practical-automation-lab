@@ -1,0 +1,87 @@
+{
+  "checked_at": "2026-10-09T09:52:36.014Z",
+  "services": [
+    {
+      "service_id": "85762eec-1b47-41b7-afe4-601de8bd1b29",
+      "provider_id": "agent_88ea32935b5d",
+      "name": "PAL Paid Full Catalog Remediation",
+      "price_usdc": 20,
+      "checked_at": "2026-10-09T09:52:34.758Z",
+      "ok": false,
+      "error": "POST /keys HTTP 401: {\"error\":\"Provider key creation requires authentication\"}"
+    },
+    {
+      "service_id": "a370c578-beed-4e04-afd9-bdc6f1da4f79",
+      "provider_id": "agent_1189d194ec4c",
+      "name": "PAL Live Shopify Store Commerce Audit",
+      "price_usdc": 25,
+      "checked_at": "2026-10-09T09:52:35.276Z",
+      "ok": false,
+      "error": "POST /keys HTTP 401: {\"error\":\"Provider key creation requires authentication\"}"
+    },
+    {
+      "service_id": "9ca1ac6b-ff8d-4ef2-945f-8c1c7aa31ba9",
+      "provider_id": "agent_0f36c868bd90",
+      "name": "PAL Agent Commerce Launch Kit",
+      "price_usdc": 99,
+      "checked_at": "2026-10-09T09:52:35.719Z",
+      "ok": false,
+      "error": "POST /keys HTTP 401: {\"error\":\"Provider key creation requires authentication\"}"
+    },
+    {
+      "service_id": "3f06bc02-ce96-40b9-98d8-091f82f580dd",
+      "provider_id": "agent_427825c9decb",
+      "name": "PAL Agent Commerce Go-Live",
+      "price_usdc": 100,
+      "checked_at": "2026-10-09T09:52:35.866Z",
+      "ok": false,
+      "error": "POST /keys HTTP 401: {\"error\":\"Provider key creation requires authentication\"}"
+    }
+  ],
+  "summary": [
+    {
+      "service_id": "85762eec-1b47-41b7-afe4-601de8bd1b29",
+      "name": "PAL Paid Full Catalog Remediation",
+      "price_usdc": 20,
+      "ok": false,
+      "total_calls": 0,
+      "revenue_usdc": 0,
+      "pending_usdc": 0,
+      "settled_usdc": 0,
+      "error": "POST /keys HTTP 401: {\"error\":\"Provider key creation requires authentication\"}"
+    },
+    {
+      "service_id": "a370c578-beed-4e04-afd9-bdc6f1da4f79",
+      "name": "PAL Live Shopify Store Commerce Audit",
+      "price_usdc": 25,
+      "ok": false,
+      "total_calls": 0,
+      "revenue_usdc": 0,
+      "pending_usdc": 0,
+      "settled_usdc": 0,
+      "error": "POST /keys HTTP 401: {\"error\":\"Provider key creation requires authentication\"}"
+    },
+    {
+      "service_id": "9ca1ac6b-ff8d-4ef2-945f-8c1c7aa31ba9",
+      "name": "PAL Agent Commerce Launch Kit",
+      "price_usdc": 99,
+      "ok": false,
+      "total_calls": 0,
+      "revenue_usdc": 0,
+      "pending_usdc": 0,
+      "settled_usdc": 0,
+      "error": "POST /keys HTTP 401: {\"error\":\"Provider key creation requires authentication\"}"
+    },
+    {
+      "service_id": "3f06bc02-ce96-40b9-98d8-091f82f580dd",
+      "name": "PAL Agent Commerce Go-Live",
+      "price_usdc": 100,
+      "ok": false,
+      "total_calls": 0,
+      "revenue_usdc": 0,
+      "pending_usdc": 0,
+      "settled_usdc": 0,
+      "error": "POST /keys HTTP 401: {\"error\":\"Provider key creation requires authentication\"}"
+    }
+  ]
+}
