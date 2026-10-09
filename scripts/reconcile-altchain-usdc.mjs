@@ -50,3 +50,5 @@ console.log(JSON.stringify({
   source_updated_at: out.source_updated_at,
   source_scan_errors: out.source_scan_errors,
 }, null, 2));
+
+// Current proof is derived from the resilient multichain ledger.
