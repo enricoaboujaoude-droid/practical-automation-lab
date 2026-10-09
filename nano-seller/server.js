@@ -3807,6 +3807,45 @@ async function startIndex402Bootstrap() {
       category: "ecommerce/catalog-remediation",
       provider: "Practical Automation Lab",
     },
+    {
+      url: X402_AGENT_COMMERCE_KIT_URL,
+      name: "PAL Agent Commerce Launch Kit",
+      protocol: "x402",
+      http_method: "POST",
+      probe_body: JSON.stringify({
+        origin: "https://example-agent-service.com",
+        route: "/v1/paid",
+        service_name: "Example Agent Service",
+        service_description: "Example already-public paid agent service used only for unpaid x402 discovery probing."
+      }),
+      description:
+        "Generate a deployment-ready agent-commerce package for an existing public paid service: runtime readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads and prioritized deployment steps.",
+      price_usd: 99.0,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      category: "developer-tools/agent-commerce",
+      provider: "Practical Automation Lab",
+    },
+    {
+      url: X402_AGENT_COMMERCE_GO_LIVE_URL,
+      name: "PAL Agent Commerce Go-Live",
+      protocol: "x402",
+      http_method: "POST",
+      probe_body: JSON.stringify({
+        origin: "https://example-agent-service.com",
+        route: "/v1/paid",
+        service_name: "Example Agent Service",
+        service_description: "Example already-public paid agent service used only for unpaid x402 discovery probing.",
+        price_usd: 25
+      }),
+      description:
+        "One-call go-live for an already-public paid agent service: verify x402 runtime readiness, generate launch artifacts, submit the public service to compatible discovery markets, and return registration receipts plus exact remaining blockers.",
+      price_usd: 350.0,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      category: "developer-tools/agent-commerce",
+      provider: "Practical Automation Lab",
+    },
   ];
 
   const registrationResults = [];
