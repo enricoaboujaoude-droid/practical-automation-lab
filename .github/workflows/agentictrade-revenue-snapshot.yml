@@ -19,16 +19,16 @@ jobs:
         with:
           ref: main
       - name: Read provider revenue metrics
+        env:
+          AGENTICTRADE_PROVIDER_TOKEN: ${{ secrets.AGENTICTRADE_PROVIDER_TOKEN }}
         run: node scripts/snapshot-agentictrade-provider.mjs
       - name: Persist non-secret revenue snapshot
         shell: bash
         run: |
           set -euo pipefail
-          if git diff --quiet -- revenue/agentictrade-provider-snapshot.json; then
-            exit 0
-          fi
           git config user.name "PAL Revenue Bot"
           git config user.email "actions@users.noreply.github.com"
           git add revenue/agentictrade-provider-snapshot.json
+          git diff --cached --quiet && exit 0
           git commit -m "revenue: persist AgenticTrade provider snapshot"
           git push origin HEAD:main
