@@ -286,7 +286,50 @@ export function subscriptionIsPro(subscription: ActiveSubscription) {
   });
 }
 
+async function hasActiveSubscriptionViaAdmin(admin: AdminClient) {
+  const response = await admin.graphql(`#graphql
+    query PalCurrentAppSubscriptions {
+      currentAppInstallation {
+        activeSubscriptions {
+          id
+          name
+        }
+      }
+    }
+  `);
+  const body = await response.json();
+
+  if (!response.ok || body.errors?.length) {
+    throw new Error("Shopify Admin API active subscription lookup failed.");
+  }
+
+  return Array.isArray(body.data?.currentAppInstallation?.activeSubscriptions)
+    && body.data.currentAppInstallation.activeSubscriptions.length > 0;
+}
+
 export async function hasPaidProSubscription(admin: AdminClient) {
+  /*
+   * Managed App Pricing subscriptions are available directly from the
+   * authenticated shop's currentAppInstallation. This is the primary
+   * entitlement source because it does not require a separate Partner API
+   * access token and it reflects the merchant's active app subscription.
+   */
+  try {
+    if (await hasActiveSubscriptionViaAdmin(admin)) {
+      return true;
+    }
+  } catch (error) {
+    console.error("[pal-pro] admin_subscription_lookup_failed");
+    if (!partnerSubscriptionConfigured()) {
+      throw error;
+    }
+  }
+
+  /*
+   * Keep the Partner API lookup as an optional compatibility fallback when it
+   * is configured. It also supports the aggregate revenue endpoint, but it is
+   * no longer required for a paying merchant to receive Pro entitlement.
+   */
   if (!partnerSubscriptionConfigured()) return false;
 
   const shopId = await getShopGid(admin);
@@ -305,7 +348,7 @@ export async function hasPaidProSubscription(admin: AdminClient) {
 
     return isPro;
   } catch (error) {
-    console.error("[pal-pro] subscription_lookup_failed");
+    console.error("[pal-pro] partner_subscription_lookup_failed");
     throw error;
   }
 }
