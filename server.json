@@ -1,46 +1,76 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence",
-  "title": "PAL Commerce Catalog Intelligence",
-  "description": "Merchant feed audits and $20 full-catalog remediation via Base USDC.",
-  "websiteUrl": "https://pal-nano-catalog-audit.onrender.com/marketplace",
+  "title": "PAL Commerce & Agent Revenue MCP",
+  "description": "Paid x402 Shopify audits, affiliate leak checks, and agent-commerce launch/distribution.",
+  "websiteUrl": "https://pal-full-catalog-remediation.onrender.com/",
   "repository": {
     "url": "https://github.com/enricoaboujaoude-droid/practical-automation-lab",
     "source": "github",
     "subfolder": "nano-seller"
   },
-  "version": "1.1.1",
+  "version": "1.2.0",
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://pal-nano-catalog-audit.onrender.com/mcp"
+      "url": "https://pal-full-catalog-remediation.onrender.com/mcp"
     }
   ],
   "_meta": {
     "io.modelcontextprotocol.registry/publisher-provided": {
       "category": [
         "ecommerce",
+        "shopify",
         "merchant-center",
         "product-feed",
-        "gtin",
-        "catalog-remediation",
-        "batch-remediation",
-        "full-catalog",
-        "x402"
+        "affiliate",
+        "revenue-leak",
+        "agent-commerce",
+        "x402",
+        "mcp",
+        "distribution"
       ],
       "pricing": {
         "currency": "USDC",
         "network": "Base",
         "minimum": "0.01",
-        "maximum": "20.00",
+        "maximum": "749.00",
         "unit": "call"
       },
       "discovery": {
-        "openapi": "https://pal-nano-catalog-audit.onrender.com/openapi.json",
-        "x402": "https://pal-nano-catalog-audit.onrender.com/.well-known/x402",
-        "agentCard": "https://pal-nano-catalog-audit.onrender.com/.well-known/agent.json"
+        "openapi": "https://pal-full-catalog-remediation.onrender.com/openapi.json",
+        "x402": "https://pal-full-catalog-remediation.onrender.com/.well-known/x402",
+        "agentCard": "https://pal-full-catalog-remediation.onrender.com/.well-known/agent.json"
       },
       "offers": [
+        {
+          "name": "Live Shopify Store Commerce Audit",
+          "price": "25.00",
+          "unit": "call",
+          "maxRecords": 250
+        },
+        {
+          "name": "Affiliate Revenue Leak Audit",
+          "price": "99.00",
+          "unit": "call",
+          "maxLinks": 25
+        },
+        {
+          "name": "Agent Commerce Launch Kit",
+          "price": "99.00",
+          "unit": "call"
+        },
+        {
+          "name": "Agent Commerce Go-Live",
+          "price": "350.00",
+          "unit": "call"
+        },
+        {
+          "name": "Agent Commerce Fleet Go-Live",
+          "price": "749.00",
+          "unit": "call",
+          "maxServices": 3
+        },
         {
           "name": "Batch Catalog Remediation",
           "price": "5.00",
@@ -48,32 +78,10 @@
           "maxRecords": 500
         },
         {
-          "name": "Catalog Remediation Plan",
-          "price": "1.00",
+          "name": "Full Catalog Remediation",
+          "price": "20.00",
           "unit": "call",
-          "maxRecords": 100
-        },
-        {
-          "name": "Catalog Audit",
-          "price": "0.01",
-          "unit": "call",
-          "maxRecords": 100
-        },
-        {
-          "name": "GTIN Validation",
-          "price": "0.01",
-          "unit": "call",
-          "maxRecords": 100
-        },
-        {
-          "name": "Feed Diff",
-          "price": "0.01",
-          "unit": "call"
-        },
-        {
-          "name": "x402 Declaration Validation",
-          "price": "0.05",
-          "unit": "call"
+          "maxRecords": 2000
         }
       ]
     }
