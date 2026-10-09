@@ -30,6 +30,6 @@ jobs:
           git config user.name "PAL Revenue Bot"
           git config user.email "actions@users.noreply.github.com"
           git add revenue/agentpaystore-shopify-25.json
-          git commit -m "revenue: persist AgentStore $25 Shopify listing"
+          git commit -m "revenue: persist AgentStore Shopify 25 listing"
           git pull --rebase origin main
           git push origin HEAD:main
