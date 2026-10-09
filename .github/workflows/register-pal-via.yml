@@ -1,0 +1,53 @@
+name: Register PAL on VIA
+
+on:
+  push:
+    paths:
+      - ".github/workflows/register-pal-via.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Register PAL service store through VIA MCP
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          MANIFEST="$(curl --silent --show-error --fail https://pal-full-catalog-remediation.onrender.com/.well-known/x402)"
+          PAYOUT="$(printf '%s' "$MANIFEST" | jq -r '[.. | objects | .payTo? // empty] | map(select(type=="string")) | first // empty')"
+
+          if [[ ! "$PAYOUT" =~ ^0x[0-9a-fA-F]{40}$ ]]; then
+            echo "Could not derive a valid Base payout wallet from PAL x402 manifest." >&2
+            exit 1
+          fi
+
+          BODY="$(jq -nc --arg payout "$PAYOUT" '{
+            jsonrpc:"2.0",
+            id:1,
+            method:"tools/call",
+            params:{
+              name:"register_store",
+              arguments:{
+                store_name:"Practical Automation Lab",
+                kind:"service",
+                payout_wallet:$payout,
+                email:"enricoaboujaoude@gmail.com",
+                slug:"practical-automation-lab",
+                headline:"Machine-buyable agent commerce, Shopify and revenue intelligence services",
+                description:"Practical Automation Lab sells production x402/MCP services for agent-commerce launch and distribution, Shopify commerce auditing, affiliate revenue-leak auditing, and AIEO catalog remediation. Current flagship offers include a 749 USDC fleet go-live for up to three paid agent services, a 350 USDC single-service go-live, 99 USDC launch and affiliate-audit products, and a 25 USDC live Shopify audit.",
+                website_url:"https://pal-full-catalog-remediation.onrender.com/marketplace"
+              }
+            }
+          }')"
+
+          curl --silent --show-error --fail-with-body \
+            --request POST "https://app.getvia.xyz/mcp" \
+            --header 'Content-Type: application/json' \
+            --header 'Accept: application/json, text/event-stream' \
+            --data "$BODY"
