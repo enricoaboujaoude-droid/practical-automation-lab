@@ -12,6 +12,7 @@ const PORT = Number(process.env.PORT || 10000);
 const PAY_TO = String(process.env.PAL_BASE_PAYOUT_ADDRESS || "").trim();
 const FACILITATOR_URL = "https://facilitator.payai.network";
 const NETWORK = "eip155:8453";
+const PUBLIC_ORIGIN = String(process.env.PUBLIC_BASE_URL || "https://pal-base-risk-revenue.onrender.com").replace(/\/$/, "");
 
 if (!/^0x[a-fA-F0-9]{40}$/.test(PAY_TO)) {
   throw new Error("PAL_BASE_PAYOUT_ADDRESS must be a valid public EVM address");
@@ -274,7 +275,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.get("/.well-known/x402", (_req, res) => {
-  const origin = `${_req.protocol}://${_req.get("host")}`;
+  const origin = PUBLIC_ORIGIN;
   res.json({
     version: 2,
     name: "Practical Automation Lab Bazaar Revenue",
