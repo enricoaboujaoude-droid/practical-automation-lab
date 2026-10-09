@@ -4843,6 +4843,8 @@ async function startMarket402Bootstrap() {
     X402_VALIDATE_URL,
     X402_REMEDIATE_URL,
     X402_REMEDIATE_BATCH_URL,
+    X402_AGENT_COMMERCE_KIT_URL,
+    X402_AGENT_COMMERCE_GO_LIVE_URL,
   ];
   const results = [];
 
@@ -4945,6 +4947,22 @@ async function startX402DashBootstrap() {
         "Generate a prioritized Merchant Center and product-feed remediation plan for 1-100 catalog records with concrete fixes, issue severity, and affected product IDs. Paid directly over x402 Base USDC.",
       category: "Data",
       tags: ["ecommerce", "catalog", "merchant-center", "product-feed", "remediation"],
+    },
+    {
+      url: X402_AGENT_COMMERCE_KIT_URL,
+      name: "PAL Agent Commerce Launch Kit",
+      description:
+        "Deployment-ready agent-commerce launch bundle for an existing public paid service: agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads, runtime-readiness evidence and prioritized launch steps. Paid directly over x402 Base USDC.",
+      category: "Developer Tools",
+      tags: ["agent-commerce", "x402", "mcp", "openapi", "agent-card", "marketplace", "deployment"],
+    },
+    {
+      url: X402_AGENT_COMMERCE_GO_LIVE_URL,
+      name: "PAL Agent Commerce Go-Live",
+      description:
+        "One-call go-live and distribution for an already-public paid agent service: verify x402 readiness, generate launch artifacts, submit to compatible buyer-discovery markets, and return registration receipts plus remaining blockers. Paid directly over x402 Base USDC.",
+      category: "Developer Tools",
+      tags: ["agent-commerce", "x402", "distribution", "marketplace", "go-live", "mcp"],
     },
   ];
 
@@ -5418,6 +5436,47 @@ async function startNoHumansBootstrap() {
           },
         },
         required: ["x402Version", "accepts"],
+      },
+    },
+    {
+      name: "PAL Agent Commerce Launch Kit",
+      description:
+        "Deployment-ready agent-commerce launch bundle for an existing public paid service: runtime readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads and prioritized deployment steps.",
+      endpoint_url: X402_AGENT_COMMERCE_KIT_URL,
+      category: "developer.agent-commerce",
+      price_amount: 99.0,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          origin: { type: "string", format: "uri" },
+          route: { type: "string" },
+          service_name: { type: "string" },
+          service_description: { type: "string" },
+          contact_email: { type: "string" },
+        },
+        required: ["origin", "service_name", "service_description"],
+      },
+    },
+    {
+      name: "PAL Agent Commerce Go-Live",
+      description:
+        "One-call go-live and distribution for an already-public paid agent service: verify x402 readiness, generate launch artifacts, submit to compatible buyer-discovery markets, and return registration receipts plus exact remaining blockers.",
+      endpoint_url: X402_AGENT_COMMERCE_GO_LIVE_URL,
+      category: "developer.agent-commerce",
+      price_amount: 350.0,
+      chains: ["base"],
+      request_schema: {
+        type: "object",
+        properties: {
+          origin: { type: "string", format: "uri" },
+          route: { type: "string" },
+          service_name: { type: "string" },
+          service_description: { type: "string" },
+          contact_email: { type: "string" },
+          price_usd: { type: "number" },
+        },
+        required: ["origin", "route", "service_name", "service_description", "price_usd"],
       },
     },
   ];
