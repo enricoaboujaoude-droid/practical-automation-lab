@@ -275,6 +275,27 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "pal-bazaar-revenue", checked_at: new Date().toISOString() });
 });
 
+app.get("/.well-known/mpp32-verify", async (_req, res) => {
+  try {
+    const response = await fetch(
+      "https://raw.githubusercontent.com/enricoaboujaoude-droid/practical-automation-lab/bazaar-revenue/revenue/mpp32-verification-token.txt",
+      {
+        headers: { accept: "text/plain", "user-agent": "PAL-MPP32-Verify/1.0" },
+        signal: AbortSignal.timeout(8000)
+      }
+    );
+    if (!response.ok) return res.status(404).type("text/plain").send("verification_not_ready");
+    const token = (await response.text()).trim();
+    if (!/^[a-fA-F0-9]{64}$/.test(token)) {
+      return res.status(404).type("text/plain").send("verification_not_ready");
+    }
+    res.set("Cache-Control", "no-store");
+    return res.type("text/plain").send(token);
+  } catch {
+    return res.status(503).type("text/plain").send("verification_unavailable");
+  }
+});
+
 app.get("/.well-known/402index-verify.txt", (_req, res) => {
   res.set("Cache-Control", "no-store");
   if (!index402VerificationHash) {
