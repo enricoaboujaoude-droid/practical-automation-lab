@@ -58,15 +58,15 @@
       "source": "revenue/base-usdc-ledger.json",
       "last_scanned_block": 52372733,
       "source_updated_at": "2026-10-09T08:33:46.087Z",
-      "imported_at": "2026-10-09T08:37:34.925Z"
+      "imported_at": "2026-10-09T08:38:32.074Z"
     },
     "arbitrum": {
-      "last_scanned_block": 513145259,
-      "scanned_from_block": 513136441,
-      "updated_at": "2026-10-09T08:38:23.025Z"
+      "last_scanned_block": 513145454,
+      "scanned_from_block": 513137259,
+      "updated_at": "2026-10-09T08:39:19.540Z"
     }
   },
-  "updated_at": "2026-10-09T08:38:23.025Z",
+  "updated_at": "2026-10-09T08:39:19.540Z",
   "scan_errors": [
     {
       "chain": "polygon",
