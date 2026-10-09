@@ -29,6 +29,8 @@ const REPUTON_CUSTOMER_REVIEWS_REFERRAL_URL =
   `https://reputon.com/referral?aid=1&c=${REPUTON_PARTNER_CAMPAIGN}`;
 const REPUTON_GOOGLE_REVIEWS_REFERRAL_URL =
   `https://reputon.com/referral?aid=2&c=${REPUTON_PARTNER_CAMPAIGN}`;
+const AGENTICTRADE_REFERRAL_URL =
+  "https://agentictrade.io/portal/register?ref=6HDHVHZ3";
 const BASE_USDC_LEDGER_URL =
   "https://raw.githubusercontent.com/enricoaboujaoude-droid/practical-automation-lab/main/revenue/base-usdc-ledger.json";
 const PAYANAGENT_OFFER_TITLE = "PAL Full Catalog Remediation";
@@ -177,6 +179,17 @@ function mcpText(value) {
   return [{ type: "text", text: JSON.stringify(value, null, 2) }];
 }
 
+function agenticTradeReferralOffer() {
+  return {
+    provider: "AgenticTrade",
+    signup_url: AGENTICTRADE_REFERRAL_URL,
+    relevance:
+      "Optional for providers who want another AI-agent marketplace after PAL prepares or distributes their paid service.",
+    affiliate_disclosure:
+      "Practical Automation Lab may earn 20% of AgenticTrade's platform fee on referred provider transactions under AgenticTrade's current referral program. AgenticTrade is optional and is not required to use PAL.",
+  };
+}
+
 async function mcpPaidRequest({ method = "POST", path, query = null, body = null, paymentSignature = "" }) {
   const url = new URL(path, `${PUBLIC_BASE_URL}/`);
   if (query && typeof query === "object") {
@@ -322,6 +335,7 @@ function buildPalMcpServer() {
         landing_page: `${PUBLIC_BASE_URL}/marketplace`,
         openapi: `${PUBLIC_BASE_URL}/openapi.json`,
         x402_manifest: `${PUBLIC_BASE_URL}/.well-known/x402`,
+        optional_provider_marketplace: agenticTradeReferralOffer(),
       }),
     }),
   );
@@ -953,6 +967,7 @@ function buildFiatDockMcpServer() {
             registered_resource: registration.resource,
             deployment_checklist: launchKit.deployment_checklist,
             remaining_blockers: remainingBlockers,
+            optional_provider_marketplace: agenticTradeReferralOffer(),
           }),
         };
       } catch (error) {
@@ -1045,6 +1060,7 @@ function buildFiatDockMcpServer() {
             savings_usdc: Math.max(0, services.length * 350 - 749),
           },
           results,
+          optional_provider_marketplace: agenticTradeReferralOffer(),
         }),
       };
     },
@@ -9559,6 +9575,7 @@ function buildAgentCommerceLaunchKit(report, input) {
       "Verify one real third-party purchase and preserve the settlement receipt as proof of demand.",
     ],
     evidence: repair.evidence,
+    optional_provider_marketplace: agenticTradeReferralOffer(),
     boundary:
       "This package generates deployment-ready artifacts and registration payloads from public/runtime evidence. It does not take custody of wallets, sign payments, deploy into the buyer's private repository, or fabricate settlement history.",
   };
@@ -9701,6 +9718,7 @@ app.post("/v1/agentpay/agent-commerce-go-live", async (req, res) => {
       registered_resource: registration.resource,
       deployment_checklist: launchKit.deployment_checklist,
       remaining_blockers: remainingBlockers,
+      optional_provider_marketplace: agenticTradeReferralOffer(),
       marketplace: {
         provider: "AgenticTrade",
         billing: "handled_upstream",
@@ -9765,6 +9783,7 @@ app.post("/v1/usdc/agent-commerce-go-live", async (req, res) => {
       registered_resource: registration.resource,
       deployment_checklist: launchKit.deployment_checklist,
       remaining_blockers: remainingBlockers,
+      optional_provider_marketplace: agenticTradeReferralOffer(),
       payment: {
         verified_by: "x402",
         network: USDC_X402_NETWORK,
@@ -9830,6 +9849,7 @@ app.post("/v1/agentpay/agent-commerce-fleet-go-live", async (req, res) => {
         savings_usdc: Math.max(0, services.length * 350 - 749),
       },
       results,
+      optional_provider_marketplace: agenticTradeReferralOffer(),
       marketplace: { provider: "AgenticTrade", billing: "handled_upstream", price_per_call_usdc: "749" },
       boundary: "Public origins/routes only; no private repository access, wallet custody, buyer transaction signing, or fabricated settlement history.",
     });
@@ -10017,6 +10037,7 @@ app.post("/v1/usdc/agent-commerce-fleet-go-live", async (req, res) => {
         failed: results.length - completed,
       },
       results,
+      optional_provider_marketplace: agenticTradeReferralOffer(),
       payment: {
         verified_by: "x402",
         network: USDC_X402_NETWORK,
