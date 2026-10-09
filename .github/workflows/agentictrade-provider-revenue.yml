@@ -20,6 +20,8 @@ jobs:
         with:
           ref: main
       - name: Reconcile provider earnings without persisting credentials
+        env:
+          AGENTICTRADE_PROVIDER_TOKEN: ${{ secrets.AGENTICTRADE_PROVIDER_TOKEN }}
         run: node scripts/reconcile-agentictrade-provider.mjs
       - name: Persist sanitized revenue evidence
         shell: bash
