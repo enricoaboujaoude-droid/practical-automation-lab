@@ -70,6 +70,53 @@ const server=http.createServer(async (req,res)=>{
       return send(res,200,{ok:true,service:"PAL Marketplace Fast API",version:"1.0.0",latency_ms:Date.now()-started});
     }
 
+    if(req.method==="GET" && path==="/api/base-usdc-proof"){
+      const payout="0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF";
+      const usdc="0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+      const proofUrl=new URL(`https://base.blockscout.com/api/v2/addresses/${payout}/token-transfers`);
+      proofUrl.searchParams.set("type","ERC-20");
+      proofUrl.searchParams.set("filter","to");
+      proofUrl.searchParams.set("token",usdc);
+      const upstream=await fetch(proofUrl,{
+        headers:{accept:"application/json","user-agent":"PAL-Revenue-Proof/1.0"},
+        signal:AbortSignal.timeout(15000)
+      });
+      const raw=await upstream.text();
+      if(!upstream.ok){
+        return send(res,502,{ok:false,error:"base_proof_upstream_failed",status:upstream.status,detail:raw.slice(0,300)});
+      }
+      const data=raw?JSON.parse(raw):{};
+      const items=(Array.isArray(data.items)?data.items:[]).filter(item=>
+        String(item?.token?.address_hash||"").toLowerCase()===usdc.toLowerCase() &&
+        String(item?.to?.hash||"").toLowerCase()===payout.toLowerCase()
+      );
+      const transfers=items.map(item=>{
+        const decimals=Number(item?.total?.decimals??item?.token?.decimals??6);
+        const value=String(item?.total?.value??"0");
+        return {
+          tx_hash:item?.transaction_hash||null,
+          log_index:Number.isFinite(Number(item?.log_index))?Number(item.log_index):null,
+          block_number:Number(item?.block_number||0)||null,
+          timestamp:item?.timestamp||null,
+          from:item?.from?.hash||null,
+          to:item?.to?.hash||null,
+          amount_usdc:Number(value)/(10**decimals)
+        };
+      });
+      const total_usdc=Number(transfers.reduce((sum,x)=>sum+Number(x.amount_usdc||0),0).toFixed(6));
+      return send(res,200,{
+        ok:true,
+        network:"base-mainnet",
+        asset:"USDC",
+        source:"base.blockscout.com",
+        payout_address:payout,
+        transfer_count:transfers.length,
+        total_usdc,
+        transfers,
+        checked_at:new Date().toISOString()
+      });
+    }
+
     if(req.method==="GET" && path==="/api/openapi"){
       const proto=(req.headers["x-forwarded-proto"]||"https").split(",")[0].trim();
       return send(res,200,openApi(`${proto}://${req.headers.host}`),{"cache-control":"public, max-age=300"});
