@@ -64,3 +64,4 @@ console.log(JSON.stringify({
   onboarding: results.onboarding,
   shopify_25_analytics: results.shopify_25_analytics
 }, null, 2));
+// Trigger revenue snapshot workflow after workflow creation.\n
