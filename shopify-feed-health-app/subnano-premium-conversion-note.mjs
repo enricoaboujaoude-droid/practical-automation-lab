@@ -73,7 +73,7 @@ Then classify the source before calling it customer revenue.
 
 PAL's longer operating report includes the full six-gate marketplace filter, 15-point opportunity scorecard, failure patterns, revenue-agent architecture and the exact accounting rules that forced us to reset false-positive "sales" to zero.
 
-**Premium report: 100 XNO**
+**Premium report: 85 XNO**
 
 https://subnano.me/@practicalautomationlab/autonomous-revenue-markets-2026-what-actually-pays-what-fakes-it-and-the-0-to-20k-filter
 
@@ -137,10 +137,24 @@ function findPost(data) {
 export async function ensurePremiumConversionNote() {
   const published = findPost(await list("published"));
   if (published) {
+    const revised = await request(`/posts/${encodeURIComponent(published.id)}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(published.updatedAt ? { "X-Post-Revision": String(published.updatedAt) } : {}),
+      },
+      body: JSON.stringify({
+        description: POST.description,
+        freeContentMarkdown: POST.freeContentMarkdown,
+        creationMethod: POST.creationMethod,
+        creationDetails: POST.creationDetails,
+        creationAttested: POST.creationAttested,
+      }),
+    });
     return {
-      status: "already_published",
-      id: published.id,
-      url: published.url || null,
+      status: "updated",
+      id: revised?.id || published.id,
+      url: revised?.url || published.url || null,
     };
   }
 
