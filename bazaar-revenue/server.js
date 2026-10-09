@@ -3,20 +3,21 @@ import { HTTPFacilitatorClient, x402ResourceServer } from "@x402/core/server";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import { paymentMiddleware } from "@x402/express";
 import { bazaarResourceServerExtension, declareDiscoveryExtension } from "@x402/extensions/bazaar";
+import { facilitator } from "@payai/facilitator";
 
 const app = express();
 app.use(express.json({ limit: "64kb" }));
 
 const PORT = Number(process.env.PORT || 10000);
 const PAY_TO = String(process.env.PAL_BASE_PAYOUT_ADDRESS || "").trim();
-const FACILITATOR_URL = String(process.env.X402_FACILITATOR_URL || "https://x402.org/facilitator").replace(/\/$/, "");
+const FACILITATOR_URL = "https://facilitator.payai.network";
 const NETWORK = "eip155:8453";
 
 if (!/^0x[a-fA-F0-9]{40}$/.test(PAY_TO)) {
   throw new Error("PAL_BASE_PAYOUT_ADDRESS must be a valid public EVM address");
 }
 
-const facilitatorClient = new HTTPFacilitatorClient({ url: FACILITATOR_URL });
+const facilitatorClient = new HTTPFacilitatorClient(facilitator);
 const resourceServer = new x402ResourceServer(facilitatorClient)
   .register("eip155:*", new ExactEvmScheme())
   .registerExtension(bazaarResourceServerExtension);
