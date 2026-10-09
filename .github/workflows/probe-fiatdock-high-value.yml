@@ -1,0 +1,61 @@
+name: Probe FiatDock high-value PAL listings
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/probe-fiatdock-high-value.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      PAL_WALLET: "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF"
+    steps:
+      - name: Probe $99 Launch Kit challenge
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl --silent --show-error --output /tmp/launch.json --dump-header /tmp/launch.headers --write-out "%{http_code}"             --request POST "https://fiatdock.com/s/svc_cb72e15b-2ad8-4ee3-84b5-8958f27f10d4"             --header "content-type: application/json"             --data '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pal_agent_commerce_launch_kit","arguments":{"origin":"https://example.com","service_name":"Example Agent Service","service_description":"A public paid agent service used only to inspect FiatDock payment requirements."}}}')
+          echo "HTTP $code"
+          cat /tmp/launch.json
+          echo
+          test "$code" = "402"
+          python - <<'PY'
+          import json
+          p=json.load(open("/tmp/launch.json"))
+          accepts=p.get("accepts") or p.get("paymentRequirements",{}).get("accepts") or []
+          assert accepts, p
+          a=accepts[0]
+          amount=str(a.get("amount",""))
+          payto=str(a.get("payTo") or a.get("pay_to") or "").lower()
+          assert amount in {"99000000","99","99.0","99.00"}, (amount,p)
+          assert payto=="0x02d1dae81eaddded344eee43c6f31a8e166432bf", (payto,p)
+          print("PASS launch-kit challenge", amount, payto)
+          PY
+
+      - name: Probe $350 Go-Live challenge
+        shell: bash
+        run: |
+          set -euo pipefail
+          code=$(curl --silent --show-error --output /tmp/golive.json --dump-header /tmp/golive.headers --write-out "%{http_code}"             --request POST "https://fiatdock.com/s/svc_a9c7d662-2ca1-4c89-9528-e52ad476caf9"             --header "content-type: application/json"             --data '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"pal_agent_commerce_go_live","arguments":{"origin":"https://example.com","route":"/api","service_name":"Example Paid Agent Service","service_description":"A public paid agent service used only to inspect FiatDock payment requirements.","price_usd":25}}}')
+          echo "HTTP $code"
+          cat /tmp/golive.json
+          echo
+          test "$code" = "402"
+          python - <<'PY'
+          import json
+          p=json.load(open("/tmp/golive.json"))
+          accepts=p.get("accepts") or p.get("paymentRequirements",{}).get("accepts") or []
+          assert accepts, p
+          a=accepts[0]
+          amount=str(a.get("amount",""))
+          payto=str(a.get("payTo") or a.get("pay_to") or "").lower()
+          assert amount in {"350000000","350","350.0","350.00"}, (amount,p)
+          assert payto=="0x02d1dae81eaddded344eee43c6f31a8e166432bf", (payto,p)
+          print("PASS go-live challenge", amount, payto)
+          PY
