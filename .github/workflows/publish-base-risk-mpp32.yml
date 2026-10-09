@@ -1,0 +1,120 @@
+name: Publish PAL $25 Base Risk to MPP32
+
+on:
+  push:
+    paths:
+      - ".github/workflows/publish-base-risk-mpp32.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Register $25 provider listing
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+
+          const payload = {
+            name: "PAL Base Token Portfolio Risk Rank",
+            shortDescription: "Rank 2-10 Base ERC-20 tokens by live security risk with deterministic safety scores and evidence.",
+            fullDescription: "Machine-paid Base token due diligence for autonomous agents. Returns per-token live security evidence, 0-100 safety scores, risk bands, honeypot/trading/tax/source/proxy/concentration flags, top-holder metrics, and a safest-to-riskiest portfolio ranking.",
+            category: "risk-compliance",
+            websiteUrl: "https://pal-base-risk-revenue.onrender.com",
+            endpointUrl: "https://pal-base-risk-revenue.onrender.com/v1/base-token-portfolio-rank",
+            pricePerQuery: 25,
+            paymentAddress: "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+            creatorName: "Practical Automation Lab",
+            creatorEmail: "enricoaboujaoude@gmail.com",
+            githubUrl: "https://github.com/enricoaboujaoude-droid/practical-automation-lab"
+          };
+
+          const response = await fetch("https://mpp32.org/api/submissions", {
+            method: "POST",
+            headers: { "content-type": "application/json", accept: "application/json" },
+            body: JSON.stringify(payload),
+            signal: AbortSignal.timeout(45000)
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(`MPP32 registration failed HTTP ${response.status}: ${JSON.stringify(body?.error || {}).slice(0,500)}`);
+          }
+
+          const data = body?.data || {};
+          if (!data.slug || !data.managementToken || !data.verificationToken) {
+            throw new Error("MPP32 registration response missing required tokens");
+          }
+
+          fs.writeFileSync("/tmp/mpp32-slug", String(data.slug));
+          fs.writeFileSync("/tmp/mpp32-management-token", String(data.managementToken));
+          fs.writeFileSync("/tmp/mpp32-verification-token", String(data.verificationToken));
+          console.log(JSON.stringify({
+            registered: true,
+            id: data.id,
+            slug: data.slug,
+            price_per_query_usd: data.pricePerQuery,
+            status: data.status,
+            is_verified: data.isVerified,
+            endpoint_url: data.endpointUrl
+          }, null, 2));
+          NODE
+
+      - name: Publish public verification token
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout bazaar-revenue
+          mkdir -p revenue
+          cp /tmp/mpp32-verification-token revenue/mpp32-verification-token.txt
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/mpp32-verification-token.txt
+          if ! git diff --cached --quiet; then
+            git commit -m "revenue: publish MPP32 verification token"
+            git push origin bazaar-revenue
+          fi
+
+      - name: Verify listing ownership
+        shell: bash
+        run: |
+          set -euo pipefail
+          EXPECTED="$(cat /tmp/mpp32-verification-token)"
+          READY=0
+          for i in $(seq 1 36); do
+            ACTUAL="$(curl -fsS --max-time 15 https://pal-base-risk-revenue.onrender.com/.well-known/mpp32-verify 2>/dev/null || true)"
+            if [ "$ACTUAL" = "$EXPECTED" ]; then
+              READY=1
+              break
+            fi
+            sleep 5
+          done
+          test "$READY" = "1"
+
+          SLUG="$(cat /tmp/mpp32-slug)"
+          TOKEN="$(cat /tmp/mpp32-management-token)"
+          CODE="$(curl -sS --max-time 30 -o /tmp/mpp32-verify-result.json -w '%{http_code}'             -X POST "https://mpp32.org/api/submissions/$SLUG/verify"             -H "Authorization: Bearer $TOKEN"             -H 'accept: application/json')"
+          cat /tmp/mpp32-verify-result.json
+          echo "HTTP_STATUS=$CODE"
+          test "$CODE" = "200"
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const body=JSON.parse(fs.readFileSync("/tmp/mpp32-verify-result.json","utf8"));
+          if(body?.data?.verified !== true) throw new Error("MPP32 ownership verification did not succeed");
+          console.log(JSON.stringify({verified:true},null,2));
+          NODE
+
+      - name: Remove transient management credential
+        if: always()
+        shell: bash
+        run: |
+          rm -f /tmp/mpp32-management-token /tmp/mpp32-verification-token /tmp/mpp32-slug /tmp/mpp32-verify-result.json
