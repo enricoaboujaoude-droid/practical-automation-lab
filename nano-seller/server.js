@@ -10900,7 +10900,9 @@ app.listen(PORT, "0.0.0.0", () => {
   setTimeout(() => void startNoHumansBootstrap(), 40_000);
   setTimeout(() => void startAgenticTradePremiumBootstrap(), 44_000);
   setTimeout(() => void startAgenticTradeFullCatalogOnboard(), 52_000);
-  if (process.env.AGENTICTRADE_HIGH_BOOTSTRAP === "1") {\n    setTimeout(() => void startAgenticTradeHighValueOnboard(), 56_000);\n  }
+  if (process.env.AGENTICTRADE_HIGH_BOOTSTRAP === "1") {
+    setTimeout(() => void startAgenticTradeHighValueOnboard(), 56_000);
+  }
   setTimeout(() => void startAgentBazaarBootstrap(), 60_000);
   setTimeout(() => void startIp402RegistryBootstrap(), 68_000);
 });
