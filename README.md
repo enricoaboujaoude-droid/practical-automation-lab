@@ -11,7 +11,7 @@ Practical Automation Lab builds privacy-conscious AIEO and AI-commerce tools for
 - Primary paid x402 origin: https://pal-full-catalog-remediation.onrender.com
 - Direct x402 OpenAPI 3.1: https://pal-full-catalog-remediation.onrender.com/openapi.json
 - Human-readable marketplace/docs: https://pal-full-catalog-remediation.onrender.com/marketplace
-- Remote MCP endpoint: https://pal-nano-catalog-audit.onrender.com/mcp
+- Remote MCP endpoint: https://pal-full-catalog-remediation.onrender.com/mcp
 - Official MCP Registry: https://registry.modelcontextprotocol.io/v0.1/servers/io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence/versions/latest
 - Secondary paid origin: https://pal-nano-catalog-audit.onrender.com
 - Free remediation example: https://pal-nano-catalog-audit.onrender.com/v1/sample/catalog-remediation
@@ -20,8 +20,10 @@ Practical Automation Lab builds privacy-conscious AIEO and AI-commerce tools for
 
 | Endpoint | Price | Purpose |
 | --- | ---: | --- |
+| `POST /v1/usdc/agent-commerce-fleet-go-live` | **$749.00 USDC** | Audit, package, and distribute up to three already-public paid agent services in one portfolio purchase |
 | `POST /v1/usdc/agent-commerce-go-live` | **$350.00 USDC** | Verify, package, and distribute an already-public paid agent service; returns launch artifacts and registration receipts |
 | `POST /v1/usdc/agent-commerce-launch-kit` | **$99.00 USDC** | Generate an agent-commerce launch bundle: runtime evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads, and checklist |
+| `POST /v1/usdc/affiliate-revenue-leak-audit` | **$99.00 USDC** | Audit up to 25 public affiliate URLs for broken destinations, redirect risk, destination drift, and tracking-parameter changes |
 | `GET /v1/usdc/shopify-store-audit?url=...` | **$25.00 USDC** | Fetch a public Shopify storefront and audit up to 250 live variants for AIEO / AI-shopping readiness plus Merchant Center compatibility |
 | `POST /v1/usdc/catalog-remediation-bulk` | $20.00 USDC | Prioritized remediation for up to 2,000 product records |
 | `POST /v1/usdc/catalog-remediation-batch` | $5.00 USDC | Batch catalog remediation for up to 500 records |
@@ -32,7 +34,7 @@ Practical Automation Lab builds privacy-conscious AIEO and AI-commerce tools for
 Public landing page:  
 https://practical-automation-lab.onrender.com/shopify-store-audit.html
 
-Lower-priced legacy diagnostics remain available in the live OpenAPI document, but PAL's primary commercial focus is now the material-price autonomous services above.
+Lower-priced legacy diagnostics remain available in the live OpenAPI document, but PAL's primary commercial focus is the $749 fleet launch, $350 single-service go-live, $99 launch/affiliate audits, and $25 live Shopify audit above.
 
 Direct paid calls use **x402 v2 with USDC on Base mainnet** and return a standard HTTP 402 payment challenge before settlement. The OpenAPI document includes x402 payment metadata, agent guidance, input schemas, contact information, and external documentation.
 
