@@ -1,0 +1,35 @@
+name: Audit fresh Shopify prospects
+
+on:
+  push:
+    paths:
+      - "scripts/audit-fresh-shopify-prospects.mjs"
+      - ".github/workflows/audit-fresh-shopify-prospects.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Run PAL AIEO quick audits
+        run: node scripts/audit-fresh-shopify-prospects.mjs
+      - name: Persist prospect audit evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- revenue/prospect-aieo-audits.json)" ]; then
+            exit 0
+          fi
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/prospect-aieo-audits.json
+          git commit -m "revenue: audit fresh Shopify prospects"
+          git pull --rebase origin main
+          git push origin HEAD:main
