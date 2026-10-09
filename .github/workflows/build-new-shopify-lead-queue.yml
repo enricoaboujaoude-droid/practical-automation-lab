@@ -1,0 +1,53 @@
+name: Build New Shopify Lead Queue
+
+on:
+  push:
+    paths:
+      - "scripts/build-new-shopify-lead-queue.mjs"
+      - "revenue/shopify-outreach-suppression.json"
+      - ".github/workflows/build-new-shopify-lead-queue.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-new-shopify-lead-queue
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Build bounded public-contact queue
+        run: node scripts/build-new-shopify-lead-queue.mjs
+
+      - name: Persist queue when changed
+        run: |
+          if git diff --quiet -- revenue/shopify-lead-queue.json; then
+            echo "Queue unchanged."
+            exit 0
+          fi
+
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/shopify-lead-queue.json
+          git commit -m "revenue: refresh bounded new-Shopify lead queue"
+
+          for attempt in 1 2 3; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Push raced with another writer; rebasing attempt $attempt."
+            git pull --rebase origin main
+          done
+
+          echo "Unable to persist queue after retries."
+          exit 1
