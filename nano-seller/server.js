@@ -10480,6 +10480,16 @@ async function startAgenticTradeFullCatalogOnboard() {
 async function startAgenticTradeHighValueOnboard() {
   const offers = [
     {
+      name: "PAL AIEO Quick Shopify Audit",
+      endpoint:
+        "https://pal-marketplace-fast-api.onrender.com/api/shopify-aieo-quick-audit",
+      price: "5",
+      description:
+        "Automated public-storefront audit for Shopify merchants and shopping agents. Give one public Shopify URL and receive an AI-shopping/AIEO readiness score, identifier coverage, brand/category coverage, description and image-alt coverage, structural catalog findings, and prioritized fixes. No store login required.",
+      category: "ecommerce",
+      tags: ["shopify", "aieo", "ai-shopping", "ai-search", "catalog-audit", "merchant-center", "product-feed"],
+    },
+    {
       name: "PAL Live Shopify Store Commerce Audit",
       endpoint:
         "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/shopify-store-audit",
