@@ -41,4 +41,5 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add revenue/usdc-multichain-ledger.json
           git commit -m "revenue: reconcile multichain USDC settlements"
+          git pull --rebase origin main
           git push origin HEAD:main
