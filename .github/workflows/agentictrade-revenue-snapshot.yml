@@ -1,0 +1,34 @@
+name: Snapshot AgenticTrade Revenue
+
+on:
+  push:
+    paths:
+      - "scripts/snapshot-agentictrade-provider.mjs"
+      - ".github/workflows/agentictrade-revenue-snapshot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Read provider revenue metrics
+        run: node scripts/snapshot-agentictrade-provider.mjs
+      - name: Persist non-secret revenue snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- revenue/agentictrade-provider-snapshot.json; then
+            exit 0
+          fi
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/agentictrade-provider-snapshot.json
+          git commit -m "revenue: persist AgenticTrade provider snapshot"
+          git push origin HEAD:main
