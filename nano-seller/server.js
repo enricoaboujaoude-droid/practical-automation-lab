@@ -89,6 +89,9 @@ const X402_AGENT_COMMERCE_GO_LIVE_PRICE_ATOMIC = "350000000";
 const X402_AGENT_COMMERCE_FLEET_PATH = "/v1/usdc/agent-commerce-fleet-go-live";
 const X402_AGENT_COMMERCE_FLEET_PRICE_USD = "$749.00";
 const X402_AGENT_COMMERCE_FLEET_PRICE_ATOMIC = "749000000";
+const X402_AFFILIATE_LEAK_AUDIT_PATH = "/v1/usdc/affiliate-revenue-leak-audit";
+const X402_AFFILIATE_LEAK_AUDIT_PRICE_USD = "$99.00";
+const X402_AFFILIATE_LEAK_AUDIT_PRICE_ATOMIC = "99000000";
 const X402_SHOPIFY_PRODUCT_PATH = "/v1/usdc/shopify-product-availability";
 const X402_SHOPIFY_PRODUCT_PRICE_USD = "$0.01";
 const X402_SHOPIFY_PRODUCT_PRICE_ATOMIC = "10000";
@@ -123,6 +126,7 @@ const X402_SELLER_PORTFOLIO_URL = `${PUBLIC_BASE_URL}${X402_SELLER_PORTFOLIO_PAT
 const X402_AGENT_COMMERCE_KIT_URL = `${PUBLIC_BASE_URL}${X402_AGENT_COMMERCE_KIT_PATH}`;
 const X402_AGENT_COMMERCE_GO_LIVE_URL = `${PUBLIC_BASE_URL}${X402_AGENT_COMMERCE_GO_LIVE_PATH}`;
 const X402_AGENT_COMMERCE_FLEET_URL = `${PUBLIC_BASE_URL}${X402_AGENT_COMMERCE_FLEET_PATH}`;
+const X402_AFFILIATE_LEAK_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_AFFILIATE_LEAK_AUDIT_PATH}`;
 const X402_SHOPIFY_PRODUCT_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_PRODUCT_PATH}`;
 const X402_SHOPIFY_COMPARE_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_COMPARE_PATH}`;
 const X402_SHOPIFY_STORE_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_STORE_AUDIT_PATH}`;
@@ -298,6 +302,7 @@ function buildPalMcpServer() {
         },
         paid_tools: [
           { name: "agent_commerce_fleet_go_live", price_usd: 749.0, route: X402_AGENT_COMMERCE_FLEET_PATH, purpose: "verify and distribute up to three already-public paid agent services in one portfolio purchase" },
+          { name: "affiliate_revenue_leak_audit", price_usd: 99.0, route: X402_AFFILIATE_LEAK_AUDIT_PATH, purpose: "audit up to 25 affiliate URLs for dead links, redirect drift and tracking-risk signals" },
           { name: "agent_commerce_go_live", price_usd: 350.0, route: X402_AGENT_COMMERCE_GO_LIVE_PATH, purpose: "verify and distribute an already-public paid agent service, returning registration receipts" },
           { name: "agent_commerce_launch_kit", price_usd: 99.0, route: X402_AGENT_COMMERCE_KIT_PATH, purpose: "generate deployment-ready agent-card, llms.txt, OpenAPI/x402 and marketplace artifacts" },
           { name: "x402_seller_portfolio_audit", price_usd: 20.0, route: X402_SELLER_PORTFOLIO_PATH, purpose: "audit and rank up to five paid seller routes" },
@@ -1119,6 +1124,7 @@ const USDC_X402_PATHS = new Set([
   X402_AGENT_COMMERCE_KIT_PATH,
   X402_AGENT_COMMERCE_GO_LIVE_PATH,
   X402_AGENT_COMMERCE_FLEET_PATH,
+  X402_AFFILIATE_LEAK_AUDIT_PATH,
   X402_SHOPIFY_PRODUCT_PATH,
   X402_SHOPIFY_COMPARE_PATH,
   X402_SHOPIFY_STORE_AUDIT_PATH,
@@ -1769,6 +1775,52 @@ app.use(
           })
         }
       },
+      "POST /v1/usdc/affiliate-revenue-leak-audit": {
+        accepts: x402RouteAccepts(X402_AFFILIATE_LEAK_AUDIT_PRICE_USD),
+        description:
+          "Audit up to 25 public HTTPS affiliate URLs for dead destinations, HTTP failures, excessive redirect chains, destination-domain drift, and observable tracking-parameter loss. HEAD-only probes avoid purchases or state-changing GETs. Optional per-link monthly_value_usd lets PAL quantify value clearly exposed by broken links.",
+        mimeType: "application/json",
+        serviceName: "PAL Affiliate Revenue Leak Audit",
+        tags: ["affiliate", "revenue-leak", "publisher", "redirects", "link-health", "monetization", "commerce"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              links: [
+                { url: "https://example.com/affiliate-link?ref=publisher123", monthly_value_usd: 250 }
+              ]
+            },
+            inputSchema: {
+              type: "object",
+              additionalProperties: false,
+              required: ["links"],
+              properties: {
+                links: {
+                  type: "array",
+                  minItems: 1,
+                  maxItems: 25,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    required: ["url"],
+                    properties: {
+                      url: { type: "string", format: "uri" },
+                      monthly_value_usd: { type: "number", minimum: 0 }
+                    }
+                  }
+                }
+              }
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL Affiliate Revenue Leak Audit",
+                summary: { checked: 1, healthy: 1, warnings: 0, broken: 0 },
+                results: []
+              }
+            }
+          })
+        }
+      },
       "GET /v1/usdc/shopify-store-audit": {
         accepts: x402RouteAccepts(X402_SHOPIFY_STORE_AUDIT_PRICE_USD),
         description:
@@ -1931,6 +1983,7 @@ let usdcPaidSellerPortfolioAudits = 0;
 let usdcPaidAgentCommerceLaunchKits = 0;
 let usdcPaidAgentCommerceGoLives = 0;
 let usdcPaidAgentCommerceFleetGoLives = 0;
+let usdcPaidAffiliateRevenueLeakAudits = 0;
 let usdcPaidShopifyProductChecks = 0;
 let usdcPaidShopifyProductCompares = 0;
 let usdcPaidShopifyStoreAudits = 0;
@@ -2127,6 +2180,151 @@ async function assertPublicFetchHost(hostname) {
     throw new Error("private_or_reserved_address");
   }
   return answers.map((answer) => answer.address);
+}
+
+async function probeAffiliateRevenueLink(input) {
+  const rawUrl = String(input?.url || "").trim();
+  const monthlyValueUsd = Number(input?.monthly_value_usd);
+  let target;
+  try {
+    target = new URL(rawUrl);
+  } catch {
+    return { url: rawUrl, status: "broken", reason: "invalid_url", redirects: [] };
+  }
+  if (target.protocol !== "https:" || target.username || target.password) {
+    return { url: rawUrl, status: "broken", reason: "public_https_required", redirects: [] };
+  }
+
+  const initialHost = target.hostname.toLowerCase();
+  const initialParams = [...new Set([...target.searchParams.keys()])].sort();
+  const redirects = [];
+  let finalStatus = null;
+  let finalUrl = target.toString();
+  let headSupported = true;
+
+  try {
+    for (let hop = 0; hop <= 5; hop += 1) {
+      await assertPublicFetchHost(target.hostname);
+      const response = await fetch(target, {
+        method: "HEAD",
+        headers: {
+          accept: "*/*",
+          "user-agent": "Practical-Automation-Lab-Affiliate-Revenue-Leak-Audit/1.0",
+        },
+        redirect: "manual",
+        signal: AbortSignal.timeout(7_000),
+      });
+      finalStatus = response.status;
+      finalUrl = target.toString();
+
+      if ([301, 302, 303, 307, 308].includes(response.status)) {
+        const location = response.headers.get("location");
+        redirects.push({
+          from: target.toString(),
+          status: response.status,
+          location: location || null,
+        });
+        if (!location) {
+          return {
+            url: rawUrl,
+            status: "warning",
+            reason: "redirect_without_location",
+            http_status: response.status,
+            redirects,
+          };
+        }
+        if (hop === 5) {
+          return {
+            url: rawUrl,
+            status: "warning",
+            reason: "redirect_limit_reached",
+            http_status: response.status,
+            redirects,
+          };
+        }
+        const next = new URL(location, target);
+        if (next.protocol !== "https:" || next.username || next.password) {
+          return {
+            url: rawUrl,
+            status: "broken",
+            reason: "unsafe_redirect_target",
+            http_status: response.status,
+            redirects,
+          };
+        }
+        target = next;
+        continue;
+      }
+
+      if (response.status === 405 || response.status === 501) {
+        headSupported = false;
+      }
+      break;
+    }
+  } catch (error) {
+    return {
+      url: rawUrl,
+      status: "broken",
+      reason: "unreachable",
+      error: error instanceof Error ? error.message : String(error),
+      redirects,
+      estimated_monthly_value_at_risk_usd:
+        Number.isFinite(monthlyValueUsd) && monthlyValueUsd >= 0 ? monthlyValueUsd : null,
+    };
+  }
+
+  const final = new URL(finalUrl);
+  const finalParams = [...new Set([...final.searchParams.keys()])].sort();
+  const droppedParams = initialParams.filter((key) => !final.searchParams.has(key));
+  const domainChanged = final.hostname.toLowerCase() !== initialHost;
+  const isBroken = finalStatus === 404 || finalStatus === 410 || (finalStatus >= 500 && finalStatus <= 599);
+  const isClientError = finalStatus >= 400 && finalStatus <= 499 && ![405].includes(finalStatus);
+  const warningReasons = [];
+  if (!headSupported) warningReasons.push("head_not_supported");
+  if (redirects.length >= 4) warningReasons.push("long_redirect_chain");
+  if (domainChanged) warningReasons.push("destination_domain_changed");
+  if (droppedParams.length) warningReasons.push("tracking_parameters_changed_or_removed");
+  if (isClientError && !isBroken) warningReasons.push("client_error_response");
+
+  const status = isBroken || isClientError ? "broken" : warningReasons.length ? "warning" : "healthy";
+  return {
+    url: rawUrl,
+    status,
+    reason: isBroken ? `http_${finalStatus}` : isClientError ? `http_${finalStatus}` : warningReasons[0] || "ok",
+    http_status: finalStatus,
+    final_url: finalUrl,
+    redirect_count: redirects.length,
+    redirects,
+    initial_host: initialHost,
+    final_host: final.hostname.toLowerCase(),
+    domain_changed: domainChanged,
+    initial_query_parameters: initialParams,
+    final_query_parameters: finalParams,
+    dropped_query_parameters: droppedParams,
+    head_supported: headSupported,
+    estimated_monthly_value_at_risk_usd:
+      status === "broken" && Number.isFinite(monthlyValueUsd) && monthlyValueUsd >= 0
+        ? monthlyValueUsd
+        : null,
+    caveat:
+      droppedParams.length
+        ? "Observed query-parameter loss is a tracking-risk signal, not proof that attribution failed; some affiliate networks intentionally set attribution before redirecting."
+        : null,
+  };
+}
+
+async function auditAffiliateRevenueLinks(links) {
+  const results = new Array(links.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(5, links.length) }, async () => {
+    while (true) {
+      const index = next++;
+      if (index >= links.length) break;
+      results[index] = await probeAffiliateRevenueLink(links[index]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
 }
 
 function shopifyProductJsonUrl(input) {
@@ -2650,6 +2848,7 @@ function x402Manifest() {
   const sellerAuditAccepts = x402ManifestAccepts(X402_SELLER_AUDIT_PRICE_ATOMIC);
   const agentCommerceGoLiveAccepts = x402ManifestAccepts(X402_AGENT_COMMERCE_GO_LIVE_PRICE_ATOMIC);
   const agentCommerceFleetAccepts = x402ManifestAccepts(X402_AGENT_COMMERCE_FLEET_PRICE_ATOMIC);
+  const affiliateLeakAuditAccepts = x402ManifestAccepts(X402_AFFILIATE_LEAK_AUDIT_PRICE_ATOMIC);
   const agentCommerceKitAccepts = x402ManifestAccepts(X402_AGENT_COMMERCE_KIT_PRICE_ATOMIC);
   const sellerRepairAccepts = x402ManifestAccepts(X402_SELLER_REPAIR_PRICE_ATOMIC);
   const sellerPortfolioAccepts = x402ManifestAccepts(X402_SELLER_PORTFOLIO_PRICE_ATOMIC);
@@ -2772,6 +2971,34 @@ function x402Manifest() {
           },
         },
         accepts: agentCommerceGoLiveAccepts,
+      },
+      {
+        resource: X402_AFFILIATE_LEAK_AUDIT_URL,
+        name: "PAL Affiliate Revenue Leak Audit",
+        description:
+          "Audit up to 25 public affiliate URLs using HEAD-only probes for dead links, HTTP failures, redirect-chain risk, destination drift and observable tracking-parameter changes. Optionally quantify monthly value clearly exposed by broken links.",
+        method: "POST",
+        price: X402_AFFILIATE_LEAK_AUDIT_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["links"],
+          properties: {
+            links: {
+              type: "array",
+              minItems: 1,
+              maxItems: 25,
+              items: {
+                type: "object",
+                required: ["url"],
+                properties: {
+                  url: { type: "string" },
+                  monthly_value_usd: { type: "number" }
+                }
+              }
+            }
+          }
+        },
+        accepts: affiliateLeakAuditAccepts,
       },
       {
         resource: X402_AGENT_COMMERCE_FLEET_URL,
@@ -2971,7 +3198,7 @@ function x402Manifest() {
       },
     },
     capabilities: {
-      tools: 17,
+      tools: 18,
       categories: [
         "commerce",
         "merchant-feed",
@@ -3093,6 +3320,18 @@ function x402OpenApi() {
     amount: X402_AGENT_COMMERCE_FLEET_PRICE_ATOMIC,
     price: { mode: "fixed", currency: "USD", amount: "749.00" },
     priceDisplay: X402_AGENT_COMMERCE_FLEET_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
+  const affiliateLeakAuditPaymentInfo = {
+    protocol: "x402",
+    protocols: ["x402"],
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_AFFILIATE_LEAK_AUDIT_PRICE_ATOMIC,
+    price: { mode: "fixed", currency: "USD", amount: "99.00" },
+    priceDisplay: X402_AFFILIATE_LEAK_AUDIT_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
   const agentCommerceKitPaymentInfo = {
@@ -3503,6 +3742,51 @@ function x402OpenApi() {
           },
           "x-payment-info": agentCommerceGoLivePaymentInfo,
         },
+      },
+      [X402_AFFILIATE_LEAK_AUDIT_PATH]: {
+        post: {
+          operationId: "affiliateRevenueLeakAudit",
+          summary: "Audit public affiliate links for revenue-leak signals",
+          tags: ["affiliate", "publisher", "revenue-leak", "redirects", "monetization"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: ["links"],
+                  properties: {
+                    links: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 25,
+                      items: {
+                        type: "object",
+                        additionalProperties: false,
+                        required: ["url"],
+                        properties: {
+                          url: { type: "string", format: "uri" },
+                          monthly_value_usd: {
+                            type: "number",
+                            minimum: 0,
+                            description: "Optional buyer-supplied expected monthly commission value attributable to this link, used only to quantify clearly exposed value when the link is broken."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            "200": { description: "Affiliate-link health, redirect and revenue-leak signals after successful payment." },
+            "400": { description: "Invalid affiliate-link input." },
+            "402": { description: "x402 payment required." }
+          },
+          "x-payment-info": affiliateLeakAuditPaymentInfo
+        }
       },
       [X402_AGENT_COMMERCE_FLEET_PATH]: {
         post: {
@@ -4096,6 +4380,30 @@ async function startIndex402Bootstrap() {
       payment_network: "Base",
       category: "developer-tools/agent-commerce",
       provider: "Practical Automation Lab",
+    },
+    {
+      url: X402_AFFILIATE_LEAK_AUDIT_URL,
+      name: "PAL Affiliate Revenue Leak Audit",
+      protocol: "x402",
+      http_method: "POST",
+      probe_body: JSON.stringify({
+        links: [{ url: "https://example.com/?ref=publisher", monthly_value_usd: 100 }]
+      }),
+      description:
+        "Audit up to 25 public HTTPS affiliate URLs for broken destinations, redirect risk, destination drift and observable tracking-parameter changes using HEAD-only probes.",
+      price_usd: 99.0,
+      payment_asset: "USDC",
+      payment_network: "Base",
+      category: "affiliate/publisher-tools",
+      provider: "Practical Automation Lab",
+    },
+    {
+      url: X402_AFFILIATE_LEAK_AUDIT_URL,
+      name: "PAL Affiliate Revenue Leak Audit",
+      description:
+        "Audit up to 25 public affiliate URLs for broken links, redirect drift and observable attribution-risk signals using HEAD-only probes. Paid directly over x402 Base USDC.",
+      category: "Developer Tools",
+      tags: ["affiliate", "publisher", "revenue-leak", "redirects", "link-health", "monetization"],
     },
     {
       url: X402_AGENT_COMMERCE_FLEET_URL,
@@ -5119,6 +5427,7 @@ async function startMarket402Bootstrap() {
     X402_AGENT_COMMERCE_KIT_URL,
     X402_AGENT_COMMERCE_GO_LIVE_URL,
     X402_AGENT_COMMERCE_FLEET_URL,
+    X402_AFFILIATE_LEAK_AUDIT_URL,
   ];
   const results = [];
 
@@ -6637,6 +6946,7 @@ app.get("/", (_req, res) => {
       "POST /v1/usdc/agent-commerce-launch-kit",
       "POST /v1/usdc/agent-commerce-go-live",
       "POST /v1/usdc/agent-commerce-fleet-go-live",
+      "POST /v1/usdc/affiliate-revenue-leak-audit",
       "GET /v1/usdc/shopify-store-audit?url=...",
       "POST /v1/usdc/x402-validate",
       "POST /v1/usdc/catalog-remediation",
@@ -7821,6 +8131,7 @@ app.get("/v1/stats", (_req, res) => {
     usdc_x402_paid_agent_commerce_launch_kits_since_process_start: usdcPaidAgentCommerceLaunchKits,
     usdc_x402_paid_agent_commerce_go_lives_since_process_start: usdcPaidAgentCommerceGoLives,
     usdc_x402_paid_agent_commerce_fleet_go_lives_since_process_start: usdcPaidAgentCommerceFleetGoLives,
+    usdc_x402_paid_affiliate_revenue_leak_audits_since_process_start: usdcPaidAffiliateRevenueLeakAudits,
     usdc_x402_paid_shopify_product_checks_since_process_start: usdcPaidShopifyProductChecks,
     usdc_x402_paid_shopify_store_audits_since_process_start: usdcPaidShopifyStoreAudits,
     usdc_x402_paid_x402_validations_since_process_start: usdcPaidX402Validations,
@@ -7838,6 +8149,7 @@ app.get("/v1/stats", (_req, res) => {
       usdcPaidAgentCommerceLaunchKits * 99.00 +
       usdcPaidAgentCommerceGoLives * 350.00 +
       usdcPaidAgentCommerceFleetGoLives * 749.00 +
+      usdcPaidAffiliateRevenueLeakAudits * 99.00 +
       usdcPaidShopifyProductChecks * 0.005 +
       usdcPaidShopifyStoreAudits * 25.00 +
       usdcPaidX402Validations * 0.05 +
@@ -9524,6 +9836,92 @@ app.post("/v1/agentpay/agent-commerce-fleet-go-live", async (req, res) => {
   } catch (error) {
     return res.status(502).json({ error: "agent_commerce_fleet_go_live_failed", detail: error instanceof Error ? error.message : String(error) });
   }
+});
+
+app.post("/v1/usdc/affiliate-revenue-leak-audit", async (req, res) => {
+  const links = req.body?.links;
+  if (!Array.isArray(links) || links.length < 1 || links.length > 25) {
+    return res.status(400).json({
+      error: "invalid_affiliate_links",
+      detail: "Body must contain links as an array with 1 to 25 objects containing a public HTTPS url.",
+    });
+  }
+  const invalidIndex = links.findIndex((item) => {
+    if (!item || typeof item !== "object") return true;
+    try {
+      const url = new URL(String(item.url || "").trim());
+      if (url.protocol !== "https:" || url.username || url.password) return true;
+    } catch {
+      return true;
+    }
+    const value = item.monthly_value_usd;
+    return value !== undefined && (!Number.isFinite(Number(value)) || Number(value) < 0);
+  });
+  if (invalidIndex >= 0) {
+    return res.status(400).json({
+      error: "invalid_affiliate_link",
+      detail: `links[${invalidIndex}] requires a public HTTPS url and optional non-negative monthly_value_usd.`,
+    });
+  }
+
+  const results = await auditAffiliateRevenueLinks(links);
+  const healthy = results.filter((item) => item.status === "healthy").length;
+  const warnings = results.filter((item) => item.status === "warning").length;
+  const broken = results.filter((item) => item.status === "broken").length;
+  const quantifiedRisk = results.reduce(
+    (sum, item) => sum + (Number(item.estimated_monthly_value_at_risk_usd) || 0),
+    0,
+  );
+
+  usdcPaidAffiliateRevenueLeakAudits += 1;
+  console.log(
+    `[revenue] affiliate_revenue_leak_audit served price_usd=99 links=${links.length} broken=${broken} warnings=${warnings} count=${usdcPaidAffiliateRevenueLeakAudits}`,
+  );
+
+  return res.json({
+    service: "PAL Affiliate Revenue Leak Audit",
+    checked_at: nowIso(),
+    summary: {
+      checked: results.length,
+      healthy,
+      warnings,
+      broken,
+      quantified_monthly_value_at_risk_usd: Number(quantifiedRisk.toFixed(2)),
+      quantified_risk_note:
+        "This total includes only buyer-supplied monthly_value_usd on links PAL could clearly classify as broken; warnings are intentionally not monetized as losses.",
+    },
+    results,
+    optional_continuous_monitoring: {
+      provider: "Afterlink",
+      free_audit: "https://afterlink.io/?via=Enricoaj",
+      network_specific: {
+        impact: "https://afterlink.io/networks/impact?via=Enricoaj",
+        awin: "https://afterlink.io/networks/awin?via=Enricoaj",
+        shareasale: "https://afterlink.io/networks/shareasale?via=Enricoaj",
+        partnerstack: "https://afterlink.io/networks/partnerstack?via=Enricoaj",
+      },
+      relevance:
+        "Optional for publishers who want ongoing monitoring beyond this point-in-time PAL audit.",
+      affiliate_disclosure:
+        "Practical Automation Lab may receive 50% of qualifying referred Afterlink subscription payments for up to 36 months. The linked Afterlink audit is free to start.",
+    },
+    payment: {
+      verified_by: "x402",
+      network: USDC_X402_NETWORK,
+      asset: "USDC",
+      price_usd: X402_AFFILIATE_LEAK_AUDIT_PRICE_USD,
+      pay_to: BASE_PAYOUT_ADDRESS,
+    },
+    safety: {
+      public_https_only: true,
+      private_and_reserved_networks_blocked: true,
+      probe_method: "HEAD only",
+      purchases_or_state_changing_gets_sent: false,
+      max_redirects: 5,
+    },
+    caveat:
+      "Redirect and query-parameter observations are risk signals. Affiliate attribution can use cookies, server-side tracking, or network-specific mechanisms that cannot be proven from a HEAD-only public probe.",
+  });
 });
 
 app.post("/v1/usdc/agent-commerce-fleet-go-live", async (req, res) => {
