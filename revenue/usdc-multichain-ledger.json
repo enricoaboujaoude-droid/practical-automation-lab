@@ -56,21 +56,21 @@
   "checkpoints": {
     "base": {
       "source": "revenue/base-usdc-ledger.json",
-      "last_scanned_block": 52385079,
-      "source_updated_at": "2026-10-09T15:25:12.207Z",
-      "imported_at": "2026-10-09T15:36:12.797Z"
+      "last_scanned_block": 52386890,
+      "source_updated_at": "2026-10-09T16:25:33.899Z",
+      "imported_at": "2026-10-09T16:36:29.455Z"
     },
     "arbitrum": {
-      "last_scanned_block": 513240041,
-      "scanned_from_block": 513219248,
-      "updated_at": "2026-10-09T15:36:55.835Z"
+      "last_scanned_block": 513254123,
+      "scanned_from_block": 513232041,
+      "updated_at": "2026-10-09T16:38:27.133Z"
+    },
+    "polygon": {
+      "last_scanned_block": 95239036,
+      "scanned_from_block": 95227036,
+      "updated_at": "2026-10-09T16:38:15.529Z"
     }
   },
-  "updated_at": "2026-10-09T15:36:55.835Z",
-  "scan_errors": [
-    {
-      "chain": "polygon",
-      "error": "eth_getLogs HTTP 403 via https://polygon-bor-rpc.publicnode.com"
-    }
-  ]
+  "updated_at": "2026-10-09T16:38:27.134Z",
+  "scan_errors": []
 }
