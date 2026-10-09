@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "payout_address": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+  "asset": "USDC",
+  "transfers": [
+    {
+      "chain": "base",
+      "chain_id": 8453,
+      "chain_label": "Base",
+      "token": "USDC",
+      "token_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "tx_hash": "0xd6d5a0238a350b8cb9e955ff6655181cdda79772853252b6f275da475472fa89",
+      "log_index": null,
+      "block_number": 52198758,
+      "timestamp": "2026-10-05T07:54:23.000Z",
+      "from": "0x7e6b6556322c4e26c567a867964ac793f5ee2b1c",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "verified_baseline_basescan"
+    },
+    {
+      "chain": "base",
+      "chain_id": 8453,
+      "chain_label": "Base",
+      "token": "USDC",
+      "token_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "tx_hash": "0x916ce48a02ceb864e3a8f20da0d672eb23f17dde080a9f1f77a116e5cca31d77",
+      "log_index": null,
+      "block_number": 52206633,
+      "timestamp": "2026-10-05T12:16:53.000Z",
+      "from": "0x7e6b6556322c4e26c567a867964ac793f5ee2b1c",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.1,
+      "source": "verified_baseline_basescan"
+    },
+    {
+      "chain": "base",
+      "chain_id": 8453,
+      "chain_label": "Base",
+      "token": "USDC",
+      "token_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "tx_hash": "0xda3513b7f63cd1956372e0a10c383989e2a3bf8a8f5181eb49e9592a32a26c2b",
+      "log_index": 830,
+      "block_number": 52252666,
+      "timestamp": "2026-10-06T13:51:19.000Z",
+      "from": "0x7e6b6556322c4e26c567a867964ac793f5ee2b1c",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_ledger"
+    }
+  ],
+  "totals_by_chain": {
+    "base": 0.12
+  },
+  "total_usdc": 0.12,
+  "checkpoints": {
+    "base": {
+      "source": "revenue/base-usdc-ledger.json",
+      "last_scanned_block": 52372733,
+      "source_updated_at": "2026-10-09T08:33:46.087Z",
+      "imported_at": "2026-10-09T08:34:13.166Z"
+    },
+    "arbitrum": {
+      "last_scanned_block": 513144441,
+      "scanned_from_block": 513114441,
+      "updated_at": "2026-10-09T08:34:42.001Z"
+    }
+  },
+  "updated_at": "2026-10-09T08:34:42.001Z",
+  "scan_errors": [
+    {
+      "chain": "polygon",
+      "error": "eth_getLogs HTTP 403 via https://polygon-bor-rpc.publicnode.com"
+    }
+  ]
+}
