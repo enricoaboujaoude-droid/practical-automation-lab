@@ -36,13 +36,25 @@ const offers = [
   }
 ];
 
+function sanitize(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return body;
+  const {
+    api_key,
+    apiKey,
+    token,
+    secret,
+    ...safe
+  } = body;
+  return safe;
+}
+
 async function register(offer) {
   const response = await fetch(REGISTER_URL, {
     method: "POST",
     headers: {
       "content-type": "application/json",
       "accept": "application/json",
-      "user-agent": "PAL-Revenue-Publisher/1.0"
+      "user-agent": "PAL-Revenue-Publisher/1.1"
     },
     body: JSON.stringify({
       ...offer,
@@ -61,13 +73,14 @@ async function register(offer) {
     body = { raw: raw.slice(0, 2000) };
   }
 
+  const safeBody = sanitize(body);
   const duplicate =
     response.status === 409 ||
-    /already|duplicate|exists/i.test(JSON.stringify(body));
+    /already|duplicate|exists/i.test(JSON.stringify(safeBody));
 
   if (!response.ok && !duplicate) {
     throw new Error(
-      `AgentPay Store registration failed for ${offer.name}: HTTP ${response.status} ${JSON.stringify(body).slice(0, 1500)}`
+      `AgentPay Store registration failed for ${offer.name}: HTTP ${response.status} ${JSON.stringify(safeBody).slice(0, 1500)}`
     );
   }
 
@@ -76,7 +89,7 @@ async function register(offer) {
     registered: response.ok || duplicate,
     duplicate,
     status: response.status,
-    response: body
+    response: safeBody
   };
 }
 
