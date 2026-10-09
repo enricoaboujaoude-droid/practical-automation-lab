@@ -120,3 +120,5 @@ const metadata = {
 fs.mkdirSync("revenue", { recursive: true });
 fs.writeFileSync("revenue/payanagent-shopify-25.json", JSON.stringify(metadata, null, 2) + "\n");
 console.log(JSON.stringify(metadata, null, 2));
+
+// Triggered after workflow creation so the publisher runs on push.
