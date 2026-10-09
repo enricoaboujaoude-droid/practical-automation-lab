@@ -27,11 +27,11 @@ jobs:
       - name: Register PAL marketplace-billed endpoints
         run: node scripts/publish-agentpaystore.mjs
 
-      - name: Persist listing receipts
+      - name: Persist sanitized listing receipts
         shell: bash
         run: |
           set -euo pipefail
-          if git diff --quiet -- revenue/agentpaystore-listings.json; then
+          if [ -z "$(git status --porcelain -- revenue/agentpaystore-listings.json)" ]; then
             echo "No listing metadata change."
             exit 0
           fi
@@ -39,4 +39,5 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add revenue/agentpaystore-listings.json
           git commit -m "revenue: publish AgentPay Store listings"
+          git pull --rebase origin main
           git push origin HEAD:main
