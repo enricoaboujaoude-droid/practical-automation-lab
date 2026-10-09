@@ -1,4 +1,5 @@
 name: Submit PAL to mcp.so
+# PAL v1.2.0 refresh
 
 on:
   push:
