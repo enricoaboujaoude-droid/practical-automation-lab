@@ -1,0 +1,42 @@
+name: Publish PAL $25 Shopify Audit to PayanAgent
+
+on:
+  push:
+    paths:
+      - "scripts/publish-payanagent-shopify-25.mjs"
+      - ".github/workflows/payanagent-shopify-25.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: payanagent-shopify-25
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Publish $25 Shopify audit offer
+        run: node scripts/publish-payanagent-shopify-25.mjs
+
+      - name: Persist listing metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- revenue/payanagent-shopify-25.json; then
+            echo "No listing metadata change."
+            exit 0
+          fi
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/payanagent-shopify-25.json
+          git commit -m "revenue: persist PayanAgent $25 Shopify listing"
+          git push origin HEAD:main
