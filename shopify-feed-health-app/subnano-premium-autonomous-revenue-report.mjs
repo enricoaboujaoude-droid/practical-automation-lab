@@ -17,7 +17,7 @@ The expensive lesson was simple:
 
 **a payment is not automatically customer revenue, a listing is not distribution, and a marketplace is not a market.**
 
-This report is the cleaned-up operating model after PAL reset its own books to **$0 genuine customer/client revenue** and reclassified marketplace verification/canary receipts as infrastructure tests rather than sales.
+This report is the cleaned-up operating model after PAL reset its **Base-USDC customer revenue to $0** and reclassified marketplace verification/canary receipts as infrastructure tests rather than sales. Since that reset, independent Subnano readers have purchased PAL reports; those paid unlocks are genuine customer revenue and are tracked separately from Base-USDC API revenue.
 
 ## What you get behind the paywall
 
@@ -31,7 +31,7 @@ This report is the cleaned-up operating model after PAL reset its own books to *
 
 This is not a list of "AI side hustles." It is a postmortem and operating system built from live production failures, wallet reconciliation and marketplace contracts.
 
-**Price: 85 XNO.** PAL previously priced technical reports at 0.05 XNO and proved people would buy them. This report deliberately tests whether deeper operational evidence can support a material price rather than permanent micro-revenue.
+**Price: 25 XNO.** PAL previously priced technical reports at 0.05 XNO and proved people would buy them. At 25 XNO this report is a 500× step-up from the proven entry price, testing whether deeper operational evidence can support materially higher revenue without jumping straight to an implausible premium.
 `,
   paidContentMarkdown: `## 1. Reset the books before optimizing anything
 
@@ -439,7 +439,7 @@ Anything less is infrastructure or pipeline.
 That is the standard PAL is using now.
 `,
   enablePaywall: true,
-  priceXno: "85",
+  priceXno: "25",
   primaryCategoryId: 26,
   secondaryCategoryId: 2,
   language: "en",
@@ -487,7 +487,7 @@ export async function ensurePremiumReport() {
   const published = findPost(await list("published"));
   if (published) {
     const currentPriceRaw = String(published.priceRaw || "");
-    const targetPriceRaw = "85000000000000000000000000000000";
+    const targetPriceRaw = "25000000000000000000000000000000";
     if (currentPriceRaw !== targetPriceRaw) {
       const revised = await request(`/posts/${encodeURIComponent(published.id)}`, {
         method: "PATCH",
@@ -566,7 +566,7 @@ export function startPremiumAutonomousRevenueReportPublisher() {
     ensurePremiumReport()
       .then((result) => {
         console.log(
-          `[subnano-premium-autonomy] state=${result.status} post_id=${result.id || "none"} price_xno=${result.priceXno || "85"} url=${result.url || "none"}`,
+          `[subnano-premium-autonomy] state=${result.status} post_id=${result.id || "none"} price_xno=${result.priceXno || "25"} url=${result.url || "none"}`,
         );
       })
       .catch((error) => {
@@ -577,4 +577,4 @@ export function startPremiumAutonomousRevenueReportPublisher() {
   }, 22_000).unref();
 }
 
-// Revenue conversion trigger: publish or reconcile the 100 XNO premium report.
+// Revenue conversion trigger: publish or reconcile the 25 XNO premium report.
