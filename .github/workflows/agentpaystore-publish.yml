@@ -1,10 +1,6 @@
 name: Publish PAL to AgentPay Store
 
 on:
-  push:
-    paths:
-      - "scripts/publish-agentpaystore.mjs"
-      - ".github/workflows/agentpaystore-publish.yml"
   workflow_dispatch:
 
 permissions:
@@ -24,7 +20,7 @@ jobs:
         with:
           ref: main
 
-      - name: Register PAL marketplace-billed endpoints
+      - name: Reconcile AgentPay Store registration state
         run: node scripts/publish-agentpaystore.mjs
 
       - name: Persist sanitized listing receipts
@@ -38,6 +34,6 @@ jobs:
           git config user.name "PAL Revenue Bot"
           git config user.email "actions@users.noreply.github.com"
           git add revenue/agentpaystore-listings.json
-          git commit -m "revenue: publish AgentPay Store listings"
+          git commit -m "revenue: reconcile AgentPay Store listings"
           git pull --rebase origin main
           git push origin HEAD:main
