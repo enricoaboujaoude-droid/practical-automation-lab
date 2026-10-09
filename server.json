@@ -3,13 +3,13 @@
   "name": "io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence",
   "title": "PAL Commerce & Agent Revenue MCP",
   "description": "Paid x402 Shopify audits, affiliate leak checks, and agent-commerce launch/distribution.",
-  "websiteUrl": "https://pal-full-catalog-remediation.onrender.com/",
+  "websiteUrl": "https://pal-full-catalog-remediation.onrender.com/marketplace",
   "repository": {
     "url": "https://github.com/enricoaboujaoude-droid/practical-automation-lab",
     "source": "github",
     "subfolder": "nano-seller"
   },
-  "version": "1.2.0",
+  "version": "1.2.1",
   "remotes": [
     {
       "type": "streamable-http",
