@@ -1,0 +1,32 @@
+name: Verify PayanAgent $25 Purchase Gateway
+
+on:
+  push:
+    paths:
+      - ".github/workflows/verify-payanagent-shopify-25.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify unpaid buyer receives $25 x402 challenge
+        shell: bash
+        run: |
+          set -euo pipefail
+          body='{"url":"https://www.allbirds.com"}'
+          headers="$(mktemp)"
+          response="$(mktemp)"
+          status="$(curl --silent --show-error --dump-header "$headers" --output "$response" --write-out '%{http_code}'             --request POST             --header 'Content-Type: application/json'             --data "$body"             'https://payanagent.com/x402/kh7bfj8ff0xgesyj7cemjz2p518fynqm')"
+          echo "HTTP_STATUS=$status"
+          echo "RESPONSE_BODY"
+          cat "$response"
+          echo
+          echo "PAYMENT_HEADERS"
+          grep -iE '^(payment-required|x-payment-required|www-authenticate):' "$headers" || true
+          test "$status" = "402"
+          grep -Eq '2500|25(\.0+)?|25000000' "$response"
