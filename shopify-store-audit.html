@@ -41,10 +41,17 @@
   </div>
 
   <div class="card">
-    <h2>Full live-store AIEO audit — $25 USDC</h2>
-    <p>The paid machine call fetches the public catalog, audits up to 250 variants, and returns a structured AI-commerce remediation report covering machine readability plus Merchant Center/feed compatibility. No store login, app install, feed upload, or private credential is required.</p>
+    <h2>Choose the paid path that fits</h2>
+    <p><strong>$5 quick Shopify AIEO audit</strong> — lowest-friction first paid step for a public Shopify store. No admin login or app install.</p>
+    <p><a id="quickBuy" class="cta" href="https://agentictrade.io/marketplace" rel="noopener noreferrer">Open AgenticTrade marketplace →</a></p>
+    <p class="muted">Search for <strong>PAL AIEO Quick Shopify Audit</strong>.</p>
+
+    <p><strong>$25 full live-store AIEO audit</strong> — audits up to 250 variants and returns prioritized AI-commerce and Merchant Center/feed remediation.</p>
     <p><a id="buy" class="cta" href="https://agent-tools.cloud/services/pal-full-catalog-remediation-onrender-com-sub1199" rel="noopener noreferrer">Open $25 machine-buy listing →</a></p>
     <p class="muted">Direct x402 endpoint: <code>GET https://pal-full-catalog-remediation.onrender.com/v1/usdc/shopify-store-audit?url=...</code></p>
+
+    <p><strong>Developer / card-billed API access</strong> — PAL Catalog Feed Auditor is also published on RapidAPI with marketplace-managed subscription billing and paid plans.</p>
+    <p><a id="rapidBuy" class="cta" href="https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor/pricing" rel="noopener noreferrer">Open PAL on RapidAPI →</a></p>
   </div>
 
   <div class="card">
@@ -83,7 +90,9 @@ document.getElementById("preflight").addEventListener("click",async()=>{
     }
   }catch(e){result.textContent="Preflight request failed. Try again.";}
 });
+document.getElementById("quickBuy").addEventListener("click",()=>event("pal_shopify_quick_audit_buy_clicked"));
 document.getElementById("buy").addEventListener("click",()=>event("pal_shopify_store_audit_buy_clicked"));
+document.getElementById("rapidBuy").addEventListener("click",()=>event("pal_rapidapi_buy_clicked"));
 </script>
 </body>
 </html>
