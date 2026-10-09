@@ -274,6 +274,54 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, service: "pal-bazaar-revenue", checked_at: new Date().toISOString() });
 });
 
+app.get("/.well-known/x402-service.json", (_req, res) => {
+  res.json({
+    x402: "1.0",
+    name: "Practical Automation Lab Base Token Risk",
+    description:
+      "Machine-paid Base token security verdicts and portfolio risk ranking using live security evidence plus deterministic PAL scoring.",
+    capabilities: [
+      "base",
+      "erc20",
+      "token-risk",
+      "due-diligence",
+      "portfolio-ranking",
+      "security"
+    ],
+    pricing: {
+      currency: "USDC",
+      base: "25.00",
+      unit: "portfolio-risk-rank"
+    },
+    payment: {
+      address: PAY_TO,
+      chain: "base-mainnet",
+      facilitator: FACILITATOR_URL
+    },
+    endpoint: PUBLIC_ORIGIN + "/v1/base-token-portfolio-rank",
+    endpoints: [
+      {
+        name: "PAL Base Token Risk Verdict",
+        endpoint: PUBLIC_ORIGIN + "/v1/base-token-risk-verdict",
+        method: "POST",
+        price: "0.05"
+      },
+      {
+        name: "PAL Base Token Due Diligence",
+        endpoint: PUBLIC_ORIGIN + "/v1/base-token-due-diligence",
+        method: "POST",
+        price: "5.00"
+      },
+      {
+        name: "PAL Base Token Portfolio Risk Rank",
+        endpoint: PUBLIC_ORIGIN + "/v1/base-token-portfolio-rank",
+        method: "POST",
+        price: "25.00"
+      }
+    ]
+  });
+});
+
 app.get("/.well-known/x402", (_req, res) => {
   const origin = PUBLIC_ORIGIN;
   res.json({
