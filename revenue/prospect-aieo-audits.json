@@ -1,0 +1,253 @@
+{
+  "checked_at": "2026-10-09T09:59:23.913Z",
+  "endpoint": "https://pal-marketplace-fast-api.onrender.com/api/shopify-aieo-quick-audit",
+  "targets": [
+    {
+      "name": "3D&Dice",
+      "url": "https://3dndice.com",
+      "ok": true,
+      "status": 200,
+      "result": {
+        "ok": true,
+        "service": "PAL AIEO Quick Shopify Audit",
+        "audit_type": "public_storefront_no_login",
+        "store_origin": "https://3dndice.com",
+        "catalog_source": "https://3dndice.com/products.json?limit=50",
+        "checked_at": "2026-10-09T09:59:20.982Z",
+        "sample": {
+          "products": 26,
+          "variants": 100,
+          "product_limit": 50,
+          "variant_limit": 100
+        },
+        "aieo_score": 4,
+        "score_note": "Heuristic readiness score based on identifier, brand, product type, description, image-alt and title coverage; it is not a Shopify or Google score.",
+        "coverage": {
+          "identifiers_pct": 0,
+          "gtin_barcode_pct": 0,
+          "sku_mpn_pct": 0,
+          "vendor_brand_pct": 11.5,
+          "product_type_pct": 7.7,
+          "useful_description_pct": 3.8,
+          "image_alt_text_pct": 0,
+          "descriptive_title_pct": 3.8
+        },
+        "structural_audit": {
+          "issue_count": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "top_issues": []
+        },
+        "recommendations": [
+          "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+          "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+          "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+          "Populate product type/category consistently to strengthen product classification.",
+          "Populate vendor/brand consistently across the catalog.",
+          "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+        ],
+        "upgrade": {
+          "service": "PAL Live Shopify Store Commerce Audit",
+          "price_usdc": 25,
+          "value": "deeper live-store audit with prioritized Merchant Center/catalog remediation"
+        }
+      }
+    },
+    {
+      "name": "237 District Apparel",
+      "url": "https://www.237districtapparel.com",
+      "ok": true,
+      "status": 200,
+      "result": {
+        "ok": true,
+        "service": "PAL AIEO Quick Shopify Audit",
+        "audit_type": "public_storefront_no_login",
+        "store_origin": "https://www.237districtapparel.com",
+        "catalog_source": "https://www.237districtapparel.com/products.json?limit=50",
+        "checked_at": "2026-10-09T09:59:21.744Z",
+        "sample": {
+          "products": 31,
+          "variants": 100,
+          "product_limit": 50,
+          "variant_limit": 100
+        },
+        "aieo_score": 34,
+        "score_note": "Heuristic readiness score based on identifier, brand, product type, description, image-alt and title coverage; it is not a Shopify or Google score.",
+        "coverage": {
+          "identifiers_pct": 100,
+          "gtin_barcode_pct": 0,
+          "sku_mpn_pct": 100,
+          "vendor_brand_pct": 16.1,
+          "product_type_pct": 12.9,
+          "useful_description_pct": 16.1,
+          "image_alt_text_pct": 0,
+          "descriptive_title_pct": 16.1
+        },
+        "structural_audit": {
+          "issue_count": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "top_issues": []
+        },
+        "recommendations": [
+          "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+          "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+          "Populate product type/category consistently to strengthen product classification.",
+          "Populate vendor/brand consistently across the catalog.",
+          "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+        ],
+        "upgrade": {
+          "service": "PAL Live Shopify Store Commerce Audit",
+          "price_usdc": 25,
+          "value": "deeper live-store audit with prioritized Merchant Center/catalog remediation"
+        }
+      }
+    },
+    {
+      "name": "A2Z naturalz",
+      "url": "https://4a2znaturalz.com",
+      "ok": true,
+      "status": 200,
+      "result": {
+        "ok": true,
+        "service": "PAL AIEO Quick Shopify Audit",
+        "audit_type": "public_storefront_no_login",
+        "store_origin": "https://4a2znaturalz.com",
+        "catalog_source": "https://4a2znaturalz.com/products.json?limit=50",
+        "checked_at": "2026-10-09T09:59:22.436Z",
+        "sample": {
+          "products": 50,
+          "variants": 80,
+          "product_limit": 50,
+          "variant_limit": 100
+        },
+        "aieo_score": 70,
+        "score_note": "Heuristic readiness score based on identifier, brand, product type, description, image-alt and title coverage; it is not a Shopify or Google score.",
+        "coverage": {
+          "identifiers_pct": 100,
+          "gtin_barcode_pct": 0,
+          "sku_mpn_pct": 100,
+          "vendor_brand_pct": 100,
+          "product_type_pct": 0,
+          "useful_description_pct": 100,
+          "image_alt_text_pct": 0,
+          "descriptive_title_pct": 100
+        },
+        "structural_audit": {
+          "issue_count": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "top_issues": []
+        },
+        "recommendations": [
+          "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+          "Populate product type/category consistently to strengthen product classification."
+        ],
+        "upgrade": {
+          "service": "PAL Live Shopify Store Commerce Audit",
+          "price_usdc": 25,
+          "value": "deeper live-store audit with prioritized Merchant Center/catalog remediation"
+        }
+      }
+    },
+    {
+      "name": "AERIXN BRAND",
+      "url": "https://aerixnbrand.com",
+      "ok": true,
+      "status": 200,
+      "result": {
+        "ok": true,
+        "service": "PAL AIEO Quick Shopify Audit",
+        "audit_type": "public_storefront_no_login",
+        "store_origin": "https://aerixnbrand.com",
+        "catalog_source": "https://aerixnbrand.com/products.json?limit=50",
+        "checked_at": "2026-10-09T09:59:23.247Z",
+        "sample": {
+          "products": 50,
+          "variants": 100,
+          "product_limit": 50,
+          "variant_limit": 100
+        },
+        "aieo_score": 29,
+        "score_note": "Heuristic readiness score based on identifier, brand, product type, description, image-alt and title coverage; it is not a Shopify or Google score.",
+        "coverage": {
+          "identifiers_pct": 100,
+          "gtin_barcode_pct": 0,
+          "sku_mpn_pct": 100,
+          "vendor_brand_pct": 10,
+          "product_type_pct": 0,
+          "useful_description_pct": 10,
+          "image_alt_text_pct": 0,
+          "descriptive_title_pct": 8
+        },
+        "structural_audit": {
+          "issue_count": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "top_issues": []
+        },
+        "recommendations": [
+          "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+          "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+          "Populate product type/category consistently to strengthen product classification.",
+          "Populate vendor/brand consistently across the catalog.",
+          "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+        ],
+        "upgrade": {
+          "service": "PAL Live Shopify Store Commerce Audit",
+          "price_usdc": 25,
+          "value": "deeper live-store audit with prioritized Merchant Center/catalog remediation"
+        }
+      }
+    },
+    {
+      "name": "Alice & Rowan Jewelry",
+      "url": "https://alicerowanjewelry.com",
+      "ok": true,
+      "status": 200,
+      "result": {
+        "ok": true,
+        "service": "PAL AIEO Quick Shopify Audit",
+        "audit_type": "public_storefront_no_login",
+        "store_origin": "https://alicerowanjewelry.com",
+        "catalog_source": "https://alicerowanjewelry.com/products.json?limit=50",
+        "checked_at": "2026-10-09T09:59:23.856Z",
+        "sample": {
+          "products": 50,
+          "variants": 100,
+          "product_limit": 50,
+          "variant_limit": 100
+        },
+        "aieo_score": 22,
+        "score_note": "Heuristic readiness score based on identifier, brand, product type, description, image-alt and title coverage; it is not a Shopify or Google score.",
+        "coverage": {
+          "identifiers_pct": 0,
+          "gtin_barcode_pct": 0,
+          "sku_mpn_pct": 0,
+          "vendor_brand_pct": 90,
+          "product_type_pct": 0,
+          "useful_description_pct": 0,
+          "image_alt_text_pct": 0,
+          "descriptive_title_pct": 86
+        },
+        "structural_audit": {
+          "issue_count": 0,
+          "error_count": 0,
+          "warning_count": 0,
+          "top_issues": []
+        },
+        "recommendations": [
+          "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+          "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+          "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+          "Populate product type/category consistently to strengthen product classification."
+        ],
+        "upgrade": {
+          "service": "PAL Live Shopify Store Commerce Audit",
+          "price_usdc": 25,
+          "value": "deeper live-store audit with prioritized Merchant Center/catalog remediation"
+        }
+      }
+    }
+  ]
+}
