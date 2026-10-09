@@ -26,7 +26,7 @@ const PUBLIC_BASE_URL = String(
 const MARKETPLACE_PUBLISHER = process.env.MARKETPLACE_PUBLISHER !== "0";
 const BASE_USDC_LEDGER_URL =
   "https://raw.githubusercontent.com/enricoaboujaoude-droid/practical-automation-lab/main/revenue/base-usdc-ledger.json";
-const PAYANAGENT_OFFER_TITLE = "PAL AIEO Full Catalog Remediation";
+const PAYANAGENT_OFFER_TITLE = "PAL Full Catalog Remediation";
 const PAYANAGENT_OFFER_ENDPOINT = `${PUBLIC_BASE_URL}/v1/usdc/catalog-remediation-bulk`;
 const X402_NETWORK = "eip155:8453";
 const X402_ASSET = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
@@ -2137,11 +2137,18 @@ async function existingPayanAgentOffer() {
   const body = await payanAgentJson(url);
   const offers = Array.isArray(body?.offers) ? body.offers : [];
   return (
-    offers.find(
-      (offer) =>
-        String(offer?.title || "").trim() === PAYANAGENT_OFFER_TITLE &&
-        String(offer?.externalUrl || offer?.endpoint || "").replace(/\/$/, "") === PAYANAGENT_OFFER_ENDPOINT
-    ) || null
+    offers.find((offer) => {
+      const titleMatches =
+        String(offer?.title || "").trim() === PAYANAGENT_OFFER_TITLE;
+      const endpointMatches =
+        String(offer?.externalUrl || offer?.endpoint || "").replace(/\/$/, "") ===
+        PAYANAGENT_OFFER_ENDPOINT;
+      const directX402Matches =
+        Number(offer?.priceCents || 0) === 2000 &&
+        String(offer?.payTo || "").toLowerCase() ===
+          BASE_PAYOUT_ADDRESS.toLowerCase();
+      return titleMatches && (endpointMatches || directX402Matches);
+    }) || null
   );
 }
 
