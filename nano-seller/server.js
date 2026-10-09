@@ -1089,10 +1089,10 @@ app.get("/mcp/server-card", (_req, res) => {
   res.type("application/mcp-server-card+json").json({
     $schema: "https://static.modelcontextprotocol.io/schemas/v1/server-card.schema.json",
     name: "io.github.enricoaboujaoude-droid/pal-commerce-catalog-intelligence",
-    version: "1.1.1",
-    title: "PAL AIEO Commerce Catalog Intelligence",
+    version: "1.2.0",
+    title: "PAL Commerce & Agent Revenue MCP",
     description:
-      "$20 full-catalog Merchant Center remediation for up to 2,000 products, plus $5 batch, $1 remediation, feed audits, GTIN checks and feed diffs via Base USDC.",
+      "Paid x402 Shopify audits, affiliate revenue-leak detection, and agent-commerce launch/distribution up to $749 via Base USDC.",
     websiteUrl: `${PUBLIC_BASE_URL}/marketplace`,
     repository: {
       url: "https://github.com/enricoaboujaoude-droid/practical-automation-lab",
@@ -1114,7 +1114,7 @@ app.get("/.well-known/ai-catalog.json", (_req, res) => {
     specVersion: "1.0",
     entries: [
       {
-        identifier: "urn:air:pal-nano-catalog-audit.onrender.com:mcp:commerce-catalog-intelligence",
+        identifier: "urn:air:pal-full-catalog-remediation.onrender.com:mcp:commerce-agent-revenue",
         type: "application/mcp-server-card+json",
         url: `${PUBLIC_BASE_URL}/mcp/server-card`,
       },
