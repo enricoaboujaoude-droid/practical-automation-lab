@@ -1,0 +1,213 @@
+{
+  "checked_at": "2026-10-09T17:53:45.997Z",
+  "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+  "mode": "public_only",
+  "authenticated_metrics_available": false,
+  "authenticated_error": "AGENTICTRADE_PROVIDER_TOKEN is not configured; provider-private metrics were not queried. Public evidence was still captured.",
+  "public_error": null,
+  "public_services": [
+    {
+      "id": "a995b693-1db4-4b25-95b4-512b4c4dca42",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "name": "PAL Catalog Feed Auditor",
+      "description": "Deterministic product-catalog identifier and feed consistency audit for AI agents and commerce tooling. Accepts POST JSON through the marketplace proxy and returns duplicate-ID, URL, GTIN checksum/format, identifier, price-format, brand/MPN and availability findings.",
+      "endpoint": "https://pal-nano-catalog-audit.onrender.com/v1/agentpay",
+      "pricing": {
+        "price_per_call": "0.1",
+        "currency": "USDC",
+        "payment_method": "x402",
+        "free_tier_calls": 0
+      },
+      "status": "active",
+      "category": "data",
+      "tags": [
+        "catalog",
+        "ecommerce",
+        "feed",
+        "gtin",
+        "validation",
+        "shopify"
+      ],
+      "created_at": "2026-10-02T09:49:01.592274+00:00",
+      "updated_at": "2026-10-03T12:06:26"
+    },
+    {
+      "id": "00cf5f52-d0d9-4118-b47c-58f7e33cb2d2",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "name": "PAL Full Catalog Remediation 2000",
+      "description": "Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for product-feed, identifier, GTIN, price, URL, brand/MPN and availability issues.",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/agentpay-remediation-bulk",
+      "pricing": {
+        "price_per_call": "20.0",
+        "currency": "USDC",
+        "payment_method": "x402",
+        "free_tier_calls": 0
+      },
+      "status": "active",
+      "category": "data",
+      "tags": [
+        "ecommerce",
+        "merchant-center",
+        "catalog-remediation",
+        "shopify",
+        "gtin",
+        "product-feed",
+        "full-catalog"
+      ],
+      "created_at": "2026-10-05T21:04:14.582925+00:00",
+      "updated_at": "2026-10-09T11:53:28"
+    },
+    {
+      "id": "00c78e8f-be6d-4371-b94b-82262767f40a",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "name": "PAL Full Catalog Remediation",
+      "description": "Full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products in one paid call. Returns prioritized corrective actions for feed, identifier, GTIN, price, URL, brand/MPN and availability issues.",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/usdc/catalog-remediation-bulk",
+      "pricing": {
+        "price_per_call": "20.0",
+        "currency": "USDC",
+        "payment_method": "x402",
+        "free_tier_calls": 0
+      },
+      "status": "active",
+      "category": "data",
+      "tags": [
+        "ecommerce",
+        "merchant-center",
+        "catalog-remediation",
+        "shopify",
+        "gtin",
+        "product-feed"
+      ],
+      "created_at": "2026-10-06T08:13:11.623875+00:00",
+      "updated_at": "2026-10-09T11:53:28"
+    },
+    {
+      "id": "85762eec-1b47-41b7-afe4-601de8bd1b29",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "name": "PAL Paid Full Catalog Remediation",
+      "description": "Paid full-catalog ecommerce and Google Merchant Center remediation for up to 2,000 products. Returns prioritized corrective actions for identifiers, GTINs, price formatting, URLs, brand/MPN, availability and feed readiness.",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/agentpay-remediation-bulk",
+      "pricing": {
+        "price_per_call": "20.0",
+        "currency": "USDC",
+        "payment_method": "x402",
+        "free_tier_calls": 0
+      },
+      "status": "active",
+      "category": "data",
+      "tags": [
+        "ecommerce",
+        "merchant-center",
+        "catalog-remediation",
+        "shopify",
+        "gtin",
+        "product-feed",
+        "full-catalog"
+      ],
+      "created_at": "2026-10-08T18:07:55.388313+00:00",
+      "updated_at": "2026-10-09T11:53:28"
+    },
+    {
+      "id": "a370c578-beed-4e04-afd9-bdc6f1da4f79",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "name": "PAL Live Shopify Store Commerce Audit",
+      "description": "Audit a live public Shopify storefront for Merchant Center and AI-shopping readiness without store login. Inspects up to 250 sellable variants and returns prioritized fixes.",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/shopify-store-audit",
+      "pricing": {
+        "price_per_call": "25.0",
+        "currency": "USDC",
+        "payment_method": "x402",
+        "free_tier_calls": 0
+      },
+      "status": "active",
+      "category": "data",
+      "tags": [
+        "shopify",
+        "ecommerce",
+        "merchant-center",
+        "catalog-audit",
+        "ai-shopping"
+      ],
+      "created_at": "2026-10-08T22:49:41.668098+00:00",
+      "updated_at": "2026-10-09T11:53:28"
+    },
+    {
+      "id": "9ca1ac6b-ff8d-4ef2-945f-8c1c7aa31ba9",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "name": "PAL Agent Commerce Launch Kit",
+      "description": "Generate a deployment-ready agent-commerce package for an existing public service: runtime readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads and deployment steps.",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/agent-commerce-launch-kit",
+      "pricing": {
+        "price_per_call": "99.0",
+        "currency": "USDC",
+        "payment_method": "x402",
+        "free_tier_calls": 0
+      },
+      "status": "active",
+      "category": "developer-tools",
+      "tags": [
+        "agent-commerce",
+        "x402",
+        "mcp",
+        "openapi",
+        "marketplace"
+      ],
+      "created_at": "2026-10-08T22:49:42.667249+00:00",
+      "updated_at": "2026-10-09T11:53:28"
+    },
+    {
+      "id": "3f06bc02-ce96-40b9-98d8-091f82f580dd",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "name": "PAL Agent Commerce Go-Live",
+      "description": "One-call go-live for an already-public paid agent service: verify runtime x402 readiness, generate launch artifacts, submit the public service to compatible discovery markets, and return registration receipts plus exact remaining blockers.",
+      "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/agentpay/agent-commerce-go-live",
+      "pricing": {
+        "price_per_call": "100.0",
+        "currency": "USDC",
+        "payment_method": "x402",
+        "free_tier_calls": 0
+      },
+      "status": "active",
+      "category": "developer-tools",
+      "tags": [
+        "agent-commerce",
+        "x402",
+        "distribution",
+        "marketplace",
+        "go-live",
+        "mcp"
+      ],
+      "created_at": "2026-10-09T09:29:27.466923+00:00",
+      "updated_at": "2026-10-09T11:53:28"
+    },
+    {
+      "id": "33a615ae-6e6c-404b-851f-036013181a92",
+      "provider_id": "e6251fd3-fe50-4d17-9950-2bfd402c1ad7",
+      "name": "PAL AIEO Quick Shopify Audit",
+      "description": "Automated public-storefront audit for Shopify merchants and shopping agents. Give one public Shopify URL and receive an AI-shopping/AIEO readiness score, identifier coverage, brand/category coverage, description and image-alt coverage, structural catalog findings, and prioritized fixes. No store login required.",
+      "endpoint": "https://pal-marketplace-fast-api.onrender.com/api/shopify-aieo-quick-audit",
+      "pricing": {
+        "price_per_call": "5.0",
+        "currency": "USDC",
+        "payment_method": "x402",
+        "free_tier_calls": 0
+      },
+      "status": "active",
+      "category": "ecommerce",
+      "tags": [
+        "shopify",
+        "aieo",
+        "ai-shopping",
+        "ai-search",
+        "catalog-audit",
+        "merchant-center",
+        "product-feed"
+      ],
+      "created_at": "2026-10-09T10:03:14.722440+00:00",
+      "updated_at": "2026-10-09T11:53:28"
+    }
+  ],
+  "private_results": {},
+  "revenue_accounting_rule": "Do not infer revenue from listing presence, ratings, calls without an explicit paid field, or test traffic. Count only explicit paid/revenue metrics or independently settled receipts."
+}
