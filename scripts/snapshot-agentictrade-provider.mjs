@@ -2,66 +2,98 @@ import fs from "node:fs";
 
 const BASE = "https://agentictrade.io/api/v1";
 const PROVIDER_ID = "e6251fd3-fe50-4d17-9950-2bfd402c1ad7";
-const SERVICE_ID = "a370c578-beed-4e04-afd9-bdc6f1da4f79";
+const TOKEN = String(process.env.AGENTICTRADE_PROVIDER_TOKEN || "").trim();
 
-async function json(path, options = {}) {
+async function json(path, { token = "", ...options } = {}) {
   const res = await fetch(BASE + path, {
     ...options,
     headers: {
-      "content-type": "application/json",
+      accept: "application/json",
+      ...(options.body !== undefined ? { "content-type": "application/json" } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.headers || {}),
     },
     signal: AbortSignal.timeout(30000),
   });
   const raw = await res.text();
   let body;
-  try { body = raw ? JSON.parse(raw) : {}; } catch { body = { raw: raw.slice(0, 1000) }; }
-  if (!res.ok) throw new Error(`${options.method || "GET"} ${path} -> ${res.status}: ${JSON.stringify(body).slice(0,800)}`);
+  try { body = raw ? JSON.parse(raw) : {}; }
+  catch { body = { raw: raw.slice(0, 1000) }; }
+  if (!res.ok) throw new Error(`${options.method || "GET"} ${path} -> ${res.status}: ${JSON.stringify(body).slice(0, 800)}`);
   return body;
 }
 
-const key = await json("/keys", {
-  method: "POST",
-  body: JSON.stringify({ owner_id: PROVIDER_ID, role: "provider" }),
-});
-
-if (!key?.key_id || !key?.secret) throw new Error("provider key creation returned no usable credentials");
-const auth = { Authorization: `Bearer ${key.key_id}:${key.secret}` };
-
-const results = {};
-for (const [name, path] of [
-  ["dashboard", "/provider/dashboard"],
-  ["earnings", "/provider/earnings"],
-  ["onboarding", "/provider/onboarding"],
-  ["health", "/provider/health"],
-  ["services", "/provider/services"],
-  ["shopify_25_analytics", `/provider/services/${SERVICE_ID}/analytics`],
-]) {
-  try {
-    results[name] = await json(path, { headers: auth });
-  } catch (error) {
-    results[name] = { error: error instanceof Error ? error.message : String(error) };
+const sanitize = (value) => {
+  if (Array.isArray(value)) return value.map(sanitize);
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) {
+      if (/secret|api.?key|token|authorization|password/i.test(k)) continue;
+      out[k] = sanitize(v);
+    }
+    return out;
   }
+  return value;
+};
+
+let publicServices = [];
+let publicError = null;
+try {
+  const body = await json("/services?query=PAL&limit=100");
+  const all = Array.isArray(body.services) ? body.services : Array.isArray(body) ? body : [];
+  publicServices = all.filter((s) =>
+    String(s.provider_id || s.providerId || "") === PROVIDER_ID ||
+    /\bPAL\b/i.test(String(s.name || s.title || ""))
+  );
+} catch (error) {
+  publicError = error instanceof Error ? error.message : String(error);
 }
 
-const safe = {
+const results = {};
+let authenticatedMetricsAvailable = false;
+let authenticatedError = null;
+
+if (TOKEN) {
+  authenticatedMetricsAvailable = true;
+  for (const [name, path] of [
+    ["dashboard", "/provider/dashboard"],
+    ["earnings", "/provider/earnings"],
+    ["onboarding", "/provider/onboarding"],
+    ["health", "/provider/health"],
+    ["services", "/provider/services"],
+  ]) {
+    try {
+      results[name] = sanitize(await json(path, { token: TOKEN }));
+    } catch (error) {
+      results[name] = { error: error instanceof Error ? error.message : String(error) };
+    }
+  }
+} else {
+  authenticatedError =
+    "AGENTICTRADE_PROVIDER_TOKEN is not configured; provider-private metrics were not queried. Public evidence was still captured.";
+}
+
+const out = {
   checked_at: new Date().toISOString(),
   provider_id: PROVIDER_ID,
-  service_id: SERVICE_ID,
-  service_title: "PAL Live Shopify Store Commerce Audit",
-  price_usdc: 25,
-  results,
+  mode: TOKEN ? "authenticated_plus_public" : "public_only",
+  authenticated_metrics_available: authenticatedMetricsAvailable,
+  authenticated_error: authenticatedError,
+  public_error: publicError,
+  public_services: sanitize(publicServices),
+  private_results: results,
+  revenue_accounting_rule:
+    "Do not infer revenue from listing presence, ratings, calls without an explicit paid field, or test traffic. Count only explicit paid/revenue metrics or independently settled receipts.",
 };
 
 fs.mkdirSync("revenue", { recursive: true });
-fs.writeFileSync("revenue/agentictrade-provider-snapshot.json", JSON.stringify(safe, null, 2) + "\n");
+fs.writeFileSync("revenue/agentictrade-provider-snapshot.json", JSON.stringify(out, null, 2) + "\n");
 console.log(JSON.stringify({
-  checked_at: safe.checked_at,
+  checked_at: out.checked_at,
   provider_id: PROVIDER_ID,
-  service_id: SERVICE_ID,
-  dashboard: results.dashboard,
-  earnings: results.earnings,
-  onboarding: results.onboarding,
-  shopify_25_analytics: results.shopify_25_analytics
+  mode: out.mode,
+  authenticated_metrics_available: out.authenticated_metrics_available,
+  public_service_count: out.public_services.length,
+  authenticated_error: out.authenticated_error,
+  earnings: out.private_results.earnings ?? null,
 }, null, 2));
-// Trigger revenue snapshot workflow after workflow creation.\n
