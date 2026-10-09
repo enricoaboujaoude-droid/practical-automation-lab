@@ -1,0 +1,69 @@
+name: Register PAL high-value services on 402Index
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/register-402index-high-value.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Register PAL Agent Commerce Launch Kit
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/launch-kit.json <<'JSON'
+          {
+            "url": "https://pal-full-catalog-remediation.onrender.com/v1/usdc/agent-commerce-launch-kit",
+            "name": "PAL Agent Commerce Launch Kit",
+            "protocol": "x402",
+            "http_method": "POST",
+            "probe_body": "{\"origin\":\"https://example.com\",\"service_name\":\"Example Agent Service\",\"service_description\":\"Generate a deployment-ready agent-commerce launch bundle for an existing public paid service.\"}",
+            "description": "Generate a deployment-ready agent-commerce package for an existing public service: runtime readiness evidence, agent card, llms.txt, OpenAPI/x402 metadata, marketplace payloads and deployment steps.",
+            "price_usd": 99,
+            "payment_asset": "USDC",
+            "payment_network": "Base",
+            "category": "developer-tools/agent-commerce",
+            "provider": "Practical Automation Lab",
+            "contact_email": "enricoaboujaoude@gmail.com"
+          }
+          JSON
+
+          code=$(curl --silent --show-error --output /tmp/launch-kit-response.json --write-out "%{http_code}"             --request POST "https://402index.io/api/v1/register"             --header "content-type: application/json"             --data-binary @/tmp/launch-kit.json)
+          cat /tmp/launch-kit-response.json
+          echo
+          echo "HTTP $code"
+          test "$code" = "201"
+
+      - name: Register PAL Agent Commerce Go-Live
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > /tmp/go-live.json <<'JSON'
+          {
+            "url": "https://pal-full-catalog-remediation.onrender.com/v1/usdc/agent-commerce-go-live",
+            "name": "PAL Agent Commerce Go-Live",
+            "protocol": "x402",
+            "http_method": "POST",
+            "probe_body": "{\"origin\":\"https://example.com\",\"route\":\"/api\",\"service_name\":\"Example Paid Agent Service\",\"service_description\":\"Verify runtime x402 readiness and distribute an already-public paid agent service to compatible discovery markets.\",\"price_usd\":25}",
+            "description": "One-call go-live for an already-public paid agent service: verify runtime x402 readiness, generate launch artifacts, submit the public service to compatible discovery markets, and return registration receipts plus exact remaining blockers.",
+            "price_usd": 350,
+            "payment_asset": "USDC",
+            "payment_network": "Base",
+            "category": "developer-tools/agent-commerce",
+            "provider": "Practical Automation Lab",
+            "contact_email": "enricoaboujaoude@gmail.com"
+          }
+          JSON
+
+          code=$(curl --silent --show-error --output /tmp/go-live-response.json --write-out "%{http_code}"             --request POST "https://402index.io/api/v1/register"             --header "content-type: application/json"             --data-binary @/tmp/go-live.json)
+          cat /tmp/go-live-response.json
+          echo
+          echo "HTTP $code"
+          test "$code" = "201"
