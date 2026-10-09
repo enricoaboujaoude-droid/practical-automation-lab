@@ -1,0 +1,43 @@
+name: Probe PAL Base risk revenue
+
+on:
+  push:
+    paths:
+      - ".github/workflows/probe-base-risk-revenue.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify $25 x402 challenge
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://pal-base-risk-revenue.onrender.com/v1/base-token-portfolio-rank"
+          BODY='{"addresses":["0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913","0x4200000000000000000000000000000000000006"]}'
+          CODE="$(curl --silent --show-error --max-time 45             --output /tmp/body.json --dump-header /tmp/headers.txt             --write-out "%{http_code}"             --request POST "$URL"             --header "content-type: application/json"             --data "$BODY")"
+          cat /tmp/body.json
+          test "$CODE" = "402"
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const headers=fs.readFileSync("/tmp/headers.txt","utf8");
+          const body=JSON.parse(fs.readFileSync("/tmp/body.json","utf8"));
+          const match=headers.match(/^payment-required:\s*(.+)$/im);
+          let requirement=body;
+          if(match){
+            try { requirement=JSON.parse(Buffer.from(match[1].trim(),"base64").toString("utf8")); } catch {}
+          }
+          const accepts=requirement.accepts || requirement.paymentRequirements?.accepts || [];
+          const ok=accepts.some(a =>
+            String(a.network)==="eip155:8453" &&
+            String(a.amount)==="25000000" &&
+            String(a.payTo||"").toLowerCase()==="0x02d1dae81eaddded344eee43c6f31a8e166432bf"
+          );
+          console.log(JSON.stringify({verified:ok,accepts},null,2));
+          if(!ok) process.exit(1);
+          NODE
