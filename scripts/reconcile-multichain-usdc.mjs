@@ -12,9 +12,10 @@ const chains = [
     label: "Base",
     usdc: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
     decimals: 6,
-    window: 35000,
-    chunk: 1000,
-    rpcs: ["https://base-rpc.publicnode.com", "https://mainnet.base.org"],
+    window: 12000,
+    overlap: 2500,
+    chunk: 2000,
+    rpcs: ["https://public.1rpc.io/base", "https://base-rpc.publicnode.com", "https://mainnet.base.org"],
   },
   {
     key: "polygon",
@@ -22,9 +23,10 @@ const chains = [
     label: "Polygon",
     usdc: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
     decimals: 6,
-    window: 40000,
+    window: 12000,
+    overlap: 2500,
     chunk: 2000,
-    rpcs: ["https://polygon-bor-rpc.publicnode.com", "https://polygon-rpc.com"],
+    rpcs: ["https://public.1rpc.io/matic", "https://polygon.drpc.org", "https://polygon-bor-rpc.publicnode.com"],
   },
   {
     key: "arbitrum",
@@ -32,7 +34,8 @@ const chains = [
     label: "Arbitrum One",
     usdc: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
     decimals: 6,
-    window: 300000,
+    window: 60000,
+    overlap: 15000,
     chunk: 5000,
     rpcs: ["https://arbitrum-one-rpc.publicnode.com", "https://arb1.arbitrum.io/rpc"],
   },
@@ -42,22 +45,28 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function rpc(chain, method, params) {
   let last;
-  for (let attempt = 0; attempt < chain.rpcs.length * 4; attempt++) {
+  const attempts = Math.max(12, chain.rpcs.length * 5);
+  for (let attempt = 0; attempt < attempts; attempt++) {
     const url = chain.rpcs[attempt % chain.rpcs.length];
     try {
       const res = await fetch(url, {
         method: "POST",
-        headers: { "content-type": "application/json", "user-agent": "pal-revenue-ledger/2.0" },
+        headers: { "content-type": "application/json", "user-agent": "pal-revenue-ledger/2.1" },
         body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+        signal: AbortSignal.timeout(20_000),
       });
-      if (!res.ok) throw new Error(`${method} HTTP ${res.status} via ${url}`);
-      const body = await res.json();
-      if (body.error) throw new Error(`${method} RPC error via ${url}: ${JSON.stringify(body.error)}`);
-      return body.result;
+      if (res.ok) {
+        const body = await res.json();
+        if (!body.error) return body.result;
+        last = new Error(`${method} RPC error via ${url}: ${JSON.stringify(body.error)}`);
+      } else {
+        last = new Error(`${method} HTTP ${res.status} via ${url}`);
+      }
     } catch (e) {
-      last = e;
-      await sleep(400 * (attempt + 1));
+      last = e instanceof Error ? e : new Error(String(e));
     }
+    const round = Math.floor(attempt / Math.max(1, chain.rpcs.length));
+    await sleep(Math.min(10_000, 500 * 2 ** round));
   }
   throw last || new Error(`${method} failed for ${chain.key}`);
 }
@@ -86,56 +95,64 @@ async function timestamp(chain, blockNumber) {
 const ledger = existingLedger();
 const known = new Set((ledger.transfers || []).map((x) => `${x.chain_id}:${x.tx_hash.toLowerCase()}:${x.log_index}`));
 let added = 0;
+const scanErrors = [];
 
 for (const chain of chains) {
-  const latest = Number.parseInt(await rpc(chain, "eth_blockNumber", []), 16);
-  const previous = Number(ledger.checkpoints?.[chain.key]?.last_scanned_block || 0);
-  const from = previous > 0
-    ? Math.max(0, Math.min(previous - Math.min(chain.window, 10000), latest - chain.window))
-    : Math.max(0, latest - chain.window);
+  try {
+    const latest = Number.parseInt(await rpc(chain, "eth_blockNumber", []), 16);
+    const previous = Number(ledger.checkpoints?.[chain.key]?.last_scanned_block || 0);
+    const from = previous > 0
+      ? Math.max(Math.max(0, latest - chain.window), Math.max(0, previous - chain.overlap))
+      : Math.max(0, latest - chain.window);
 
-  const logs = [];
-  for (let start = from; start <= latest; start += chain.chunk) {
-    const end = Math.min(latest, start + chain.chunk - 1);
-    const batch = await rpc(chain, "eth_getLogs", [{
-      address: chain.usdc,
-      fromBlock: "0x" + start.toString(16),
-      toBlock: "0x" + end.toString(16),
-      topics: [TRANSFER_TOPIC, null, TO_TOPIC],
-    }]);
-    logs.push(...batch);
-    await sleep(120);
-  }
+    const logs = [];
+    for (let start = from; start <= latest; start += chain.chunk) {
+      const end = Math.min(latest, start + chain.chunk - 1);
+      const batch = await rpc(chain, "eth_getLogs", [{
+        address: chain.usdc,
+        fromBlock: "0x" + start.toString(16),
+        toBlock: "0x" + end.toString(16),
+        topics: [TRANSFER_TOPIC, null, TO_TOPIC],
+      }]);
+      logs.push(...batch);
+      await sleep(350);
+    }
 
-  for (const log of logs) {
-    const blockNumber = Number.parseInt(log.blockNumber, 16);
-    const logIndex = Number.parseInt(log.logIndex, 16);
-    const key = `${chain.chainId}:${String(log.transactionHash).toLowerCase()}:${logIndex}`;
-    if (known.has(key)) continue;
-    const amount = Number(BigInt(log.data)) / 10 ** chain.decimals;
-    ledger.transfers.push({
+    for (const log of logs) {
+      const blockNumber = Number.parseInt(log.blockNumber, 16);
+      const logIndex = Number.parseInt(log.logIndex, 16);
+      const key = `${chain.chainId}:${String(log.transactionHash).toLowerCase()}:${logIndex}`;
+      if (known.has(key)) continue;
+      const amount = Number(BigInt(log.data)) / 10 ** chain.decimals;
+      ledger.transfers.push({
+        chain: chain.key,
+        chain_id: chain.chainId,
+        chain_label: chain.label,
+        token: "USDC",
+        token_contract: chain.usdc,
+        tx_hash: log.transactionHash,
+        log_index: logIndex,
+        block_number: blockNumber,
+        timestamp: await timestamp(chain, blockNumber),
+        from: "0x" + String(log.topics[1]).slice(-40),
+        to: "0x" + String(log.topics[2]).slice(-40),
+        amount_usdc: amount,
+      });
+      known.add(key);
+      added++;
+    }
+
+    ledger.checkpoints[chain.key] = {
+      last_scanned_block: latest,
+      scanned_from_block: from,
+      updated_at: new Date().toISOString(),
+    };
+  } catch (error) {
+    scanErrors.push({
       chain: chain.key,
-      chain_id: chain.chainId,
-      chain_label: chain.label,
-      token: "USDC",
-      token_contract: chain.usdc,
-      tx_hash: log.transactionHash,
-      log_index: logIndex,
-      block_number: blockNumber,
-      timestamp: await timestamp(chain, blockNumber),
-      from: "0x" + String(log.topics[1]).slice(-40),
-      to: "0x" + String(log.topics[2]).slice(-40),
-      amount_usdc: amount,
+      error: error instanceof Error ? error.message : String(error),
     });
-    known.add(key);
-    added++;
   }
-
-  ledger.checkpoints[chain.key] = {
-    last_scanned_block: latest,
-    scanned_from_block: from,
-    updated_at: new Date().toISOString(),
-  };
 }
 
 ledger.transfers.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -145,14 +162,18 @@ for (const t of ledger.transfers) {
 }
 ledger.total_usdc = Number(ledger.transfers.reduce((s, t) => s + Number(t.amount_usdc || 0), 0).toFixed(6));
 ledger.updated_at = new Date().toISOString();
+ledger.scan_errors = scanErrors;
 
 fs.mkdirSync("revenue", { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(ledger, null, 2) + "\n");
 
 console.log(JSON.stringify({
   added,
+  scan_errors: scanErrors,
   transfer_count: ledger.transfers.length,
   totals_by_chain: ledger.totals_by_chain,
   total_usdc: ledger.total_usdc,
   latest_transfers: ledger.transfers.slice(-10),
 }, null, 2));
+
+if (scanErrors.length === chains.length) process.exit(1);
