@@ -48,7 +48,7 @@ if(existing){
       category:"data",
       tags:["ecommerce","merchant-center","catalog-remediation","shopify","gtin","product-feed","full-catalog"],
       owner_email:EMAIL,
-      payment_method:"nanopayments",
+      payment_method:"x402",
       free_tier_calls:0,
       wallet_address:WALLET,
       role:"provider"
