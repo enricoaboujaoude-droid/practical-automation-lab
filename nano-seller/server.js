@@ -2200,6 +2200,7 @@ async function startPayanAgentBootstrap() {
         tags: ["aieo", "ai-commerce", "agentic-commerce", "ai-shopping", "catalog", "product-feed", "ecommerce", "merchant-center", "remediation"],
         providerType: "api",
         agentUrl: PUBLIC_BASE_URL,
+        ownerEmail: "enricoaboujaoude@gmail.com",
       }),
     });
 
@@ -2225,6 +2226,7 @@ async function startPayanAgentBootstrap() {
           "Full-catalog Shopify / Google Merchant Center remediation for 1-2,000 product records. Returns one prioritized corrective plan covering duplicate IDs, GTIN/UPC/EAN checksums, prices, URLs, availability, brand/MPN issues, severity, affected product IDs, and concrete actions. Existing x402 route; buyers settle directly to PAL.",
         category: "Data",
         tags: ["catalog", "product-feed", "ecommerce", "merchant-center", "remediation", "full-catalog"],
+        priceCents: 2000,
         offerType: "api",
         externalUrl: PAYANAGENT_OFFER_ENDPOINT,
         httpMethod: "POST",
