@@ -1,0 +1,41 @@
+name: Reconcile AgenticTrade high-value revenue
+
+on:
+  push:
+    paths:
+      - "scripts/reconcile-agentictrade-high-value.mjs"
+      - ".github/workflows/agentictrade-high-value-revenue.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: agentictrade-high-value-revenue
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Query PAL high-value provider analytics
+        run: node scripts/reconcile-agentictrade-high-value.mjs
+      - name: Persist sanitized revenue evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- revenue/agentictrade-high-value-revenue.json)" ]; then
+            echo "No revenue evidence change."
+            exit 0
+          fi
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/agentictrade-high-value-revenue.json
+          git commit -m "revenue: reconcile AgenticTrade high-value earnings"
+          git pull --rebase origin main
+          git push origin HEAD:main
