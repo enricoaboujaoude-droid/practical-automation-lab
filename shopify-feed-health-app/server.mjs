@@ -22,6 +22,7 @@ import { startFirstUsdcSaleReportPublisher } from "./first-usdc-sale-report-publ
 import { startSubnanoRevenueIndexPublisher } from "./subnano-revenue-index-publisher.mjs";
 import { startPremiumRevenueReportPublisher } from "./premium-revenue-report-publisher.mjs";
 import { startPremiumAutonomousRevenueReportPublisher } from "./subnano-premium-autonomous-revenue-report.mjs";
+import { startPremiumConversionNotePublisher } from "./subnano-premium-conversion-note.mjs";
 import { startTrue402ReportPublisher } from "./true402-report-publisher.mjs";
 import { startPartnerRevenueProbe } from "./partner-revenue-probe.mjs";
 import { startBrickScout } from "./brick-scout.mjs";
@@ -381,6 +382,7 @@ app.listen(port, host, () => {
   startSubnanoRevenueIndexPublisher();
   startPremiumRevenueReportPublisher();
   startPremiumAutonomousRevenueReportPublisher();
+  startPremiumConversionNotePublisher();
   startTrue402ReportPublisher();
   startPartnerRevenueProbe();
   startBrickScout();
