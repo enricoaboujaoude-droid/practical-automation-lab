@@ -81,6 +81,9 @@ const X402_AGENT_COMMERCE_KIT_PRICE_ATOMIC = "99000000";
 const X402_AGENT_COMMERCE_GO_LIVE_PATH = "/v1/usdc/agent-commerce-go-live";
 const X402_AGENT_COMMERCE_GO_LIVE_PRICE_USD = "$350.00";
 const X402_AGENT_COMMERCE_GO_LIVE_PRICE_ATOMIC = "350000000";
+const X402_AGENT_COMMERCE_FLEET_PATH = "/v1/usdc/agent-commerce-fleet-go-live";
+const X402_AGENT_COMMERCE_FLEET_PRICE_USD = "$749.00";
+const X402_AGENT_COMMERCE_FLEET_PRICE_ATOMIC = "749000000";
 const X402_SHOPIFY_PRODUCT_PATH = "/v1/usdc/shopify-product-availability";
 const X402_SHOPIFY_PRODUCT_PRICE_USD = "$0.01";
 const X402_SHOPIFY_PRODUCT_PRICE_ATOMIC = "10000";
@@ -114,6 +117,7 @@ const X402_SELLER_REPAIR_URL = `${PUBLIC_BASE_URL}${X402_SELLER_REPAIR_PATH}`;
 const X402_SELLER_PORTFOLIO_URL = `${PUBLIC_BASE_URL}${X402_SELLER_PORTFOLIO_PATH}`;
 const X402_AGENT_COMMERCE_KIT_URL = `${PUBLIC_BASE_URL}${X402_AGENT_COMMERCE_KIT_PATH}`;
 const X402_AGENT_COMMERCE_GO_LIVE_URL = `${PUBLIC_BASE_URL}${X402_AGENT_COMMERCE_GO_LIVE_PATH}`;
+const X402_AGENT_COMMERCE_FLEET_URL = `${PUBLIC_BASE_URL}${X402_AGENT_COMMERCE_FLEET_PATH}`;
 const X402_SHOPIFY_PRODUCT_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_PRODUCT_PATH}`;
 const X402_SHOPIFY_COMPARE_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_COMPARE_PATH}`;
 const X402_SHOPIFY_STORE_AUDIT_URL = `${PUBLIC_BASE_URL}${X402_SHOPIFY_STORE_AUDIT_PATH}`;
@@ -288,6 +292,7 @@ function buildPalMcpServer() {
           pay_to: BASE_PAYOUT_ADDRESS,
         },
         paid_tools: [
+          { name: "agent_commerce_fleet_go_live", price_usd: 749.0, route: X402_AGENT_COMMERCE_FLEET_PATH, purpose: "verify and distribute up to three already-public paid agent services in one portfolio purchase" },
           { name: "agent_commerce_go_live", price_usd: 350.0, route: X402_AGENT_COMMERCE_GO_LIVE_PATH, purpose: "verify and distribute an already-public paid agent service, returning registration receipts" },
           { name: "agent_commerce_launch_kit", price_usd: 99.0, route: X402_AGENT_COMMERCE_KIT_PATH, purpose: "generate deployment-ready agent-card, llms.txt, OpenAPI/x402 and marketplace artifacts" },
           { name: "x402_seller_portfolio_audit", price_usd: 20.0, route: X402_SELLER_PORTFOLIO_PATH, purpose: "audit and rank up to five paid seller routes" },
@@ -417,7 +422,7 @@ function buildPalMcpServer() {
         properties: {
           goal: {
             type: "string",
-            enum: ["repair_one", "audit_portfolio", "generate_launch_bundle", "go_live_and_distribute"],
+            enum: ["repair_one", "audit_portfolio", "generate_launch_bundle", "go_live_and_distribute", "go_live_fleet"],
           },
           seller_count: {
             type: "integer",
@@ -454,6 +459,14 @@ function buildPalMcpServer() {
           method: "POST",
           route: X402_AGENT_COMMERCE_GO_LIVE_PATH,
           price_usdc: 350,
+        },
+        go_live_fleet: {
+          name: "PAL Agent Commerce Fleet Go-Live",
+          method: "POST",
+          route: X402_AGENT_COMMERCE_FLEET_PATH,
+          price_usdc: 749,
+          max_services: 3,
+          savings_vs_three_single_go_live_calls_usdc: 301,
         },
       };
       const offer = offers[goal];
@@ -1017,6 +1030,7 @@ const USDC_X402_PATHS = new Set([
   X402_SELLER_PORTFOLIO_PATH,
   X402_AGENT_COMMERCE_KIT_PATH,
   X402_AGENT_COMMERCE_GO_LIVE_PATH,
+  X402_AGENT_COMMERCE_FLEET_PATH,
   X402_SHOPIFY_PRODUCT_PATH,
   X402_SHOPIFY_COMPARE_PATH,
   X402_SHOPIFY_STORE_AUDIT_PATH,
@@ -1610,6 +1624,63 @@ app.use(
           }),
         },
       },
+      "POST /v1/usdc/agent-commerce-fleet-go-live": {
+        accepts: x402RouteAccepts(X402_AGENT_COMMERCE_FLEET_PRICE_USD),
+        description:
+          "Portfolio go-live for 1-3 already-public paid agent services. PAL audits each service, generates launch artifacts, submits each public origin/route to compatible buyer-discovery markets, and returns per-service registration receipts plus exact blockers. Bundle price is lower than three separate go-live purchases.",
+        mimeType: "application/json",
+        serviceName: "PAL Agent Commerce Fleet Go-Live",
+        tags: ["agent-commerce", "x402", "portfolio", "fleet", "distribution", "marketplace", "go-live"],
+        extensions: {
+          ...declareDiscoveryExtension({
+            input: {
+              services: [
+                {
+                  origin: "https://example.com",
+                  route: "/api/paid",
+                  service_name: "Example Paid Service",
+                  service_description: "What the service does for autonomous buyers.",
+                  contact_email: "ops@example.com",
+                  price_usd: 25
+                }
+              ]
+            },
+            inputSchema: {
+              type: "object",
+              additionalProperties: false,
+              required: ["services"],
+              properties: {
+                services: {
+                  type: "array",
+                  minItems: 1,
+                  maxItems: 3,
+                  items: {
+                    type: "object",
+                    additionalProperties: false,
+                    required: ["origin", "route", "service_name", "service_description", "price_usd"],
+                    properties: {
+                      origin: { type: "string", format: "uri" },
+                      route: { type: "string", minLength: 1 },
+                      service_name: { type: "string", minLength: 3, maxLength: 120 },
+                      service_description: { type: "string", minLength: 20, maxLength: 1000 },
+                      contact_email: { type: "string" },
+                      price_usd: { type: "number", exclusiveMinimum: 0 }
+                    }
+                  }
+                }
+              }
+            },
+            bodyType: "json",
+            output: {
+              example: {
+                service: "PAL Agent Commerce Fleet Go-Live",
+                summary: { requested: 3, completed: 3, failed: 0 },
+                results: []
+              }
+            }
+          })
+        }
+      },
       "GET /v1/usdc/shopify-store-audit": {
         accepts: x402RouteAccepts(X402_SHOPIFY_STORE_AUDIT_PRICE_USD),
         description:
@@ -1771,6 +1842,7 @@ let usdcPaidSellerRepairPlans = 0;
 let usdcPaidSellerPortfolioAudits = 0;
 let usdcPaidAgentCommerceLaunchKits = 0;
 let usdcPaidAgentCommerceGoLives = 0;
+let usdcPaidAgentCommerceFleetGoLives = 0;
 let usdcPaidShopifyProductChecks = 0;
 let usdcPaidShopifyProductCompares = 0;
 let usdcPaidShopifyStoreAudits = 0;
@@ -2489,6 +2561,7 @@ function x402Manifest() {
   const commonAccepts = x402ManifestAccepts(X402_PRICE_ATOMIC);
   const sellerAuditAccepts = x402ManifestAccepts(X402_SELLER_AUDIT_PRICE_ATOMIC);
   const agentCommerceGoLiveAccepts = x402ManifestAccepts(X402_AGENT_COMMERCE_GO_LIVE_PRICE_ATOMIC);
+  const agentCommerceFleetAccepts = x402ManifestAccepts(X402_AGENT_COMMERCE_FLEET_PRICE_ATOMIC);
   const agentCommerceKitAccepts = x402ManifestAccepts(X402_AGENT_COMMERCE_KIT_PRICE_ATOMIC);
   const sellerRepairAccepts = x402ManifestAccepts(X402_SELLER_REPAIR_PRICE_ATOMIC);
   const sellerPortfolioAccepts = x402ManifestAccepts(X402_SELLER_PORTFOLIO_PRICE_ATOMIC);
@@ -2611,6 +2684,38 @@ function x402Manifest() {
           },
         },
         accepts: agentCommerceGoLiveAccepts,
+      },
+      {
+        resource: X402_AGENT_COMMERCE_FLEET_URL,
+        name: "PAL Agent Commerce Fleet Go-Live",
+        description:
+          "Audit, package and distribute 1-3 already-public paid agent services in one portfolio purchase, returning per-service launch artifacts, marketplace registration receipts and remaining blockers.",
+        method: "POST",
+        price: X402_AGENT_COMMERCE_FLEET_PRICE_USD,
+        inputSchema: {
+          type: "object",
+          required: ["services"],
+          properties: {
+            services: {
+              type: "array",
+              minItems: 1,
+              maxItems: 3,
+              items: {
+                type: "object",
+                required: ["origin", "route", "service_name", "service_description", "price_usd"],
+                properties: {
+                  origin: { type: "string" },
+                  route: { type: "string" },
+                  service_name: { type: "string" },
+                  service_description: { type: "string" },
+                  contact_email: { type: "string" },
+                  price_usd: { type: "number" }
+                }
+              }
+            }
+          }
+        },
+        accepts: agentCommerceFleetAccepts,
       },
       {
         resource: X402_AGENT_COMMERCE_KIT_URL,
@@ -2778,7 +2883,7 @@ function x402Manifest() {
       },
     },
     capabilities: {
-      tools: 10,
+      tools: 17,
       categories: [
         "commerce",
         "merchant-feed",
@@ -2888,6 +2993,18 @@ function x402OpenApi() {
     amount: X402_AGENT_COMMERCE_GO_LIVE_PRICE_ATOMIC,
     price: { mode: "fixed", currency: "USD", amount: "350.00" },
     priceDisplay: X402_AGENT_COMMERCE_GO_LIVE_PRICE_USD,
+    payTo: BASE_PAYOUT_ADDRESS,
+  };
+  const agentCommerceFleetPaymentInfo = {
+    protocol: "x402",
+    protocols: ["x402"],
+    version: 2,
+    scheme: "exact",
+    network: X402_NETWORK,
+    asset: X402_ASSET,
+    amount: X402_AGENT_COMMERCE_FLEET_PRICE_ATOMIC,
+    price: { mode: "fixed", currency: "USD", amount: "749.00" },
+    priceDisplay: X402_AGENT_COMMERCE_FLEET_PRICE_USD,
     payTo: BASE_PAYOUT_ADDRESS,
   };
   const agentCommerceKitPaymentInfo = {
@@ -3298,6 +3415,52 @@ function x402OpenApi() {
           },
           "x-payment-info": agentCommerceGoLivePaymentInfo,
         },
+      },
+      [X402_AGENT_COMMERCE_FLEET_PATH]: {
+        post: {
+          operationId: "agentCommerceFleetGoLive",
+          summary: "Audit and distribute up to three paid agent services as one portfolio",
+          tags: ["agent-commerce", "x402", "portfolio", "fleet", "distribution", "go-live"],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  additionalProperties: false,
+                  required: ["services"],
+                  properties: {
+                    services: {
+                      type: "array",
+                      minItems: 1,
+                      maxItems: 3,
+                      items: {
+                        type: "object",
+                        additionalProperties: false,
+                        required: ["origin", "route", "service_name", "service_description", "price_usd"],
+                        properties: {
+                          origin: { type: "string", format: "uri" },
+                          route: { type: "string", minLength: 1 },
+                          service_name: { type: "string", minLength: 3, maxLength: 120 },
+                          service_description: { type: "string", minLength: 20, maxLength: 1000 },
+                          contact_email: { type: "string" },
+                          price_usd: { type: "number", exclusiveMinimum: 0 }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            "200": { description: "Portfolio go-live results and per-service marketplace receipts after successful payment." },
+            "400": { description: "Invalid fleet input." },
+            "402": { description: "x402 payment required." },
+            "502": { description: "Readiness or marketplace upstream temporarily unavailable." }
+          },
+          "x-payment-info": agentCommerceFleetPaymentInfo
+        }
       },
       [X402_AGENT_COMMERCE_KIT_PATH]: {
         post: {
@@ -6298,10 +6461,17 @@ app.get("/", (_req, res) => {
       payment: "x402 v2 exact, USDC on Base",
     },
     high_value_offer: {
+      name: "PAL Agent Commerce Fleet Go-Live",
+      endpoint: "POST /v1/usdc/agent-commerce-fleet-go-live",
+      price_usd: 749.0,
+      purpose: "Audit, package and distribute up to three already-public paid agent services in one portfolio purchase with per-service registration receipts.",
+      payment: "x402 v2 exact, USDC on Base",
+    },
+    single_service_offer: {
       name: "PAL Agent Commerce Go-Live",
       endpoint: "POST /v1/usdc/agent-commerce-go-live",
       price_usd: 350.0,
-      purpose: "Autonomously verify, package and distribute an already-public paid agent service, returning machine-readable artifacts and registration receipts.",
+      purpose: "Autonomously verify, package and distribute one already-public paid agent service.",
       payment: "x402 v2 exact, USDC on Base",
     },
     paid_endpoint: "POST /v1/audit",
@@ -6315,6 +6485,7 @@ app.get("/", (_req, res) => {
       "POST /v1/usdc/x402-seller-portfolio-audit",
       "POST /v1/usdc/agent-commerce-launch-kit",
       "POST /v1/usdc/agent-commerce-go-live",
+      "POST /v1/usdc/agent-commerce-fleet-go-live",
       "GET /v1/usdc/shopify-store-audit?url=...",
       "POST /v1/usdc/x402-validate",
       "POST /v1/usdc/catalog-remediation",
@@ -9130,6 +9301,118 @@ app.post("/v1/usdc/agent-commerce-go-live", async (req, res) => {
   } catch (error) {
     return res.status(502).json({
       error: "agent_commerce_go_live_failed",
+      detail: error instanceof Error ? error.message : String(error),
+    });
+  }
+});
+
+app.post("/v1/usdc/agent-commerce-fleet-go-live", async (req, res) => {
+  const services = req.body?.services;
+  if (!Array.isArray(services) || services.length < 1 || services.length > 3) {
+    return res.status(400).json({
+      error: "invalid_fleet_input",
+      detail: "Body must contain services as an array with 1 to 3 already-public paid services.",
+    });
+  }
+
+  const invalidIndex = services.findIndex((item) => {
+    const origin = String(item?.origin || "").trim();
+    const route = String(item?.route || "").trim();
+    const serviceName = String(item?.service_name || "").trim();
+    const serviceDescription = String(item?.service_description || "").trim();
+    const priceUsd = Number(item?.price_usd);
+    return (
+      !origin ||
+      !route ||
+      serviceName.length < 3 ||
+      serviceDescription.length < 20 ||
+      !Number.isFinite(priceUsd) ||
+      priceUsd <= 0
+    );
+  });
+  if (invalidIndex >= 0) {
+    return res.status(400).json({
+      error: "invalid_fleet_service",
+      detail:
+        `services[${invalidIndex}] requires origin, route, service_name (>=3 chars), service_description (>=20 chars), and positive price_usd.`,
+    });
+  }
+
+  try {
+    const results = await Promise.all(
+      services.map(async (input, index) => {
+        try {
+          const report = await buildSellerIntegrityAudit(input.origin, input.route);
+          if (!report.ok) {
+            return { index, ok: false, target: input, error: report.error || "seller_integrity_failed", detail: report };
+          }
+          const launchKit = buildAgentCommerceLaunchKit(report, input);
+          const registration = await registerAgentCommerceService(input, launchKit);
+          const remainingBlockers = [
+            ...(launchKit.readiness?.blockers || []),
+            ...Object.entries(registration.registrations)
+              .filter(([, value]) => value?.ok !== true)
+              .map(([name]) => `${name}_registration_failed`),
+          ];
+          return {
+            index,
+            ok: true,
+            target: launchKit.target,
+            readiness: launchKit.readiness,
+            files: launchKit.files,
+            registrations: registration.registrations,
+            registered_resource: registration.resource,
+            deployment_checklist: launchKit.deployment_checklist,
+            remaining_blockers: remainingBlockers,
+          };
+        } catch (error) {
+          return {
+            index,
+            ok: false,
+            target: input,
+            error: "fleet_service_go_live_failed",
+            detail: error instanceof Error ? error.message : String(error),
+          };
+        }
+      }),
+    );
+
+    usdcPaidAgentCommerceFleetGoLives += 1;
+    const completed = results.filter((item) => item.ok).length;
+    console.log(
+      `[revenue] usdc_agent_commerce_fleet_go_live served price_usd=749 services=${services.length} completed=${completed} network=${USDC_X402_NETWORK} count=${usdcPaidAgentCommerceFleetGoLives}`,
+    );
+
+    return res.json({
+      service: "PAL Agent Commerce Fleet Go-Live",
+      completed_at: nowIso(),
+      bundle: {
+        services_included: services.length,
+        max_services: 3,
+        price_usdc: 749,
+        comparable_single_service_total_usdc: services.length * 350,
+        savings_usdc: Math.max(0, services.length * 350 - 749),
+      },
+      summary: {
+        requested: services.length,
+        completed,
+        failed: results.length - completed,
+      },
+      results,
+      payment: {
+        verified_by: "x402",
+        network: USDC_X402_NETWORK,
+        asset: "USDC",
+        price_usd: X402_AGENT_COMMERCE_FLEET_PRICE_USD,
+        pay_to: BASE_PAYOUT_ADDRESS,
+        facilitator: "PayAI",
+      },
+      boundary:
+        "This bundle operates only on buyer-supplied public origins/routes. It does not access private repositories, sign buyer transactions, custody wallets, or fabricate settlement history.",
+    });
+  } catch (error) {
+    return res.status(502).json({
+      error: "agent_commerce_fleet_go_live_failed",
       detail: error instanceof Error ? error.message : String(error),
     });
   }
