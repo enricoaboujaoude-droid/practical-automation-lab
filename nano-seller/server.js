@@ -2287,7 +2287,10 @@ async function startPayanAgentBootstrap() {
       payanAgentRetryScheduled = true;
       setTimeout(() => {
         payanAgentRetryScheduled = false;
-        void startPayanAgentBootstrap();
+        if (String(process.env.AGENTICTRADE_VERIFY_URLS || "").trim()) {
+    setTimeout(() => void startAgenticTradeOwnerVerificationBootstrap(), 6_000);
+  }
+  void startPayanAgentBootstrap();
       }, 15 * 60 * 1000);
       console.log("[payanagent] provider API unavailable; autonomous retry scheduled after 15 minutes");
     }
@@ -10590,6 +10593,69 @@ async function startAgenticTradeHighValueOnboard() {
     }
   }
 }
+
+async function startAgenticTradeOwnerVerificationBootstrap() {
+  const raw = String(process.env.AGENTICTRADE_VERIFY_URLS || "").trim();
+  if (!raw) return;
+
+  const urls = raw
+    .split(/[;\n]+/)
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .slice(0, 10);
+  const results = [];
+
+  for (let index = 0; index < urls.length; index += 1) {
+    try {
+      const url = new URL(urls[index]);
+      const valid =
+        url.protocol === "https:" &&
+        url.hostname === "agentictrade.io" &&
+        /^\/api\/v1\/agents\/[^/]+\/verify-owner$/.test(url.pathname) &&
+        url.searchParams.has("token");
+
+      if (!valid) {
+        results.push({ index, ok: false, status: "rejected_invalid_url" });
+        continue;
+      }
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { accept: "text/html,application/json" },
+        redirect: "manual",
+        signal: AbortSignal.timeout(20_000),
+      });
+      const location = response.headers.get("location");
+      let redirectPath = null;
+      if (location) {
+        try {
+          redirectPath = new URL(location, url).pathname;
+        } catch {
+          redirectPath = "present";
+        }
+      }
+
+      results.push({
+        index,
+        ok: response.ok || (response.status >= 300 && response.status < 400),
+        status: response.status,
+        redirect_path: redirectPath,
+      });
+    } catch (error) {
+      results.push({
+        index,
+        ok: false,
+        status: "error",
+        detail: String(error?.message || error).slice(0, 160),
+      });
+    }
+  }
+
+  console.log(
+    `[agentictrade-owner-verify] attempts=${results.length} results=${JSON.stringify(results)}`,
+  );
+}
+
 
 async function startFiatDockBootstrap() {
   if (!FIATDOCK_SELLER_KEY || !FIATDOCK_GATEWAY_TOKEN) {
