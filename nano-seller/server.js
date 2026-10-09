@@ -24,6 +24,7 @@ const PUBLIC_BASE_URL = String(
   process.env.PUBLIC_BASE_URL || "https://pal-nano-catalog-audit.onrender.com"
 ).replace(/\/$/, "");
 const MARKETPLACE_PUBLISHER = process.env.MARKETPLACE_PUBLISHER !== "0";
+const SHOPIFY_APP_STORE_URL = "https://apps.shopify.com/pal-catalog-check";
 const REPUTON_PARTNER_CAMPAIGN = "e9442";
 const REPUTON_CUSTOMER_REVIEWS_REFERRAL_URL =
   `https://reputon.com/referral?aid=1&c=${REPUTON_PARTNER_CAMPAIGN}`;
@@ -7126,6 +7127,12 @@ app.get("/marketplace", (_req, res) => {
   </div>
 
   <div class="card">
+    <h2>Shopify recurring revenue path <span class="price">Free → $19/mo</span></h2>
+    <p><strong>PAL Catalog Check is live in the Shopify App Store.</strong> The free plan gives merchants a read-only AIEO/catalog snapshot; Pro adds recurring scans, saved history, change detection, alerts, reports, exports, and higher limits for $19/month or $199/year.</p>
+    <p><a href="https://apps.shopify.com/pal-catalog-check">Install PAL Catalog Check on Shopify →</a></p>
+  </div>
+
+  <div class="card">
     <h2>Live Shopify Store Commerce Audit <span class="price">$25.00 / call</span></h2>
     <p>Fetch and audit a public Shopify storefront for catalog and Merchant Center issues across up to 250 variants, then return prioritized corrective actions. No Shopify admin credentials are required.</p>
     <p><strong>Machine buyer:</strong> <code>GET /v1/usdc/shopify-store-audit?url=...</code></p>
@@ -9130,6 +9137,15 @@ app.get("/v1/shopify-store-preflight", async (req, res) => {
         url: paidUrl.toString(),
         scope: "Fetch and audit up to 250 public Shopify variants with prioritized Merchant Center/catalog remediation.",
       },
+      free_shopify_app: {
+        name: "PAL Catalog Check",
+        install_url: SHOPIFY_APP_STORE_URL,
+        price: "Free plan available; Pro is $19/month or $199/year in Shopify.",
+        value:
+          "Install inside Shopify for recurring read-only catalog scans, saved Pro history, change detection, alerts, reports and exports.",
+        relevance:
+          "Best next step for a merchant who wants PAL to keep monitoring catalog health after this public preflight.",
+      },
       optional_review_growth: {
         customer_reviews_app: REPUTON_CUSTOMER_REVIEWS_REFERRAL_URL,
         google_reviews_app: REPUTON_GOOGLE_REVIEWS_REFERRAL_URL,
@@ -9201,6 +9217,13 @@ app.get("/v1/usdc/shopify-store-audit", async (req, res) => {
         asset: "USDC",
         price_usd: X402_SHOPIFY_STORE_AUDIT_PRICE_USD,
         pay_to: BASE_PAYOUT_ADDRESS,
+      },
+      free_shopify_app: {
+        name: "PAL Catalog Check",
+        install_url: SHOPIFY_APP_STORE_URL,
+        price: "Free plan available; Pro is $19/month or $199/year in Shopify.",
+        value:
+          "Turn this point-in-time public audit into recurring read-only monitoring, saved history, change detection, alerts, reports and CSV exports from Shopify Admin.",
       },
       optional_review_growth: {
         customer_reviews_app: REPUTON_CUSTOMER_REVIEWS_REFERRAL_URL,
