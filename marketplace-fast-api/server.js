@@ -40,16 +40,28 @@ function openApi(base){
     openapi:"3.0.3",
     info:{
       title:"PAL AIEO Commerce Catalog Intelligence API",
-      version:"1.0.0",
+      version:"1.0.1",
       description:"Low-latency AIEO catalog intelligence for AI shopping, agentic commerce, marketplaces and Merchant Center-compatible product data."
     },
     servers:[{url:base}],
     paths:{
       "/api/health":{get:{summary:"Health check",responses:{"200":{description:"OK"}}}},
-      "/api/catalog-audit":{post:{summary:"Audit ecommerce product records for AIEO and AI-shopping readiness",responses:{"200":{description:"Audit result"}}}},
-      "/api/catalog-remediation":{post:{summary:"Generate prioritized AIEO remediation with Merchant Center compatibility",responses:{"200":{description:"Remediation result"}}}},
-      "/api/gtin-check":{post:{summary:"Validate GTIN UPC EAN identifiers",responses:{"200":{description:"GTIN result"}}}},
-      "/api/feed-diff":{post:{summary:"Compare product-feed snapshots",responses:{"200":{description:"Feed diff result"}}}},
+      "/api/catalog-audit":{
+        get:{summary:"Catalog audit readiness probe",responses:{"200":{description:"Ready"}}},
+        post:{summary:"Audit ecommerce product records for AIEO and AI-shopping readiness",responses:{"200":{description:"Audit result"}}}
+      },
+      "/api/catalog-remediation":{
+        get:{summary:"Catalog remediation readiness probe",responses:{"200":{description:"Ready"}}},
+        post:{summary:"Generate prioritized AIEO remediation with Merchant Center compatibility",responses:{"200":{description:"Remediation result"}}}
+      },
+      "/api/gtin-check":{
+        get:{summary:"GTIN validation readiness probe",responses:{"200":{description:"Ready"}}},
+        post:{summary:"Validate GTIN UPC EAN identifiers",responses:{"200":{description:"GTIN result"}}}
+      },
+      "/api/feed-diff":{
+        get:{summary:"Feed diff readiness probe",responses:{"200":{description:"Ready"}}},
+        post:{summary:"Compare product-feed snapshots",responses:{"200":{description:"Feed diff result"}}}
+      },
       "/api/agentpay":{
         get:{summary:"AgenticTrade service metadata",responses:{"200":{description:"Metadata"}}},
         post:{summary:"AgenticTrade-compatible catalog audit",responses:{"200":{description:"Audit result"}}}
@@ -57,6 +69,33 @@ function openApi(base){
     }
   };
 }
+
+const probeMetadata = {
+  "/api/catalog-audit": {
+    service:"PAL Ecommerce Catalog Audit",
+    method:"POST",
+    price_per_call_usdc:"5",
+    capabilities:["aieo","ai-shopping-readiness","catalog-audit","merchant-center-readiness"]
+  },
+  "/api/catalog-remediation": {
+    service:"PAL Catalog Remediation Plan",
+    method:"POST",
+    price_per_call_usdc:"15",
+    capabilities:["aieo","catalog-remediation","merchant-center-readiness","product-feed"]
+  },
+  "/api/gtin-check": {
+    service:"PAL GTIN UPC EAN Validator",
+    method:"POST",
+    price_per_call_usdc:"3",
+    capabilities:["gtin","upc","ean","checksum","product-identifiers"]
+  },
+  "/api/feed-diff": {
+    service:"PAL Product Feed Diff",
+    method:"POST",
+    price_per_call_usdc:"8",
+    capabilities:["product-feed","diff","catalog-monitoring","ecommerce"]
+  }
+};
 
 const server=http.createServer(async (req,res)=>{
   const started=Date.now();
@@ -67,12 +106,22 @@ const server=http.createServer(async (req,res)=>{
 
   try{
     if(req.method==="GET" && path==="/api/health"){
-      return send(res,200,{ok:true,service:"PAL Marketplace Fast API",version:"1.0.0",latency_ms:Date.now()-started});
+      return send(res,200,{ok:true,service:"PAL Marketplace Fast API",version:"1.0.1",latency_ms:Date.now()-started});
     }
 
     if(req.method==="GET" && path==="/api/openapi"){
       const proto=(req.headers["x-forwarded-proto"]||"https").split(",")[0].trim();
       return send(res,200,openApi(`${proto}://${req.headers.host}`),{"cache-control":"public, max-age=300"});
+    }
+
+    if(req.method==="GET" && probeMetadata[path]){
+      return send(res,200,{
+        ok:true,
+        ready:true,
+        provider:"Practical Automation Lab",
+        billing:"handled_upstream",
+        ...probeMetadata[path]
+      });
     }
 
     if(path==="/api/agentpay" && req.method==="GET"){
