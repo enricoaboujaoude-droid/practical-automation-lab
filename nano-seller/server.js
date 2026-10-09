@@ -7062,8 +7062,8 @@ app.get("/marketplace", (_req, res) => {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>AIEO Product Feed Audit API | PAL AI Commerce Catalog Intelligence</title>
-  <meta name="description" content="Pay-per-call AIEO catalog intelligence for AI-shopping product data, prioritized remediation, GTIN validation, feed diffs, Merchant Center compatibility and x402.">
+  <title>PAL Agent Commerce Revenue APIs | x402, MCP, Shopify & Affiliate Audits</title>
+  <meta name="description" content="Paid x402 and MCP services for agent-commerce go-live, fleet distribution, Shopify audits, affiliate revenue leaks and AIEO catalog remediation.">
   <link rel="canonical" href="${PUBLIC_BASE_URL}/marketplace">
   <link rel="icon" href="${PUBLIC_BASE_URL}/favicon.svg" type="image/svg+xml">
   <style>
@@ -7093,9 +7093,9 @@ app.get("/marketplace", (_req, res) => {
   </script>
 </head>
 <body>
-  <h1>PAL AIEO Commerce Catalog Intelligence API</h1>
-  <p class="lead">Deterministic AIEO catalog intelligence for AI shopping, agentic storefronts, shopping feeds, marketplaces and Merchant Center-compatible commerce workflows. SEO helps pages get discovered; AIEO improves the structured product data machines act on.</p>
-  <p><a href="/v1/sample/catalog-remediation"><strong>See a free remediation result →</strong></a> &nbsp; <a href="/v1/sample/catalog-audit">See audit sample</a> &nbsp; <a href="/v1/sample/gtin-check">See GTIN sample</a></p>
+  <h1>PAL Agent Commerce Revenue APIs</h1>
+  <p class="lead">Machine-buyable x402 and MCP services for launching paid agents, distributing agent services, auditing Shopify stores, finding affiliate revenue leaks, and fixing AIEO commerce catalogs. Start with the revenue problem, then pay only for the result you need.</p>
+  <p><a href="#fleet"><strong>Launch up to 3 paid agent services →</strong></a> &nbsp; <a href="#affiliate-audit">Audit affiliate revenue leaks</a> &nbsp; <a href="/v1/sample/catalog-remediation">See a free catalog result</a></p>
 
   <div class="card">
     <h2>Buy through a marketplace</h2>
@@ -7110,6 +7110,25 @@ app.get("/marketplace", (_req, res) => {
     <p>PAL is published in the <a href="https://registry.modelcontextprotocol.io/?q=io.github.enricoaboujaoude-droid%2Fpal-commerce-catalog-intelligence" rel="noopener noreferrer">Official MCP Registry</a> and exposes a production Streamable HTTP server.</p>
     <p><strong>Remote MCP:</strong> <code>${PUBLIC_BASE_URL}/mcp</code></p>
     <p>The MCP server exposes three free discovery/demo tools and eight x402-paid commerce tools. Paid MCP calls return the live Base-USDC payment requirement before any paid result is delivered.</p>
+  </div>
+
+  <div class="card" id="fleet">
+    <h2>Agent Commerce Fleet Go-Live <span class="price">$749.00 / call</span></h2>
+    <p>Launch and distribute 1–3 already-public paid agent services in one portfolio purchase. PAL checks runtime readiness, generates launch artifacts, submits each service to compatible buyer-discovery markets, and returns per-service registration receipts and remaining blockers.</p>
+    <p><strong>Bundle economics:</strong> up to three services for $749 instead of $1,050 as three separate $350 go-live calls — a $301 bundle saving.</p>
+    <p><strong>Machine buyer:</strong> <code>POST /v1/usdc/agent-commerce-fleet-go-live</code></p>
+  </div>
+
+  <div class="card" id="affiliate-audit">
+    <h2>Affiliate Revenue Leak Audit <span class="price">$99.00 / call</span></h2>
+    <p>Audit up to 25 public affiliate URLs for broken destinations, redirect-chain risk, destination drift, and observable tracking-parameter loss using HEAD-only public probes. Optionally quantify buyer-supplied monthly value exposed by links PAL can clearly classify as broken.</p>
+    <p><strong>Machine buyer:</strong> <code>POST /v1/usdc/affiliate-revenue-leak-audit</code></p>
+  </div>
+
+  <div class="card">
+    <h2>Live Shopify Store Commerce Audit <span class="price">$25.00 / call</span></h2>
+    <p>Fetch and audit a public Shopify storefront for catalog and Merchant Center issues across up to 250 variants, then return prioritized corrective actions. No Shopify admin credentials are required.</p>
+    <p><strong>Machine buyer:</strong> <code>GET /v1/usdc/shopify-store-audit?url=...</code></p>
   </div>
 
   <div class="card">
