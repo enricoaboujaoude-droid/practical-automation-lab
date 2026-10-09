@@ -1,0 +1,32 @@
+name: Register PAL Base Risk on True402
+
+on:
+  push:
+    paths:
+      - ".github/workflows/register-base-risk-true402.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Register seller manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          ORIGIN="https://pal-base-risk-revenue.onrender.com"
+          for i in $(seq 1 24); do
+            if curl -fsS --max-time 15 "$ORIGIN/.well-known/x402-service.json" > /tmp/manifest.json; then
+              if grep -q '"25.00"' /tmp/manifest.json; then break; fi
+            fi
+            sleep 5
+          done
+          cat /tmp/manifest.json
+          CODE="$(curl -sS --max-time 30 -o /tmp/result.json -w '%{http_code}'             -X POST 'https://true402.dev/api/v1/services/register'             -H 'content-type: application/json'             -H 'accept: application/json'             --data '{"url":"https://pal-base-risk-revenue.onrender.com"}')"
+          cat /tmp/result.json
+          echo "HTTP_STATUS=$CODE"
+          if [ "$CODE" -lt 200 ] || [ "$CODE" -ge 300 ]; then exit 1; fi
