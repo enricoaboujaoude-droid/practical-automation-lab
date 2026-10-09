@@ -1,0 +1,51 @@
+name: Scan VIA demand for PAL
+
+on:
+  push:
+    paths:
+      - ".github/workflows/scan-via-pal-demand.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Read PAL store status and matching buyer demand
+        shell: bash
+        run: |
+          set -euo pipefail
+          call_tool() {
+            local name="$1"
+            local args="$2"
+            jq -nc --arg name "$name" --argjson args "$args" '{
+              jsonrpc:"2.0",id:1,method:"tools/call",
+              params:{name:$name,arguments:$args}
+            }' | curl --silent --show-error --fail-with-body \
+              --request POST "https://app.getvia.xyz/mcp" \
+              --header 'Content-Type: application/json' \
+              --header 'Accept: application/json, text/event-stream' \
+              --data-binary @-
+          }
+
+          echo "=== STORE STATUS ==="
+          call_tool "get_store_status" '{"slug":"practical-automation-lab"}'
+
+          echo
+          echo "=== AGENT COMMERCE DEMAND ==="
+          call_tool "find_buyers" '{"query":"agent commerce x402 MCP API service launch distribution","limit":20}'
+
+          echo
+          echo "=== SHOPIFY / ECOMMERCE DEMAND ==="
+          call_tool "find_buyers" '{"query":"Shopify ecommerce catalog product feed audit Merchant Center","limit":20}'
+
+          echo
+          echo "=== AFFILIATE / REVENUE DEMAND ==="
+          call_tool "find_buyers" '{"query":"affiliate revenue link audit monetization","limit":20}'
+
+          echo
+          echo "=== AUTOMATION / API DEMAND ==="
+          call_tool "find_buyers" '{"query":"automation API integration developer service","limit":20}'
