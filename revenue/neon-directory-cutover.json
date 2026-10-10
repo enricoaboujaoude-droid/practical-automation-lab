@@ -1,12 +1,13 @@
 {
-  "generated_at": "2026-10-10T10:13:50.246Z",
+  "generated_at": "2026-10-10T10:22:06.493Z",
   "migration": "render-to-neon",
   "canonical_origins": {
     "full": "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech",
-    "nano": "https://br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech"
+    "nano": "https://br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech",
+    "risk": "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech"
   },
-  "successes": 9,
-  "failures": 4,
+  "successes": 17,
+  "failures": 7,
   "results": [
     {
       "label": "agent402",
@@ -18,7 +19,7 @@
     {
       "label": "true402",
       "url": "https://true402.dev/api/v1/services/register",
-      "status": 201,
+      "status": 200,
       "ok": true,
       "response": {
         "id": "3f4554f8-c509-4edd-959d-ba476c00e1a9",
@@ -55,7 +56,7 @@
           "successRate": null,
           "isNew": true,
           "registeredAt": "2026-10-10T10:12:55.899Z",
-          "lastSeen": "2026-10-10T10:12:55.899Z",
+          "lastSeen": "2026-10-10T10:21:06.217Z",
           "settled": null,
           "settledVolumeUsd": null,
           "distinctPayers": null,
@@ -75,7 +76,7 @@
     {
       "label": "true402",
       "url": "https://true402.dev/api/v1/services/register",
-      "status": 201,
+      "status": 200,
       "ok": true,
       "response": {
         "id": "133d3c36-b20b-4db9-a6f6-86ebef40a2c2",
@@ -112,7 +113,7 @@
           "successRate": null,
           "isNew": true,
           "registeredAt": "2026-10-10T10:13:42.562Z",
-          "lastSeen": "2026-10-10T10:13:42.562Z",
+          "lastSeen": "2026-10-10T10:21:52.016Z",
           "settled": null,
           "settledVolumeUsd": null,
           "distinctPayers": null,
@@ -120,6 +121,579 @@
           "trustScore": 0,
           "trustVersion": 1
         }
+      }
+    },
+    {
+      "label": "agent402",
+      "url": "https://agent402.tools/api/index/register",
+      "status": 200,
+      "ok": true,
+      "response": {
+        "listed": true,
+        "origin": "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech",
+        "seller": {
+          "displayName": "Practical Automation Lab Bazaar Revenue",
+          "toolCount": 3,
+          "networks": [
+            "eip155:8453"
+          ],
+          "routable": true,
+          "health": 1
+        }
+      }
+    },
+    {
+      "label": "true402",
+      "url": "https://true402.dev/api/v1/services/register",
+      "status": 201,
+      "ok": true,
+      "response": {
+        "id": "ddf7664c-45a7-400e-8fdd-fcdfb824d3b0",
+        "url": "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech",
+        "manifest": {
+          "x402": "1.0",
+          "name": "Practical Automation Lab Base Token Risk",
+          "description": "Machine-paid Base token security verdicts and portfolio risk ranking using live security evidence plus deterministic PAL scoring.",
+          "capabilities": [
+            "base",
+            "erc20",
+            "token-risk",
+            "due-diligence",
+            "portfolio-ranking",
+            "security"
+          ],
+          "pricing": {
+            "currency": "USDC",
+            "base": "25.00",
+            "unit": "portfolio-risk-rank"
+          },
+          "payment": {
+            "address": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+            "chain": "base-mainnet",
+            "facilitator": "https://facilitator.payai.network"
+          },
+          "endpoint": "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech/v1/base-token-portfolio-rank"
+        },
+        "reputation": {
+          "transactions": 0,
+          "successRate": null,
+          "isNew": true,
+          "registeredAt": "2026-10-10T10:21:53.592Z",
+          "lastSeen": "2026-10-10T10:21:53.592Z",
+          "settled": null,
+          "settledVolumeUsd": null,
+          "distinctPayers": null,
+          "lastSettledAt": null,
+          "trustScore": 0,
+          "trustVersion": 1
+        }
+      }
+    },
+    {
+      "label": "402index",
+      "url": "https://402index.io/api/v1/register",
+      "status": 201,
+      "ok": true,
+      "response": {
+        "message": "Service registered and live (domain verified).",
+        "service": {
+          "id": "aba780bc-90e3-463f-b7fc-c2ac7c9bf24a",
+          "name": "PAL Base Token Risk Verdict",
+          "description": "Deterministic Base token risk verdict from live token-security evidence.",
+          "url": "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech/v1/base-token-risk-verdict",
+          "protocol": "x402",
+          "price_sats": null,
+          "price_usd": 0.05,
+          "payment_asset": "USDC",
+          "payment_network": "Base",
+          "category": "security/token-risk",
+          "input_schema": null,
+          "output_schema": null,
+          "provider": "Practical Automation Lab",
+          "source": "self-registered",
+          "source_id": null,
+          "featured": 0,
+          "registered_at": "2026-10-10 10:21:54",
+          "updated_at": "2026-10-10 10:21:54",
+          "health_status": "healthy",
+          "uptime_30d": null,
+          "latency_p50_ms": null,
+          "last_checked": null,
+          "last_seen_healthy": null,
+          "consecutive_failures": 0,
+          "is_template": 0,
+          "is_demo": 0,
+          "verified": 0,
+          "contact_email": null,
+          "status": "active",
+          "http_method": "POST",
+          "reliability_score": null,
+          "x402_payment_valid": null,
+          "x402_facilitator_reachable": null,
+          "x402_asset_known": null,
+          "probe_body": null,
+          "l402_version": null,
+          "agent_spec_url": null,
+          "capabilities": null,
+          "token_format": null,
+          "invoice_type": null,
+          "pricing_model": null,
+          "content_domain": null,
+          "domain_verified": 0,
+          "provider_deleted": 0,
+          "deleted_at": null,
+          "approval_reason": "domain-verified",
+          "hostname": "br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech",
+          "l402_compliant": null,
+          "l402_degrade_reason": null,
+          "l402_format": null,
+          "lnget_compatible": null,
+          "consecutive_latency_spikes": 0,
+          "probe_status": "probeable"
+        },
+        "also_registered": [],
+        "verification": {
+          "protocol": "x402",
+          "httpStatus": 402,
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:8453",
+              "amount": "50000",
+              "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            }
+          ],
+          "assetKnown": true,
+          "facilitatorReachable": null,
+          "version": 2,
+          "paymentMethod": null
+        }
+      }
+    },
+    {
+      "label": "market402",
+      "url": "https://market402.com/submit",
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ok": true,
+        "message": "Queued. Your endpoint will be probed in the next round (no payment attached; we expect a spec-compliant 402).",
+        "instant_check": {
+          "ok": false,
+          "url": "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech/v1/base-token-risk-verdict",
+          "latency_ms": 126,
+          "checks": [
+            {
+              "check": "https_url",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "public_hostname",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "reachable",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "returns_402_unpaid",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "body_json",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "x402_version",
+              "pass": false,
+              "hint": "Missing \"x402Version\" in 402 body."
+            },
+            {
+              "check": "accepts_present",
+              "pass": false,
+              "hint": "Missing/empty \"accepts\" array."
+            },
+            {
+              "check": "pay_to",
+              "pass": false,
+              "hint": "accepts[0].payTo missing."
+            },
+            {
+              "check": "amount",
+              "pass": false,
+              "hint": "accepts[0] needs maxAmountRequired (v1) or amount (v2)."
+            },
+            {
+              "check": "network_present",
+              "pass": false,
+              "hint": "accepts[0].network missing."
+            }
+          ],
+          "summary": {
+            "passed": 5,
+            "failed": 5,
+            "verdict": "issues_found"
+          }
+        },
+        "note": "instant_check is advisory self-test output; the 402 Verified badge is granted only by our own scheduled probes."
+      }
+    },
+    {
+      "label": "x402dash",
+      "url": "https://api.x402dash.com/v1/register",
+      "status": 400,
+      "ok": false,
+      "response": {
+        "detail": "URL did not return HTTP 402 (got 404). Endpoints must respond with 402 and a valid x402 payment spec."
+      }
+    },
+    {
+      "label": "402index",
+      "url": "https://402index.io/api/v1/register",
+      "status": 201,
+      "ok": true,
+      "response": {
+        "message": "Service registered and live (domain verified).",
+        "service": {
+          "id": "8e1529de-1a58-4e7a-9fbf-cf9c7adc0549",
+          "name": "PAL Base Token Due Diligence",
+          "description": "Full Base ERC-20 token due-diligence pack using live security evidence.",
+          "url": "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech/v1/base-token-due-diligence",
+          "protocol": "x402",
+          "price_sats": null,
+          "price_usd": 5,
+          "payment_asset": "USDC",
+          "payment_network": "Base",
+          "category": "security/token-risk",
+          "input_schema": null,
+          "output_schema": null,
+          "provider": "Practical Automation Lab",
+          "source": "self-registered",
+          "source_id": null,
+          "featured": 0,
+          "registered_at": "2026-10-10 10:21:57",
+          "updated_at": "2026-10-10 10:21:57",
+          "health_status": "healthy",
+          "uptime_30d": null,
+          "latency_p50_ms": null,
+          "last_checked": null,
+          "last_seen_healthy": null,
+          "consecutive_failures": 0,
+          "is_template": 0,
+          "is_demo": 0,
+          "verified": 0,
+          "contact_email": null,
+          "status": "active",
+          "http_method": "POST",
+          "reliability_score": null,
+          "x402_payment_valid": null,
+          "x402_facilitator_reachable": null,
+          "x402_asset_known": null,
+          "probe_body": null,
+          "l402_version": null,
+          "agent_spec_url": null,
+          "capabilities": null,
+          "token_format": null,
+          "invoice_type": null,
+          "pricing_model": null,
+          "content_domain": null,
+          "domain_verified": 0,
+          "provider_deleted": 0,
+          "deleted_at": null,
+          "approval_reason": "domain-verified",
+          "hostname": "br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech",
+          "l402_compliant": null,
+          "l402_degrade_reason": null,
+          "l402_format": null,
+          "lnget_compatible": null,
+          "consecutive_latency_spikes": 0,
+          "probe_status": "probeable"
+        },
+        "also_registered": [],
+        "verification": {
+          "protocol": "x402",
+          "httpStatus": 402,
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:8453",
+              "amount": "5000000",
+              "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            }
+          ],
+          "assetKnown": true,
+          "facilitatorReachable": null,
+          "version": 2,
+          "paymentMethod": null
+        }
+      }
+    },
+    {
+      "label": "market402",
+      "url": "https://market402.com/submit",
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ok": true,
+        "message": "Queued. Your endpoint will be probed in the next round (no payment attached; we expect a spec-compliant 402).",
+        "instant_check": {
+          "ok": false,
+          "url": "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech/v1/base-token-due-diligence",
+          "latency_ms": 116,
+          "checks": [
+            {
+              "check": "https_url",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "public_hostname",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "reachable",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "returns_402_unpaid",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "body_json",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "x402_version",
+              "pass": false,
+              "hint": "Missing \"x402Version\" in 402 body."
+            },
+            {
+              "check": "accepts_present",
+              "pass": false,
+              "hint": "Missing/empty \"accepts\" array."
+            },
+            {
+              "check": "pay_to",
+              "pass": false,
+              "hint": "accepts[0].payTo missing."
+            },
+            {
+              "check": "amount",
+              "pass": false,
+              "hint": "accepts[0] needs maxAmountRequired (v1) or amount (v2)."
+            },
+            {
+              "check": "network_present",
+              "pass": false,
+              "hint": "accepts[0].network missing."
+            }
+          ],
+          "summary": {
+            "passed": 5,
+            "failed": 5,
+            "verdict": "issues_found"
+          }
+        },
+        "note": "instant_check is advisory self-test output; the 402 Verified badge is granted only by our own scheduled probes."
+      }
+    },
+    {
+      "label": "x402dash",
+      "url": "https://api.x402dash.com/v1/register",
+      "status": 400,
+      "ok": false,
+      "response": {
+        "detail": "URL did not return HTTP 402 (got 404). Endpoints must respond with 402 and a valid x402 payment spec."
+      }
+    },
+    {
+      "label": "402index",
+      "url": "https://402index.io/api/v1/register",
+      "status": 201,
+      "ok": true,
+      "response": {
+        "message": "Service registered and live (domain verified).",
+        "service": {
+          "id": "9a1f73ae-780a-485b-9fe6-eae11450a7a9",
+          "name": "PAL Base Token Portfolio Risk Rank",
+          "description": "Rank 2-10 Base tokens by deterministic security risk.",
+          "url": "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech/v1/base-token-portfolio-rank",
+          "protocol": "x402",
+          "price_sats": null,
+          "price_usd": 25,
+          "payment_asset": "USDC",
+          "payment_network": "Base",
+          "category": "security/token-risk",
+          "input_schema": null,
+          "output_schema": null,
+          "provider": "Practical Automation Lab",
+          "source": "self-registered",
+          "source_id": null,
+          "featured": 0,
+          "registered_at": "2026-10-10 10:21:59",
+          "updated_at": "2026-10-10 10:21:59",
+          "health_status": "healthy",
+          "uptime_30d": null,
+          "latency_p50_ms": null,
+          "last_checked": null,
+          "last_seen_healthy": null,
+          "consecutive_failures": 0,
+          "is_template": 0,
+          "is_demo": 0,
+          "verified": 0,
+          "contact_email": null,
+          "status": "active",
+          "http_method": "POST",
+          "reliability_score": null,
+          "x402_payment_valid": null,
+          "x402_facilitator_reachable": null,
+          "x402_asset_known": null,
+          "probe_body": null,
+          "l402_version": null,
+          "agent_spec_url": null,
+          "capabilities": null,
+          "token_format": null,
+          "invoice_type": null,
+          "pricing_model": null,
+          "content_domain": null,
+          "domain_verified": 0,
+          "provider_deleted": 0,
+          "deleted_at": null,
+          "approval_reason": "domain-verified",
+          "hostname": "br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech",
+          "l402_compliant": null,
+          "l402_degrade_reason": null,
+          "l402_format": null,
+          "lnget_compatible": null,
+          "consecutive_latency_spikes": 0,
+          "probe_status": "probeable"
+        },
+        "also_registered": [],
+        "verification": {
+          "protocol": "x402",
+          "httpStatus": 402,
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:8453",
+              "amount": "25000000",
+              "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            }
+          ],
+          "assetKnown": true,
+          "facilitatorReachable": null,
+          "version": 2,
+          "paymentMethod": null
+        }
+      }
+    },
+    {
+      "label": "market402",
+      "url": "https://market402.com/submit",
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ok": true,
+        "message": "Queued. Your endpoint will be probed in the next round (no payment attached; we expect a spec-compliant 402).",
+        "instant_check": {
+          "ok": false,
+          "url": "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech/v1/base-token-portfolio-rank",
+          "latency_ms": 90,
+          "checks": [
+            {
+              "check": "https_url",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "public_hostname",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "reachable",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "returns_402_unpaid",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "body_json",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "x402_version",
+              "pass": false,
+              "hint": "Missing \"x402Version\" in 402 body."
+            },
+            {
+              "check": "accepts_present",
+              "pass": false,
+              "hint": "Missing/empty \"accepts\" array."
+            },
+            {
+              "check": "pay_to",
+              "pass": false,
+              "hint": "accepts[0].payTo missing."
+            },
+            {
+              "check": "amount",
+              "pass": false,
+              "hint": "accepts[0] needs maxAmountRequired (v1) or amount (v2)."
+            },
+            {
+              "check": "network_present",
+              "pass": false,
+              "hint": "accepts[0].network missing."
+            }
+          ],
+          "summary": {
+            "passed": 5,
+            "failed": 5,
+            "verdict": "issues_found"
+          }
+        },
+        "note": "instant_check is advisory self-test output; the 402 Verified badge is granted only by our own scheduled probes."
+      }
+    },
+    {
+      "label": "x402dash",
+      "url": "https://api.x402dash.com/v1/register",
+      "status": 400,
+      "ok": false,
+      "response": {
+        "detail": "URL did not return HTTP 402 (got 404). Endpoints must respond with 402 and a valid x402 payment spec."
       }
     },
     {
@@ -147,7 +721,7 @@
           "source_id": null,
           "featured": 0,
           "registered_at": "2026-10-10 10:13:43",
-          "updated_at": "2026-10-10 10:13:43",
+          "updated_at": "2026-10-10 10:22:02",
           "health_status": "healthy",
           "uptime_30d": null,
           "latency_p50_ms": null,
@@ -247,11 +821,13 @@
       "ok": true,
       "response": {
         "ok": true,
+        "already_listed": true,
+        "dedupe_note": "identical submission within 24h - self-check ran fresh below, but the queue entry was not duplicated (SCORE_DESIGN v0.4.2)",
         "message": "Queued. Your endpoint will be probed in the next round (no payment attached; we expect a spec-compliant 402).",
         "instant_check": {
           "ok": false,
           "url": "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/catalog-remediation-bulk",
-          "latency_ms": 175,
+          "latency_ms": 148,
           "checks": [
             {
               "check": "https_url",
@@ -312,7 +888,7 @@
           "source_id": null,
           "featured": 0,
           "registered_at": "2026-10-10 10:13:46",
-          "updated_at": "2026-10-10 10:13:46",
+          "updated_at": "2026-10-10 10:22:04",
           "health_status": "healthy",
           "uptime_30d": null,
           "latency_p50_ms": null,
@@ -412,11 +988,13 @@
       "ok": true,
       "response": {
         "ok": true,
+        "already_listed": true,
+        "dedupe_note": "identical submission within 24h - self-check ran fresh below, but the queue entry was not duplicated (SCORE_DESIGN v0.4.2)",
         "message": "Queued. Your endpoint will be probed in the next round (no payment attached; we expect a spec-compliant 402).",
         "instant_check": {
           "ok": true,
           "url": "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/shopify-store-audit",
-          "latency_ms": 137,
+          "latency_ms": 92,
           "checks": [
             {
               "check": "https_url",
@@ -486,14 +1064,12 @@
     {
       "label": "x402dash",
       "url": "https://api.x402dash.com/v1/register",
-      "status": 201,
+      "status": 409,
       "ok": true,
       "response": {
+        "error": "Endpoint already registered",
         "endpoint_id": "br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/shopify-store-audit",
-        "url": "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/shopify-store-audit",
-        "status": "registered",
-        "verified": true,
-        "message": "Endpoint verified and registered. It will appear in search results and receive liveness monitoring."
+        "source": "api_submitted"
       }
     },
     {
@@ -521,7 +1097,7 @@
           "source_id": null,
           "featured": 0,
           "registered_at": "2026-10-10 10:13:49",
-          "updated_at": "2026-10-10 10:13:49",
+          "updated_at": "2026-10-10 10:22:06",
           "health_status": "healthy",
           "uptime_30d": null,
           "latency_p50_ms": null,
@@ -621,11 +1197,13 @@
       "ok": true,
       "response": {
         "ok": true,
+        "already_listed": true,
+        "dedupe_note": "identical submission within 24h - self-check ran fresh below, but the queue entry was not duplicated (SCORE_DESIGN v0.4.2)",
         "message": "Queued. Your endpoint will be probed in the next round (no payment attached; we expect a spec-compliant 402).",
         "instant_check": {
           "ok": false,
           "url": "https://br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/catalog-remediation-canary",
-          "latency_ms": 205,
+          "latency_ms": 111,
           "checks": [
             {
               "check": "https_url",
@@ -655,10 +1233,10 @@
     {
       "label": "x402dash",
       "url": "https://api.x402dash.com/v1/register",
-      "status": 400,
+      "status": 429,
       "ok": false,
       "response": {
-        "detail": "URL is unreachable: Error -3 while decompressing data: incorrect header check"
+        "error": "Rate limit exceeded: 5 per 1 hour"
       }
     }
   ]
