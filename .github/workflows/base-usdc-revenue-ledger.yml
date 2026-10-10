@@ -1,4 +1,5 @@
 name: Base USDC revenue ledger
+# Revenue threshold check: independently reconcile external buyer receipts without making purchases.
 
 on:
   push:
