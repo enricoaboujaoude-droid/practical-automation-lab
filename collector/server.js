@@ -48,6 +48,9 @@ const STRIPE_PRICE_ID_ANNUAL = process.env.STRIPE_PRICE_ID_ANNUAL || '';
 const STRIPE_CHECKOUT_LIVE = String(process.env.STRIPE_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
 
 const SITE_ORIGIN = 'https://br-wild-truth-b2gxc5zl-palmain.compute.c-6.eu-central-1.aws.neon.tech';
+// Transitional allowlist: Render static site remains live until Neon cutover is verified.
+const RENDER_SITE_ORIGIN = 'https://practical-automation-lab.onrender.com';
+const ALLOWED_SITE_ORIGINS = new Set([SITE_ORIGIN, RENDER_SITE_ORIGIN]);
 const ALLOWED_EVENTS = new Set([
   'audit_started',
   'audit_completed',
@@ -480,8 +483,8 @@ function applySecurityHeaders(res) {
 
 function applyCors(req, res) {
   const origin = req.headers.origin;
-  if (origin === SITE_ORIGIN) {
-    res.setHeader('Access-Control-Allow-Origin', SITE_ORIGIN);
+  if (ALLOWED_SITE_ORIGINS.has(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Vary', 'Origin');
   }
   res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
@@ -2972,7 +2975,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'GET' && url.pathname === '/entitlement') {
-      if (req.headers.origin !== SITE_ORIGIN) {
+      if (!ALLOWED_SITE_ORIGINS.has(req.headers.origin)) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
 
@@ -2986,7 +2989,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'GET' && url.pathname === '/fastspring/entitlement') {
-      if (req.headers.origin !== SITE_ORIGIN) {
+      if (!ALLOWED_SITE_ORIGINS.has(req.headers.origin)) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
 
@@ -3000,7 +3003,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'GET' && url.pathname === '/paddle/entitlement') {
-      if (req.headers.origin !== SITE_ORIGIN) {
+      if (!ALLOWED_SITE_ORIGINS.has(req.headers.origin)) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
 
@@ -3048,7 +3051,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && url.pathname === '/checkout-session') {
-      if (req.headers.origin !== SITE_ORIGIN) {
+      if (!ALLOWED_SITE_ORIGINS.has(req.headers.origin)) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
 
@@ -3070,7 +3073,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && url.pathname === '/stripe/test-checkout-session') {
-      if (req.headers.origin !== SITE_ORIGIN) {
+      if (!ALLOWED_SITE_ORIGINS.has(req.headers.origin)) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
       const body = await readJsonBody(req, 4096);
@@ -3108,7 +3111,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && url.pathname === '/montypay/test-checkout-session') {
-      if (req.headers.origin !== SITE_ORIGIN) {
+      if (!ALLOWED_SITE_ORIGINS.has(req.headers.origin)) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
 
@@ -3153,7 +3156,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && url.pathname === '/creem/test-checkout-session') {
-      if (req.headers.origin !== SITE_ORIGIN) {
+      if (!ALLOWED_SITE_ORIGINS.has(req.headers.origin)) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
 
@@ -3220,7 +3223,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && url.pathname === '/fastspring/test-checkout-session') {
-      if (req.headers.origin !== SITE_ORIGIN) {
+      if (!ALLOWED_SITE_ORIGINS.has(req.headers.origin)) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
 
@@ -3252,7 +3255,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && url.pathname === '/fastspring/checkout-session') {
-      if (req.headers.origin !== SITE_ORIGIN) {
+      if (!ALLOWED_SITE_ORIGINS.has(req.headers.origin)) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
 
@@ -3335,7 +3338,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && url.pathname === '/commercial-interest') {
-      if (req.headers.origin !== SITE_ORIGIN) {
+      if (!ALLOWED_SITE_ORIGINS.has(req.headers.origin)) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
 
@@ -3377,7 +3380,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && url.pathname === '/event') {
-      if (req.headers.origin !== SITE_ORIGIN) {
+      if (!ALLOWED_SITE_ORIGINS.has(req.headers.origin)) {
         return sendJson(req, res, 403, { ok: false, error: 'Origin not allowed' });
       }
       const eventName = await readSmallTextBody(req);
