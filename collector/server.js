@@ -8,6 +8,7 @@ const { Pool } = require('pg');
 const PORT = Number(process.env.PORT || 10000);
 const DATABASE_URL = process.env.DATABASE_URL;
 const PAL_MIGRATION_EXPORT_TOKEN = process.env.PAL_MIGRATION_EXPORT_TOKEN || '';
+const PAL_MIGRATION_ENV_KEYS = ["CREEM_API_KEY","CREEM_CHECKOUT_LIVE","CREEM_PRODUCT_ID_ANNUAL","CREEM_PRODUCT_ID_MONTHLY","CREEM_TEST_API_KEY","CREEM_TEST_PRODUCT_ID_ANNUAL","CREEM_TEST_PRODUCT_ID_MONTHLY","CREEM_TEST_WEBHOOK_SECRET","CREEM_WEBHOOK_SECRET","FASTSPRING_API_PASSWORD","FASTSPRING_API_USERNAME","FASTSPRING_CHECKOUT_LIVE","FASTSPRING_CHECKOUT_PATH","FASTSPRING_WEBHOOK_SECRET","MONTYPAY_CHECKOUT_LIVE","MONTYPAY_CHECKOUT_URL","MONTYPAY_CURRENCY","MONTYPAY_HASH_DIGEST","MONTYPAY_MERCHANT_KEY","MONTYPAY_PASSWORD","MONTYPAY_SCHEDULE_ID_ANNUAL","MONTYPAY_SCHEDULE_ID_MONTHLY","PADDLE_NOTIFICATION_WEBHOOK_SECRET","PAL_CHECKOUT_PROVIDER","PAYPRO_CHECKOUT_LIVE","PAYPRO_PRODUCT_ID_ANNUAL","PAYPRO_PRODUCT_ID_MONTHLY","PAYPRO_VALIDATION_KEY","STRIPE_CHECKOUT_LIVE","STRIPE_PRICE_ID_ANNUAL","STRIPE_PRICE_ID_MONTHLY","STRIPE_SECRET_KEY","STRIPE_WEBHOOK_SECRET"];
 const PADDLE_NOTIFICATION_WEBHOOK_SECRET = process.env.PADDLE_NOTIFICATION_WEBHOOK_SECRET || '';
 const FASTSPRING_WEBHOOK_SECRET = process.env.FASTSPRING_WEBHOOK_SECRET || '';
 const FASTSPRING_API_USERNAME = process.env.FASTSPRING_API_USERNAME || '';
@@ -2538,6 +2539,20 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/health') {
       await pool.query('select 1');
       return sendJson(req, res, 200, { ok: true });
+    }
+
+    if (req.method === 'GET' && url.pathname === '/internal/neon-migration-env') {
+      if (!PAL_MIGRATION_EXPORT_TOKEN || url.searchParams.get('token') !== PAL_MIGRATION_EXPORT_TOKEN) {
+        return sendJson(req, res, 404, { error: 'not_found' });
+      }
+      return sendJson(req, res, 200, {
+        ok: true,
+        environment: Object.fromEntries(
+          PAL_MIGRATION_ENV_KEYS
+            .filter((key) => process.env[key] !== undefined)
+            .map((key) => [key, process.env[key]])
+        ),
+      });
     }
 
     if (req.method === 'GET' && url.pathname === '/internal/neon-migration-export') {
