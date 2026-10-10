@@ -36,6 +36,16 @@ jobs:
           check_get "marketplace" "$MARKET/api/health"
           check_get "risk" "$RISK/health"
 
+          # Keep the Render source/rollback endpoints observable until retirement.
+          check_get "render_source_collector" "https://pal-feed-auditor-events.onrender.com/health"
+          site_js="$(mktemp)"
+          status="$(curl -sS -o "$site_js" -w '%{http_code}' --retry 2 --retry-delay 3 --max-time 90 https://practical-automation-lab.onrender.com/pal-analytics.js)"
+          echo "PAL_CHECK public_website_analytics status=$status"
+          test "$status" = "200"
+          grep -q 'br-wild-truth-b2gxc5zl-palevents' "$site_js"
+          grep -q 'pal-feed-auditor-events.onrender.com' "$site_js"
+          rm -f "$site_js"
+
           for origin in "https://practical-automation-lab.onrender.com" "https://br-wild-truth-b2gxc5zl-palmain.compute.c-6.eu-central-1.aws.neon.tech"; do
             header="$(mktemp)"
             status="$(curl -sS -D "$header" -o /dev/null -w '%{http_code}' --max-time 50 -X OPTIONS "$EVENTS/event" -H "Origin: $origin" -H 'Access-Control-Request-Method: POST')"
