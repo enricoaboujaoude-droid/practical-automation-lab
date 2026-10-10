@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-10T11:57:39.473Z",
+  "generated_at": "2026-10-10T11:59:19.874Z",
   "source": "https://fisherleads.com/new/shopify",
   "source_policy": "Public newest-store directory only. Public business contact pages only. No paid enrichment, no guessed emails, no automatic sending.",
-  "candidates_checked": 24,
+  "candidates_checked": 22,
   "max_leads": 10,
   "leads": [
     {
@@ -63,34 +63,6 @@
       "outreach_guardrail": "Use one individualized first-touch message only. Do not auto-send or bulk-send. Suppress immediately after contact or opt-out."
     },
     {
-      "store_name": "Johnston Terminal Shopify Canada",
-      "domain": "johnstonterminal.com",
-      "email": "info@johnstonterminal.com",
-      "storefront_origin": "https://johnstonterminal.com",
-      "sample_product_title": "52.8\" Modern Geometric Outdoor Water Fountain with LED Lights",
-      "sample_vendor": "Johnston Terminal",
-      "launched": "today",
-      "contact_source_url": "https://johnstonterminal.com/policies/privacy-policy",
-      "pal_preflight_url": "https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url=https%3A%2F%2Fjohnstonterminal.com",
-      "shopify_app_url": "https://apps.shopify.com/pal-catalog-check?utm_source=pal-outreach&utm_medium=email&utm_campaign=new-shopify",
-      "recommended_subject": "Johnston Terminal Shopify Canada: AI-shopping readiness for your new Shopify catalog",
-      "outreach_guardrail": "Use one individualized first-touch message only. Do not auto-send or bulk-send. Suppress immediately after contact or opt-out."
-    },
-    {
-      "store_name": "JKL Repairs Shopify United States",
-      "domain": "jklrepairs.com",
-      "email": "info@jklrepairs.com",
-      "storefront_origin": "https://jklrepairs.com",
-      "sample_product_title": "CAT Engines",
-      "sample_vendor": "JKL Repairs",
-      "launched": "today",
-      "contact_source_url": "https://jklrepairs.com/policies/privacy-policy",
-      "pal_preflight_url": "https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url=https%3A%2F%2Fjklrepairs.com",
-      "shopify_app_url": "https://apps.shopify.com/pal-catalog-check?utm_source=pal-outreach&utm_medium=email&utm_campaign=new-shopify",
-      "recommended_subject": "JKL Repairs Shopify United States: AI-shopping readiness for your new Shopify catalog",
-      "outreach_guardrail": "Use one individualized first-touch message only. Do not auto-send or bulk-send. Suppress immediately after contact or opt-out."
-    },
-    {
       "store_name": "jmplmo™ Shopify United States",
       "domain": "jmplmo.com",
       "email": "service@jmplmo.com",
@@ -144,6 +116,34 @@
       "pal_preflight_url": "https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url=https%3A%2F%2Fjoydhealth.com",
       "shopify_app_url": "https://apps.shopify.com/pal-catalog-check?utm_source=pal-outreach&utm_medium=email&utm_campaign=new-shopify",
       "recommended_subject": "JOYD Health Shopify Australia: AI-shopping readiness for your new Shopify catalog",
+      "outreach_guardrail": "Use one individualized first-touch message only. Do not auto-send or bulk-send. Suppress immediately after contact or opt-out."
+    },
+    {
+      "store_name": "Joisershop Shopify Chile",
+      "domain": "joisershop.com",
+      "email": "contacto.joisershop@gmail.com",
+      "storefront_origin": "https://joisershop.com",
+      "sample_product_title": "joisershop",
+      "sample_vendor": "Joisershop",
+      "launched": "today",
+      "contact_source_url": "https://joisershop.com/policies/privacy-policy",
+      "pal_preflight_url": "https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url=https%3A%2F%2Fjoisershop.com",
+      "shopify_app_url": "https://apps.shopify.com/pal-catalog-check?utm_source=pal-outreach&utm_medium=email&utm_campaign=new-shopify",
+      "recommended_subject": "Joisershop Shopify Chile: AI-shopping readiness for your new Shopify catalog",
+      "outreach_guardrail": "Use one individualized first-touch message only. Do not auto-send or bulk-send. Suppress immediately after contact or opt-out."
+    },
+    {
+      "store_name": "A LOT ON MY PLATE Shopify United States",
+      "domain": "jolguzful.com",
+      "email": "jolie.guz@gmail.com",
+      "storefront_origin": "https://jolguzful.com",
+      "sample_product_title": "MYSTERY PLATE STICKER PACK",
+      "sample_vendor": "A LOT ON MY PLATE",
+      "launched": "today",
+      "contact_source_url": "https://jolguzful.com/policies/privacy-policy",
+      "pal_preflight_url": "https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url=https%3A%2F%2Fjolguzful.com",
+      "shopify_app_url": "https://apps.shopify.com/pal-catalog-check?utm_source=pal-outreach&utm_medium=email&utm_campaign=new-shopify",
+      "recommended_subject": "A LOT ON MY PLATE Shopify United States: AI-shopping readiness for your new Shopify catalog",
       "outreach_guardrail": "Use one individualized first-touch message only. Do not auto-send or bulk-send. Suppress immediately after contact or opt-out."
     }
   ]

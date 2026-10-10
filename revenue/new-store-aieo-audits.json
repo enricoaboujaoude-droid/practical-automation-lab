@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-10T11:57:45.310Z",
-  "source_queue_created": "2026-10-10T11:57:39.473Z",
+  "generated_at": "2026-10-10T11:59:24.819Z",
+  "source_queue_created": "2026-10-10T11:59:19.874Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
@@ -32,7 +32,7 @@
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-10T11:57:40.533Z",
+      "audited_at": "2026-10-10T11:59:20.757Z",
       "ok": true
     },
     {
@@ -62,7 +62,7 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
       ],
-      "audited_at": "2026-10-10T11:57:41.262Z",
+      "audited_at": "2026-10-10T11:59:21.121Z",
       "ok": true
     },
     {
@@ -91,7 +91,7 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-10T11:57:41.731Z",
+      "audited_at": "2026-10-10T11:59:21.715Z",
       "ok": true
     },
     {
@@ -119,66 +119,7 @@
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-10T11:57:42.299Z",
-      "ok": true
-    },
-    {
-      "domain": "johnstonterminal.com",
-      "store_name": "Johnston Terminal Shopify Canada",
-      "origin": "https://johnstonterminal.com",
-      "score": 45,
-      "sample": {
-        "products": 8,
-        "variants": 8,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-10T11:57:43.039Z",
-      "ok": true
-    },
-    {
-      "domain": "jklrepairs.com",
-      "store_name": "JKL Repairs Shopify United States",
-      "origin": "https://jklrepairs.com",
-      "score": 40,
-      "sample": {
-        "products": 8,
-        "variants": 8,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 75,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 0
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-10-10T11:57:43.528Z",
+      "audited_at": "2026-10-10T11:59:22.173Z",
       "ok": true
     },
     {
@@ -207,7 +148,7 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-10T11:57:43.925Z",
+      "audited_at": "2026-10-10T11:59:22.627Z",
       "ok": true
     },
     {
@@ -237,7 +178,7 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
       ],
-      "audited_at": "2026-10-10T11:57:44.377Z",
+      "audited_at": "2026-10-10T11:59:22.963Z",
       "ok": true
     },
     {
@@ -266,7 +207,7 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-10T11:57:44.782Z",
+      "audited_at": "2026-10-10T11:59:23.290Z",
       "ok": true
     },
     {
@@ -293,7 +234,67 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-10T11:57:45.228Z",
+      "audited_at": "2026-10-10T11:59:23.673Z",
+      "ok": true
+    },
+    {
+      "domain": "joisershop.com",
+      "store_name": "Joisershop Shopify Chile",
+      "origin": "https://joisershop.com",
+      "score": 15,
+      "sample": {
+        "products": 1,
+        "variants": 1,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 0,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 0
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-10T11:59:24.269Z",
+      "ok": true
+    },
+    {
+      "domain": "jolguzful.com",
+      "store_name": "A LOT ON MY PLATE Shopify United States",
+      "origin": "https://jolguzful.com",
+      "score": 40,
+      "sample": {
+        "products": 2,
+        "variants": 2,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 50
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+      ],
+      "audited_at": "2026-10-10T11:59:24.739Z",
       "ok": true
     }
   ]
