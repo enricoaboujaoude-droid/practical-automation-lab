@@ -46,7 +46,9 @@ jobs:
           let neonInitPromise;
           function ensureNeonInitialized() {
             if (!neonInitPromise) {
-              neonInitPromise = initialize()
+              neonInitPromise = pool.query('select current_user as role')
+                .then((result) => { console.log('PAL_NEON_RUNTIME_DB_ROLE=' + String(result.rows[0]?.role || 'unknown')); })
+                .then(() => initialize())
                 .then(async () => {
                   pool.on('error', (error) => {
                     console.error('[neon-collector-pool] idle client error:', error?.message || String(error));
