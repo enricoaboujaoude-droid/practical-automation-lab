@@ -49,6 +49,8 @@ jobs:
           fi
           echo "Public PAL static pages prepared; no backend source or secrets included"
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
