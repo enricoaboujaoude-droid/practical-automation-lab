@@ -1,0 +1,28 @@
+name: PAL Shopify sales funnel smoke
+on:
+  push:
+    paths:
+      - ".github/workflows/pal-shopify-aieo-sales-smoke.yml"
+      - "shopify-store-audit.html"
+      - "index.html"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Verify public no-payment storefront preview and pricing links
+        shell: bash
+        run: |
+          set -euo pipefail
+          URL="https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit"
+          curl -fsS --retry 2 --retry-delay 2 --max-time 80 -H 'content-type: application/json' \
+            -X POST "$URL" -d '{"url":"https://3dndice.com"}' -o response.json
+          node -e 'const d=require("./response.json"); if(!d.ok||typeof d.aieo_score!=="number"||!d.sample?.products||!d.coverage)process.exit(1); console.log("Store preview PASS; products="+d.sample.products+"; score="+d.aieo_score)'
+          SITE="https://practical-automation-lab.onrender.com/shopify-store-audit.html"
+          curl -fsS --max-time 45 "$SITE" -o landing.html
+          grep -q 'payanagent.com/x402/kh7bfj8ff0xgesyj7cemjz2p518fynqm' landing.html
+          grep -q 'apps.shopify.com/pal-catalog-check' landing.html
+          echo "Verified non-payment store preview and purchase-link presence."
