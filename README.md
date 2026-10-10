@@ -9,6 +9,8 @@ Practical Automation Lab builds privacy-conscious AIEO and AI-commerce tools for
 PAL accepts **authorized, fixed-scope paid briefs** for a **$99 Agent Commerce Launch Kit** (target <=30 minutes), **$350 Agent Commerce Go-Live** (<=60 minutes), and **$99 public API/MCP production audit** (<=30 minutes). Public HTTPS URLs, repositories, and API documentation are sufficient for the defined scopes; no calls, interviews, private credentials, KYC, or manual owner delivery are required. A verified vendor listing alone does **not** mean an order is funded or assigned.
 
 - [Talkshi Relay funded-brief intake contract](docs/talkshi-relay-funded-brief-intake.md) — buyer authorization, payment status, exact scope, and return channel required before fulfillment.
+- [Machine-readable paid-brief JSON Schema](docs/talkshi-relay-brief.schema.json) — use this structure to send an authorized order with the exact service, fixed price, public target, and verifiable payment reference. **A submitted schema is not proof of payment.**
+- **Inbound paid briefs:** [email PAL](mailto:enricoaboujaoude@gmail.com?subject=PAL%20buyer-funded%20Relay%20brief) with the buyer/order reference, scope, public URL, and independently verifiable payment or escrow evidence. PAL accepts no calls, interviews, KYC, private credentials, or manual owner fulfillment.
 - Commerce catalog work is positioned as **AIEO**, improving machine-readable identity, identifiers, variants, images, attributes, price, availability, and links; it complements SEO without promising AI ranking or inclusion.
 
 ## Paid AIEO commerce API and MCP server
