@@ -1,0 +1,33 @@
+name: Neon risk x402 smoke
+
+on:
+  push:
+    paths:
+      - ".github/workflows/neon-risk-x402-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Neon-native risk payment gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          for base in             "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech"             "https://br-wild-truth-b2gxc5zl-palbazaar.compute.c-6.eu-central-1.aws.neon.tech"
+          do
+            headers="$(mktemp)"
+            body="$(mktemp)"
+            status="$(curl -sS -D "$headers" -o "$body" -w "%{http_code}" --max-time 90               -X POST "$base/v1/base-token-risk-verdict"               -H "content-type: application/json"               -d '{"address":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"}')"
+
+            echo "$base -> HTTP $status"
+            cat "$headers"
+            cat "$body"
+
+            test "$status" = "402"
+            grep -qi '^payment-required:' "$headers"
+            grep -qi '^x-pal-runtime: neon-native' "$headers"
+          done
