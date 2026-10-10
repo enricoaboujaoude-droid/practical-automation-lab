@@ -56,14 +56,14 @@
   "checkpoints": {
     "base": {
       "source": "revenue/base-usdc-ledger.json",
-      "last_scanned_block": 52435385,
-      "source_updated_at": "2026-10-10T19:22:04.705Z",
-      "imported_at": "2026-10-10T19:32:29.761Z"
+      "last_scanned_block": 52437204,
+      "source_updated_at": "2026-10-10T20:22:41.661Z",
+      "imported_at": "2026-10-10T20:33:43.666Z"
     },
     "arbitrum": {
-      "last_scanned_block": 513605457,
-      "scanned_from_block": 513585303,
-      "updated_at": "2026-10-10T19:33:51.199Z"
+      "last_scanned_block": 513618791,
+      "scanned_from_block": 513597457,
+      "updated_at": "2026-10-10T20:34:29.951Z"
     },
     "polygon": {
       "last_scanned_block": 95239036,
@@ -71,7 +71,7 @@
       "updated_at": "2026-10-09T16:38:15.529Z"
     }
   },
-  "updated_at": "2026-10-10T19:33:51.200Z",
+  "updated_at": "2026-10-10T20:34:29.951Z",
   "scan_errors": [
     {
       "chain": "polygon",
