@@ -37,11 +37,24 @@
     <p>Check whether PAL can safely read the public catalog before paying.</p>
     <input id="store" type="url" placeholder="https://your-store.com" autocomplete="url">
     <br><button id="preflight">Run free preflight</button>
-    <div id="result"></div>
+    <div id="result" role="status" aria-live="polite"></div>
+    <div id="preflightNext" style="display:none;margin-top:16px">
+      <p class="muted">This is a small public-catalog sample, not a Google or Shopify rating. To scan your own store's full catalog, install the read-only PAL Catalog Check app. For recurring monitoring, compare Pro plans inside Shopify.</p>
+      <a class="cta" href="https://apps.shopify.com/pal-catalog-check?utm_source=pal-live-audit&utm_medium=owned&utm_campaign=preview" data-pal-event="pal_shopify_landing_clicked">Scan your full Shopify catalog — Install Free →</a>
+    </div>
+  </div>
+
+  <div class="card" style="border:2px solid #111827;background:#fbfbfc">
+    <p class="muted" style="font-weight:750;text-transform:uppercase;letter-spacing:.06em">Primary offer · No crypto wallet required</p>
+    <h2>Continuous catalog readiness: PAL Catalog Check Pro</h2>
+    <p style="font-size:1.2rem"><strong>$199/year</strong> or $19/month, billed through Shopify.</p>
+    <p>For Shopify merchants who want saved scan history, repeat scans, change detection, scheduled monitoring and reports, beyond a one-off public snapshot. The Free plan is available first.</p>
+    <a class="cta" href="https://apps.shopify.com/pal-catalog-check?utm_source=pal-live-audit&utm_medium=owned&utm_campaign=annual-pro" data-pal-event="pal_shopify_landing_clicked">Install Free / View the $199 yearly Pro plan →</a>
+    <p class="muted">Plan selection and checkout occur securely inside Shopify. The page does not charge your account.</p>
   </div>
 
   <div class="card">
-    <h2>Choose the paid path that fits</h2>
+    <h2>One-time API audits (USDC buyers)</h2>
     <p><strong>$5 quick Shopify AIEO audit</strong> — lowest-friction first paid step for a public Shopify store. No admin login or app install.</p>
     <p><a id="quickBuy" class="cta" href="https://agentictrade.io/marketplace" rel="noopener noreferrer">Open AgenticTrade marketplace →</a></p>
     <p class="muted">Search for <strong>PAL AIEO Quick Shopify Audit</strong>.</p>
@@ -80,18 +93,45 @@ const input=document.getElementById("store");
 const result=document.getElementById("result");
 document.getElementById("preflight").addEventListener("click",async()=>{
   const url=input.value.trim();
-  if(!url){result.style.display="block";result.textContent="Enter a public Shopify storefront URL.";return;}
-  event("pal_shopify_store_preflight_run");
-  result.style.display="block";result.textContent="Checking public storefront…";
+  const followup=document.getElementById("preflightNext");
+  followup.style.display="none";
+  result.style.display="block";
+  if(!url){result.textContent="Enter a public Shopify storefront URL.";return;}
   try{
-    const r=await fetch("https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url="+encodeURIComponent(url));
-    const j=await r.json();
-    if(r.ok){
-      result.textContent="Shopify public catalog detected.\nCurrency: "+(j.currency||"unknown")+"\nSample product present: "+String(j.sample_product_present)+"\n\nPaid audit: $25 USDC\n"+j.paid_audit.url;
-    }else{
-      result.textContent="Preflight could not validate this public storefront.\n"+(j.detail||j.error||"Unknown error");
+    const store=new URL(url);
+    if(store.protocol!=="https:" || !store.hostname.includes(".")){
+      result.textContent="Enter a valid public HTTPS storefront URL.";return;
     }
-  }catch(e){result.textContent="Preflight request failed. Try again.";}
+  }catch(_){result.textContent="Enter a valid public HTTPS storefront URL.";return;}
+  event("pal_shopify_store_preflight_run");
+  result.textContent="Checking a small public storefront sample…";
+  const button=document.getElementById("preflight");
+  button.disabled=true;
+  try{
+    const r=await fetch("https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",{
+      method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({url}),signal:AbortSignal.timeout(30000)
+    });
+    const j=await r.json();
+    if(!r.ok || !j.ok || !Number.isFinite(j.aieo_score))throw new Error(j.detail||j.error||"Storefront could not be read");
+    const c=j.coverage||{};
+    const gaps=[
+      ["Identifiers",c.identifiers_pct],
+      ["Useful descriptions",c.useful_description_pct],
+      ["Image alt text",c.image_alt_text_pct],
+      ["Product categories",c.product_type_pct],
+      ["Brand/vendor",c.vendor_brand_pct],
+      ["Descriptive titles",c.descriptive_title_pct]
+    ].filter(([,value])=>Number.isFinite(value)).sort((a,b)=>a[1]-b[1]).slice(0,3);
+    const issues=gaps.map(([name,pct])=>"- "+name+": "+Number(pct).toFixed(1)+"% sample coverage").join("\n");
+    result.textContent="PUBLIC STORE SAMPLE\n"+String(j.store_origin||url)+"\n"+
+      "Heuristic AIEO readiness: "+j.aieo_score+"/100\n"+
+      "Sample: "+String(j.sample?.products||0)+" products / "+String(j.sample?.variants||0)+" variants\n\n"+
+      "Three lowest-coverage areas:\n"+issues+"\n\n"+
+      "Interpretation: this is a limited public-data sample, not a merchant account scan or a placement guarantee.";
+    followup.style.display="block";
+  }catch(err){
+    result.textContent="Could not retrieve this store's public catalog. "+(err?.name==="TimeoutError"?"The request timed out.":"Try another public Shopify store URL.");
+  }finally{button.disabled=false;}
 });
 document.getElementById("quickBuy").addEventListener("click",()=>event("pal_shopify_quick_audit_buy_clicked"));
 document.getElementById("buy").addEventListener("click",()=>event("pal_shopify_store_audit_buy_clicked"));
