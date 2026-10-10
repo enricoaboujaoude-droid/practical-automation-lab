@@ -1,0 +1,39 @@
+name: PAL commercial payment-gate validation
+on:
+  push:
+    paths:
+      - ".github/workflows/pal-commercial-payment-gates.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unpaid-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Inspect unpaid $25 audit challenges without spending
+        shell: bash
+        run: |
+          set -euo pipefail
+          for base in \
+            "https://pal-full-catalog-remediation.onrender.com" \
+            "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech"; do
+            headers="$(mktemp)"
+            body="$(mktemp)"
+            status="$(curl -sS -D "$headers" -o "$body" -w '%{http_code}' --max-time 65 \
+               "$base/v1/usdc/shopify-store-audit?url=https%3A%2F%2F3dndice.com" || echo "NETWORK_ERROR")"
+            echo "PAID_GATE_CHECK host=$base status=$status"
+            if [[ "$status" == "402" ]]; then
+              if grep -qi '^payment-required:' "$headers"; then
+                echo "PAID_GATE_CHALLENGE_PRESENT $base"
+              else
+                echo "PAID_GATE_NO_PAYMENT_REQUIRED_HEADER $base"
+              fi
+            elif [[ "$status" == "200" ]]; then
+              echo "WARNING_UNPAID_SUCCESS $base"
+            else
+              echo "PAID_GATE_UNAVAILABLE $base"
+            fi
+            rm -f "$headers" "$body"
+          done
+          echo "No payment headers were supplied; no funds spent."
