@@ -90,6 +90,15 @@ const EVENTS="https://pal-feed-auditor-events.onrender.com/event";
 function event(name){try{fetch(EVENTS,{method:"POST",mode:"cors",headers:{"content-type":"text/plain"},body:name,keepalive:true}).catch(()=>{});}catch(_){}}
 event("pal_shopify_store_audit_viewed");
 const input=document.getElementById("store");
+const prefetchedStore=new URLSearchParams(location.search).get("store");
+if(prefetchedStore){
+  try{
+    const parsed=new URL(prefetchedStore);
+    if(parsed.protocol==="https:" && parsed.hostname.includes(".") && !parsed.username && !parsed.password && !parsed.port){
+      input.value=parsed.origin;
+    }
+  }catch(_){}
+}
 const result=document.getElementById("result");
 document.getElementById("preflight").addEventListener("click",async()=>{
   const url=input.value.trim();
