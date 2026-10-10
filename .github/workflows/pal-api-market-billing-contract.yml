@@ -1,0 +1,40 @@
+name: PAL API.market billable-origin contract
+on:
+  push:
+    paths:
+      - "marketplace-fast-api/**"
+      - "api-market-pal-openapi.json"
+      - ".github/workflows/pal-api-market-billing-contract.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate billing/auth and OpenAPI request bodies
+        shell: bash
+        env:
+          PAL_API_MARKET_SHARED_SECRET: "local-ci-only-contract-test-not-a-production-secret-2026"
+          PORT: "39727"
+        run: |
+          set -euo pipefail
+          node --check marketplace-fast-api/server.js
+          node marketplace-fast-api/server.js > /tmp/pal-market-test.log 2>&1 &
+          PID=$!
+          trap 'kill "$PID" 2>/dev/null || true' EXIT
+          for i in {1..30}; do
+            if curl -fsS --max-time 2 http://localhost:39727/api/health >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://localhost:39727/api/openapi -o /tmp/api.json
+          node -e 'const x=require("/tmp/api.json"); for(const p of ["/api/catalog-audit","/api/catalog-remediation","/api/gtin-check","/api/feed-diff"]){ if(!x.paths[p].post.requestBody?.content?.["application/json"]?.schema)throw new Error(p+" missing JSON body");if(!x.paths[p].post.security?.length)throw new Error(p+" missing origin security");}console.log("SCHEMA_VALIDATED")'
+          CODE=$(curl -sS -o /tmp/unauth.json -w '%{http_code}' http://localhost:39727/api/catalog-audit -H 'Content-Type: application/json' --data '{"records":[{"id":"A"}]}')
+          test "$CODE" = "401"
+          CODE=$(curl -sS -o /tmp/authed.json -w '%{http_code}' http://localhost:39727/api/catalog-audit -H 'Content-Type: application/json' -H "x-pal-origin-key: $PAL_API_MARKET_SHARED_SECRET" --data '{"records":[{"id":"A"}]}')
+          test "$CODE" = "200"
+          CODE=$(curl -sS -o /tmp/public.json -w '%{http_code}' http://localhost:39727/api/shopify-aieo-quick-audit -H 'Content-Type: application/json' --data '{}')
+          test "$CODE" = "400"
+          echo "CONTRACT_PASS: unauthorized=401, authorized=200, public quick-audit unaffected; no payments."
