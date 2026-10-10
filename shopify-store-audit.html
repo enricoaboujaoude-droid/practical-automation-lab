@@ -89,6 +89,9 @@
 const EVENTS="https://pal-feed-auditor-events.onrender.com/event";
 function event(name){try{fetch(EVENTS,{method:"POST",mode:"cors",headers:{"content-type":"text/plain"},body:name,keepalive:true}).catch(()=>{});}catch(_){}}
 event("pal_shopify_store_audit_viewed");
+// Also capture clicks on Shopify Pro/Free calls-to-action, not just USDC buttons.
+document.querySelectorAll("[data-pal-event]").forEach(el=>el.addEventListener("click",()=>event(el.dataset.palEvent)));
+
 const input=document.getElementById("store");
 const prefetchedStore=new URLSearchParams(location.search).get("store");
 if(prefetchedStore){
