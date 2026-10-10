@@ -32,11 +32,14 @@ jobs:
       - name: Build bounded public-contact queue
         run: node scripts/build-new-shopify-lead-queue.mjs
 
-      - name: Persist queue when changed
+      - name: Score verified new Shopify stores with Neon
+        run: node scripts/audit-new-shopify-leads.mjs
+
+      - name: Persist queue and conversion evidence
         run: |
           # Stage first: git diff without --cached silently ignores newly created files.
-          git add -- revenue/shopify-lead-queue.json
-          if git diff --cached --quiet -- revenue/shopify-lead-queue.json; then
+          git add -- revenue/shopify-lead-queue.json revenue/new-store-aieo-audits.json
+          if git diff --cached --quiet -- revenue/shopify-lead-queue.json revenue/new-store-aieo-audits.json; then
             echo "Queue unchanged."
             exit 0
           fi
