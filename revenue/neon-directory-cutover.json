@@ -1,0 +1,665 @@
+{
+  "generated_at": "2026-10-10T10:13:50.246Z",
+  "migration": "render-to-neon",
+  "canonical_origins": {
+    "full": "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech",
+    "nano": "https://br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech"
+  },
+  "successes": 9,
+  "failures": 4,
+  "results": [
+    {
+      "label": "agent402",
+      "url": "https://agent402.tools/api/index/register",
+      "status": null,
+      "ok": false,
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "label": "true402",
+      "url": "https://true402.dev/api/v1/services/register",
+      "status": 201,
+      "ok": true,
+      "response": {
+        "id": "3f4554f8-c509-4edd-959d-ba476c00e1a9",
+        "url": "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech",
+        "manifest": {
+          "x402": "1.0",
+          "name": "PAL Live Shopify AIEO Commerce Audit",
+          "description": "Audit a live public Shopify storefront without a feed upload or store login. Fetches the public Shopify catalog, inspects up to 250 live variants, and returns prioritized Merchant Center/catalog remediation.",
+          "capabilities": [
+            "shopify",
+            "live-store-audit",
+            "merchant-center",
+            "catalog-audit",
+            "product-feed",
+            "gtin",
+            "availability",
+            "ecommerce",
+            "automation"
+          ],
+          "pricing": {
+            "currency": "USDC",
+            "base": "25.00",
+            "unit": "store-audit"
+          },
+          "payment": {
+            "address": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+            "chain": "base-mainnet",
+            "facilitator": "https://facilitator.payai.network"
+          },
+          "endpoint": "https://pal-full-catalog-remediation.onrender.com/v1/usdc/shopify-store-audit"
+        },
+        "reputation": {
+          "transactions": 0,
+          "successRate": null,
+          "isNew": true,
+          "registeredAt": "2026-10-10T10:12:55.899Z",
+          "lastSeen": "2026-10-10T10:12:55.899Z",
+          "settled": null,
+          "settledVolumeUsd": null,
+          "distinctPayers": null,
+          "lastSettledAt": null,
+          "trustScore": 0,
+          "trustVersion": 1
+        }
+      }
+    },
+    {
+      "label": "agent402",
+      "url": "https://agent402.tools/api/index/register",
+      "status": null,
+      "ok": false,
+      "error": "The operation was aborted due to timeout"
+    },
+    {
+      "label": "true402",
+      "url": "https://true402.dev/api/v1/services/register",
+      "status": 201,
+      "ok": true,
+      "response": {
+        "id": "133d3c36-b20b-4db9-a6f6-86ebef40a2c2",
+        "url": "https://br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech",
+        "manifest": {
+          "x402": "1.0",
+          "name": "PAL Live Shopify AIEO Commerce Audit",
+          "description": "Audit a live public Shopify storefront without a feed upload or store login. Fetches the public Shopify catalog, inspects up to 250 live variants, and returns prioritized Merchant Center/catalog remediation.",
+          "capabilities": [
+            "shopify",
+            "live-store-audit",
+            "merchant-center",
+            "catalog-audit",
+            "product-feed",
+            "gtin",
+            "availability",
+            "ecommerce",
+            "automation"
+          ],
+          "pricing": {
+            "currency": "USDC",
+            "base": "25.00",
+            "unit": "store-audit"
+          },
+          "payment": {
+            "address": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+            "chain": "base-mainnet",
+            "facilitator": "https://facilitator.payai.network"
+          },
+          "endpoint": "https://pal-nano-catalog-audit.onrender.com/v1/usdc/shopify-store-audit"
+        },
+        "reputation": {
+          "transactions": 0,
+          "successRate": null,
+          "isNew": true,
+          "registeredAt": "2026-10-10T10:13:42.562Z",
+          "lastSeen": "2026-10-10T10:13:42.562Z",
+          "settled": null,
+          "settledVolumeUsd": null,
+          "distinctPayers": null,
+          "lastSettledAt": null,
+          "trustScore": 0,
+          "trustVersion": 1
+        }
+      }
+    },
+    {
+      "label": "402index",
+      "url": "https://402index.io/api/v1/register",
+      "status": 201,
+      "ok": true,
+      "response": {
+        "message": "Service registered and pending review. Verify your domain for instant approval.",
+        "service": {
+          "id": "5e6bcbfd-d5bd-444c-990c-91c6cbc533a0",
+          "name": "PAL AIEO Full Catalog Remediation",
+          "description": "Full-catalog Merchant Center and product-feed remediation for up to 2,000 records.",
+          "url": "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/catalog-remediation-bulk",
+          "protocol": "x402",
+          "price_sats": null,
+          "price_usd": 20,
+          "payment_asset": "USDC",
+          "payment_network": "Base",
+          "category": "ecommerce/catalog-remediation",
+          "input_schema": null,
+          "output_schema": null,
+          "provider": "Practical Automation Lab",
+          "source": "self-registered",
+          "source_id": null,
+          "featured": 0,
+          "registered_at": "2026-10-10 10:13:43",
+          "updated_at": "2026-10-10 10:13:43",
+          "health_status": "healthy",
+          "uptime_30d": null,
+          "latency_p50_ms": null,
+          "last_checked": null,
+          "last_seen_healthy": null,
+          "consecutive_failures": 0,
+          "is_template": 0,
+          "is_demo": 0,
+          "verified": 0,
+          "contact_email": null,
+          "status": "pending",
+          "http_method": "POST",
+          "reliability_score": null,
+          "x402_payment_valid": null,
+          "x402_facilitator_reachable": null,
+          "x402_asset_known": null,
+          "probe_body": null,
+          "l402_version": null,
+          "agent_spec_url": null,
+          "capabilities": null,
+          "token_format": null,
+          "invoice_type": null,
+          "pricing_model": null,
+          "content_domain": null,
+          "domain_verified": 0,
+          "provider_deleted": 0,
+          "deleted_at": null,
+          "approval_reason": null,
+          "hostname": "br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech",
+          "l402_compliant": null,
+          "l402_degrade_reason": null,
+          "l402_format": null,
+          "lnget_compatible": null,
+          "consecutive_latency_spikes": 0,
+          "probe_status": "probeable"
+        },
+        "also_registered": [],
+        "verification": {
+          "protocol": "x402",
+          "httpStatus": 402,
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:8453",
+              "amount": "20000000",
+              "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "eip155:137",
+              "amount": "20000000",
+              "asset": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "eip155:42161",
+              "amount": "20000000",
+              "asset": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            }
+          ],
+          "assetKnown": true,
+          "facilitatorReachable": null,
+          "version": 2,
+          "paymentMethod": null
+        },
+        "domain_verification": {
+          "domain": "br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech",
+          "claim_url": "POST /api/v1/claim",
+          "verify_url": "POST /api/v1/claim/verify",
+          "guide": "https://402index.io/verify",
+          "note": "Domain verification enables instant approval for all future registrations from this domain, plus self-service editing."
+        }
+      }
+    },
+    {
+      "label": "market402",
+      "url": "https://market402.com/submit",
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ok": true,
+        "message": "Queued. Your endpoint will be probed in the next round (no payment attached; we expect a spec-compliant 402).",
+        "instant_check": {
+          "ok": false,
+          "url": "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/catalog-remediation-bulk",
+          "latency_ms": 175,
+          "checks": [
+            {
+              "check": "https_url",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "public_hostname",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "reachable",
+              "pass": false,
+              "hint": "Request failed: DecodingError. Check DNS/TLS/firewall."
+            }
+          ],
+          "summary": {
+            "passed": 2,
+            "failed": 1,
+            "verdict": "unreachable"
+          }
+        },
+        "note": "instant_check is advisory self-test output; the 402 Verified badge is granted only by our own scheduled probes."
+      }
+    },
+    {
+      "label": "x402dash",
+      "url": "https://api.x402dash.com/v1/register",
+      "status": 400,
+      "ok": false,
+      "response": {
+        "detail": "URL is unreachable: Error -3 while decompressing data: incorrect header check"
+      }
+    },
+    {
+      "label": "402index",
+      "url": "https://402index.io/api/v1/register",
+      "status": 201,
+      "ok": true,
+      "response": {
+        "message": "Service registered and pending review. Verify your domain for instant approval.",
+        "service": {
+          "id": "6ab7d0cd-3dda-4655-a303-e77b3173ff3d",
+          "name": "PAL Live Shopify Store Commerce Audit",
+          "description": "Live public Shopify storefront audit for Merchant Center and AI-shopping readiness.",
+          "url": "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/shopify-store-audit",
+          "protocol": "x402",
+          "price_sats": null,
+          "price_usd": 25,
+          "payment_asset": "USDC",
+          "payment_network": "Base",
+          "category": "ecommerce/store-audit",
+          "input_schema": null,
+          "output_schema": null,
+          "provider": "Practical Automation Lab",
+          "source": "self-registered",
+          "source_id": null,
+          "featured": 0,
+          "registered_at": "2026-10-10 10:13:46",
+          "updated_at": "2026-10-10 10:13:46",
+          "health_status": "healthy",
+          "uptime_30d": null,
+          "latency_p50_ms": null,
+          "last_checked": null,
+          "last_seen_healthy": null,
+          "consecutive_failures": 0,
+          "is_template": 0,
+          "is_demo": 0,
+          "verified": 0,
+          "contact_email": null,
+          "status": "pending",
+          "http_method": "GET",
+          "reliability_score": null,
+          "x402_payment_valid": null,
+          "x402_facilitator_reachable": null,
+          "x402_asset_known": null,
+          "probe_body": null,
+          "l402_version": null,
+          "agent_spec_url": null,
+          "capabilities": null,
+          "token_format": null,
+          "invoice_type": null,
+          "pricing_model": null,
+          "content_domain": null,
+          "domain_verified": 0,
+          "provider_deleted": 0,
+          "deleted_at": null,
+          "approval_reason": null,
+          "hostname": "br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech",
+          "l402_compliant": null,
+          "l402_degrade_reason": null,
+          "l402_format": null,
+          "lnget_compatible": null,
+          "consecutive_latency_spikes": 0,
+          "probe_status": "probeable"
+        },
+        "also_registered": [],
+        "verification": {
+          "protocol": "x402",
+          "httpStatus": 402,
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:8453",
+              "amount": "25000000",
+              "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "eip155:137",
+              "amount": "25000000",
+              "asset": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "eip155:42161",
+              "amount": "25000000",
+              "asset": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            }
+          ],
+          "assetKnown": true,
+          "facilitatorReachable": null,
+          "version": 2,
+          "paymentMethod": null
+        },
+        "domain_verification": {
+          "domain": "br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech",
+          "claim_url": "POST /api/v1/claim",
+          "verify_url": "POST /api/v1/claim/verify",
+          "guide": "https://402index.io/verify",
+          "note": "Domain verification enables instant approval for all future registrations from this domain, plus self-service editing."
+        }
+      }
+    },
+    {
+      "label": "market402",
+      "url": "https://market402.com/submit",
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ok": true,
+        "message": "Queued. Your endpoint will be probed in the next round (no payment attached; we expect a spec-compliant 402).",
+        "instant_check": {
+          "ok": true,
+          "url": "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/shopify-store-audit",
+          "latency_ms": 137,
+          "checks": [
+            {
+              "check": "https_url",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "public_hostname",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "reachable",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "returns_402_unpaid",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "body_json",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "x402_version",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "accepts_present",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "pay_to",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "amount",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "network_format_v2",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "eip712_extra",
+              "pass": true,
+              "hint": ""
+            }
+          ],
+          "summary": {
+            "passed": 11,
+            "failed": 0,
+            "verdict": "spec_compliant"
+          }
+        },
+        "note": "instant_check is advisory self-test output; the 402 Verified badge is granted only by our own scheduled probes."
+      }
+    },
+    {
+      "label": "x402dash",
+      "url": "https://api.x402dash.com/v1/register",
+      "status": 201,
+      "ok": true,
+      "response": {
+        "endpoint_id": "br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/shopify-store-audit",
+        "url": "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/shopify-store-audit",
+        "status": "registered",
+        "verified": true,
+        "message": "Endpoint verified and registered. It will appear in search results and receive liveness monitoring."
+      }
+    },
+    {
+      "label": "402index",
+      "url": "https://402index.io/api/v1/register",
+      "status": 201,
+      "ok": true,
+      "response": {
+        "message": "Service registered and pending review. Verify your domain for instant approval.",
+        "service": {
+          "id": "0a94ad0d-740b-44e5-ad89-9db3684f3597",
+          "name": "PAL Catalog Remediation Canary",
+          "description": "Settlement-verified PAL catalog-remediation canary route.",
+          "url": "https://br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/catalog-remediation-canary",
+          "protocol": "x402",
+          "price_sats": null,
+          "price_usd": 0.1,
+          "payment_asset": "USDC",
+          "payment_network": "Base",
+          "category": "ecommerce/catalog-remediation",
+          "input_schema": null,
+          "output_schema": null,
+          "provider": "Practical Automation Lab",
+          "source": "self-registered",
+          "source_id": null,
+          "featured": 0,
+          "registered_at": "2026-10-10 10:13:49",
+          "updated_at": "2026-10-10 10:13:49",
+          "health_status": "healthy",
+          "uptime_30d": null,
+          "latency_p50_ms": null,
+          "last_checked": null,
+          "last_seen_healthy": null,
+          "consecutive_failures": 0,
+          "is_template": 0,
+          "is_demo": 0,
+          "verified": 0,
+          "contact_email": null,
+          "status": "pending",
+          "http_method": "POST",
+          "reliability_score": null,
+          "x402_payment_valid": null,
+          "x402_facilitator_reachable": null,
+          "x402_asset_known": null,
+          "probe_body": null,
+          "l402_version": null,
+          "agent_spec_url": null,
+          "capabilities": null,
+          "token_format": null,
+          "invoice_type": null,
+          "pricing_model": null,
+          "content_domain": null,
+          "domain_verified": 0,
+          "provider_deleted": 0,
+          "deleted_at": null,
+          "approval_reason": null,
+          "hostname": "br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech",
+          "l402_compliant": null,
+          "l402_degrade_reason": null,
+          "l402_format": null,
+          "lnget_compatible": null,
+          "consecutive_latency_spikes": 0,
+          "probe_status": "probeable"
+        },
+        "also_registered": [],
+        "verification": {
+          "protocol": "x402",
+          "httpStatus": 402,
+          "accepts": [
+            {
+              "scheme": "exact",
+              "network": "eip155:8453",
+              "amount": "100000",
+              "asset": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "eip155:137",
+              "amount": "100000",
+              "asset": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            },
+            {
+              "scheme": "exact",
+              "network": "eip155:42161",
+              "amount": "100000",
+              "asset": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+              "payTo": "0x02d1DAe81eAdDdeD344eeE43c6f31A8E166432bF",
+              "maxTimeoutSeconds": 300,
+              "extra": {
+                "name": "USD Coin",
+                "version": "2"
+              }
+            }
+          ],
+          "assetKnown": true,
+          "facilitatorReachable": null,
+          "version": 2,
+          "paymentMethod": null
+        },
+        "domain_verification": {
+          "domain": "br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech",
+          "claim_url": "POST /api/v1/claim",
+          "verify_url": "POST /api/v1/claim/verify",
+          "guide": "https://402index.io/verify",
+          "note": "Domain verification enables instant approval for all future registrations from this domain, plus self-service editing."
+        }
+      }
+    },
+    {
+      "label": "market402",
+      "url": "https://market402.com/submit",
+      "status": 200,
+      "ok": true,
+      "response": {
+        "ok": true,
+        "message": "Queued. Your endpoint will be probed in the next round (no payment attached; we expect a spec-compliant 402).",
+        "instant_check": {
+          "ok": false,
+          "url": "https://br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech/v1/usdc/catalog-remediation-canary",
+          "latency_ms": 205,
+          "checks": [
+            {
+              "check": "https_url",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "public_hostname",
+              "pass": true,
+              "hint": ""
+            },
+            {
+              "check": "reachable",
+              "pass": false,
+              "hint": "Request failed: DecodingError. Check DNS/TLS/firewall."
+            }
+          ],
+          "summary": {
+            "passed": 2,
+            "failed": 1,
+            "verdict": "unreachable"
+          }
+        },
+        "note": "instant_check is advisory self-test output; the 402 Verified badge is granted only by our own scheduled probes."
+      }
+    },
+    {
+      "label": "x402dash",
+      "url": "https://api.x402dash.com/v1/register",
+      "status": 400,
+      "ok": false,
+      "response": {
+        "detail": "URL is unreachable: Error -3 while decompressing data: incorrect header check"
+      }
+    }
+  ]
+}
