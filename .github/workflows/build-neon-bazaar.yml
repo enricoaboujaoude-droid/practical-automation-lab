@@ -1,0 +1,48 @@
+name: Build Neon bazaar risk function
+
+on:
+  push:
+    paths:
+      - ".github/workflows/build-neon-bazaar.yml"
+      - "neon-runtime/bazaar-neon.mjs"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Bundle Neon-native x402 risk service
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save esbuild hono@4 @x402/core@2.19.0 @x402/evm@2.19.0 @x402/hono@2.19.0 @x402/extensions@2.19.0 @payai/facilitator@2.4.4
+          npx esbuild neon-runtime/bazaar-neon.mjs \
+            --bundle \
+            --platform=node \
+            --target=node24 \
+            --format=cjs \
+            --minify \
+            --outfile=neon-runtime/bazaar.bundle.cjs
+          ls -lh neon-runtime/bazaar.bundle.cjs
+
+      - name: Publish deterministic bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$(git status --porcelain -- neon-runtime/bazaar.bundle.cjs)" ]; then
+            echo "Bazaar bundle unchanged"
+            exit 0
+          fi
+          git config user.name "PAL Migration Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add neon-runtime/bazaar.bundle.cjs
+          git commit -m "migration: publish Neon x402 risk runtime bundle"
+          git pull --rebase origin main
+          git push origin HEAD:main
