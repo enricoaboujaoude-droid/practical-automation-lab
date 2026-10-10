@@ -8,6 +8,8 @@ on:
       - "revenue/shopify-outreach-suppression.json"
       - ".github/workflows/build-new-shopify-lead-queue.yml"
   workflow_dispatch:
+  schedule:
+    - cron: "17 7 * * *"
 
 permissions:
   contents: write
