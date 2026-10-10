@@ -1,0 +1,152 @@
+name: Neon marketplace cutover
+
+on:
+  push:
+    paths:
+      - ".github/workflows/neon-marketplace-cutover.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Register Neon canonical origins
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p revenue
+          node <<'NODE'
+          const fs = require("fs");
+
+          const full = "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech";
+          const nano = "https://br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech";
+
+          const listings = [
+            {
+              origin: full,
+              resource: full + "/v1/usdc/catalog-remediation-bulk",
+              name: "PAL AIEO Full Catalog Remediation",
+              method: "POST",
+              price: 20,
+              category: "ecommerce/catalog-remediation",
+              description: "Full-catalog Merchant Center and product-feed remediation for up to 2,000 records."
+            },
+            {
+              origin: full,
+              resource: full + "/v1/usdc/shopify-store-audit",
+              name: "PAL Live Shopify Store Commerce Audit",
+              method: "GET",
+              price: 25,
+              category: "ecommerce/store-audit",
+              description: "Live public Shopify storefront audit for Merchant Center and AI-shopping readiness."
+            },
+            {
+              origin: nano,
+              resource: nano + "/v1/usdc/catalog-remediation-canary",
+              name: "PAL Catalog Remediation Canary",
+              method: "POST",
+              price: 0.10,
+              category: "ecommerce/catalog-remediation",
+              description: "Settlement-verified PAL catalog-remediation canary route."
+            }
+          ];
+
+          const results = [];
+          async function post(label, url, body) {
+            try {
+              const res = await fetch(url, {
+                method: "POST",
+                headers: {
+                  "content-type": "application/json",
+                  "accept": "application/json",
+                  "user-agent": "PAL-Neon-Cutover/1.0"
+                },
+                body: JSON.stringify(body),
+                signal: AbortSignal.timeout(45000)
+              });
+              const raw = await res.text();
+              let response;
+              try { response = raw ? JSON.parse(raw) : {}; }
+              catch { response = { raw: raw.slice(0, 1500) }; }
+              const row = { label, url, status: res.status, ok: res.ok || res.status === 409, response };
+              results.push(row);
+              console.log(JSON.stringify(row));
+              return row;
+            } catch (error) {
+              const row = { label, url, status: null, ok: false, error: error?.message || String(error) };
+              results.push(row);
+              console.log(JSON.stringify(row));
+              return row;
+            }
+          }
+
+          for (const origin of [full, nano]) {
+            await post("agent402", "https://agent402.tools/api/index/register", { origin });
+            await post("true402", "https://true402.dev/api/v1/services/register", { url: origin });
+          }
+
+          for (const listing of listings) {
+            await post("402index", "https://402index.io/api/v1/register", {
+              url: listing.resource,
+              name: listing.name,
+              protocol: "x402",
+              http_method: listing.method,
+              description: listing.description,
+              price_usd: listing.price,
+              payment_asset: "USDC",
+              payment_network: "Base",
+              category: listing.category,
+              provider: "Practical Automation Lab"
+            });
+
+            await post("market402", "https://market402.com/submit", {
+              resource: listing.resource
+            });
+
+            await post("x402dash", "https://api.x402dash.com/v1/register", {
+              url: listing.resource,
+              name: listing.name,
+              description: listing.description,
+              category: listing.category.includes("store") ? "Commerce" : "Data",
+              tags: ["pal", "neon", "x402", "usdc", "ecommerce", "agent-commerce"]
+            });
+          }
+
+          const report = {
+            generated_at: new Date().toISOString(),
+            migration: "render-to-neon",
+            canonical_origins: { full, nano },
+            successes: results.filter(x => x.ok).length,
+            failures: results.filter(x => !x.ok).length,
+            results
+          };
+          fs.writeFileSync("revenue/neon-directory-cutover.json", JSON.stringify(report, null, 2) + "\n");
+          if (report.successes === 0) process.exit(1);
+          NODE
+
+      - name: Persist directory receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "PAL Migration Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add revenue/neon-directory-cutover.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "migration: record Neon marketplace cutover receipts"
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: neon-directory-cutover
+          path: revenue/neon-directory-cutover.json
+          if-no-files-found: error
