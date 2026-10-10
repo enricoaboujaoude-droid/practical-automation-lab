@@ -27,8 +27,36 @@ jobs:
 
           const full = "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech";
           const nano = "https://br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech";
+          const risk = "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech";
 
           const listings = [
+            {
+              origin: risk,
+              resource: risk + "/v1/base-token-risk-verdict",
+              name: "PAL Base Token Risk Verdict",
+              method: "POST",
+              price: 0.05,
+              category: "security/token-risk",
+              description: "Deterministic Base token risk verdict from live token-security evidence."
+            },
+            {
+              origin: risk,
+              resource: risk + "/v1/base-token-due-diligence",
+              name: "PAL Base Token Due Diligence",
+              method: "POST",
+              price: 5,
+              category: "security/token-risk",
+              description: "Full Base ERC-20 token due-diligence pack using live security evidence."
+            },
+            {
+              origin: risk,
+              resource: risk + "/v1/base-token-portfolio-rank",
+              name: "PAL Base Token Portfolio Risk Rank",
+              method: "POST",
+              price: 25,
+              category: "security/token-risk",
+              description: "Rank 2-10 Base tokens by deterministic security risk."
+            },
             {
               origin: full,
               resource: full + "/v1/usdc/catalog-remediation-bulk",
@@ -87,7 +115,7 @@ jobs:
             }
           }
 
-          for (const origin of [full, nano]) {
+          for (const origin of [full, nano, risk]) {
             await post("agent402", "https://agent402.tools/api/index/register", { origin });
             await post("true402", "https://true402.dev/api/v1/services/register", { url: origin });
           }
@@ -122,7 +150,7 @@ jobs:
           const report = {
             generated_at: new Date().toISOString(),
             migration: "render-to-neon",
-            canonical_origins: { full, nano },
+            canonical_origins: { full, nano, risk },
             successes: results.filter(x => x.ok).length,
             failures: results.filter(x => !x.ok).length,
             results
