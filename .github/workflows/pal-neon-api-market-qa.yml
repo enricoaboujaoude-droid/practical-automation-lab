@@ -35,4 +35,11 @@ jobs:
           test "$code" = "200"
           code=$(curl -sS -o /tmp/public.json -w '%{http_code}' --max-time 35 -X POST "$BASE/api/shopify-aieo-quick-audit" -H 'content-type: application/json' --data '{}')
           test "$code" = "400"
+          curl -fsS --max-time 50 -X POST "$BASE/api/shopify-aieo-quick-audit" -H 'content-type: application/json' --data '{"url":"https://3dndice.com"}' -o /tmp/store.json
+          node - <<'NODE'
+          const fs=require("fs");
+          const data=JSON.parse(fs.readFileSync("/tmp/store.json"));
+          if(!data.ok || !Number.isFinite(data.aieo_score) || !data.sample?.products)throw Error("Real public store sample failed");
+          console.log("REAL_SHOPIFY_SAMPLE_PASS",data.sample.products,"products");
+          NODE
           echo "NEON_PREVIEW_PASS: paid path authenticated, public store preflight remains open, no payment."
