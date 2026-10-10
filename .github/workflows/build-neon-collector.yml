@@ -148,7 +148,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if git diff --quiet -- neon-runtime/collector.bundle.cjs; then
+          if [ -z "$(git status --porcelain -- neon-runtime/collector.bundle.cjs)" ]; then
             echo "Collector bundle unchanged"
             exit 0
           fi
