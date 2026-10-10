@@ -1,0 +1,54 @@
+name: Neon migration smoke
+
+on:
+  push:
+    paths:
+      - ".github/workflows/neon-migration-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Neon cutover endpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          check_exact() {
+            name="$1"
+            url="$2"
+            runtime="$3"
+            headers="$(mktemp)"
+            body="$(mktemp)"
+            status="$(curl -sS -L -D "$headers" -o "$body" -w "%{http_code}" --max-time 90 "$url")"
+            echo "$name status=$status url=$url"
+            test "$status" -ge 200
+            test "$status" -lt 400
+            grep -qi "x-pal-runtime: $runtime" "$headers"
+          }
+
+          check_live() {
+            name="$1"
+            url="$2"
+            headers="$(mktemp)"
+            body="$(mktemp)"
+            status="$(curl -sS -L -D "$headers" -o "$body" -w "%{http_code}" --max-time 90 "$url")"
+            echo "$name status=$status url=$url"
+            test "$status" -ge 200
+            test "$status" -lt 500
+            grep -qi "x-pal-runtime: neon" "$headers"
+          }
+
+          check_exact "palmarket" "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/health" "neon-native"
+          check_live "palnano" "https://br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech/health"
+          check_live "palfull" "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech/health"
+          check_live "palevents" "https://br-wild-truth-b2gxc5zl-palevents.compute.c-6.eu-central-1.aws.neon.tech/health"
+          check_live "palbazaar" "https://br-wild-truth-b2gxc5zl-palbazaar.compute.c-6.eu-central-1.aws.neon.tech/health"
+          check_live "palrisk" "https://br-wild-truth-b2gxc5zl-palrisk.compute.c-6.eu-central-1.aws.neon.tech/health"
+          check_live "palcatapp" "https://br-wild-truth-b2gxc5zl-palcatapp.compute.c-6.eu-central-1.aws.neon.tech/"
+          check_live "palcatalog" "https://br-wild-truth-b2gxc5zl-palcatalog.compute.c-6.eu-central-1.aws.neon.tech/"
+          check_live "palmain" "https://br-wild-truth-b2gxc5zl-palmain.compute.c-6.eu-central-1.aws.neon.tech/"
