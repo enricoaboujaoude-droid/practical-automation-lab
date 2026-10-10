@@ -3508,10 +3508,37 @@ async function logCompletedRevenueSnapshot() {
   );
 }
 
+
+async function logMigrationDatabaseInventory() {
+  // Temporary read-only migration evidence: no raw customer rows or secret values.
+  const host = new URL(DATABASE_URL).hostname.toLowerCase();
+  const provider = host.endsWith('.neon.tech') ? 'neon' :
+    (host.endsWith('.render.com') || host.startsWith('dpg-')) ? 'render' : 'other';
+  const allowed = new Set([
+    'pal_feed_auditor_events', 'pal_commercial_leads', 'pal_paddle_webhook_events',
+    'pal_fastspring_webhook_events', 'pal_creem_webhook_events',
+    'pal_paypro_webhook_events', 'pal_stripe_webhook_events',
+    'pal_montypay_webhook_events', 'pal_montypay_checkout_sessions'
+  ]);
+  const { rows } = await pool.query(
+    "select table_name from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE' order by table_name"
+  );
+  const table_inventory = {};
+  for (const table of rows.map(r => String(r.table_name)).filter(n => allowed.has(n))) {
+    const quoted = '"' + table.replace(/"/g, '""') + '"';
+    const query = "select count(*)::bigint as n, md5(coalesce(string_agg(row_hash, '' order by row_hash), '')) as fingerprint from (select md5(row_to_json(t)::text) as row_hash from public." + quoted + ' t) hashed';
+    const { rows: data } = await pool.query(query);
+    table_inventory[table] = { n: Number(data[0].n), fingerprint: data[0].fingerprint };
+  }
+  console.log('PAL_MIGRATION_DB_INVENTORY_JSON ' +
+    JSON.stringify({ provider, available_tables: rows.length, tables: table_inventory }));
+}
+
 initialize()
   .then(() => {
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`Feed-auditor event collector listening on port ${PORT}`);
+      void logMigrationDatabaseInventory().catch(error => { console.error('[pal-migration-inventory] failed:', error.message); });
       void logCompletedRevenueSnapshot().catch(error => {
         console.error('[pal-payment-ledger] failed:', error.message);
       });
