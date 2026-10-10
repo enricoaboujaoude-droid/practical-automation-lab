@@ -1,0 +1,38 @@
+name: PAL API.market billing bypass checks
+on:
+  push:
+    paths:
+      - ".github/workflows/pal-api-market-production-readiness.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "29 */6 * * *"
+permissions:
+  contents: read
+jobs:
+  paid-origin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify Neon and Render reject unauthenticated billable POSTs
+        shell: bash
+        run: |
+          set -euo pipefail
+          for BASE in \
+            "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech" \
+            "https://pal-marketplace-fast-api.onrender.com"; do
+            curl -fsS --retry 2 --retry-delay 2 --max-time 45 "$BASE/api/health" >/tmp/health.json
+            CODE="$(curl -sS -o /tmp/denied.json -w '%{http_code}' --retry 2 --retry-delay 2 --max-time 45 \
+             -X POST "$BASE/api/catalog-audit" -H 'Content-Type: application/json' --data '{"records":[{"id":"test-no-billing"}]}')"
+            echo "PAL_BILLING_GATE $BASE unauthenticated_status=$CODE"
+            test "$CODE" = "401"
+            curl -fsS --max-time 35 "$BASE/api/openapi" -o /tmp/openapi.json
+            node - <<'NODE'
+          const fs=require('fs');
+          const x=JSON.parse(fs.readFileSync('/tmp/openapi.json'));
+          for (const p of ['/api/catalog-audit','/api/catalog-remediation','/api/gtin-check','/api/feed-diff']){
+            if(!x.paths[p].post?.requestBody || !x.paths[p].post?.security?.length)throw Error('Missing protected request contract: '+p);
+          }
+          console.log('PAL_BILLING_OPENAPI_PASS');
+          NODE
+          done
+          echo "PAL_BILLING_BYPASS_CHECK_PASS; no paid request was made"
