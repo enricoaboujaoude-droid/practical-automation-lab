@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shopify Products Missing from Google Merchant Center — Catalog Checklist</title>
+<title>Shopify Products Missing from Google Merchant Center in 2026? Merchant API &amp; Feed Checklist</title>
 <meta name="description" content="A practical Shopify checklist when products or variants are missing from Google Merchant Center. Separate catalog-readiness issues from feed and account-side sync problems.">
 <link rel="canonical" href="https://practical-automation-lab.onrender.com/shopify-products-missing-google-merchant-center.html">
 <meta property="og:title" content="Shopify Products Missing from Merchant Center — Checklist">
@@ -36,6 +36,25 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 <tr><td>Variant identifiers</td><td>Confirm the exact affected variants have the identifiers you expect; never invent GTINs or MPNs.</td></tr>
 <tr><td>Variant structure</td><td>Duplicate option combinations can make catalog interpretation ambiguous.</td></tr>
 </table>
+</section>
+
+<section class="panel">
+<h2>October 2026 check: did the Merchant API migration affect the feed?</h2>
+<p>Google's <strong>Content API for Shopping sunset on August 18, 2026</strong>. If products, custom labels or market segments changed around the transition, investigate the data-source side before editing every Shopify item.</p>
+<ol>
+<li>In Google Merchant Center, open <strong>Settings → Data sources</strong> and identify the active Shopify-connected source. Note the source and country/market labels.</li>
+<li>Check whether product <strong>attribute rules</strong> (custom labels, shipping labels, promotion IDs) exist on the <em>current</em> source. Rules on older sources may not carry to newly generated country data sources.</li>
+<li>Compare one missing variant's item ID, country/language label, availability, landing URL and price with the product data actually processed by Merchant Center.</li>
+<li>If Shopping campaigns filter by an old feed label, verify they also include the new country-code data-source labels. Do not assume a missing ad is a missing product.</li>
+<li>In Shopify's Google &amp; YouTube channel, confirm the expected Merchant Center account, markets and product publication settings; allow for processing before judging the outcome.</li>
+</ol>
+<p class="small">Google's own guidance discusses <a href="https://support.google.com/merchants/answer/13693394">multi-market data-source labels and rules</a> and the <a href="https://developers.google.com/merchant/api/guides/compatibility/products">Merchant API product model</a>. The checklist is educational, not a claim that PAL can repair merchant account rules.</p>
+</section>
+<section class="panel notice">
+<h2>Want the Shopify-side evidence before troubleshooting Google?</h2>
+<p><strong>Check a public product sample for free</strong>, or use the full read-only PAL Catalog Check app after Shopify installation. The optional Pro monitoring plan is <strong>$19/month or $199/year</strong>, billed by Shopify, with saved history, change detection and scheduled reports.</p>
+<p><a class="button" href="shopify-store-audit.html?utm_source=merchant-api-help&utm_medium=owned" data-pal-event="pal_missing_products_guide_clicked">Check a public store sample — Free →</a><a class="button secondary" href="https://apps.shopify.com/pal-catalog-check?utm_source=merchant-api-help&utm_medium=owned" data-pal-event="pal_missing_products_guide_clicked">Scan inside Shopify / View Pro →</a></p>
+<p class="small">Shopify-side catalog coverage and Google-side API synchronization are different things. PAL does not claim to migrate API clients, reinstate Google ads, or guarantee approval.</p>
 </section>
 
 <section class="panel">
