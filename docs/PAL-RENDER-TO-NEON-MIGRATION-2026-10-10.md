@@ -33,3 +33,35 @@ Scope: Practical Automation Lab only; do not modify Kalikora.
 - Check Neon `palevents/health` and read-only count of `pal_feed_auditor_events`; check public site `pal-analytics.js` includes `palevents`.
 - A collector rollback is possible by replacing the website's collector URL with `https://pal-feed-auditor-events.onrender.com` and publishing; Render collector is still deployed with dual-origin support. Avoid rollback unless failure confirmed.
 - Preserve this checkpoint when continuing migration; progress does not establish customer payments or source-target database equality.
+
+
+## Continuation update — same day, 11:15 UTC
+
+### Actual Render-source reconciliation
+- Connected Render collector confirmed its `DATABASE_URL` points to Render PostgreSQL.
+- Read-only inventory of **all 9 Render collector tables** obtained via startup logs without exposing rows or credentials.
+- Original source snapshots are copied privately and idempotently into Neon `public.pal_render_migration_stage`; staged source has `104` event rows, `1` Paddle webhook, and `1` FastSpring webhook at the last observed transfer. Other source tables were empty.
+- `pal_feed_auditor_events`: the initial two missing events and later one additional missing event were **all test records**, not live customer events. They were inserted using source IDs and the Neon sequence safely advanced. At the last check, Neon live count was aligned to the staged snapshot.
+- Historical timestamp values are **not identical** between all matching Render and Neon event rows, although other checked payload fields matched. Original Render timestamps remain preserved in staging; preexisting Neon timestamps were not overwritten. Payment webhook payload differences also concerned time fields (as observed), and original records are preserved.
+- Render collector code now refreshes stage snapshots every 15 minutes **while its instance is running**, with source row reads capped at 20,000 per table and idempotent target upserts; startup also runs a snapshot. A GitHub six-hour smoke check hits the Render source health route so sleeping services are periodically awakened, but it is not a transactional CDC guarantee.
+- All database-copy activity is private database-to-database, not a public export route or GitHub attachment.
+
+### Operational remediation and security
+- Neon collector initially returned HTTP 502 after the Neon platform started injecting `DATABASE_URL` for a newly created API role `pal_render_migration_writer` into the function. It lacked the required public-schema CREATE privileges, causing function initialization to fail.
+- Neon collector deployment **#7** explicitly overrides `DATABASE_URL` with the proper `pal_shopify_app` application-role connection; Neon logs confirmed the actual SQL role and `/health` recovered to HTTP 200.
+- Render public frontend was temporarily rolled back to the working Render collector while this was repaired. Afterwards, `pal-analytics.js` was changed to Neon-primary with best-effort Render fallback **only for analytics events**, not for payment or checkout operations.
+- A **separate SQL-created limited role** `pal_render_staging_limited` now has `SELECT, INSERT, UPDATE` on migration staging only; Neon inspection confirmed it does not inherit `neon_superuser` and cannot write live event tables. Render collector was reconfigured with that credential; subsequent `PAL_MIGRATION_STAGE_COMPLETED` logs validated the transfer.
+- The temporary API-created elevated migration role `pal_render_migration_writer` was **deleted** after the limited credential was proven working.
+- Existing Render collector and legacy customer-facing checkout/form routes remain operational to avoid interrupting payment provider callbacks.
+
+### Continuity and frontend hosting
+- New workflow `.github/workflows/pal-neon-continuity.yml` runs on pushes/manual requests and on a 6-hour schedule. Its first run passed. It checks Neon collector, marketplace, risk API, allowed and disallowed CORS origins, unpaid x402 payment challenge, and now additionally Render fallback and the published analytics script. No paid calls.
+- GitHub Pages static-site deployment workflow `.github/workflows/pal-github-pages.yml` was created, with public-file allowlisting; the action build prepared content but **failed to enable GitHub Pages** because `GITHUB_TOKEN` lacks Pages-site creation permission. Enabling `enablement: true` did not overcome the restriction.
+- Vercel project creation under the linked `Lebshop` team failed HTTP 403 (repository/source authorization). Hatchable existing account lists only personal projects, which require visitors to log in; unsuitable for public merchant marketing without an approved visibility solution.
+- **Owner action:** GitHub repository `enricoaboujaoude-droid/practical-automation-lab` → Settings → Pages → Build and deployment → Source: **GitHub Actions** → Save. Then re-run the `PAL static site — independent hosting` workflow. Do not change production DNS/origins until the GitHub Pages site and checkout pages pass real browser tests.
+- Render original free Postgres expiry remains **2026-10-17T06:25:14Z**. Before retiring Render, inspect source/target row differences, verify latest payment provider webhooks, customer entitlements and callback URLs, and qualify direct Neon-native catalog/Nano/Shopify implementations. Do not delete source prematurely.
+
+### Important boundaries
+- The nine Neon function slugs exist, but not all are native or passing readiness checks. `palfull`, `palnano`, `palcatapp`, `palcatalog` experienced external timeouts. Keep paid production traffic on known-working Render endpoints until their independent Neon equivalents are qualified.
+- Staging is a *quarantine/reconciliation copy*, not proof that every record has been merged into live Neon tables. Do not automatically grant the staging writer access to live payments or backfill webhooks without provider-verification and idempotency review.
+- Do not report test events, payment handshakes, or zero-charge challenges as earned customer revenue.
