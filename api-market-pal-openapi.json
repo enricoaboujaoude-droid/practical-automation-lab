@@ -2,12 +2,12 @@
   "openapi": "3.0.3",
   "info": {
     "title": "PAL Commerce Catalog Intelligence",
-    "version": "1.0.0",
-    "description": "Ecommerce catalog QA for Shopify, Google Merchant Center, product feeds and AI commerce workflows. Includes catalog audits, prioritized remediation, GTIN/UPC/EAN validation and feed diffs."
+    "version": "1.2.1",
+    "description": "Ecommerce catalog QA for Shopify, Google Merchant Center, product feeds and AI commerce workflows. Includes catalog audits, prioritized remediation, GTIN/UPC/EAN validation and feed diffs. Marketplace-billed POST routes require a private x-pal-origin-key configured by seller; public GET readiness is not charged."
   },
   "servers": [
     {
-      "url": "https://pal-marketplace-fast-api.onrender.com"
+      "url": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech"
     }
   ],
   "tags": [
@@ -57,7 +57,12 @@
           "400": {
             "description": "Invalid request"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiMarketOriginKey": []
+          }
+        ]
       }
     },
     "/api/catalog-remediation": {
@@ -92,7 +97,12 @@
           "400": {
             "description": "Invalid request"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiMarketOriginKey": []
+          }
+        ]
       }
     },
     "/api/gtin-check": {
@@ -127,7 +137,12 @@
           "400": {
             "description": "Invalid request"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiMarketOriginKey": []
+          }
+        ]
       }
     },
     "/api/feed-diff": {
@@ -162,7 +177,12 @@
           "400": {
             "description": "Invalid request"
           }
-        }
+        },
+        "security": [
+          {
+            "ApiMarketOriginKey": []
+          }
+        ]
       }
     }
   },
@@ -277,6 +297,14 @@
             }
           }
         }
+      }
+    },
+    "securitySchemes": {
+      "ApiMarketOriginKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-pal-origin-key",
+        "description": "Seller-only upstream shared secret. End users authenticate to API.market, which forwards the origin key."
       }
     }
   }
