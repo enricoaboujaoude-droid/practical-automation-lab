@@ -1,0 +1,56 @@
+name: PAL static site — independent hosting
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pal-github-pages.yml"
+      - "*.html"
+      - "pal-analytics.js"
+      - "llms.txt"
+      - "llms-full.txt"
+      - "robots.txt"
+      - "sitemap.xml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pal-github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare public static site
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p _site
+          find . -maxdepth 1 -type f -name '*.html' -exec cp {} _site/ \;
+          for file in pal-analytics.js llms.txt llms-full.txt robots.txt sitemap.xml; do
+            if [[ -f "$file" ]]; then cp "$file" _site/; fi
+          done
+          touch _site/.nojekyll
+          test -s _site/index.html
+          test -s _site/pal-analytics.js
+          if grep -R -E 'PAL_MIGRATION_NEON_URL|DATABASE_URL=|PRIVATE_KEY=' _site; then
+            echo 'Security check failed; refusing to publish'
+            exit 1
+          fi
+          echo "Public PAL static pages prepared; no backend source or secrets included"
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
