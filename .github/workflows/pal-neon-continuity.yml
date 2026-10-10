@@ -1,0 +1,67 @@
+name: PAL Neon continuity checks
+on:
+  push:
+    paths:
+      - ".github/workflows/pal-neon-continuity.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Verify Neon health, CORS, and unpaid payment challenge
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://br-wild-truth-b2gxc5zl-"
+          SUFFIX=".compute.c-6.eu-central-1.aws.neon.tech"
+          check_get() {
+            name="$1"; url="$2"
+            status="$(curl -sS -o /dev/null -w '%{http_code}' --retry 2 --retry-delay 3 --max-time 60 "$url")"
+            echo "PAL_CHECK $name status=$status"
+            test "$status" = "200"
+          }
+
+          EVENTS="${BASE}palevents${SUFFIX}"
+          MARKET="${BASE}palmarket${SUFFIX}"
+          RISK="${BASE}palrisk${SUFFIX}"
+
+          check_get "collector" "$EVENTS/health"
+          check_get "marketplace" "$MARKET/api/health"
+          check_get "risk" "$RISK/health"
+
+          for origin in "https://practical-automation-lab.onrender.com" "https://br-wild-truth-b2gxc5zl-palmain.compute.c-6.eu-central-1.aws.neon.tech"; do
+            header="$(mktemp)"
+            status="$(curl -sS -D "$header" -o /dev/null -w '%{http_code}' --max-time 50 -X OPTIONS "$EVENTS/event" -H "Origin: $origin" -H 'Access-Control-Request-Method: POST')"
+            echo "PAL_CHECK cors_origin=$origin status=$status"
+            test "$status" = "204"
+            grep -Fqi "access-control-allow-origin: $origin" "$header"
+            rm -f "$header"
+          done
+
+          denied="$(mktemp)"
+          status="$(curl -sS -D "$denied" -o /dev/null -w '%{http_code}' --max-time 50 -X OPTIONS "$EVENTS/event" -H 'Origin: https://untrusted.example.invalid')"
+          echo "PAL_CHECK untrusted_origin status=$status"
+          test "$status" = "204"
+          if grep -qi '^access-control-allow-origin:' "$denied"; then
+            echo "Unsafe wildcard/foreign CORS grant detected"
+            exit 1
+          fi
+          rm -f "$denied"
+
+          challenge="$(mktemp)"
+          status="$(curl -sS -D "$challenge" -o /dev/null -w '%{http_code}' --max-time 50 \
+            -X POST "$RISK/v1/base-token-risk-verdict" \
+            -H 'content-type: application/json' \
+            --data '{"address":"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"}')"
+          echo "PAL_CHECK unpaid_x402 status=$status"
+          test "$status" = "402"
+          grep -qi '^payment-required:' "$challenge"
+          rm -f "$challenge"
+          echo "PAL_CHECKS_PASS No purchases or production form submissions were attempted."
