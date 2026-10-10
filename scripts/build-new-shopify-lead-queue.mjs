@@ -5,6 +5,8 @@ const OUT = "revenue/shopify-lead-queue.json";
 const SUPPRESSION = "revenue/shopify-outreach-suppression.json";
 const MAX_CANDIDATES_TO_CHECK = 24;
 const MAX_LEADS = 10;
+// A 1-product launch store is unlikely to need $199/year catalog monitoring.
+const MIN_PUBLIC_PRODUCT_SAMPLE = 12;
 const USER_AGENT = "PracticalAutomationLab-NewShopifyPreflight/1.0";
 const EMAIL_RE = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
 const DOMAIN_RE = /\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+(?:com|net|org|io|co|shop|store|online|live|vip|sbs|site|website|life|world|us|uk|fr|de|es|it|nl|ca|au|in|pk|mx|br|eu|xyz)\b/i;
@@ -86,7 +88,7 @@ function publicEmails(text, domain) {
 
 async function verifyShopify(candidate) {
   const origin = "https://" + candidate.domain;
-  const url = origin + "/products.json?limit=1";
+  const url = origin + "/products.json?limit=50";
   try {
     const result = await fetchText(url, 12000);
     if (!result.response.ok) return null;
@@ -97,6 +99,7 @@ async function verifyShopify(candidate) {
       ...candidate,
       storefront_origin: origin,
       public_products_endpoint: url,
+      public_product_sample_count: body.products.length,
       sample_product_title: product.title || null,
       sample_vendor: product.vendor || null
     };
@@ -139,7 +142,7 @@ const leads = [];
 
 for (const candidate of candidates) {
   const verified = await verifyShopify(candidate);
-  if (!verified) continue;
+  if (!verified || verified.public_product_sample_count < MIN_PUBLIC_PRODUCT_SAMPLE) continue;
   const contact = await findPublishedContact(verified);
   if (!contact) continue;
 
@@ -149,6 +152,7 @@ for (const candidate of candidates) {
     email: contact.email,
     storefront_origin: contact.storefront_origin,
     sample_product_title: contact.sample_product_title,
+    public_product_sample_count: contact.public_product_sample_count,
     sample_vendor: contact.sample_vendor,
     launched: "today",
     contact_source_url: contact.contact_source_url,
