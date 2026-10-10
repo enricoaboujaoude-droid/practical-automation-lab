@@ -23,7 +23,7 @@ jobs:
           set -euo pipefail
           mkdir -p revenue
           node <<'NODE'
-          const fs = require("fs");
+          const fs = await import("node:fs");
 
           const full = "https://br-wild-truth-b2gxc5zl-palfull.compute.c-6.eu-central-1.aws.neon.tech";
           const nano = "https://br-wild-truth-b2gxc5zl-palnano.compute.c-6.eu-central-1.aws.neon.tech";
