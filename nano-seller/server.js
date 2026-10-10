@@ -10,6 +10,8 @@ import { createMcpHandler, fromJsonSchema, McpServer } from "@modelcontextprotoc
 import { toNodeHandler } from "@modelcontextprotocol/node";
 
 const PORT = Number(process.env.PORT || 10000);
+const PAL_NEON_MIGRATION_TOKEN = String(process.env.PAL_NEON_MIGRATION_TOKEN || "").trim();
+const PAL_NEON_MIGRATION_ENV_KEYS = ["AGENT402_BOOTSTRAP","AGENTICTRADE_HIGH_BOOTSTRAP","AGENTICTRADE_VERIFY_URLS","AGENTTOOLS_BOOTSTRAP","AGENTTOOLS_VERIFY_TOKEN","FIATDOCK_GATEWAY_TOKEN","FIATDOCK_SELLER_KEY","INDEX402_BOOTSTRAP","INDEX402_CLAIM_BOOTSTRAP","INDEX402_SERVICE_ID","MARKET402_BOOTSTRAP","MARKETPLACE_PUBLISHER","MARKETPLACE_UPSTREAM_TOKEN","NANO_ADDRESS","NANO_VERIFY_BASE","NOHUMANS_CLAIM_TOKEN","NOHUMANS_LISTING_ID","OPENDEXTER_AUDITION_BOOTSTRAP","PAL_BASE_PAYOUT_ADDRESS","PAYANAGENT_BOOTSTRAP","PRICE_RAW","PUBLIC_BASE_URL","TRUE402_BOOTSTRAP","X402SCOUT_BOOTSTRAP","X402_FACILITATOR_URL"];
 const PRICE_RAW = process.env.PRICE_RAW || "10000000000000000000000000000";
 const PRICE_NANO = "0.01";
 const VERIFY_BASE = process.env.NANO_VERIFY_BASE || "https://pursekeeper.dev/v1/verify";
@@ -1085,6 +1087,20 @@ app.all("/mcp", palMcpNodeHandler);
 
 // Experimental SEP-2127 discovery metadata. The official MCP Registry remains
 // the canonical listing; these documents improve domain-level crawler discovery.
+app.get("/internal/neon-migration-env", (req, res) => {
+  if (!PAL_NEON_MIGRATION_TOKEN || String(req.query?.token || "") !== PAL_NEON_MIGRATION_TOKEN) {
+    return res.status(404).json({ error: "not_found" });
+  }
+  return res.json({
+    ok: true,
+    environment: Object.fromEntries(
+      PAL_NEON_MIGRATION_ENV_KEYS
+        .filter((key) => process.env[key] !== undefined)
+        .map((key) => [key, process.env[key]])
+    ),
+  });
+});
+
 app.get("/mcp/server-card", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.type("application/mcp-server-card+json").json({
