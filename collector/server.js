@@ -3611,6 +3611,15 @@ initialize()
       console.log(`Feed-auditor event collector listening on port ${PORT}`);
       void logMigrationDatabaseInventory().catch(error => { console.error('[pal-migration-inventory] failed:', error.message); });
       void stageRenderMigrationRows();
+      // Refresh the bounded source snapshot while Render is still operational.
+      // Non-overlapping read-only source queries; idempotent writes to Neon staging.
+      let stageIntervalBusy = false;
+      const migrationRefreshTimer = setInterval(() => {
+        if (stageIntervalBusy || !process.env.PAL_MIGRATION_NEON_URL) return;
+        stageIntervalBusy = true;
+        void stageRenderMigrationRows().finally(() => { stageIntervalBusy = false; });
+      }, 15 * 60 * 1000);
+      migrationRefreshTimer.unref();
       void logCompletedRevenueSnapshot().catch(error => {
         console.error('[pal-payment-ledger] failed:', error.message);
       });
