@@ -1,0 +1,299 @@
+{
+  "generated_at": "2026-10-10T11:44:53.485Z",
+  "source_queue_created": "2026-10-10T11:44:06.453Z",
+  "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
+  "samples_only": true,
+  "no_contact_details_embedded": true,
+  "attempted": 10,
+  "passed": 10,
+  "results": [
+    {
+      "domain": "melissaanddougkids.com",
+      "store_name": "melissaanddougkids.com Shopify United States",
+      "origin": "https://melissaanddougkids.com",
+      "score": 70,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 98
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-10T11:44:49.656Z",
+      "ok": true
+    },
+    {
+      "domain": "mellinpassage.com",
+      "store_name": "Mellinpassage Shopify Germany",
+      "origin": "https://mellinpassage.com",
+      "score": 45,
+      "sample": {
+        "products": 7,
+        "variants": 13,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-10T11:44:50.055Z",
+      "ok": true
+    },
+    {
+      "domain": "meiylah.com",
+      "store_name": "Meiylah Shopify Austria",
+      "origin": "https://meiylah.com",
+      "score": 45,
+      "sample": {
+        "products": 15,
+        "variants": 15,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-10T11:44:50.487Z",
+      "ok": true
+    },
+    {
+      "domain": "mepenix.com",
+      "store_name": "Mepenix Shopify",
+      "origin": "https://mepenix.com",
+      "score": 25,
+      "sample": {
+        "products": 1,
+        "variants": 1,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 0,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-10T11:44:50.931Z",
+      "ok": true
+    },
+    {
+      "domain": "mervolio.com",
+      "store_name": "Mervolio Shopify United States",
+      "origin": "https://mervolio.com",
+      "score": 78,
+      "sample": {
+        "products": 5,
+        "variants": 5,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 80
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-10T11:44:51.291Z",
+      "ok": true
+    },
+    {
+      "domain": "meranluxurysafaris.com",
+      "store_name": "Merangorilla Tours and Luxury Safaris Shopify UG",
+      "origin": "https://meranluxurysafaris.com",
+      "score": 55,
+      "sample": {
+        "products": 37,
+        "variants": 37,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-10T11:44:51.664Z",
+      "ok": true
+    },
+    {
+      "domain": "mercadoonlinegt.com",
+      "store_name": "Mercado Online GT Shopify GT",
+      "origin": "https://mercadoonlinegt.com",
+      "score": 15,
+      "sample": {
+        "products": 1,
+        "variants": 1,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 0,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 0
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-10T11:44:52.108Z",
+      "ok": true
+    },
+    {
+      "domain": "mercagoco.com",
+      "store_name": "Merca Goco Shopify Colombia",
+      "origin": "https://mercagoco.com",
+      "score": 25,
+      "sample": {
+        "products": 5,
+        "variants": 5,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 20,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 60
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-10T11:44:52.563Z",
+      "ok": true
+    },
+    {
+      "domain": "meridianridgeco.com",
+      "store_name": "Meridian Ridge Co. Shopify United States",
+      "origin": "https://meridianridgeco.com",
+      "score": 39,
+      "sample": {
+        "products": 21,
+        "variants": 41,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 42.9
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+      ],
+      "audited_at": "2026-10-10T11:44:53.049Z",
+      "ok": true
+    },
+    {
+      "domain": "mewluma.com",
+      "store_name": "Mewluma Shopify United States",
+      "origin": "https://mewluma.com",
+      "score": 80,
+      "sample": {
+        "products": 1,
+        "variants": 2,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-10T11:44:53.421Z",
+      "ok": true
+    }
+  ]
+}
