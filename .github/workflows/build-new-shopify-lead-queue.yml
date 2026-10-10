@@ -1,4 +1,5 @@
 name: Build New Shopify Lead Queue
+# Revenue push: verify today's public stores and published business contacts without paid enrichment or mass mail.
 
 on:
   push:
