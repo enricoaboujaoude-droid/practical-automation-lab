@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/enricoaboujaoude-droid/practical-automation-lab/blob/main/docs/talkshi-relay-brief.schema.json",
+  "title": "Practical Automation Lab funded Relay brief",
+  "description": "Public-input, buyer-authorized work order. A submitted brief is not proof of funding; PAL independently checks buyer authorization and payment evidence before treating work as receivable.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "order_reference",
+    "service",
+    "buyer_authorized",
+    "payment_status",
+    "payment_evidence_reference",
+    "public_target_url",
+    "delivery_email",
+    "requested_at"
+  ],
+  "properties": {
+    "order_reference": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 200
+    },
+    "service": {
+      "type": "string",
+      "enum": [
+        "agent-commerce-launch-kit-99",
+        "agent-commerce-go-live-350",
+        "public-api-mcp-production-audit-99"
+      ]
+    },
+    "fixed_price_usd": {
+      "type": "integer",
+      "enum": [
+        99,
+        350
+      ],
+      "description": "Must match selected service; enforced in allOf."
+    },
+    "buyer_authorized": {
+      "const": true
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "paid",
+        "escrowed",
+        "authorized_not_paid"
+      ],
+      "description": "PAL must independently verify this claim before starting; authorized_not_paid is not a funded order."
+    },
+    "payment_evidence_reference": {
+      "type": "string",
+      "minLength": 4,
+      "maxLength": 500,
+      "description": "Non-secret external buyer/order/payment reference; never include payment credentials."
+    },
+    "public_target_url": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://",
+      "maxLength": 2048
+    },
+    "additional_public_urls": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "format": "uri",
+        "pattern": "^https://"
+      }
+    },
+    "scope_notes": {
+      "type": "string",
+      "maxLength": 3000
+    },
+    "delivery_email": {
+      "type": "string",
+      "format": "email",
+      "maxLength": 320
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "deadline_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "deliverable_format": {
+      "type": "string",
+      "enum": [
+        "email-summary",
+        "markdown-report",
+        "json-report",
+        "artifact-links"
+      ],
+      "default": "markdown-report"
+    },
+    "relay_contact": {
+      "type": "string",
+      "format": "email",
+      "maxLength": 320
+    },
+    "commerce_aieo_context": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, assess structured product identity, attributes, identifiers, images, variants, price, availability, and links; AIEO complements SEO without ranking guarantees."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "service": {
+            "const": "agent-commerce-go-live-350"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "fixed_price_usd": {
+            "const": 350
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "service": {
+            "enum": [
+              "agent-commerce-launch-kit-99",
+              "public-api-mcp-production-audit-99"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "fixed_price_usd": {
+            "const": 99
+          }
+        }
+      }
+    }
+  ],
+  "examples": [
+    {
+      "order_reference": "REPLACE-WITH-REAL-PAID-ORDER-ID",
+      "service": "public-api-mcp-production-audit-99",
+      "fixed_price_usd": 99,
+      "buyer_authorized": true,
+      "payment_status": "escrowed",
+      "payment_evidence_reference": "REPLACE-WITH-VERIFIABLE-ESCROW-REFERENCE",
+      "public_target_url": "https://example.com/openapi.json",
+      "delivery_email": "buyer@example.com",
+      "requested_at": "2026-10-10T19:00:00Z",
+      "deliverable_format": "markdown-report"
+    }
+  ]
+}
