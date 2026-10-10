@@ -1,0 +1,41 @@
+name: PAL new Shopify merchant issue audit
+on:
+  push:
+    paths:
+      - ".github/workflows/audit-new-shopify-leads.yml"
+      - "scripts/audit-new-shopify-leads.mjs"
+      - "revenue/shopify-lead-queue.json"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: pal-new-shopify-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Audit a bounded set of public launch-store catalogs
+        run: node scripts/audit-new-shopify-leads.mjs
+      - name: Persist merchant-specific score evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add -- revenue/new-store-aieo-audits.json
+          if git diff --cached --quiet -- revenue/new-store-aieo-audits.json; then
+            echo "No changes"
+            exit 0
+          fi
+          git config user.name "PAL Revenue Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -m "revenue: record today new-store diagnostic insights"
+          for n in 1 2 3; do
+            if git push origin HEAD:main; then exit 0; fi
+            git pull --rebase origin main
+          done
+          exit 1
