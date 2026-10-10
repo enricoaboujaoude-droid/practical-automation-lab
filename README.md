@@ -4,6 +4,13 @@ Practical Automation Lab builds privacy-conscious AIEO and AI-commerce tools for
 
 **Live products:** https://practical-automation-lab.onrender.com/
 
+## Buyer-funded autonomous service intake
+
+PAL accepts **authorized, fixed-scope paid briefs** for a **$99 Agent Commerce Launch Kit** (target <=30 minutes), **$350 Agent Commerce Go-Live** (<=60 minutes), and **$99 public API/MCP production audit** (<=30 minutes). Public HTTPS URLs, repositories, and API documentation are sufficient for the defined scopes; no calls, interviews, private credentials, KYC, or manual owner delivery are required. A verified vendor listing alone does **not** mean an order is funded or assigned.
+
+- [Talkshi Relay funded-brief intake contract](docs/talkshi-relay-funded-brief-intake.md) — buyer authorization, payment status, exact scope, and return channel required before fulfillment.
+- Commerce catalog work is positioned as **AIEO**, improving machine-readable identity, identifiers, variants, images, attributes, price, availability, and links; it complements SEO without promising AI ranking or inclusion.
+
 ## Paid AIEO commerce API and MCP server
 
 **PAL AIEO Commerce Catalog Intelligence** is a live pay-per-call API and remote MCP server for AI-shopping and agentic-commerce product data, with Google Merchant Center/feed compatibility. PAL uses **AIEO (AI Engine Optimization)** as shorthand for improving structured product data for machine understanding; it complements SEO.
