@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-10T11:47:09.016Z",
+  "generated_at": "2026-10-10T11:48:03.089Z",
   "source": "https://fisherleads.com/new/shopify",
   "source_policy": "Public newest-store directory only. Public business contact pages only. No paid enrichment, no guessed emails, no automatic sending.",
   "candidates_checked": 24,
@@ -98,7 +98,7 @@
       "sample_product_title": "Jmplmo™ RitualRail Sink Caddy",
       "sample_vendor": "jmplmo™",
       "launched": "today",
-      "contact_source_url": "https://jmplmo.com/policies/contact-information",
+      "contact_source_url": "https://jmplmo.com/policies/privacy-policy",
       "pal_preflight_url": "https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url=https%3A%2F%2Fjmplmo.com",
       "shopify_app_url": "https://apps.shopify.com/pal-catalog-check?utm_source=pal-outreach&utm_medium=email&utm_campaign=new-shopify",
       "recommended_subject": "jmplmo™ Shopify United States: AI-shopping readiness for your new Shopify catalog",
