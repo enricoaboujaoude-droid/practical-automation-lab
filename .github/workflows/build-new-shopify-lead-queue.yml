@@ -32,14 +32,15 @@ jobs:
 
       - name: Persist queue when changed
         run: |
-          if git diff --quiet -- revenue/shopify-lead-queue.json; then
+          # Stage first: git diff without --cached silently ignores newly created files.
+          git add -- revenue/shopify-lead-queue.json
+          if git diff --cached --quiet -- revenue/shopify-lead-queue.json; then
             echo "Queue unchanged."
             exit 0
           fi
 
           git config user.name "PAL Revenue Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add revenue/shopify-lead-queue.json
           git commit -m "revenue: refresh bounded new-Shopify lead queue"
 
           for attempt in 1 2 3; do
