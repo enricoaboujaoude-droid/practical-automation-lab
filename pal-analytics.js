@@ -1,5 +1,5 @@
 (() => {
-  const endpoint = 'https://pal-feed-auditor-events.onrender.com/event';
+  const endpoint = 'https://br-wild-truth-b2gxc5zl-palevents.compute.c-6.eu-central-1.aws.neon.tech/event';
   function emit(name) {
     if (!name) return;
     fetch(endpoint, {
