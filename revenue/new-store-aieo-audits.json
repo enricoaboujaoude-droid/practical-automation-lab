@@ -1,194 +1,48 @@
 {
-  "generated_at": "2026-10-10T12:05:43.868Z",
-  "source_queue_created": "2026-10-10T12:05:39.028Z",
+  "generated_at": "2026-10-10T12:41:25.761Z",
+  "source_queue_created": "2026-10-10T12:41:24.065Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 10,
-  "passed": 10,
+  "attempted": 2,
+  "passed": 2,
   "results": [
     {
-      "domain": "jesusiskingprintables.com",
-      "store_name": "Jesus Is King Printables Shopify United States",
-      "origin": "https://jesusiskingprintables.com",
-      "score": 55,
-      "sample": {
-        "products": 25,
-        "variants": 25,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-10T12:05:40.180Z",
-      "ok": true
-    },
-    {
-      "domain": "jetboilmall.com",
-      "store_name": "jetboilmall.com Shopify United States",
-      "origin": "https://jetboilmall.com",
-      "score": 45,
+      "domain": "gamingelectronicshightech.com",
+      "store_name": "Gaming Electronics High Tech Shopify United States",
+      "origin": "https://gamingelectronicshightech.com",
+      "score": 69,
       "sample": {
         "products": 50,
-        "variants": 50,
+        "variants": 82,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 98.8,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
+        "sku_mpn_pct": 98.8,
         "vendor_brand_pct": 100,
         "product_type_pct": 0,
-        "useful_description_pct": 0,
+        "useful_description_pct": 98,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 48
+        "descriptive_title_pct": 98
       },
       "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-10-10T12:05:40.810Z",
-      "ok": true
-    },
-    {
-      "domain": "jfperfumes.com",
-      "store_name": "JF Perfumes Shopify United States",
-      "origin": "https://jfperfumes.com",
-      "score": 60,
-      "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 18,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 18,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-10T12:05:41.197Z",
-      "ok": true
-    },
-    {
-      "domain": "jmplmo.com",
-      "store_name": "jmplmo™ Shopify United States",
-      "origin": "https://jmplmo.com",
-      "score": 45,
-      "sample": {
-        "products": 15,
-        "variants": 15,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-10T12:05:41.670Z",
+      "audited_at": "2026-10-10T12:41:25.276Z",
       "ok": true
     },
     {
-      "domain": "joinvantagelodge.com",
-      "store_name": "Vantage Lodge Shopify United States",
-      "origin": "https://joinvantagelodge.com",
-      "score": 35,
+      "domain": "getmasko.com",
+      "store_name": "MASKO Shopify France",
+      "origin": "https://getmasko.com",
+      "score": 70,
       "sample": {
-        "products": 1,
-        "variants": 1,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 0
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-10-10T12:05:42.011Z",
-      "ok": true
-    },
-    {
-      "domain": "joviloopstudio.com",
-      "store_name": "Joviloop Studio Shopify Italy",
-      "origin": "https://joviloopstudio.com",
-      "score": 45,
-      "sample": {
-        "products": 1,
-        "variants": 1,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-10T12:05:42.381Z",
-      "ok": true
-    },
-    {
-      "domain": "joydhealth.com",
-      "store_name": "JOYD Health Shopify Australia",
-      "origin": "https://joydhealth.com",
-      "score": 80,
-      "sample": {
-        "products": 1,
-        "variants": 1,
+        "products": 13,
+        "variants": 13,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -200,101 +54,13 @@
         "product_type_pct": 100,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-10T12:05:42.744Z",
-      "ok": true
-    },
-    {
-      "domain": "joisershop.com",
-      "store_name": "Joisershop Shopify Chile",
-      "origin": "https://joisershop.com",
-      "score": 15,
-      "sample": {
-        "products": 1,
-        "variants": 1,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 0,
-        "image_alt_text_pct": 0,
         "descriptive_title_pct": 0
       },
       "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-10T12:05:43.065Z",
-      "ok": true
-    },
-    {
-      "domain": "jolguzful.com",
-      "store_name": "A LOT ON MY PLATE Shopify United States",
-      "origin": "https://jolguzful.com",
-      "score": 40,
-      "sample": {
-        "products": 2,
-        "variants": 2,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 50
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
         "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
       ],
-      "audited_at": "2026-10-10T12:05:43.373Z",
-      "ok": true
-    },
-    {
-      "domain": "jolipli.com",
-      "store_name": "Joli Pli Shopify France",
-      "origin": "https://jolipli.com",
-      "score": 45,
-      "sample": {
-        "products": 1,
-        "variants": 1,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-10T12:05:43.796Z",
+      "audited_at": "2026-10-10T12:41:25.696Z",
       "ok": true
     }
   ]
