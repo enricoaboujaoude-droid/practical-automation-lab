@@ -1,0 +1,38 @@
+name: PAL Neon API.market preview buyer-gate QA
+on:
+  push:
+    paths:
+      - ".github/workflows/pal-neon-api-market-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Validate preview with no payment
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="https://br-wild-truth-b2gxc5zl-palmarketqa.compute.c-6.eu-central-1.aws.neon.tech"
+          TEST_KEY="local-ci-only-contract-test-not-a-production-secret-2026"
+          curl -fsS --retry 2 --retry-delay 2 --max-time 35 "$BASE/api/health" >/tmp/health.json
+          curl -fsS --max-time 35 "$BASE/api/openapi" >/tmp/openapi.json
+          node - <<'NODE'
+          const fs=require("fs");
+          const x=JSON.parse(fs.readFileSync("/tmp/openapi.json"));
+          const paths=["/api/catalog-audit","/api/catalog-remediation","/api/gtin-check","/api/feed-diff"];
+          for(const p of paths){
+            if(!x.paths[p].post?.requestBody?.content?.["application/json"]?.schema)throw Error(p+" body missing");
+            if(!x.paths[p].post?.security?.length)throw Error(p+" auth missing");
+          }
+          console.log("OPENAPI_REQUEST_BODY_AND_SECURITY_PASS");
+          NODE
+          code=$(curl -sS -o /tmp/denied.json -w '%{http_code}' --max-time 35 -X POST "$BASE/api/gtin-check" -H 'content-type: application/json' --data '{"gtins":["4006381333931"]}')
+          test "$code" = "401"
+          code=$(curl -sS -o /tmp/accepted.json -w '%{http_code}' --max-time 35 -X POST "$BASE/api/gtin-check" -H 'content-type: application/json' -H "x-pal-origin-key: $TEST_KEY" --data '{"gtins":["4006381333931"]}')
+          test "$code" = "200"
+          code=$(curl -sS -o /tmp/public.json -w '%{http_code}' --max-time 35 -X POST "$BASE/api/shopify-aieo-quick-audit" -H 'content-type: application/json' --data '{}')
+          test "$code" = "400"
+          echo "NEON_PREVIEW_PASS: paid path authenticated, public store preflight remains open, no payment."
