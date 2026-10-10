@@ -27,13 +27,16 @@ jobs:
               if grep -qi '^payment-required:' "$headers"; then
                 echo "PAID_GATE_CHALLENGE_PRESENT $base"
               else
-                echo "PAID_GATE_NO_PAYMENT_REQUIRED_HEADER $base"
+                echo "::error::PAID_GATE_NO_PAYMENT_REQUIRED_HEADER $base"
+                exit 1
               fi
             elif [[ "$status" == "200" ]]; then
-              echo "WARNING_UNPAID_SUCCESS $base"
+              echo "::error::UNPAID_200_INSTEAD_OF_402 $base"
+              exit 1
             else
-              echo "PAID_GATE_UNAVAILABLE $base"
+              echo "::error::PAID_GATE_UNAVAILABLE $base status=$status"
+              exit 1
             fi
             rm -f "$headers" "$body"
           done
-          echo "No payment headers were supplied; no funds spent."
+          echo "PASS both production paid-gate endpoints present valid 402 challenges. No wallet, signing, settlement or buyer credentials used."
