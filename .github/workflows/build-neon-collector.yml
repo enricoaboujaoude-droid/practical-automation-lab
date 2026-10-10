@@ -1,0 +1,125 @@
+name: Build Neon collector function
+
+on:
+  push:
+    paths:
+      - ".github/workflows/build-neon-collector.yml"
+      - "collector/server.js"
+      - "collector/package.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Node HTTP compatibility function
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --no-save esbuild pg
+          mkdir -p .neon-build/collector/dist
+
+          node <<'NODE'
+          const fs = require('fs');
+          let source = fs.readFileSync('collector/server.js', 'utf8');
+
+          const start = "const server = http.createServer(async (req, res) => {";
+          if (!source.includes(start)) throw new Error('collector server handler marker missing');
+          source = source.replace(start, "const nodeHandler = async (req, res) => {");
+
+          const close = "\n});\n\nasync function logShopifyAcquisitionFunnelSnapshot()";
+          if (!source.includes(close)) throw new Error('collector handler closing marker missing');
+          source = source.replace(close, "\n};\n\nasync function logShopifyAcquisitionFunnelSnapshot()");
+
+          const boot = source.indexOf("\ninitialize()\n");
+          if (boot < 0) throw new Error('collector boot marker missing');
+          source = source.slice(0, boot);
+
+          source += String.raw`
+          let neonInitPromise;
+          function ensureNeonInitialized() {
+            if (!neonInitPromise) {
+              neonInitPromise = initialize()
+                .then(async () => {
+                  pool.on('error', (error) => {
+                    console.error('[neon-collector-pool] idle client error:', error?.message || String(error));
+                  });
+                  await Promise.allSettled([
+                    logCompletedRevenueSnapshot(),
+                    logShopifyAcquisitionFunnelSnapshot(),
+                  ]);
+                })
+                .catch((error) => {
+                  neonInitPromise = null;
+                  throw error;
+                });
+            }
+            return neonInitPromise;
+          }
+
+          function headerValue(value) {
+            if (Array.isArray(value)) return value.join(', ');
+            return String(value);
+          }
+
+          async function adaptFetchRequest(request) {
+            const { Readable } = require('node:stream');
+            const bytes = Buffer.from(await request.arrayBuffer());
+            const req = Readable.from(bytes.length ? [bytes] : []);
+            const url = new URL(request.url);
+            req.method = request.method;
+            req.url = url.pathname + url.search;
+            req.headers = Object.fromEntries(request.headers.entries());
+            if (!req.headers.host) req.headers.host = url.host;
+            return req;
+          }
+
+          async function fetchHandler(request) {
+            await ensureNeonInitialized();
+            const req = await adaptFetchRequest(request);
+            const headers = new Headers();
+            let body = null;
+            const res = {
+              statusCode: 200,
+              setHeader(name, value) {
+                if (Array.isArray(value)) {
+                  headers.set(name, value.map(headerValue).join(', '));
+                } else {
+                  headers.set(name, headerValue(value));
+                }
+              },
+              end(value) {
+                if (value !== undefined && value !== null) {
+                  body = Buffer.isBuffer(value) ? value : Buffer.from(String(value));
+                }
+              },
+            };
+
+            await nodeHandler(req, res);
+            headers.set('x-pal-runtime', 'neon-native');
+            headers.set('x-pal-service', 'pal-feed-auditor-events');
+            return new Response(body, { status: res.statusCode || 200, headers });
+          }
+
+          export default { fetch: fetchHandler };
+          `;
+
+          fs.writeFileSync('.neon-build/collector/index.mjs', source);
+          NODE
+
+          npx esbuild .neon-build/collector/index.mjs             --bundle             --platform=node             --target=node24             --format=esm             --banner:js="import{createRequire as ___cr}from'module';import{fileURLToPath as ___f}from'url';import{dirname as ___d}from'path';const require=___cr(import.meta.url);const __filename=___f(import.meta.url);const __dirname=___d(__filename);"             --outfile=.neon-build/collector/dist/index.mjs
+
+          cd .neon-build/collector/dist
+          zip -9 ../function.zip index.mjs
+          ls -lh ../function.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: neon-collector-function
+          path: .neon-build/collector/function.zip
+          if-no-files-found: error
