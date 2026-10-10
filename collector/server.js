@@ -8,8 +8,6 @@ const { Pool } = require('pg');
 
 const PORT = Number(process.env.PORT || 10000);
 const DATABASE_URL = process.env.DATABASE_URL;
-const PAL_MIGRATION_EXPORT_TOKEN = process.env.PAL_MIGRATION_EXPORT_TOKEN || '';
-const PAL_MIGRATION_ENV_KEYS = ["CREEM_API_KEY","CREEM_CHECKOUT_LIVE","CREEM_PRODUCT_ID_ANNUAL","CREEM_PRODUCT_ID_MONTHLY","CREEM_TEST_API_KEY","CREEM_TEST_PRODUCT_ID_ANNUAL","CREEM_TEST_PRODUCT_ID_MONTHLY","CREEM_TEST_WEBHOOK_SECRET","CREEM_WEBHOOK_SECRET","FASTSPRING_API_PASSWORD","FASTSPRING_API_USERNAME","FASTSPRING_CHECKOUT_LIVE","FASTSPRING_CHECKOUT_PATH","FASTSPRING_WEBHOOK_SECRET","MONTYPAY_CHECKOUT_LIVE","MONTYPAY_CHECKOUT_URL","MONTYPAY_CURRENCY","MONTYPAY_HASH_DIGEST","MONTYPAY_MERCHANT_KEY","MONTYPAY_PASSWORD","MONTYPAY_SCHEDULE_ID_ANNUAL","MONTYPAY_SCHEDULE_ID_MONTHLY","PADDLE_NOTIFICATION_WEBHOOK_SECRET","PAL_CHECKOUT_PROVIDER","PAYPRO_CHECKOUT_LIVE","PAYPRO_PRODUCT_ID_ANNUAL","PAYPRO_PRODUCT_ID_MONTHLY","PAYPRO_VALIDATION_KEY","STRIPE_CHECKOUT_LIVE","STRIPE_PRICE_ID_ANNUAL","STRIPE_PRICE_ID_MONTHLY","STRIPE_SECRET_KEY","STRIPE_WEBHOOK_SECRET"];
 const PADDLE_NOTIFICATION_WEBHOOK_SECRET = process.env.PADDLE_NOTIFICATION_WEBHOOK_SECRET || '';
 const FASTSPRING_WEBHOOK_SECRET = process.env.FASTSPRING_WEBHOOK_SECRET || '';
 const FASTSPRING_API_USERNAME = process.env.FASTSPRING_API_USERNAME || '';
@@ -49,7 +47,7 @@ const STRIPE_PRICE_ID_MONTHLY = process.env.STRIPE_PRICE_ID_MONTHLY || '';
 const STRIPE_PRICE_ID_ANNUAL = process.env.STRIPE_PRICE_ID_ANNUAL || '';
 const STRIPE_CHECKOUT_LIVE = String(process.env.STRIPE_CHECKOUT_LIVE || 'false').toLowerCase() === 'true';
 
-const SITE_ORIGIN = 'https://practical-automation-lab.onrender.com';
+const SITE_ORIGIN = 'https://br-wild-truth-b2gxc5zl-palmain.compute.c-6.eu-central-1.aws.neon.tech';
 const ALLOWED_EVENTS = new Set([
   'audit_started',
   'audit_completed',
@@ -2540,59 +2538,6 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && url.pathname === '/health') {
       await pool.query('select 1');
       return sendJson(req, res, 200, { ok: true });
-    }
-
-    if (req.method === 'GET' && url.pathname === '/internal/neon-migration-env') {
-      if (!PAL_MIGRATION_EXPORT_TOKEN || url.searchParams.get('token') !== PAL_MIGRATION_EXPORT_TOKEN) {
-        return sendJson(req, res, 404, { error: 'not_found' });
-      }
-      return sendJson(req, res, 200, {
-        ok: true,
-        environment: Object.fromEntries(
-          PAL_MIGRATION_ENV_KEYS
-            .filter((key) => process.env[key] !== undefined)
-            .map((key) => [key, process.env[key]])
-        ),
-      });
-    }
-
-    if (req.method === 'GET' && url.pathname === '/internal/neon-migration-export') {
-      if (!PAL_MIGRATION_EXPORT_TOKEN || url.searchParams.get('token') !== PAL_MIGRATION_EXPORT_TOKEN) {
-        return sendJson(req, res, 404, { error: 'not_found' });
-      }
-
-      const { rows: tableRows } = await pool.query(`
-        select table_name
-          from information_schema.tables
-         where table_schema = 'public'
-           and table_type = 'BASE TABLE'
-           and table_name like 'pal_%'
-         order by table_name
-      `);
-
-      const tables = {};
-      const schemas = {};
-      for (const { table_name: tableName } of tableRows) {
-        if (!/^pal_[a-z0-9_]+$/.test(tableName)) continue;
-        const { rows: columnRows } = await pool.query(
-          `select column_name, data_type, udt_name, is_nullable, column_default
-             from information_schema.columns
-            where table_schema = 'public' and table_name = $1
-            order by ordinal_position`,
-          [tableName]
-        );
-        const { rows } = await pool.query(`select * from "${tableName}" order by 1 asc limit 50000`);
-        schemas[tableName] = columnRows;
-        tables[tableName] = rows;
-      }
-
-      return sendJson(req, res, 200, {
-        ok: true,
-        exported_at: new Date().toISOString(),
-        table_count: Object.keys(tables).length,
-        schemas,
-        tables,
-      });
     }
 
     if (req.method === 'GET' && url.pathname === '/metrics/feed-auditor') {
