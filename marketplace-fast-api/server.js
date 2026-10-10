@@ -1,4 +1,5 @@
 import http from "node:http";
+import { timingSafeEqual } from "node:crypto";
 import { lookup } from "node:dns/promises";
 import { isIP } from "node:net";
 import {
@@ -10,6 +11,17 @@ import {
 } from "./lib/catalog.js";
 
 const PORT = Number(process.env.PORT || 3000);
+const API_MARKET_PAID_ROUTES = new Set([
+  "/api/catalog-audit", "/api/catalog-remediation", "/api/gtin-check", "/api/feed-diff"
+]);
+// These four routes are exclusive to upstream API.market billing. They fail closed until
+// a merchant-specific secret is provisioned; storefront sample and health remain public.
+function hasApiMarketOriginKey(req) {
+  const expected = String(process.env.PAL_API_MARKET_SHARED_SECRET || "");
+  const provided = String(req.headers?.["x-pal-origin-key"] || "");
+  if (expected.length < 32 || provided.length !== expected.length) return false;
+  return timingSafeEqual(Buffer.from(expected), Buffer.from(provided));
+}
 
 function send(res,status,body,headers={}) {
   const payload = JSON.stringify(body);
@@ -324,23 +336,32 @@ function openApi(base){
       description:"Low-latency AIEO catalog intelligence for AI shopping, agentic commerce, marketplaces and Merchant Center-compatible product data."
     },
     servers:[{url:base}],
+    components:{
+      securitySchemes:{ApiMarketOriginKey:{type:"apiKey",in:"header",name:"x-pal-origin-key",description:"Configured only in the API.market seller source Authentication."}},
+      schemas:{
+        ProductRecord:{type:"object",additionalProperties:true,properties:{id:{type:"string"},title:{type:"string"},brand:{type:"string"},gtin:{type:"string"},price:{type:"string"},availability:{type:"string"}}},
+        CatalogRecordsRequest:{type:"object",required:["records"],properties:{records:{type:"array",minItems:1,maxItems:100,items:{$ref:"#/components/schemas/ProductRecord"}}}},
+        GtinRequest:{type:"object",required:["gtins"],properties:{gtins:{type:"array",minItems:1,maxItems:100,items:{type:"string"}}}},
+        FeedDiffRequest:{type:"object",required:["before","after"],properties:{before:{type:"array",maxItems:100,items:{$ref:"#/components/schemas/ProductRecord"}},after:{type:"array",maxItems:100,items:{$ref:"#/components/schemas/ProductRecord"}}}}
+      }
+    },
     paths:{
       "/api/health":{get:{summary:"Health check",responses:{"200":{description:"OK"}}}},
       "/api/catalog-audit":{
         get:{summary:"Catalog audit readiness probe",responses:{"200":{description:"Ready"}}},
-        post:{summary:"Audit ecommerce product records for AIEO and AI-shopping readiness",responses:{"200":{description:"Audit result"}}}
+        post:{security:[{ApiMarketOriginKey:[]}],requestBody:{required:true,content:{"application/json":{schema:{$ref:"#/components/schemas/CatalogRecordsRequest"}}}},summary:"Audit ecommerce product records for AIEO and AI-shopping readiness",responses:{"200":{description:"Audit result"}}}
       },
       "/api/catalog-remediation":{
         get:{summary:"Catalog remediation readiness probe",responses:{"200":{description:"Ready"}}},
-        post:{summary:"Generate prioritized AIEO remediation with Merchant Center compatibility",responses:{"200":{description:"Remediation result"}}}
+        post:{security:[{ApiMarketOriginKey:[]}],requestBody:{required:true,content:{"application/json":{schema:{$ref:"#/components/schemas/CatalogRecordsRequest"}}}},summary:"Generate prioritized AIEO remediation with Merchant Center compatibility",responses:{"200":{description:"Remediation result"}}}
       },
       "/api/gtin-check":{
         get:{summary:"GTIN validation readiness probe",responses:{"200":{description:"Ready"}}},
-        post:{summary:"Validate GTIN UPC EAN identifiers",responses:{"200":{description:"GTIN result"}}}
+        post:{security:[{ApiMarketOriginKey:[]}],requestBody:{required:true,content:{"application/json":{schema:{$ref:"#/components/schemas/GtinRequest"}}}},summary:"Validate GTIN UPC EAN identifiers",responses:{"200":{description:"GTIN result"}}}
       },
       "/api/feed-diff":{
         get:{summary:"Feed diff readiness probe",responses:{"200":{description:"Ready"}}},
-        post:{summary:"Compare product-feed snapshots",responses:{"200":{description:"Feed diff result"}}}
+        post:{security:[{ApiMarketOriginKey:[]}],requestBody:{required:true,content:{"application/json":{schema:{$ref:"#/components/schemas/FeedDiffRequest"}}}},summary:"Compare product-feed snapshots",responses:{"200":{description:"Feed diff result"}}}
       },
       "/api/shopify-aieo-quick-audit":{
         get:{summary:"Shopify AIEO quick-audit readiness probe",responses:{"200":{description:"Ready"}}},
@@ -406,12 +427,12 @@ const server=http.createServer(async (req,res)=>{
 
   try{
     if(req.method==="GET" && path==="/api/health"){
-      return send(res,200,{ok:true,service:"PAL Marketplace Fast API",version:"1.1.0",latency_ms:Date.now()-started});
+      return send(res,200,{ok:true,service:"PAL Marketplace Fast API",version:"1.2.1",latency_ms:Date.now()-started},{"x-magicapi-billing":"API=0"});
     }
 
     if(req.method==="GET" && path==="/api/openapi"){
       const proto=(req.headers["x-forwarded-proto"]||"https").split(",")[0].trim();
-      return send(res,200,openApi(`${proto}://${req.headers.host}`),{"cache-control":"public, max-age=300"});
+      return send(res,200,openApi(`${proto}://${req.headers.host}`),{"cache-control":"public, max-age=300","x-magicapi-billing":"API=0"});
     }
 
     if(req.method==="GET" && probeMetadata[path]){
@@ -421,7 +442,7 @@ const server=http.createServer(async (req,res)=>{
         provider:"Practical Automation Lab",
         billing:"handled_upstream",
         ...probeMetadata[path]
-      });
+      },{"x-magicapi-billing":"API=0"});
     }
 
     if(path==="/api/agentpay" && req.method==="GET"){
@@ -435,6 +456,12 @@ const server=http.createServer(async (req,res)=>{
 
     if(req.method!=="POST") return send(res,405,{error:"method_not_allowed"});
 
+    if (API_MARKET_PAID_ROUTES.has(path)) {
+      if (!process.env.PAL_API_MARKET_SHARED_SECRET || String(process.env.PAL_API_MARKET_SHARED_SECRET).length < 32) {
+        return send(res,503,{error:"upstream_billing_configuration_required"});
+      }
+      if (!hasApiMarketOriginKey(req)) return send(res,401,{error:"invalid_api_market_origin_key"});
+    }
     const body=await readJson(req);
 
     if(path==="/api/catalog-audit"){
