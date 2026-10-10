@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-10T11:59:19.874Z",
+  "generated_at": "2026-10-10T12:05:39.028Z",
   "source": "https://fisherleads.com/new/shopify",
   "source_policy": "Public newest-store directory only. Public business contact pages only. No paid enrichment, no guessed emails, no automatic sending.",
-  "candidates_checked": 22,
+  "candidates_checked": 21,
   "max_leads": 10,
   "leads": [
     {
@@ -32,20 +32,6 @@
       "pal_preflight_url": "https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url=https%3A%2F%2Fjetboilmall.com",
       "shopify_app_url": "https://apps.shopify.com/pal-catalog-check?utm_source=pal-outreach&utm_medium=email&utm_campaign=new-shopify",
       "recommended_subject": "jetboilmall.com Shopify United States: AI-shopping readiness for your new Shopify catalog",
-      "outreach_guardrail": "Use one individualized first-touch message only. Do not auto-send or bulk-send. Suppress immediately after contact or opt-out."
-    },
-    {
-      "store_name": "𝒿ℯ𝓍𝓆𝓋™ Shopify United States",
-      "domain": "jexqv.com",
-      "email": "service@jexqv.com",
-      "storefront_origin": "https://jexqv.com",
-      "sample_product_title": "Daisy Meadow Pen Set",
-      "sample_vendor": "𝒿ℯ𝓍𝓆𝓋™",
-      "launched": "today",
-      "contact_source_url": "https://jexqv.com/policies/privacy-policy",
-      "pal_preflight_url": "https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url=https%3A%2F%2Fjexqv.com",
-      "shopify_app_url": "https://apps.shopify.com/pal-catalog-check?utm_source=pal-outreach&utm_medium=email&utm_campaign=new-shopify",
-      "recommended_subject": "𝒿ℯ𝓍𝓆𝓋™ Shopify United States: AI-shopping readiness for your new Shopify catalog",
       "outreach_guardrail": "Use one individualized first-touch message only. Do not auto-send or bulk-send. Suppress immediately after contact or opt-out."
     },
     {
@@ -144,6 +130,20 @@
       "pal_preflight_url": "https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url=https%3A%2F%2Fjolguzful.com",
       "shopify_app_url": "https://apps.shopify.com/pal-catalog-check?utm_source=pal-outreach&utm_medium=email&utm_campaign=new-shopify",
       "recommended_subject": "A LOT ON MY PLATE Shopify United States: AI-shopping readiness for your new Shopify catalog",
+      "outreach_guardrail": "Use one individualized first-touch message only. Do not auto-send or bulk-send. Suppress immediately after contact or opt-out."
+    },
+    {
+      "store_name": "Joli Pli Shopify France",
+      "domain": "jolipli.com",
+      "email": "adressebonjour.jolipli@gmail.com",
+      "storefront_origin": "https://jolipli.com",
+      "sample_product_title": "Le Mail Club Joli Pli - Abonnement mensuel",
+      "sample_vendor": "Joli Pli",
+      "launched": "today",
+      "contact_source_url": "https://jolipli.com/policies/privacy-policy",
+      "pal_preflight_url": "https://pal-full-catalog-remediation.onrender.com/v1/shopify-store-preflight?url=https%3A%2F%2Fjolipli.com",
+      "shopify_app_url": "https://apps.shopify.com/pal-catalog-check?utm_source=pal-outreach&utm_medium=email&utm_campaign=new-shopify",
+      "recommended_subject": "Joli Pli Shopify France: AI-shopping readiness for your new Shopify catalog",
       "outreach_guardrail": "Use one individualized first-touch message only. Do not auto-send or bulk-send. Suppress immediately after contact or opt-out."
     }
   ]

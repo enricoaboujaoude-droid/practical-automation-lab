@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-10T11:59:24.819Z",
-  "source_queue_created": "2026-10-10T11:59:19.874Z",
+  "generated_at": "2026-10-10T12:05:43.868Z",
+  "source_queue_created": "2026-10-10T12:05:39.028Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
@@ -32,7 +32,7 @@
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-10T11:59:20.757Z",
+      "audited_at": "2026-10-10T12:05:40.180Z",
       "ok": true
     },
     {
@@ -62,36 +62,7 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
       ],
-      "audited_at": "2026-10-10T11:59:21.121Z",
-      "ok": true
-    },
-    {
-      "domain": "jexqv.com",
-      "store_name": "𝒿ℯ𝓍𝓆𝓋™ Shopify United States",
-      "origin": "https://jexqv.com",
-      "score": 45,
-      "sample": {
-        "products": 18,
-        "variants": 18,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-10T11:59:21.715Z",
+      "audited_at": "2026-10-10T12:05:40.810Z",
       "ok": true
     },
     {
@@ -119,7 +90,7 @@
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-10T11:59:22.173Z",
+      "audited_at": "2026-10-10T12:05:41.197Z",
       "ok": true
     },
     {
@@ -148,7 +119,7 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-10T11:59:22.627Z",
+      "audited_at": "2026-10-10T12:05:41.670Z",
       "ok": true
     },
     {
@@ -178,7 +149,7 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
       ],
-      "audited_at": "2026-10-10T11:59:22.963Z",
+      "audited_at": "2026-10-10T12:05:42.011Z",
       "ok": true
     },
     {
@@ -207,7 +178,7 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-10T11:59:23.290Z",
+      "audited_at": "2026-10-10T12:05:42.381Z",
       "ok": true
     },
     {
@@ -234,7 +205,7 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-10T11:59:23.673Z",
+      "audited_at": "2026-10-10T12:05:42.744Z",
       "ok": true
     },
     {
@@ -264,7 +235,7 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-10T11:59:24.269Z",
+      "audited_at": "2026-10-10T12:05:43.065Z",
       "ok": true
     },
     {
@@ -294,7 +265,36 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
       ],
-      "audited_at": "2026-10-10T11:59:24.739Z",
+      "audited_at": "2026-10-10T12:05:43.373Z",
+      "ok": true
+    },
+    {
+      "domain": "jolipli.com",
+      "store_name": "Joli Pli Shopify France",
+      "origin": "https://jolipli.com",
+      "score": 45,
+      "sample": {
+        "products": 1,
+        "variants": 1,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-10T12:05:43.796Z",
       "ok": true
     }
   ]
