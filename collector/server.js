@@ -3509,6 +3509,77 @@ async function logCompletedRevenueSnapshot() {
 }
 
 
+
+// One-way bounded source snapshot to Neon migration staging; no public route,
+// no secrets or customer rows in logs. Each row is upserted by immutable source key.
+async function stageRenderMigrationRows() {
+  const targetUrl = String(process.env.PAL_MIGRATION_NEON_URL || '').trim();
+  if (!targetUrl) return;
+  const sourceHost = new URL(DATABASE_URL).hostname.toLowerCase();
+  if (!sourceHost.endsWith('.render.com') && !sourceHost.startsWith('dpg-')) {
+    console.warn('PAL_MIGRATION_STAGE skipped: source is not Render PostgreSQL');
+    return;
+  }
+  const targetHost = new URL(targetUrl).hostname.toLowerCase();
+  if (!targetHost.endsWith('.neon.tech')) {
+    console.error('PAL_MIGRATION_STAGE refused: expected Neon destination');
+    return;
+  }
+  const migrationTables = [
+    'pal_feed_auditor_events', 'pal_commercial_leads', 'pal_paddle_webhook_events',
+    'pal_fastspring_webhook_events', 'pal_creem_webhook_events', 'pal_paypro_webhook_events',
+    'pal_stripe_webhook_events', 'pal_montypay_webhook_events', 'pal_montypay_checkout_sessions'
+  ];
+  const destination = new Pool({
+    connectionString: targetUrl, max: 1,
+    connectionTimeoutMillis: 15000,
+    idleTimeoutMillis: 10000,
+    application_name: 'pal-render-data-migration'
+  });
+  try {
+    const db = await destination.query('select current_database() as db');
+    if (db.rows[0]?.db !== 'pal_shopify_sessions') {
+      throw new Error('migration destination database mismatch');
+    }
+    const moved = {};
+    for (const name of migrationTables) {
+      const quoted = '"' + name.replace(/"/g, '""') + '"';
+      const result = await pool.query(
+        'select row_to_json(t) as doc from public.' + quoted + ' t limit 20001'
+      );
+      if (result.rows.length > 20000) {
+        throw new Error('migration bounded row count exceeded for ' + name);
+      }
+      let inserted = 0;
+      for (const { doc } of result.rows) {
+        const body = JSON.stringify(doc);
+        const key = doc.id != null ? String(doc.id) :
+          doc.event_id != null ? String(doc.event_id) :
+          doc.order_number != null ? String(doc.order_number) :
+          crypto.createHash('sha256').update(body).digest('hex');
+        const fingerprint = crypto.createHash('sha256').update(body).digest('hex');
+        await destination.query(
+          'insert into public.pal_render_migration_stage ' +
+          '(source_table,source_key,payload,row_fingerprint) values ($1,$2,$3::jsonb,$4) ' +
+          'on conflict (source_table,source_key) do update set ' +
+          'payload=excluded.payload,row_fingerprint=excluded.row_fingerprint,captured_at=now() ' +
+          'where pal_render_migration_stage.row_fingerprint is distinct from excluded.row_fingerprint',
+          [name, key, body, fingerprint]
+        );
+        inserted++;
+      }
+      moved[name] = inserted;
+    }
+    console.log('PAL_MIGRATION_STAGE_COMPLETED ' + JSON.stringify({ tables: moved }));
+  } catch (error) {
+    // Do not log SQL parameter values, connection strings, or raw customer data.
+    console.error('PAL_MIGRATION_STAGE_FAILED ' +
+      JSON.stringify({ code: String(error.code || 'runtime_error').slice(0, 32) }));
+  } finally {
+    await destination.end().catch(() => {});
+  }
+}
+
 async function logMigrationDatabaseInventory() {
   // Temporary read-only migration evidence: no raw customer rows or secret values.
   const host = new URL(DATABASE_URL).hostname.toLowerCase();
@@ -3539,6 +3610,7 @@ initialize()
     server.listen(PORT, '0.0.0.0', () => {
       console.log(`Feed-auditor event collector listening on port ${PORT}`);
       void logMigrationDatabaseInventory().catch(error => { console.error('[pal-migration-inventory] failed:', error.message); });
+      void stageRenderMigrationRows();
       void logCompletedRevenueSnapshot().catch(error => {
         console.error('[pal-payment-ledger] failed:', error.message);
       });
