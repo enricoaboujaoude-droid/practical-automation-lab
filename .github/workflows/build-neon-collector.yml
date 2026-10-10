@@ -9,20 +9,22 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
-      - name: Build Node HTTP compatibility function
+      - name: Build Neon-native collector bundles
         shell: bash
         run: |
           set -euo pipefail
           npm install --no-save esbuild pg
-          mkdir -p .neon-build/collector/dist
+          mkdir -p .neon-build/collector/dist neon-runtime
 
           node <<'NODE'
           const fs = require('fs');
@@ -112,14 +114,47 @@ jobs:
           fs.writeFileSync('.neon-build/collector/index.mjs', source);
           NODE
 
-          npx esbuild .neon-build/collector/index.mjs             --bundle             --platform=node             --target=node24             --format=esm             --banner:js="import{createRequire as ___cr}from'module';import{fileURLToPath as ___f}from'url';import{dirname as ___d}from'path';const require=___cr(import.meta.url);const __filename=___f(import.meta.url);const __dirname=___d(__filename);"             --outfile=.neon-build/collector/dist/index.mjs
+          npx esbuild .neon-build/collector/index.mjs \
+            --bundle \
+            --platform=node \
+            --target=node24 \
+            --format=esm \
+            --minify \
+            --banner:js="import{createRequire as ___cr}from'node:module';import{fileURLToPath as ___f}from'node:url';import{dirname as ___d}from'node:path';const require=___cr(import.meta.url);const __filename=___f(import.meta.url);const __dirname=___d(__filename);" \
+            --outfile=.neon-build/collector/dist/index.mjs
 
-          cd .neon-build/collector/dist
-          zip -9 ../function.zip index.mjs
-          ls -lh ../function.zip
+          (
+            cd .neon-build/collector/dist
+            zip -9 ../function.zip index.mjs
+          )
+
+          npx esbuild .neon-build/collector/index.mjs \
+            --bundle \
+            --platform=node \
+            --target=node24 \
+            --format=cjs \
+            --minify \
+            --outfile=neon-runtime/collector.bundle.cjs
+
+          ls -lh .neon-build/collector/function.zip neon-runtime/collector.bundle.cjs
 
       - uses: actions/upload-artifact@v4
         with:
           name: neon-collector-function
           path: .neon-build/collector/function.zip
           if-no-files-found: error
+
+      - name: Publish deterministic collector bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- neon-runtime/collector.bundle.cjs; then
+            echo "Collector bundle unchanged"
+            exit 0
+          fi
+          git config user.name "PAL Migration Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add neon-runtime/collector.bundle.cjs
+          git commit -m "migration: publish Neon collector runtime bundle"
+          git pull --rebase origin main
+          git push origin HEAD:main
