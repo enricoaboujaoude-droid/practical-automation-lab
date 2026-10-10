@@ -73,7 +73,7 @@
   <p class="muted">Boundary: public storefront data only. PAL does not authenticate into the shop, mutate store data, or guarantee AI-channel inclusion, ranking, recommendation, checkout availability, or Google Merchant Center approval. AIEO complements SEO.</p>
 
 <script>
-const EVENTS="https://pal-feed-auditor-events.onrender.com/event";
+const EVENTS="https://br-wild-truth-b2gxc5zl-palevents.compute.c-6.eu-central-1.aws.neon.tech/event";
 function event(name){try{fetch(EVENTS,{method:"POST",mode:"cors",headers:{"content-type":"text/plain"},body:name,keepalive:true}).catch(()=>{});}catch(_){}}
 event("pal_shopify_store_audit_viewed");
 const input=document.getElementById("store");
