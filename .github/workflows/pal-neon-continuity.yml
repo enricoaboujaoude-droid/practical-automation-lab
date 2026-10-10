@@ -74,4 +74,15 @@ jobs:
           test "$status" = "402"
           grep -qi '^payment-required:' "$challenge"
           rm -f "$challenge"
+          # Validate commercial-lead endpoint using a deliberately invalid, no-write form.
+          for endpoint in "$EVENTS/commercial-interest" "https://pal-feed-auditor-events.onrender.com/commercial-interest"; do
+            testhead="$(mktemp)"
+            status="$(curl -sS -D "$testhead" -o /dev/null -w '%{http_code}' --max-time 45 -X POST "$endpoint" \
+              -H 'origin: https://practical-automation-lab.onrender.com' -H 'content-type: application/json' \
+              --data '{"product":"pal-catalog-check","intent":"team-license","consent":false}')"
+            echo "PAL_CHECK invalid_consent_commercial_form status=$status endpoint=$endpoint"
+            test "$status" = "400"
+            grep -Fqi 'access-control-allow-origin: https://practical-automation-lab.onrender.com' "$testhead"
+            rm -f "$testhead"
+          done
           echo "PAL_CHECKS_PASS No purchases or production form submissions were attempted."
