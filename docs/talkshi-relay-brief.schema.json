@@ -8,6 +8,7 @@
   "required": [
     "order_reference",
     "service",
+    "fixed_price_usd",
     "buyer_authorized",
     "payment_status",
     "payment_evidence_reference",
