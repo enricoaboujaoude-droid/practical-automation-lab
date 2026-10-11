@@ -1,48 +1,50 @@
 {
-  "generated_at": "2026-10-10T12:41:25.761Z",
-  "source_queue_created": "2026-10-10T12:41:24.065Z",
+  "generated_at": "2026-10-11T07:29:21.711Z",
+  "source_queue_created": "2026-10-11T07:29:15.535Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 2,
-  "passed": 2,
+  "attempted": 9,
+  "passed": 9,
   "results": [
     {
-      "domain": "gamingelectronicshightech.com",
-      "store_name": "Gaming Electronics High Tech Shopify United States",
-      "origin": "https://gamingelectronicshightech.com",
-      "score": 69,
+      "domain": "dieselteeprint.store",
+      "store_name": "Diesel Tee Print Shopify United States",
+      "origin": "https://dieselteeprint.store",
+      "score": 8,
       "sample": {
-        "products": 50,
-        "variants": 82,
+        "products": 20,
+        "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 98.8,
+        "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 98.8,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 98,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 15,
+        "product_type_pct": 15,
+        "useful_description_pct": 15,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 98
+        "descriptive_title_pct": 15
       },
       "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-10T12:41:25.276Z",
+      "audited_at": "2026-10-11T07:29:16.573Z",
       "ok": true
     },
     {
-      "domain": "getmasko.com",
-      "store_name": "MASKO Shopify France",
-      "origin": "https://getmasko.com",
-      "score": 70,
+      "domain": "dollomart.store",
+      "store_name": "DOLLO MART Shopify India",
+      "origin": "https://dollomart.store",
+      "score": 80,
       "sample": {
-        "products": 13,
-        "variants": 13,
+        "products": 50,
+        "variants": 50,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -54,13 +56,217 @@
         "product_type_pct": 100,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 0
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-11T07:29:17.368Z",
+      "ok": true
+    },
+    {
+      "domain": "elastia.org",
+      "store_name": "Elastia Shopify United Kingdom",
+      "origin": "https://elastia.org",
+      "score": 33,
+      "sample": {
+        "products": 16,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 87.5,
+        "product_type_pct": 0,
+        "useful_description_pct": 87.5,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 18.8
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-11T07:29:18.191Z",
+      "ok": true
+    },
+    {
+      "domain": "eddicreation.store",
+      "store_name": "Eddicreation Shopify United States",
+      "origin": "https://eddicreation.store",
+      "score": 55,
+      "sample": {
+        "products": 16,
+        "variants": 16,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-11T07:29:18.591Z",
+      "ok": true
+    },
+    {
+      "domain": "emogear.store",
+      "store_name": "Emo’s Essentials Shopify United States",
+      "origin": "https://emogear.store",
+      "score": 70,
+      "sample": {
+        "products": 22,
+        "variants": 46,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
       },
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-11T07:29:19.047Z",
+      "ok": true
+    },
+    {
+      "domain": "elisurfragancias.net",
+      "store_name": "ELISUR FRAGANCIAS Shopify Spain",
+      "origin": "https://elisurfragancias.net",
+      "score": 53,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 78
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
       ],
-      "audited_at": "2026-10-10T12:41:25.696Z",
+      "audited_at": "2026-10-11T07:29:19.664Z",
+      "ok": true
+    },
+    {
+      "domain": "elusivebutterfly.store",
+      "store_name": "Elusive Butterfly Shopify Canada",
+      "origin": "https://elusivebutterfly.store",
+      "score": 38,
+      "sample": {
+        "products": 17,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 23.5,
+        "product_type_pct": 23.5,
+        "useful_description_pct": 23.5,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 23.5
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-11T07:29:20.332Z",
+      "ok": true
+    },
+    {
+      "domain": "emberloreincense.shop",
+      "store_name": "Emberlore Incense Shopify United States",
+      "origin": "https://emberloreincense.shop",
+      "score": 8,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 14,
+        "product_type_pct": 14,
+        "useful_description_pct": 14,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 14
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-11T07:29:21.202Z",
+      "ok": true
+    },
+    {
+      "domain": "essence-collective.store",
+      "store_name": "Essence Collective Shopify United Kingdom",
+      "origin": "https://essence-collective.store",
+      "score": 38,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 26
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+      ],
+      "audited_at": "2026-10-11T07:29:21.630Z",
       "ok": true
     }
   ]
