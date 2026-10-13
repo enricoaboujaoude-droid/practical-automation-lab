@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Live Shopify AIEO & AI Shopping Store Audit | Practical Automation Lab</title>
-  <meta name="description" content="Preflight a public Shopify storefront for free, then run a $25 AIEO audit over up to 250 live variants for AI-shopping readability and Merchant Center compatibility.">
+  <meta name="description" content="Explore a free public Shopify storefront preflight and learn what AI-shopping readiness data to inspect. Paid backend availability is being restored.">
   <link rel="canonical" href="https://practical-automation-lab.onrender.com/shopify-store-audit.html">
   <meta name="robots" content="index,follow">
   <style>
@@ -22,7 +22,6 @@
     "name":"PAL Live Shopify AIEO Commerce Audit",
     "description":"Autonomous live public Shopify storefront audit for AIEO, AI-shopping readability and Merchant Center compatibility.",
     "provider":{"@type":"Organization","name":"Practical Automation Lab"},
-    "offers":{"@type":"Offer","price":"25.00","priceCurrency":"USD"},
     "url":"https://practical-automation-lab.onrender.com/shopify-store-audit.html"
   }
   </script>
@@ -30,7 +29,7 @@
 <body>
   <p><a href="/">← Practical Automation Lab</a></p>
   <h1>Audit a live Shopify store for AI-shopping readiness</h1>
-  <p class="lead">PAL reads only the store's public Shopify storefront APIs. The paid AIEO audit inspects up to 250 live variants for identifiers, links, pricing, availability and machine-readability issues, then returns prioritized remediation with Merchant Center compatibility.</p>
+  <p class="lead">PAL reads only the store's public Shopify storefront APIs. The public storefront preflight samples product-data readability and Merchant Center compatibility. Some paid audit integrations are temporarily unavailable; no purchase is necessary to use the free preflight.</p>
 
   <div class="card">
     <h2>Free storefront preflight</h2>
@@ -50,25 +49,14 @@
     <p style="font-size:1.2rem"><strong>$199/year</strong> or $19/month, billed through Shopify.</p>
     <p>For Shopify merchants who want saved scan history, repeat scans, change detection, scheduled monitoring and reports, beyond a one-off public snapshot. The Free plan is available first.</p>
     <a class="cta" href="https://apps.shopify.com/pal-catalog-check?utm_source=pal-live-audit&utm_medium=owned&utm_campaign=annual-pro" data-pal-event="pal_shopify_landing_clicked">Install Free / View the $199 yearly Pro plan →</a>
-    <p class="muted">Plan selection and checkout occur securely inside Shopify. The page does not charge your account.</p>
+    <p class="muted">Shopify manages plan selection and billing. The PAL app backend is currently affected by hosting suspension; paid-plan fulfillment has not been revalidated. Do not choose a paid plan until the app is confirmed operational. This page itself does not charge you.</p>
     <p class="muted"><a href="https://share.descript.com/view/3I5oGru8Gps" target="_blank" rel="noopener noreferrer" data-pal-event="pal_shopify_demo_clicked">Watch the 34-second PAL Catalog Check demo ↗</a> — read-only scanning, identifier and image checks, and remediation guidance.</p>
   </div>
 
-  <div class="card">
-    <h2>One-time API audits (USDC payment-capable agents)</h2><p class="muted">These routes use x402 wallet signatures, not conventional credit-card checkout. Merchants without an agent wallet can use the Shopify Free/Pro plans above.</p>
-    <p><strong>$5 quick Shopify AIEO audit</strong> — lowest-friction first paid step for a public Shopify store. No admin login or app install.</p>
-    <p><a id="quickBuy" class="cta" href="https://agentictrade.io/marketplace" rel="noopener noreferrer">Open AgenticTrade marketplace →</a></p>
-    <p class="muted">Search for <strong>PAL AIEO Quick Shopify Audit</strong>.</p>
-
-    <p><strong>$25 full live-store AIEO audit</strong> — audits up to 250 products/variants and returns prioritized AI-commerce and Merchant Center/feed remediation.</p>
-    <p><a id="buy" class="cta" href="https://payanagent.com/x402/kh7bfj8ff0xgesyj7cemjz2p518fynqm" rel="noopener noreferrer">Open $25 x402 agent checkout →</a></p>
-    <p class="muted">Machine-buyable on PayanAgent with Base USDC. Offer ID: <code>kh7bfj8ff0xgesyj7cemjz2p518fynqm</code>.</p>
-    <p><a class="cta" href="https://agentictrade.io/marketplace" rel="noopener noreferrer">Alternate: AgenticTrade $25 listing →</a></p>
-    <p class="muted">Search AgenticTrade for <strong>PAL Live Shopify Store Commerce Audit</strong>. Verified service, 100% observed uptime.</p>
-    <p class="muted">Direct x402 endpoint for compatible agents: <code>GET https://pal-full-catalog-remediation.onrender.com/v1/usdc/shopify-store-audit?url=...</code></p>
-
-    <p><strong>Developer / card-billed API access</strong> — PAL Catalog Feed Auditor is also published on RapidAPI with marketplace-managed subscription billing and paid plans.</p>
-    <p><a id="rapidBuy" class="cta" href="https://rapidapi.com/enricoaboujaoudedroid/api/pal-catalog-feed-auditor/pricing" rel="noopener noreferrer">Open PAL on RapidAPI →</a></p>
+  <div class="card" id="paid-api-status">
+    <h2>Paid API audit availability</h2>
+    <p><strong>Temporarily unavailable.</strong> PAL's one-time agent audit checkout and dynamic fulfillment routes are being restored. The former $25 PayanAgent offer is invalid, and some backend services are suspended. Please do not send a crypto payment or rely on old direct API links.</p>
+    <p class="muted">The free browser preflight above remains available to try. We will reopen paid agent audits only after checkout, payment settlement and delivery are independently verified end to end. This page does not collect payment.</p>
   </div>
 
   <div class="card">
@@ -87,7 +75,7 @@
   <p class="muted">Boundary: public storefront data only. PAL does not authenticate into the shop, mutate store data, or guarantee AI-channel inclusion, ranking, recommendation, checkout availability, or Google Merchant Center approval. AIEO complements SEO.</p>
 
 <script>
-const EVENTS="https://pal-feed-auditor-events.onrender.com/event";
+const EVENTS="https://br-wild-truth-b2gxc5zl-palevents.compute.c-6.eu-central-1.aws.neon.tech/event";
 function event(name){try{fetch(EVENTS,{method:"POST",mode:"cors",headers:{"content-type":"text/plain"},body:name,keepalive:true}).catch(()=>{});}catch(_){}}
 event("pal_shopify_store_audit_viewed");
 // Also capture clicks on Shopify Pro/Free calls-to-action, not just USDC buttons.
@@ -146,9 +134,6 @@ document.getElementById("preflight").addEventListener("click",async()=>{
     result.textContent="Could not retrieve this store's public catalog. "+(err?.name==="TimeoutError"?"The request timed out.":"Try another public Shopify store URL.");
   }finally{button.disabled=false;}
 });
-document.getElementById("quickBuy").addEventListener("click",()=>event("pal_shopify_quick_audit_buy_clicked"));
-document.getElementById("buy").addEventListener("click",()=>event("pal_shopify_store_audit_buy_clicked"));
-document.getElementById("rapidBuy").addEventListener("click",()=>event("pal_rapidapi_buy_clicked"));
 </script>
 </body>
 </html>
