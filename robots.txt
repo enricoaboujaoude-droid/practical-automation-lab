@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://practical-automation-lab.onrender.com/sitemap.xml
