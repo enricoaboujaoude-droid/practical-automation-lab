@@ -1,77 +1,20 @@
 {
-  "generated_at": "2026-10-13T07:35:56.533Z",
-  "source_queue_created": "2026-10-13T07:35:47.447Z",
+  "generated_at": "2026-10-14T07:47:17.043Z",
+  "source_queue_created": "2026-10-14T07:47:11.144Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 10,
-  "passed": 10,
+  "attempted": 9,
+  "passed": 9,
   "results": [
     {
-      "domain": "timelesswardrobee.shop",
-      "store_name": "TimelessWardrobe Shopify United States",
-      "origin": "https://timelesswardrobee.shop",
-      "score": 60,
+      "domain": "lumemaison.store",
+      "store_name": "Maison Lume Shopify South Africa",
+      "origin": "https://lumemaison.store",
+      "score": 44,
       "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 79,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 79,
-        "vendor_brand_pct": 74,
-        "product_type_pct": 72,
-        "useful_description_pct": 72,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 74
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-13T07:35:48.878Z",
-      "ok": true
-    },
-    {
-      "domain": "activatefoods.com.au",
-      "store_name": "Activate Foods Shopify Australia",
-      "origin": "https://activatefoods.com.au",
-      "score": 77,
-      "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 88,
-        "useful_description_pct": 96,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 90
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-13T07:35:49.680Z",
-      "ok": true
-    },
-    {
-      "domain": "adartdesign.us",
-      "store_name": "AD ART & DESIGN Shopify United States",
-      "origin": "https://adartdesign.us",
-      "score": 43,
-      "sample": {
-        "products": 15,
-        "variants": 15,
+        "products": 14,
+        "variants": 14,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -81,67 +24,38 @@
         "sku_mpn_pct": 0,
         "vendor_brand_pct": 100,
         "product_type_pct": 0,
-        "useful_description_pct": 93.3,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 93.3
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-13T07:35:50.177Z",
-      "ok": true
-    },
-    {
-      "domain": "aggauto.com.au",
-      "store_name": "AGG Shopify Australia",
-      "origin": "https://aggauto.com.au",
-      "score": 48,
-      "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 10,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 10,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
+        "descriptive_title_pct": 85.7
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-13T07:35:51.523Z",
+      "audited_at": "2026-10-14T07:47:12.216Z",
       "ok": true
     },
     {
-      "domain": "amazora.us",
-      "store_name": "Pocketwise Shopify United States",
-      "origin": "https://amazora.us",
-      "score": 53,
+      "domain": "lumenfit.store",
+      "store_name": "LumenFit Shopify Spain",
+      "origin": "https://lumenfit.store",
+      "score": 43,
       "sample": {
-        "products": 35,
+        "products": 48,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 96,
+        "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 96,
-        "vendor_brand_pct": 71.4,
-        "product_type_pct": 0,
-        "useful_description_pct": 60,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 33.3,
+        "product_type_pct": 33.3,
+        "useful_description_pct": 33.3,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 60
+        "descriptive_title_pct": 29.2
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -149,14 +63,42 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-13T07:35:52.198Z",
+      "audited_at": "2026-10-14T07:47:12.841Z",
       "ok": true
     },
     {
-      "domain": "alma.com.au",
-      "store_name": "Alma Sinks Shopify Australia",
-      "origin": "https://alma.com.au",
-      "score": 60,
+      "domain": "lumewear.shop",
+      "store_name": "LumeWear Shopify United States",
+      "origin": "https://lumewear.shop",
+      "score": 69,
+      "sample": {
+        "products": 50,
+        "variants": 69,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 65.2,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 65.2,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 86,
+        "useful_description_pct": 98,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 98
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-14T07:47:13.500Z",
+      "ok": true
+    },
+    {
+      "domain": "lumiivos.shop",
+      "store_name": "lumiivos Shopify United Kingdom",
+      "origin": "https://lumiivos.shop",
+      "score": 73,
       "sample": {
         "products": 50,
         "variants": 50,
@@ -164,89 +106,30 @@
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 96,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
+        "sku_mpn_pct": 96,
         "vendor_brand_pct": 100,
-        "product_type_pct": 98,
-        "useful_description_pct": 0,
+        "product_type_pct": 36,
+        "useful_description_pct": 100,
         "image_alt_text_pct": 0,
         "descriptive_title_pct": 100
       },
       "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-13T07:35:53.797Z",
-      "ok": true
-    },
-    {
-      "domain": "almaya.com.au",
-      "store_name": "ALMAYA Shopify Australia",
-      "origin": "https://almaya.com.au",
-      "score": 21,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 1,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 1,
-        "vendor_brand_pct": 44,
-        "product_type_pct": 44,
-        "useful_description_pct": 44,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 14
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-13T07:35:54.734Z",
+      "audited_at": "2026-10-14T07:47:14.059Z",
       "ok": true
     },
     {
-      "domain": "ambriadesigns.co.uk",
-      "store_name": "Ambria Designs Shopify United Kingdom",
-      "origin": "https://ambriadesigns.co.uk",
-      "score": 41,
+      "domain": "marsimjewellery.site",
+      "store_name": "Marsim 2026 Shopify DZ",
+      "origin": "https://marsimjewellery.site",
+      "score": 17,
       "sample": {
         "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 90,
-        "product_type_pct": 0,
-        "useful_description_pct": 90,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 90
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-13T07:35:55.323Z",
-      "ok": true
-    },
-    {
-      "domain": "ammapindivantalu.com.au",
-      "store_name": "Amma Pindi Vantalu Shopify Australia",
-      "origin": "https://ammapindivantalu.com.au",
-      "score": 46,
-      "sample": {
-        "products": 33,
-        "variants": 33,
+        "variants": 50,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -255,39 +138,10 @@
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
         "vendor_brand_pct": 100,
-        "product_type_pct": 93.9,
-        "useful_description_pct": 97,
+        "product_type_pct": 0,
+        "useful_description_pct": 0,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 18.2
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-10-13T07:35:55.909Z",
-      "ok": true
-    },
-    {
-      "domain": "anett.com.au",
-      "store_name": "ANETT Shopify Australia",
-      "origin": "https://anett.com.au",
-      "score": 47,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 63,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 63,
-        "vendor_brand_pct": 58,
-        "product_type_pct": 56,
-        "useful_description_pct": 58,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 58
+        "descriptive_title_pct": 18
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -295,7 +149,125 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-13T07:35:56.461Z",
+      "audited_at": "2026-10-14T07:47:14.475Z",
+      "ok": true
+    },
+    {
+      "domain": "marrien.store",
+      "store_name": "Marrien - Shop for best Deals Shopify India",
+      "origin": "https://marrien.store",
+      "score": 67,
+      "sample": {
+        "products": 50,
+        "variants": 87,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 87.4,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 87.4,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 18,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 86
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-14T07:47:14.954Z",
+      "ok": true
+    },
+    {
+      "domain": "maximizebrand.store",
+      "store_name": "LEWIS DAVID GRAHAM Shopify United Kingdom",
+      "origin": "https://maximizebrand.store",
+      "score": 52,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 99,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 99,
+        "vendor_brand_pct": 50,
+        "product_type_pct": 48,
+        "useful_description_pct": 50,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 46
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-14T07:47:15.692Z",
+      "ok": true
+    },
+    {
+      "domain": "megaest.shop",
+      "store_name": "RATADIYA JAYDIP BHAVANBHAI Shopify India",
+      "origin": "https://megaest.shop",
+      "score": 64,
+      "sample": {
+        "products": 14,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 85.7,
+        "product_type_pct": 0,
+        "useful_description_pct": 85.7,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 85.7
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-14T07:47:16.097Z",
+      "ok": true
+    },
+    {
+      "domain": "merryvibe.store",
+      "store_name": "Mask Shopify Germany",
+      "origin": "https://merryvibe.store",
+      "score": 31,
+      "sample": {
+        "products": 18,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 11.1,
+        "product_type_pct": 11.1,
+        "useful_description_pct": 11.1,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 11.1
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-14T07:47:16.974Z",
       "ok": true
     }
   ]
