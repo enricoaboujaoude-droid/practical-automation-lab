@@ -1,6 +1,6 @@
 {
   "payout_address": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
-  "checked_at": "2026-10-15T20:30:25.443Z",
+  "checked_at": "2026-10-15T23:14:09.695Z",
   "source": "revenue/usdc-multichain-ledger.json",
   "source_updated_at": "2026-10-15T20:23:19.357Z",
   "chains_checked": [
