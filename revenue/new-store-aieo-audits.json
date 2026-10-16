@@ -1,47 +1,17 @@
 {
-  "generated_at": "2026-10-15T07:47:41.066Z",
-  "source_queue_created": "2026-10-15T07:47:33.173Z",
+  "generated_at": "2026-10-16T07:45:23.091Z",
+  "source_queue_created": "2026-10-16T07:45:11.767Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 10,
-  "passed": 10,
+  "attempted": 9,
+  "passed": 9,
   "results": [
     {
-      "domain": "earlywood.sbs",
-      "store_name": "Earlywood Shopify United States",
-      "origin": "https://earlywood.sbs",
-      "score": 36,
-      "sample": {
-        "products": 49,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 26.5,
-        "product_type_pct": 16.3,
-        "useful_description_pct": 24.5,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 6.1
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-15T07:47:34.726Z",
-      "ok": true
-    },
-    {
-      "domain": "edimjoandse.shop",
-      "store_name": "Allen Edmonds Online Store Shopify United States",
-      "origin": "https://edimjoandse.shop",
-      "score": 36,
+      "domain": "jenniekwondesigns.sbs",
+      "store_name": "JENNIE KWON DESIGNS Shopify United States",
+      "origin": "https://jenniekwondesigns.sbs",
+      "score": 32,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -49,14 +19,14 @@
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 97,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 20,
-        "product_type_pct": 20,
-        "useful_description_pct": 20,
+        "sku_mpn_pct": 97,
+        "vendor_brand_pct": 14,
+        "product_type_pct": 14,
+        "useful_description_pct": 14,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 20
+        "descriptive_title_pct": 12
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -64,14 +34,14 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-15T07:47:35.898Z",
+      "audited_at": "2026-10-16T07:45:13.920Z",
       "ok": true
     },
     {
-      "domain": "eastlineco.shop",
-      "store_name": "EASTLINE CO. Shopify United States",
-      "origin": "https://eastlineco.shop",
-      "score": 42,
+      "domain": "jeweliwhal-jewelry.online",
+      "store_name": "Jewe Shopify United States",
+      "origin": "https://jeweliwhal-jewelry.online",
+      "score": 19,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -79,14 +49,14 @@
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 59,
+        "identifiers_pct": 7,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 59,
-        "vendor_brand_pct": 52,
-        "product_type_pct": 34,
-        "useful_description_pct": 52,
+        "sku_mpn_pct": 7,
+        "vendor_brand_pct": 32,
+        "product_type_pct": 32,
+        "useful_description_pct": 32,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 52
+        "descriptive_title_pct": 32
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -94,13 +64,187 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-15T07:47:36.526Z",
+      "audited_at": "2026-10-16T07:45:15.218Z",
       "ok": true
     },
     {
-      "domain": "eatstoland.shop",
-      "store_name": "Eastland Online Shop Shopify United States",
-      "origin": "https://eatstoland.shop",
+      "domain": "johnrobshaw.sbs",
+      "store_name": "John Robshaw Textiles Shopify United States",
+      "origin": "https://johnrobshaw.sbs",
+      "score": 75,
+      "sample": {
+        "products": 25,
+        "variants": 27,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 52
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+      ],
+      "audited_at": "2026-10-16T07:45:16.297Z",
+      "ok": true
+    },
+    {
+      "domain": "judicieux.live",
+      "store_name": "Judicieux Torréfacteur Shopify France",
+      "origin": "https://judicieux.live",
+      "score": 25,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 46,
+        "product_type_pct": 46,
+        "useful_description_pct": 46,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 46
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-16T07:45:16.993Z",
+      "ok": true
+    },
+    {
+      "domain": "kayvro.store",
+      "store_name": "kayvro Shopify India",
+      "origin": "https://kayvro.store",
+      "score": 40,
+      "sample": {
+        "products": 12,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 33.3,
+        "product_type_pct": 16.7,
+        "useful_description_pct": 25,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 33.3
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-16T07:45:18.333Z",
+      "ok": true
+    },
+    {
+      "domain": "kbfitness.store",
+      "store_name": "KB Fitness Shopify United Kingdom",
+      "origin": "https://kbfitness.store",
+      "score": 70,
+      "sample": {
+        "products": 13,
+        "variants": 68,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-16T07:45:19.626Z",
+      "ok": true
+    },
+    {
+      "domain": "khareedle.store",
+      "store_name": "khareedle Shopify United Arab Emirates",
+      "origin": "https://khareedle.store",
+      "score": 50,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 54,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-16T07:45:20.072Z",
+      "ok": true
+    },
+    {
+      "domain": "killearnshoppingcenter.shop",
+      "store_name": "Killearn Shopping Center Shopify United States",
+      "origin": "https://killearnshoppingcenter.shop",
+      "score": 45,
+      "sample": {
+        "products": 14,
+        "variants": 14,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-16T07:45:21.258Z",
+      "ok": true
+    },
+    {
+      "domain": "klinestrongfitnessbrand.store",
+      "store_name": "Kline strong fitness brand Shopify United States",
+      "origin": "https://klinestrongfitnessbrand.store",
       "score": 45,
       "sample": {
         "products": 50,
@@ -112,185 +256,11 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 36,
-        "product_type_pct": 36,
-        "useful_description_pct": 36,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 36
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-15T07:47:37.100Z",
-      "ok": true
-    },
-    {
-      "domain": "echoemporiums.shop",
-      "store_name": "EchoEmporium Shopify United States",
-      "origin": "https://echoemporiums.shop",
-      "score": 6,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 10,
-        "product_type_pct": 10,
-        "useful_description_pct": 10,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 10
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-15T07:47:37.698Z",
-      "ok": true
-    },
-    {
-      "domain": "elegancefuture.store",
-      "store_name": "Elegance future Shopify United Kingdom",
-      "origin": "https://elegancefuture.store",
-      "score": 78,
-      "sample": {
-        "products": 14,
-        "variants": 82,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 92.9,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 85.7
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-15T07:47:38.178Z",
-      "ok": true
-    },
-    {
-      "domain": "ejtounicvl.shop",
-      "store_name": "Etonic Online Store Shopify United States",
-      "origin": "https://ejtounicvl.shop",
-      "score": 44,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 34,
-        "product_type_pct": 34,
-        "useful_description_pct": 34,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 32
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-15T07:47:38.699Z",
-      "ok": true
-    },
-    {
-      "domain": "elizabethsch.store",
-      "store_name": "LIZZY ONLINE STORE Shopify South Africa",
-      "origin": "https://elizabethsch.store",
-      "score": 29,
-      "sample": {
-        "products": 25,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 8,
-        "product_type_pct": 0,
-        "useful_description_pct": 8,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 8
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-15T07:47:40.080Z",
-      "ok": true
-    },
-    {
-      "domain": "emirza.online",
-      "store_name": "Emirza Shopify United Arab Emirates",
-      "origin": "https://emirza.online",
-      "score": 76,
-      "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 98,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 98,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 82,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 86
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-15T07:47:40.521Z",
-      "ok": true
-    },
-    {
-      "domain": "elora-lane-store.store",
-      "store_name": "Elora Lane Store Shopify United States",
-      "origin": "https://elora-lane-store.store",
-      "score": 46,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 92,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 92,
-        "vendor_brand_pct": 46,
+        "vendor_brand_pct": 40,
         "product_type_pct": 18,
-        "useful_description_pct": 46,
+        "useful_description_pct": 40,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 46
+        "descriptive_title_pct": 38
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -298,7 +268,7 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-15T07:47:40.986Z",
+      "audited_at": "2026-10-16T07:45:23.028Z",
       "ok": true
     }
   ]
