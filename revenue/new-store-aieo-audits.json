@@ -1,80 +1,20 @@
 {
-  "generated_at": "2026-10-16T07:45:23.091Z",
-  "source_queue_created": "2026-10-16T07:45:11.767Z",
+  "generated_at": "2026-10-17T11:36:01.878Z",
+  "source_queue_created": "2026-10-17T11:35:58.399Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 9,
-  "passed": 9,
+  "attempted": 5,
+  "passed": 5,
   "results": [
     {
-      "domain": "jenniekwondesigns.sbs",
-      "store_name": "JENNIE KWON DESIGNS Shopify United States",
-      "origin": "https://jenniekwondesigns.sbs",
-      "score": 32,
+      "domain": "oakandlumen.com",
+      "store_name": "Oak & Lumen Shopify United States",
+      "origin": "https://oakandlumen.com",
+      "score": 67,
       "sample": {
         "products": 50,
         "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 97,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 97,
-        "vendor_brand_pct": 14,
-        "product_type_pct": 14,
-        "useful_description_pct": 14,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 12
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-16T07:45:13.920Z",
-      "ok": true
-    },
-    {
-      "domain": "jeweliwhal-jewelry.online",
-      "store_name": "Jewe Shopify United States",
-      "origin": "https://jeweliwhal-jewelry.online",
-      "score": 19,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 7,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 7,
-        "vendor_brand_pct": 32,
-        "product_type_pct": 32,
-        "useful_description_pct": 32,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 32
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-16T07:45:15.218Z",
-      "ok": true
-    },
-    {
-      "domain": "johnrobshaw.sbs",
-      "store_name": "John Robshaw Textiles Shopify United States",
-      "origin": "https://johnrobshaw.sbs",
-      "score": 75,
-      "sample": {
-        "products": 25,
-        "variants": 27,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -82,27 +22,29 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
+        "vendor_brand_pct": 76,
+        "product_type_pct": 76,
+        "useful_description_pct": 76,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 52
+        "descriptive_title_pct": 76
       },
       "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-16T07:45:16.297Z",
+      "audited_at": "2026-10-17T11:35:59.607Z",
       "ok": true
     },
     {
-      "domain": "judicieux.live",
-      "store_name": "Judicieux Torréfacteur Shopify France",
-      "origin": "https://judicieux.live",
-      "score": 25,
+      "domain": "oddkeen.com",
+      "store_name": "Oddkeen Shopify United States",
+      "origin": "https://oddkeen.com",
+      "score": 45,
       "sample": {
-        "products": 50,
-        "variants": 100,
+        "products": 23,
+        "variants": 23,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -110,66 +52,6 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 46,
-        "product_type_pct": 46,
-        "useful_description_pct": 46,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 46
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-16T07:45:16.993Z",
-      "ok": true
-    },
-    {
-      "domain": "kayvro.store",
-      "store_name": "kayvro Shopify India",
-      "origin": "https://kayvro.store",
-      "score": 40,
-      "sample": {
-        "products": 12,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 33.3,
-        "product_type_pct": 16.7,
-        "useful_description_pct": 25,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 33.3
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-16T07:45:18.333Z",
-      "ok": true
-    },
-    {
-      "domain": "kbfitness.store",
-      "store_name": "KB Fitness Shopify United Kingdom",
-      "origin": "https://kbfitness.store",
-      "score": 70,
-      "sample": {
-        "products": 13,
-        "variants": 68,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
         "vendor_brand_pct": 100,
         "product_type_pct": 0,
         "useful_description_pct": 100,
@@ -177,16 +59,17 @@
         "descriptive_title_pct": 100
       },
       "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-16T07:45:19.626Z",
+      "audited_at": "2026-10-17T11:36:00.127Z",
       "ok": true
     },
     {
-      "domain": "khareedle.store",
-      "store_name": "khareedle Shopify United Arab Emirates",
-      "origin": "https://khareedle.store",
+      "domain": "okeeffesskin.com",
+      "store_name": "okeeffesskin.com Shopify United States",
+      "origin": "https://okeeffesskin.com",
       "score": 50,
       "sample": {
         "products": 50,
@@ -195,31 +78,31 @@
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 0,
+        "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
+        "sku_mpn_pct": 100,
         "vendor_brand_pct": 100,
-        "product_type_pct": 54,
-        "useful_description_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 0,
         "image_alt_text_pct": 0,
         "descriptive_title_pct": 100
       },
       "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-16T07:45:20.072Z",
+      "audited_at": "2026-10-17T11:36:00.603Z",
       "ok": true
     },
     {
-      "domain": "killearnshoppingcenter.shop",
-      "store_name": "Killearn Shopping Center Shopify United States",
-      "origin": "https://killearnshoppingcenter.shop",
-      "score": 45,
+      "domain": "officialvanni.com",
+      "store_name": "Vanni Shopify Italy",
+      "origin": "https://officialvanni.com",
+      "score": 19,
       "sample": {
-        "products": 14,
-        "variants": 14,
+        "products": 50,
+        "variants": 74,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -229,23 +112,24 @@
         "sku_mpn_pct": 0,
         "vendor_brand_pct": 100,
         "product_type_pct": 0,
-        "useful_description_pct": 100,
+        "useful_description_pct": 0,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
+        "descriptive_title_pct": 40
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-16T07:45:21.258Z",
+      "audited_at": "2026-10-17T11:36:01.059Z",
       "ok": true
     },
     {
-      "domain": "klinestrongfitnessbrand.store",
-      "store_name": "Kline strong fitness brand Shopify United States",
-      "origin": "https://klinestrongfitnessbrand.store",
-      "score": 45,
+      "domain": "omertatshirt.com",
+      "store_name": "Omerta tshirt Shopify France",
+      "origin": "https://omertatshirt.com",
+      "score": 33,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -256,11 +140,11 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 40,
+        "vendor_brand_pct": 18,
         "product_type_pct": 18,
-        "useful_description_pct": 40,
+        "useful_description_pct": 18,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 38
+        "descriptive_title_pct": 0
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -268,7 +152,7 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-16T07:45:23.028Z",
+      "audited_at": "2026-10-17T11:36:01.744Z",
       "ok": true
     }
   ]
