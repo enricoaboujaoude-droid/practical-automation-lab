@@ -1,17 +1,46 @@
 {
-  "generated_at": "2026-10-17T11:36:01.878Z",
-  "source_queue_created": "2026-10-17T11:35:58.399Z",
+  "generated_at": "2026-10-18T12:03:21.722Z",
+  "source_queue_created": "2026-10-18T12:03:15.532Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 5,
-  "passed": 5,
+  "attempted": 9,
+  "passed": 9,
   "results": [
     {
-      "domain": "oakandlumen.com",
-      "store_name": "Oak & Lumen Shopify United States",
-      "origin": "https://oakandlumen.com",
-      "score": 67,
+      "domain": "fdsosa.com",
+      "store_name": "FDS. Shopify France",
+      "origin": "https://fdsosa.com",
+      "score": 58,
+      "sample": {
+        "products": 14,
+        "variants": 18,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 44.4,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 44.4,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 14.3
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+      ],
+      "audited_at": "2026-10-18T12:03:16.726Z",
+      "ok": true
+    },
+    {
+      "domain": "fansportwear.com",
+      "store_name": "Fan Sport Wear Shopify United States",
+      "origin": "https://fansportwear.com",
+      "score": 33,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -22,11 +51,11 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 76,
-        "product_type_pct": 76,
-        "useful_description_pct": 76,
+        "vendor_brand_pct": 14,
+        "product_type_pct": 14,
+        "useful_description_pct": 14,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 76
+        "descriptive_title_pct": 14
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -34,17 +63,17 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-17T11:35:59.607Z",
+      "audited_at": "2026-10-18T12:03:17.369Z",
       "ok": true
     },
     {
-      "domain": "oddkeen.com",
-      "store_name": "Oddkeen Shopify United States",
-      "origin": "https://oddkeen.com",
-      "score": 45,
+      "domain": "ferrisfamily3d.com",
+      "store_name": "Ferris Family 3D Shopify United States",
+      "origin": "https://ferrisfamily3d.com",
+      "score": 44,
       "sample": {
-        "products": 23,
-        "variants": 23,
+        "products": 17,
+        "variants": 46,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -56,53 +85,24 @@
         "product_type_pct": 0,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
+        "descriptive_title_pct": 94.1
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-17T11:36:00.127Z",
+      "audited_at": "2026-10-18T12:03:17.825Z",
       "ok": true
     },
     {
-      "domain": "okeeffesskin.com",
-      "store_name": "okeeffesskin.com Shopify United States",
-      "origin": "https://okeeffesskin.com",
-      "score": 50,
+      "domain": "ferahio.com",
+      "store_name": "Ferahio Shopify Turkey",
+      "origin": "https://ferahio.com",
+      "score": 55,
       "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 0,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-17T11:36:00.603Z",
-      "ok": true
-    },
-    {
-      "domain": "officialvanni.com",
-      "store_name": "Vanni Shopify Italy",
-      "origin": "https://officialvanni.com",
-      "score": 19,
-      "sample": {
-        "products": 50,
-        "variants": 74,
+        "products": 22,
+        "variants": 22,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -111,10 +111,98 @@
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
         "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 0,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 40
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-18T12:03:18.148Z",
+      "ok": true
+    },
+    {
+      "domain": "fitpawoutpost.com",
+      "store_name": "FitPaw Outpost Shopify United States",
+      "origin": "https://fitpawoutpost.com",
+      "score": 48,
+      "sample": {
+        "products": 31,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 45.2,
+        "product_type_pct": 35.5,
+        "useful_description_pct": 41.9,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 41.9
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-18T12:03:18.873Z",
+      "ok": true
+    },
+    {
+      "domain": "fixit-finds.com",
+      "store_name": "Fix it Finds Shopify United States",
+      "origin": "https://fixit-finds.com",
+      "score": 42,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 38,
+        "product_type_pct": 2,
+        "useful_description_pct": 38,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 36
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-18T12:03:19.516Z",
+      "ok": true
+    },
+    {
+      "domain": "fot-norge.com",
+      "store_name": "Fot-Norge Shopify Norway",
+      "origin": "https://fot-norge.com",
+      "score": 22,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 68,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 68,
+        "vendor_brand_pct": 10,
+        "product_type_pct": 4,
+        "useful_description_pct": 10,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 6
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -122,14 +210,44 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-17T11:36:01.059Z",
+      "audited_at": "2026-10-18T12:03:20.497Z",
       "ok": true
     },
     {
-      "domain": "omertatshirt.com",
-      "store_name": "Omerta tshirt Shopify France",
-      "origin": "https://omertatshirt.com",
-      "score": 33,
+      "domain": "foodsbymomiusa.com",
+      "store_name": "FoodsByMomi Shopify United States",
+      "origin": "https://foodsbymomiusa.com",
+      "score": 43,
+      "sample": {
+        "products": 18,
+        "variants": 20,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 66.7,
+        "useful_description_pct": 66.7,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 77.8
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-18T12:03:20.978Z",
+      "ok": true
+    },
+    {
+      "domain": "fornamento.com",
+      "store_name": "Fornamento Shopify United States",
+      "origin": "https://fornamento.com",
+      "score": 35,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -144,7 +262,7 @@
         "product_type_pct": 18,
         "useful_description_pct": 18,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 0
+        "descriptive_title_pct": 18
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -152,7 +270,7 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-17T11:36:01.744Z",
+      "audited_at": "2026-10-18T12:03:21.657Z",
       "ok": true
     }
   ]
