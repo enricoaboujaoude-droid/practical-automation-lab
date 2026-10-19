@@ -315,7 +315,7 @@ export default async function handler(req) {
  if(req.method==="OPTIONS")return new Response(null,{status:204,headers});
  if(req.method==="GET" && (path==="/health"||path==="/"))return send({ok:true,service,status:"ready",marketplace:"AgenticTrade",method:"POST",path:"/v1/agentpay-remediation-bulk",billing:"handled_upstream"});
  if(req.method==="GET" && path==="/v1/agentpay-remediation-bulk")return send(metadata);
- if(path!=="/v1/agentpay-remediation-bulk")return send({error:"not_found"},404);
+ if(path!=="/v1/agentpay-remediation-bulk" && !(path==="/" && req.method==="POST"))return send({error:"not_found"},404);
  if(req.method!=="POST")return send({error:"method_not_allowed"},405);
  let body;
  try{
