@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-19T14:39:54.337Z",
-  "source_queue_created": "2026-10-19T14:39:48.372Z",
+  "generated_at": "2026-10-20T12:43:22.657Z",
+  "source_queue_created": "2026-10-20T12:43:14.866Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
@@ -8,12 +8,127 @@
   "passed": 10,
   "results": [
     {
-      "domain": "anselcellars.com",
-      "store_name": "Ansel Shopify United States",
-      "origin": "https://anselcellars.com",
-      "score": 15,
+      "domain": "halvliyo.com",
+      "store_name": "HALVLIYO Shopify United States",
+      "origin": "https://halvliyo.com",
+      "score": 55,
       "sample": {
-        "products": 21,
+        "products": 18,
+        "variants": 18,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-20T12:43:16.294Z",
+      "ok": true
+    },
+    {
+      "domain": "havenandthings.com",
+      "store_name": "havenandthings Shopify Denmark",
+      "origin": "https://havenandthings.com",
+      "score": 36,
+      "sample": {
+        "products": 36,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 25,
+        "product_type_pct": 0,
+        "useful_description_pct": 25,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 22.2
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-20T12:43:17.224Z",
+      "ok": true
+    },
+    {
+      "domain": "hearthlyliving.com",
+      "store_name": "Hearthly Shopify United States",
+      "origin": "https://hearthlyliving.com",
+      "score": 80,
+      "sample": {
+        "products": 15,
+        "variants": 25,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-20T12:43:17.760Z",
+      "ok": true
+    },
+    {
+      "domain": "heartsnatchersclothing.com",
+      "store_name": "HEART SNATCHERS CLOTHING Shopify United States",
+      "origin": "https://heartsnatchersclothing.com",
+      "score": 31,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 14,
+        "product_type_pct": 0,
+        "useful_description_pct": 14,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 12
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-20T12:43:18.582Z",
+      "ok": true
+    },
+    {
+      "domain": "heavysaint.com",
+      "store_name": "HeavySaint Shopify United States",
+      "origin": "https://heavysaint.com",
+      "score": 37,
+      "sample": {
+        "products": 50,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
@@ -22,11 +137,11 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 28.6,
-        "product_type_pct": 23.8,
-        "useful_description_pct": 28.6,
+        "vendor_brand_pct": 72,
+        "product_type_pct": 72,
+        "useful_description_pct": 72,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 23.8
+        "descriptive_title_pct": 48
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -34,17 +149,17 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-19T14:39:49.571Z",
+      "audited_at": "2026-10-20T12:43:19.100Z",
       "ok": true
     },
     {
-      "domain": "apexcurationco.com",
-      "store_name": "Apex Curation Co Shopify France",
-      "origin": "https://apexcurationco.com",
-      "score": 80,
+      "domain": "helvixor.com",
+      "store_name": "Faylune Shopify United States",
+      "origin": "https://helvixor.com",
+      "score": 42,
       "sample": {
         "products": 50,
-        "variants": 50,
+        "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -52,26 +167,59 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
+        "vendor_brand_pct": 34,
+        "product_type_pct": 16,
+        "useful_description_pct": 34,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
+        "descriptive_title_pct": 34
       },
       "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-19T14:39:50.169Z",
+      "audited_at": "2026-10-20T12:43:20.280Z",
       "ok": true
     },
     {
-      "domain": "aromasbyglow.com",
-      "store_name": "Aromas By Glow Shopify United Kingdom",
-      "origin": "https://aromasbyglow.com",
-      "score": 49,
+      "domain": "hermosa-online.com",
+      "store_name": "HERMOSA OFFICIAL ONLINE SHOP Shopify Japan",
+      "origin": "https://hermosa-online.com",
+      "score": 22,
       "sample": {
-        "products": 13,
-        "variants": 15,
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 50,
+        "product_type_pct": 0,
+        "useful_description_pct": 46,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 50
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-20T12:43:20.924Z",
+      "ok": true
+    },
+    {
+      "domain": "hkayetna.com",
+      "store_name": "Hkayetna Shopify TN",
+      "origin": "https://hkayetna.com",
+      "score": 54,
+      "sample": {
+        "products": 17,
+        "variants": 17,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -80,83 +228,26 @@
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
         "vendor_brand_pct": 100,
-        "product_type_pct": 76.9,
+        "product_type_pct": 100,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 61.5
+        "descriptive_title_pct": 94.1
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-10-19T14:39:50.566Z",
-      "ok": true
-    },
-    {
-      "domain": "aromahomeoficial.com",
-      "store_name": "AROMA HOME Shopify Colombia",
-      "origin": "https://aromahomeoficial.com",
-      "score": 80,
-      "sample": {
-        "products": 22,
-        "variants": 49,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-19T14:39:51.074Z",
+      "audited_at": "2026-10-20T12:43:21.581Z",
       "ok": true
     },
     {
-      "domain": "aromaperfumeboutique.com",
-      "store_name": "AROMA PERFUME BOUTIQUE Shopify United States",
-      "origin": "https://aromaperfumeboutique.com",
-      "score": 74,
+      "domain": "hormonecrave.com",
+      "store_name": "Eluje Shopify United Kingdom",
+      "origin": "https://hormonecrave.com",
+      "score": 16,
       "sample": {
-        "products": 13,
-        "variants": 13,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 69.2,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-19T14:39:51.467Z",
-      "ok": true
-    },
-    {
-      "domain": "arete-official.com",
-      "store_name": "ARETÉ Shopify Mexico",
-      "origin": "https://arete-official.com",
-      "score": 43,
-      "sample": {
-        "products": 15,
-        "variants": 25,
+        "products": 24,
+        "variants": 56,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -166,38 +257,9 @@
         "sku_mpn_pct": 0,
         "vendor_brand_pct": 100,
         "product_type_pct": 0,
-        "useful_description_pct": 93.3,
+        "useful_description_pct": 4.2,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 93.3
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-19T14:39:51.954Z",
-      "ok": true
-    },
-    {
-      "domain": "ashangikaniroshinigunawickrema.com",
-      "store_name": "ASHANGIKA NIROSHINI GUNAWICKREMA Shopify United States",
-      "origin": "https://ashangikaniroshinigunawickrema.com",
-      "score": 9,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 16,
-        "product_type_pct": 16,
-        "useful_description_pct": 16,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 16
+        "descriptive_title_pct": 0
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -205,17 +267,17 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-19T14:39:52.586Z",
+      "audited_at": "2026-10-20T12:43:22.037Z",
       "ok": true
     },
     {
-      "domain": "artonlyscreation.com",
-      "store_name": "ARTONLYSCREATION Shopify France",
-      "origin": "https://artonlyscreation.com",
-      "score": 50,
+      "domain": "homelica.com",
+      "store_name": "Homelica Shopify Hong Kong",
+      "origin": "https://homelica.com",
+      "score": 44,
       "sample": {
-        "products": 24,
-        "variants": 100,
+        "products": 16,
+        "variants": 16,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -223,75 +285,18 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 91.7,
-        "product_type_pct": 91.7,
-        "useful_description_pct": 91.7,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 91.7
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-19T14:39:53.109Z",
-      "ok": true
-    },
-    {
-      "domain": "arvooddesigns.com",
-      "store_name": "Arvood Designs Shopify United States",
-      "origin": "https://arvooddesigns.com",
-      "score": 26,
-      "sample": {
-        "products": 47,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 51.1,
-        "product_type_pct": 51.1,
-        "useful_description_pct": 51.1,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 31.9
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-19T14:39:53.627Z",
-      "ok": true
-    },
-    {
-      "domain": "ascardshop.com",
-      "store_name": "AscardShop Shopify France",
-      "origin": "https://ascardshop.com",
-      "score": 54,
-      "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 10,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 10,
         "vendor_brand_pct": 100,
-        "product_type_pct": 88,
-        "useful_description_pct": 88,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 96
+        "descriptive_title_pct": 87.5
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-19T14:39:54.203Z",
+      "audited_at": "2026-10-20T12:43:22.581Z",
       "ok": true
     }
   ]
