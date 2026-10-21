@@ -1,78 +1,109 @@
 {
-  "generated_at": "2026-10-20T12:43:22.657Z",
-  "source_queue_created": "2026-10-20T12:43:14.866Z",
+  "generated_at": "2026-10-21T12:55:41.283Z",
+  "source_queue_created": "2026-10-21T12:55:34.513Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 10,
-  "passed": 10,
+  "attempted": 9,
+  "passed": 9,
   "results": [
     {
-      "domain": "halvliyo.com",
-      "store_name": "HALVLIYO Shopify United States",
-      "origin": "https://halvliyo.com",
-      "score": 55,
+      "domain": "jhonnybusniss.com",
+      "store_name": "Jhonny busniss Shopify United States",
+      "origin": "https://jhonnybusniss.com",
+      "score": 63,
       "sample": {
-        "products": 18,
-        "variants": 18,
+        "products": 50,
+        "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 0,
+        "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 74,
+        "product_type_pct": 50,
+        "useful_description_pct": 74,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 66
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-21T12:55:36.054Z",
+      "ok": true
+    },
+    {
+      "domain": "johnsonjewellerytools.com",
+      "store_name": "Johnson Jewellery Tools Shopify United States",
+      "origin": "https://johnsonjewellerytools.com",
+      "score": 46,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 2,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 2,
         "vendor_brand_pct": 100,
-        "product_type_pct": 100,
+        "product_type_pct": 4,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
         "descriptive_title_pct": 100
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-20T12:43:16.294Z",
+      "audited_at": "2026-10-21T12:55:36.634Z",
       "ok": true
     },
     {
-      "domain": "havenandthings.com",
-      "store_name": "havenandthings Shopify Denmark",
-      "origin": "https://havenandthings.com",
-      "score": 36,
+      "domain": "josie-austin.com",
+      "store_name": "Josie Austin Shopify United States",
+      "origin": "https://josie-austin.com",
+      "score": 3,
       "sample": {
-        "products": 36,
+        "products": 50,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 25,
-        "product_type_pct": 0,
-        "useful_description_pct": 25,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 6,
+        "product_type_pct": 6,
+        "useful_description_pct": 6,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 22.2
+        "descriptive_title_pct": 6
       },
       "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-20T12:43:17.224Z",
+      "audited_at": "2026-10-21T12:55:37.453Z",
       "ok": true
     },
     {
-      "domain": "hearthlyliving.com",
-      "store_name": "Hearthly Shopify United States",
-      "origin": "https://hearthlyliving.com",
+      "domain": "jourfest.com",
+      "store_name": "Jourfest Shopify France",
+      "origin": "https://jourfest.com",
       "score": 80,
       "sample": {
-        "products": 15,
-        "variants": 25,
+        "products": 26,
+        "variants": 26,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -89,44 +120,14 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-20T12:43:17.760Z",
+      "audited_at": "2026-10-21T12:55:37.826Z",
       "ok": true
     },
     {
-      "domain": "heartsnatchersclothing.com",
-      "store_name": "HEART SNATCHERS CLOTHING Shopify United States",
-      "origin": "https://heartsnatchersclothing.com",
-      "score": 31,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 14,
-        "product_type_pct": 0,
-        "useful_description_pct": 14,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 12
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-20T12:43:18.582Z",
-      "ok": true
-    },
-    {
-      "domain": "heavysaint.com",
-      "store_name": "HeavySaint Shopify United States",
-      "origin": "https://heavysaint.com",
-      "score": 37,
+      "domain": "jolisina.com",
+      "store_name": "JOLISINA Shopify Czechia",
+      "origin": "https://jolisina.com",
+      "score": 26,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -137,9 +138,9 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 72,
-        "product_type_pct": 72,
-        "useful_description_pct": 72,
+        "vendor_brand_pct": 48,
+        "product_type_pct": 48,
+        "useful_description_pct": 48,
         "image_alt_text_pct": 0,
         "descriptive_title_pct": 48
       },
@@ -149,14 +150,68 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-20T12:43:19.100Z",
+      "audited_at": "2026-10-21T12:55:38.362Z",
       "ok": true
     },
     {
-      "domain": "helvixor.com",
-      "store_name": "Faylune Shopify United States",
-      "origin": "https://helvixor.com",
-      "score": 42,
+      "domain": "jubhard.com",
+      "store_name": "JUBHARD Shopify United States",
+      "origin": "https://jubhard.com",
+      "score": 77,
+      "sample": {
+        "products": 20,
+        "variants": 21,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 95.2,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 95.2,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 80
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-21T12:55:38.766Z",
+      "ok": true
+    },
+    {
+      "domain": "kaguhaibin.com",
+      "store_name": "kaguhaibin.com Shopify Netherlands",
+      "origin": "https://kaguhaibin.com",
+      "score": 80,
+      "sample": {
+        "products": 21,
+        "variants": 21,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-21T12:55:39.145Z",
+      "ok": true
+    },
+    {
+      "domain": "kaliashades.com",
+      "store_name": "Kalia Window Treatments Shopify United States",
+      "origin": "https://kaliashades.com",
+      "score": 43,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -167,11 +222,11 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 34,
-        "product_type_pct": 16,
-        "useful_description_pct": 34,
+        "vendor_brand_pct": 32,
+        "product_type_pct": 32,
+        "useful_description_pct": 32,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 34
+        "descriptive_title_pct": 32
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -179,124 +234,34 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-20T12:43:20.280Z",
+      "audited_at": "2026-10-21T12:55:40.158Z",
       "ok": true
     },
     {
-      "domain": "hermosa-online.com",
-      "store_name": "HERMOSA OFFICIAL ONLINE SHOP Shopify Japan",
-      "origin": "https://hermosa-online.com",
-      "score": 22,
+      "domain": "kaloraaa.com",
+      "store_name": "Kalora Shopify United States",
+      "origin": "https://kaloraaa.com",
+      "score": 80,
       "sample": {
         "products": 50,
-        "variants": 100,
+        "variants": 90,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 0,
+        "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 50,
-        "product_type_pct": 0,
-        "useful_description_pct": 46,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 50
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-20T12:43:20.924Z",
-      "ok": true
-    },
-    {
-      "domain": "hkayetna.com",
-      "store_name": "Hkayetna Shopify TN",
-      "origin": "https://hkayetna.com",
-      "score": 54,
-      "sample": {
-        "products": 17,
-        "variants": 17,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
+        "sku_mpn_pct": 100,
         "vendor_brand_pct": 100,
         "product_type_pct": 100,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 94.1
+        "descriptive_title_pct": 100
       },
       "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-20T12:43:21.581Z",
-      "ok": true
-    },
-    {
-      "domain": "hormonecrave.com",
-      "store_name": "Eluje Shopify United Kingdom",
-      "origin": "https://hormonecrave.com",
-      "score": 16,
-      "sample": {
-        "products": 24,
-        "variants": 56,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 4.2,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 0
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-20T12:43:22.037Z",
-      "ok": true
-    },
-    {
-      "domain": "homelica.com",
-      "store_name": "Homelica Shopify Hong Kong",
-      "origin": "https://homelica.com",
-      "score": 44,
-      "sample": {
-        "products": 16,
-        "variants": 16,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 87.5
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-20T12:43:22.581Z",
+      "audited_at": "2026-10-21T12:55:41.199Z",
       "ok": true
     }
   ]
