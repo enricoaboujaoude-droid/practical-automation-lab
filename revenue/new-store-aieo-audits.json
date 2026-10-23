@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-22T12:58:02.032Z",
-  "source_queue_created": "2026-10-22T12:57:54.836Z",
+  "generated_at": "2026-10-23T12:37:17.907Z",
+  "source_queue_created": "2026-10-23T12:37:10.480Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
@@ -8,99 +8,13 @@
   "passed": 10,
   "results": [
     {
-      "domain": "inspirelifewear.com",
-      "store_name": "InspireLifeWear United Kingdom",
-      "origin": "https://inspirelifewear.com",
-      "score": 56,
-      "sample": {
-        "products": 30,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 56.7,
-        "product_type_pct": 56.7,
-        "useful_description_pct": 56.7,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 56.7
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-22T12:57:56.143Z",
-      "ok": true
-    },
-    {
-      "domain": "instaxusspace.com",
-      "store_name": "instaxusspace.com United States",
-      "origin": "https://instaxusspace.com",
-      "score": 64,
-      "sample": {
-        "products": 45,
-        "variants": 75,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 44.4
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-10-22T12:57:56.795Z",
-      "ok": true
-    },
-    {
-      "domain": "internabeautysecrets.com",
-      "store_name": "Interna Beauty Secrets United States",
-      "origin": "https://internabeautysecrets.com",
-      "score": 78,
-      "sample": {
-        "products": 41,
-        "variants": 78,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 97.6,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 82.9
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-22T12:57:57.314Z",
-      "ok": true
-    },
-    {
-      "domain": "ishidaikagu.com",
-      "store_name": "ishidaikagu.com Portugal",
-      "origin": "https://ishidaikagu.com",
+      "domain": "tama-tcg.com",
+      "store_name": "TAMA TCG Netherlands",
+      "origin": "https://tama-tcg.com",
       "score": 80,
       "sample": {
-        "products": 21,
-        "variants": 21,
+        "products": 24,
+        "variants": 24,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -117,104 +31,14 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-22T12:57:57.781Z",
+      "audited_at": "2026-10-23T12:37:11.740Z",
       "ok": true
     },
     {
-      "domain": "irhaofficial.com",
-      "store_name": "irhaofficial Pakistan",
-      "origin": "https://irhaofficial.com",
-      "score": 39,
-      "sample": {
-        "products": 34,
-        "variants": 59,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 82.4,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 73.5
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-10-22T12:57:58.269Z",
-      "ok": true
-    },
-    {
-      "domain": "itgirllhub.com",
-      "store_name": "it girl hub Egypt",
-      "origin": "https://itgirllhub.com",
-      "score": 24,
-      "sample": {
-        "products": 26,
-        "variants": 28,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 19.2,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 50
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-22T12:57:58.755Z",
-      "ok": true
-    },
-    {
-      "domain": "itokostudio.com",
-      "store_name": "Itoko Studio Spain",
-      "origin": "https://itokostudio.com",
-      "score": 37,
-      "sample": {
-        "products": 13,
-        "variants": 65,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 53.8,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 7.7
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-10-22T12:57:59.165Z",
-      "ok": true
-    },
-    {
-      "domain": "izelvix.com",
-      "store_name": "Izelvix United States",
-      "origin": "https://izelvix.com",
-      "score": 42,
+      "domain": "tansyactive.com",
+      "store_name": "Tansy Active United States",
+      "origin": "https://tansyactive.com",
+      "score": 36,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -225,11 +49,11 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 34,
-        "product_type_pct": 16,
-        "useful_description_pct": 34,
+        "vendor_brand_pct": 20,
+        "product_type_pct": 20,
+        "useful_description_pct": 18,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 34
+        "descriptive_title_pct": 20
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -237,44 +61,41 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-22T12:58:00.454Z",
+      "audited_at": "2026-10-23T12:37:12.566Z",
       "ok": true
     },
     {
-      "domain": "ivyandcurve.com",
-      "store_name": "Ivy & Curve United Kingdom",
-      "origin": "https://ivyandcurve.com",
-      "score": 8,
+      "domain": "tailwarmers.com",
+      "store_name": "Tail Warmers United Kingdom",
+      "origin": "https://tailwarmers.com",
+      "score": 79,
       "sample": {
-        "products": 50,
+        "products": 12,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 0,
+        "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 14,
-        "product_type_pct": 14,
-        "useful_description_pct": 14,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 14
+        "descriptive_title_pct": 91.7
       },
       "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-22T12:58:01.077Z",
+      "audited_at": "2026-10-23T12:37:13.053Z",
       "ok": true
     },
     {
-      "domain": "jbizjewelry.com",
-      "store_name": "J Biz United States",
-      "origin": "https://jbizjewelry.com",
-      "score": 43,
+      "domain": "talenne-official.com",
+      "store_name": "TALENNE OFFICIAL United States",
+      "origin": "https://talenne-official.com",
+      "score": 40,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -286,7 +107,7 @@
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
         "vendor_brand_pct": 32,
-        "product_type_pct": 32,
+        "product_type_pct": 10,
         "useful_description_pct": 32,
         "image_alt_text_pct": 0,
         "descriptive_title_pct": 32
@@ -297,7 +118,179 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-22T12:58:01.965Z",
+      "audited_at": "2026-10-23T12:37:13.696Z",
+      "ok": true
+    },
+    {
+      "domain": "tarlistudio.com",
+      "store_name": "TARLI STUDIO United Kingdom",
+      "origin": "https://tarlistudio.com",
+      "score": 27,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 4,
+        "product_type_pct": 4,
+        "useful_description_pct": 4,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 4
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-23T12:37:14.462Z",
+      "ok": true
+    },
+    {
+      "domain": "tartecosmeticsbeauty.com",
+      "store_name": "tartecosmeticsbeauty United States",
+      "origin": "https://tartecosmeticsbeauty.com",
+      "score": 52,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 72,
+        "product_type_pct": 0,
+        "useful_description_pct": 46,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 68
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-23T12:37:15.218Z",
+      "ok": true
+    },
+    {
+      "domain": "tcstore20.com",
+      "store_name": "tcstore2.0 Italy",
+      "origin": "https://tcstore20.com",
+      "score": 38,
+      "sample": {
+        "products": 33,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 96,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 96,
+        "vendor_brand_pct": 30.3,
+        "product_type_pct": 27.3,
+        "useful_description_pct": 27.3,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 15.2
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-23T12:37:16.189Z",
+      "ok": true
+    },
+    {
+      "domain": "tekisindustry.com",
+      "store_name": "TEKIS Industry Solution – SMC Pneumatic Components Bulgaria",
+      "origin": "https://tekisindustry.com",
+      "score": 80,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-23T12:37:16.721Z",
+      "ok": true
+    },
+    {
+      "domain": "tendecompras.com",
+      "store_name": "Tendé Colombia",
+      "origin": "https://tendecompras.com",
+      "score": 79,
+      "sample": {
+        "products": 40,
+        "variants": 42,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 92.5
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-23T12:37:17.195Z",
+      "ok": true
+    },
+    {
+      "domain": "thamediacorner.com",
+      "store_name": "The Media Corner United States",
+      "origin": "https://thamediacorner.com",
+      "score": 69,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 98,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 98,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 98
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-23T12:37:17.836Z",
       "ok": true
     }
   ]
