@@ -36,8 +36,8 @@
     }
   ],
   "total_usdc": 0.12,
-  "last_scanned_block": 53018339,
-  "updated_at": "2026-10-24T07:13:58.431Z",
+  "last_scanned_block": 53028071,
+  "updated_at": "2026-10-24T12:38:20.626Z",
   "last_scan_source": "base_rpc_logs",
   "last_scan_error": null
 }
