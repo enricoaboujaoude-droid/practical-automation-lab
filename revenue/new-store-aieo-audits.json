@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-25T12:34:02.403Z",
-  "source_queue_created": "2026-10-25T12:33:52.747Z",
+  "generated_at": "2026-10-26T14:15:22.266Z",
+  "source_queue_created": "2026-10-26T14:15:13.216Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
@@ -8,20 +8,48 @@
   "passed": 10,
   "results": [
     {
-      "domain": "cyberpluslb.com",
-      "store_name": "CyberPlus Lebanon",
-      "origin": "https://cyberpluslb.com",
-      "score": 74,
+      "domain": "arteamorbonito.com",
+      "store_name": "Arte amor bonito Dominican Republic",
+      "origin": "https://arteamorbonito.com",
+      "score": 75,
       "sample": {
-        "products": 50,
-        "variants": 57,
+        "products": 16,
+        "variants": 71,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 75.4,
+        "identifiers_pct": 98.6,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 75.4,
+        "sku_mpn_pct": 98.6,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 62.5,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 87.5
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-26T14:15:14.885Z",
+      "ok": true
+    },
+    {
+      "domain": "atelierlinden.com",
+      "store_name": "Atelier Linden United States",
+      "origin": "https://atelierlinden.com",
+      "score": 71,
+      "sample": {
+        "products": 50,
+        "variants": 73,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 63,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 63,
         "vendor_brand_pct": 100,
         "product_type_pct": 100,
         "useful_description_pct": 100,
@@ -32,47 +60,17 @@
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-25T12:33:53.883Z",
+      "audited_at": "2026-10-26T14:15:15.769Z",
       "ok": true
     },
     {
-      "domain": "danddcoffee.com",
-      "store_name": "D & D Coffee Co. United States",
-      "origin": "https://danddcoffee.com",
-      "score": 48,
+      "domain": "astralashesandemberlight.com",
+      "store_name": "Astral Ashes & Emberlight LLC United States",
+      "origin": "https://astralashesandemberlight.com",
+      "score": 54,
       "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 60,
-        "product_type_pct": 8,
-        "useful_description_pct": 60,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 16
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-25T12:33:54.440Z",
-      "ok": true
-    },
-    {
-      "domain": "daymadeliving.com",
-      "store_name": "Daymade United States",
-      "origin": "https://daymadeliving.com",
-      "score": 17,
-      "sample": {
-        "products": 48,
-        "variants": 100,
+        "products": 13,
+        "variants": 51,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -80,170 +78,26 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 45.8,
-        "product_type_pct": 0,
-        "useful_description_pct": 45.8,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 10.4
+        "descriptive_title_pct": 92.3
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-25T12:33:54.999Z",
-      "ok": true
-    },
-    {
-      "domain": "delenorianabiding.com",
-      "store_name": "Delenoriana Biding Germany",
-      "origin": "https://delenorianabiding.com",
-      "score": 70,
-      "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-25T12:33:57.149Z",
-      "ok": true
-    },
-    {
-      "domain": "deathwishcoffeeusmall.com",
-      "store_name": "deathwishcoffeeusmall.com United States",
-      "origin": "https://deathwishcoffeeusmall.com",
-      "score": 68,
-      "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 82
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-25T12:33:57.610Z",
-      "ok": true
-    },
-    {
-      "domain": "debonairfragrances.com",
-      "store_name": "Debonair Egypt",
-      "origin": "https://debonairfragrances.com",
-      "score": 46,
-      "sample": {
-        "products": 18,
-        "variants": 72,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 5.6,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 5.6,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 5.6,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 88.9
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-25T12:33:58.057Z",
-      "ok": true
-    },
-    {
-      "domain": "debonebeauty.com",
-      "store_name": "DEBONE BEAUTY United States",
-      "origin": "https://debonebeauty.com",
-      "score": 15,
-      "sample": {
-        "products": 23,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 20,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 20,
-        "vendor_brand_pct": 17.4,
-        "product_type_pct": 17.4,
-        "useful_description_pct": 17.4,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 17.4
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-25T12:33:59.294Z",
-      "ok": true
-    },
-    {
-      "domain": "deltixo.com",
-      "store_name": "Sevmiko Singapore",
-      "origin": "https://deltixo.com",
-      "score": 79,
-      "sample": {
-        "products": 16,
-        "variants": 94,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 93.8,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-25T12:34:00.999Z",
+      "audited_at": "2026-10-26T14:15:16.451Z",
       "ok": true
     },
     {
-      "domain": "demkidzz.com",
-      "store_name": "DemkidZZ United States",
-      "origin": "https://demkidzz.com",
+      "domain": "avenlowear.com",
+      "store_name": "AVENLO United States",
+      "origin": "https://avenlowear.com",
       "score": 33,
       "sample": {
-        "products": 32,
+        "products": 50,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
@@ -252,36 +106,6 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 18.8,
-        "product_type_pct": 0,
-        "useful_description_pct": 18.8,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 18.8
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-25T12:34:01.670Z",
-      "ok": true
-    },
-    {
-      "domain": "deonyvonne.com",
-      "store_name": "Deon Yvonne Cooper United States",
-      "origin": "https://deonyvonne.com",
-      "score": 8,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
         "vendor_brand_pct": 14,
         "product_type_pct": 14,
         "useful_description_pct": 14,
@@ -289,12 +113,186 @@
         "descriptive_title_pct": 14
       },
       "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-26T14:15:17.326Z",
+      "ok": true
+    },
+    {
+      "domain": "autoluxcabin.com",
+      "store_name": "AutoLux United States",
+      "origin": "https://autoluxcabin.com",
+      "score": 80,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-26T14:15:18.730Z",
+      "ok": true
+    },
+    {
+      "domain": "avelishop.com",
+      "store_name": "AVELI Mexico",
+      "origin": "https://avelishop.com",
+      "score": 52,
+      "sample": {
+        "products": 23,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 78.3,
+        "product_type_pct": 78.3,
+        "useful_description_pct": 4.3,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 69.6
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-26T14:15:19.416Z",
+      "ok": true
+    },
+    {
+      "domain": "avellaparis.com",
+      "store_name": "Avella-Paris United States",
+      "origin": "https://avellaparis.com",
+      "score": 4,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 4,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 4,
+        "vendor_brand_pct": 8,
+        "product_type_pct": 2,
+        "useful_description_pct": 6,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 8
+      },
+      "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-25T12:34:02.350Z",
+      "audited_at": "2026-10-26T14:15:20.271Z",
+      "ok": true
+    },
+    {
+      "domain": "auntiewholesale.com",
+      "store_name": "Auntie Wholesale United States",
+      "origin": "https://auntiewholesale.com",
+      "score": 80,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-26T14:15:20.884Z",
+      "ok": true
+    },
+    {
+      "domain": "azuriofficial.com",
+      "store_name": "Azurio United Kingdom",
+      "origin": "https://azuriofficial.com",
+      "score": 35,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 92,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 92,
+        "vendor_brand_pct": 26,
+        "product_type_pct": 0,
+        "useful_description_pct": 26,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 26
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-26T14:15:21.657Z",
+      "ok": true
+    },
+    {
+      "domain": "baddiesdressupboutique.com",
+      "store_name": "Baddies Dress Up Boutique United States",
+      "origin": "https://baddiesdressupboutique.com",
+      "score": 22,
+      "sample": {
+        "products": 17,
+        "variants": 70,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 0,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 70.6
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-26T14:15:22.177Z",
       "ok": true
     }
   ]
