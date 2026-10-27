@@ -1,134 +1,74 @@
 {
-  "generated_at": "2026-10-26T14:15:22.266Z",
-  "source_queue_created": "2026-10-26T14:15:13.216Z",
+  "generated_at": "2026-10-27T13:11:47.440Z",
+  "source_queue_created": "2026-10-27T13:11:43.990Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 10,
-  "passed": 10,
+  "attempted": 3,
+  "passed": 3,
   "results": [
     {
-      "domain": "arteamorbonito.com",
-      "store_name": "Arte amor bonito Dominican Republic",
-      "origin": "https://arteamorbonito.com",
-      "score": 75,
+      "domain": "jaysixsupplyco.com",
+      "store_name": "JaySix Supply Co. United States",
+      "origin": "https://jaysixsupplyco.com",
+      "score": 76,
+      "sample": {
+        "products": 25,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 92,
+        "product_type_pct": 92,
+        "useful_description_pct": 92,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 92
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-27T13:11:46.165Z",
+      "ok": true
+    },
+    {
+      "domain": "jetepox.com",
+      "store_name": "Jetepox United States",
+      "origin": "https://jetepox.com",
+      "score": 77,
+      "sample": {
+        "products": 31,
+        "variants": 76,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 97.4,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 97.4,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 96.8,
+        "useful_description_pct": 96.8,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 90.3
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-27T13:11:46.830Z",
+      "ok": true
+    },
+    {
+      "domain": "jetwellsmarthome.com",
+      "store_name": "jetwellsmarthome United States",
+      "origin": "https://jetwellsmarthome.com",
+      "score": 80,
       "sample": {
         "products": 16,
-        "variants": 71,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 98.6,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 98.6,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 62.5,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 87.5
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-26T14:15:14.885Z",
-      "ok": true
-    },
-    {
-      "domain": "atelierlinden.com",
-      "store_name": "Atelier Linden United States",
-      "origin": "https://atelierlinden.com",
-      "score": 71,
-      "sample": {
-        "products": 50,
-        "variants": 73,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 63,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 63,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-26T14:15:15.769Z",
-      "ok": true
-    },
-    {
-      "domain": "astralashesandemberlight.com",
-      "store_name": "Astral Ashes & Emberlight LLC United States",
-      "origin": "https://astralashesandemberlight.com",
-      "score": 54,
-      "sample": {
-        "products": 13,
-        "variants": 51,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 92.3
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-26T14:15:16.451Z",
-      "ok": true
-    },
-    {
-      "domain": "avenlowear.com",
-      "store_name": "AVENLO United States",
-      "origin": "https://avenlowear.com",
-      "score": 33,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 14,
-        "product_type_pct": 14,
-        "useful_description_pct": 14,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 14
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-26T14:15:17.326Z",
-      "ok": true
-    },
-    {
-      "domain": "autoluxcabin.com",
-      "store_name": "AutoLux United States",
-      "origin": "https://autoluxcabin.com",
-      "score": 80,
-      "sample": {
-        "products": 50,
-        "variants": 50,
+        "variants": 16,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -145,154 +85,7 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-26T14:15:18.730Z",
-      "ok": true
-    },
-    {
-      "domain": "avelishop.com",
-      "store_name": "AVELI Mexico",
-      "origin": "https://avelishop.com",
-      "score": 52,
-      "sample": {
-        "products": 23,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 78.3,
-        "product_type_pct": 78.3,
-        "useful_description_pct": 4.3,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 69.6
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-26T14:15:19.416Z",
-      "ok": true
-    },
-    {
-      "domain": "avellaparis.com",
-      "store_name": "Avella-Paris United States",
-      "origin": "https://avellaparis.com",
-      "score": 4,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 4,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 4,
-        "vendor_brand_pct": 8,
-        "product_type_pct": 2,
-        "useful_description_pct": 6,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 8
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-26T14:15:20.271Z",
-      "ok": true
-    },
-    {
-      "domain": "auntiewholesale.com",
-      "store_name": "Auntie Wholesale United States",
-      "origin": "https://auntiewholesale.com",
-      "score": 80,
-      "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-26T14:15:20.884Z",
-      "ok": true
-    },
-    {
-      "domain": "azuriofficial.com",
-      "store_name": "Azurio United Kingdom",
-      "origin": "https://azuriofficial.com",
-      "score": 35,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 92,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 92,
-        "vendor_brand_pct": 26,
-        "product_type_pct": 0,
-        "useful_description_pct": 26,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 26
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-10-26T14:15:21.657Z",
-      "ok": true
-    },
-    {
-      "domain": "baddiesdressupboutique.com",
-      "store_name": "Baddies Dress Up Boutique United States",
-      "origin": "https://baddiesdressupboutique.com",
-      "score": 22,
-      "sample": {
-        "products": 17,
-        "variants": 70,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 0,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 70.6
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-26T14:15:22.177Z",
+      "audited_at": "2026-10-27T13:11:47.348Z",
       "ok": true
     }
   ]
