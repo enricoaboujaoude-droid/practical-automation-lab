@@ -1,74 +1,20 @@
 {
-  "generated_at": "2026-10-27T13:11:47.440Z",
-  "source_queue_created": "2026-10-27T13:11:43.990Z",
+  "generated_at": "2026-10-28T14:00:19.253Z",
+  "source_queue_created": "2026-10-28T14:00:04.006Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 3,
-  "passed": 3,
+  "attempted": 10,
+  "passed": 10,
   "results": [
     {
-      "domain": "jaysixsupplyco.com",
-      "store_name": "JaySix Supply Co. United States",
-      "origin": "https://jaysixsupplyco.com",
-      "score": 76,
+      "domain": "franklinnourriture.com",
+      "store_name": "Franklinnourriture France",
+      "origin": "https://franklinnourriture.com",
+      "score": 73,
       "sample": {
-        "products": 25,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 92,
-        "product_type_pct": 92,
-        "useful_description_pct": 92,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 92
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-27T13:11:46.165Z",
-      "ok": true
-    },
-    {
-      "domain": "jetepox.com",
-      "store_name": "Jetepox United States",
-      "origin": "https://jetepox.com",
-      "score": 77,
-      "sample": {
-        "products": 31,
-        "variants": 76,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 97.4,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 97.4,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 96.8,
-        "useful_description_pct": 96.8,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 90.3
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-27T13:11:46.830Z",
-      "ok": true
-    },
-    {
-      "domain": "jetwellsmarthome.com",
-      "store_name": "jetwellsmarthome United States",
-      "origin": "https://jetwellsmarthome.com",
-      "score": 80,
-      "sample": {
-        "products": 16,
-        "variants": 16,
+        "products": 50,
+        "variants": 50,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -78,14 +24,277 @@
         "sku_mpn_pct": 100,
         "vendor_brand_pct": 100,
         "product_type_pct": 100,
+        "useful_description_pct": 82,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 68
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+      ],
+      "audited_at": "2026-10-28T14:00:05.491Z",
+      "ok": true
+    },
+    {
+      "domain": "freshvist.com",
+      "store_name": "Freshvist United States",
+      "origin": "https://freshvist.com",
+      "score": 73,
+      "sample": {
+        "products": 22,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 95.5,
+        "product_type_pct": 54.5,
+        "useful_description_pct": 95.5,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 95.5
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-28T14:00:06.501Z",
+      "ok": true
+    },
+    {
+      "domain": "furrenzapet.com",
+      "store_name": "FURRENZA United States",
+      "origin": "https://furrenzapet.com",
+      "score": 28,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 8,
+        "product_type_pct": 0,
+        "useful_description_pct": 4,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 8
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-28T14:00:09.813Z",
+      "ok": true
+    },
+    {
+      "domain": "fwstore360.com",
+      "store_name": "FW STORE Pakistan",
+      "origin": "https://fwstore360.com",
+      "score": 48,
+      "sample": {
+        "products": 22,
+        "variants": 33,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 31.8,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
         "descriptive_title_pct": 100
       },
       "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-28T14:00:10.442Z",
+      "ok": true
+    },
+    {
+      "domain": "galello.com",
+      "store_name": "Galello United States",
+      "origin": "https://galello.com",
+      "score": 31,
+      "sample": {
+        "products": 17,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 58.8,
+        "product_type_pct": 58.8,
+        "useful_description_pct": 52.9,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 52.9
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-28T14:00:11.016Z",
+      "ok": true
+    },
+    {
+      "domain": "galleriasuitesgroup.com",
+      "store_name": "The Galleria Beautique United States",
+      "origin": "https://galleriasuitesgroup.com",
+      "score": 31,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 60,
+        "product_type_pct": 58,
+        "useful_description_pct": 58,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 44
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-28T14:00:12.111Z",
+      "ok": true
+    },
+    {
+      "domain": "gavenandawisp.com",
+      "store_name": "Gavenandawisp France",
+      "origin": "https://gavenandawisp.com",
+      "score": 70,
+      "sample": {
+        "products": 50,
+        "variants": 97,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 98
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-28T14:00:14.465Z",
+      "ok": true
+    },
+    {
+      "domain": "gcstudiomy.com",
+      "store_name": "GC Studio Malaysia",
+      "origin": "https://gcstudiomy.com",
+      "score": 45,
+      "sample": {
+        "products": 44,
+        "variants": 44,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-28T14:00:17.991Z",
+      "ok": true
+    },
+    {
+      "domain": "gatebags.com",
+      "store_name": "GATE Israel",
+      "origin": "https://gatebags.com",
+      "score": 18,
+      "sample": {
+        "products": 28,
+        "variants": 62,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 10.7,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 7.1
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-10-28T14:00:18.569Z",
+      "ok": true
+    },
+    {
+      "domain": "gemcovekenya.com",
+      "store_name": "GEM COVE Kenya",
+      "origin": "https://gemcovekenya.com",
+      "score": 55,
+      "sample": {
+        "products": 22,
+        "variants": 22,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-27T13:11:47.348Z",
+      "audited_at": "2026-10-28T14:00:19.161Z",
       "ok": true
     }
   ]
