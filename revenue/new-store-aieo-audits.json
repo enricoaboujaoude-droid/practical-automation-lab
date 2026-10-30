@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-29T14:16:02.389Z",
-  "source_queue_created": "2026-10-29T14:15:54.172Z",
+  "generated_at": "2026-10-30T14:06:32.229Z",
+  "source_queue_created": "2026-10-30T14:06:25.209Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
@@ -8,164 +8,23 @@
   "passed": 10,
   "results": [
     {
-      "domain": "ez-clothing.com",
-      "store_name": "EZ Clothing United States",
-      "origin": "https://ez-clothing.com",
-      "score": 80,
+      "domain": "foxyandfierceco.com",
+      "store_name": "Foxy & Fierce Co. United States",
+      "origin": "https://foxyandfierceco.com",
+      "score": 7,
       "sample": {
-        "products": 13,
-        "variants": 52,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-29T14:15:55.485Z",
-      "ok": true
-    },
-    {
-      "domain": "factory913.com",
-      "store_name": "Factory 913 United States",
-      "origin": "https://factory913.com",
-      "score": 55,
-      "sample": {
-        "products": 37,
-        "variants": 37,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-29T14:15:56.020Z",
-      "ok": true
-    },
-    {
-      "domain": "faithwalkerspr.com",
-      "store_name": "Faith Walkers United States",
-      "origin": "https://faithwalkerspr.com",
-      "score": 45,
-      "sample": {
-        "products": 12,
-        "variants": 24,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-29T14:15:56.479Z",
-      "ok": true
-    },
-    {
-      "domain": "fajasdollz.com",
-      "store_name": "Dollz by Sandra García United States",
-      "origin": "https://fajasdollz.com",
-      "score": 77,
-      "sample": {
-        "products": 21,
+        "products": 50,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 95.2,
-        "product_type_pct": 95.2,
-        "useful_description_pct": 95.2,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 95.2
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-10-29T14:15:57.316Z",
-      "ok": true
-    },
-    {
-      "domain": "fasaeljoyeria.com",
-      "store_name": "FASAEL Joyería Colombia",
-      "origin": "https://fasaeljoyeria.com",
-      "score": 42,
-      "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 26,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 26,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 32,
-        "useful_description_pct": 38,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 94
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-10-29T14:15:58.047Z",
-      "ok": true
-    },
-    {
-      "domain": "fiboutique.com",
-      "store_name": "Fİ BOUTİQUE Germany",
-      "origin": "https://fiboutique.com",
-      "score": 25,
-      "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 78,
-        "useful_description_pct": 6,
+        "vendor_brand_pct": 38,
+        "product_type_pct": 0,
+        "useful_description_pct": 2,
         "image_alt_text_pct": 0,
         "descriptive_title_pct": 12
       },
@@ -175,16 +34,16 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-10-29T14:15:58.954Z",
+      "audited_at": "2026-10-30T14:06:26.917Z",
       "ok": true
     },
     {
-      "domain": "filterdirectsupply.com",
-      "store_name": "Filter Direct Supply United States",
-      "origin": "https://filterdirectsupply.com",
-      "score": 68,
+      "domain": "forevertreazures.com",
+      "store_name": "Forever Treazures United States",
+      "origin": "https://forevertreazures.com",
+      "score": 60,
       "sample": {
-        "products": 50,
+        "products": 42,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
@@ -193,40 +52,11 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 80,
-        "product_type_pct": 80,
-        "useful_description_pct": 80,
+        "vendor_brand_pct": 66.7,
+        "product_type_pct": 59.5,
+        "useful_description_pct": 64.3,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 72
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate vendor/brand consistently across the catalog.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-10-29T14:15:59.559Z",
-      "ok": true
-    },
-    {
-      "domain": "fisherbrotherslogisticsswagstore.com",
-      "store_name": "Fisher Brothers Logistics Swag Store United States",
-      "origin": "https://fisherbrotherslogisticsswagstore.com",
-      "score": 51,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 58,
-        "product_type_pct": 0,
-        "useful_description_pct": 58,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 58
+        "descriptive_title_pct": 61.9
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -234,17 +64,17 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-29T14:16:00.809Z",
+      "audited_at": "2026-10-30T14:06:27.792Z",
       "ok": true
     },
     {
-      "domain": "findsandcobrooklyn.com",
-      "store_name": "Finds & Co. United States",
-      "origin": "https://findsandcobrooklyn.com",
+      "domain": "forgecraftllc.com",
+      "store_name": "Forgecraftllc Portugal",
+      "origin": "https://forgecraftllc.com",
       "score": 80,
       "sample": {
-        "products": 20,
-        "variants": 100,
+        "products": 26,
+        "variants": 26,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -261,14 +91,69 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-10-29T14:16:01.535Z",
+      "audited_at": "2026-10-30T14:06:28.358Z",
       "ok": true
     },
     {
-      "domain": "fioreroasters.com",
-      "store_name": "Fiore Roasters United States",
-      "origin": "https://fioreroasters.com",
-      "score": 44,
+      "domain": "forgedlegacyjewelry.com",
+      "store_name": "Forged Legacy United States",
+      "origin": "https://forgedlegacyjewelry.com",
+      "score": 74,
+      "sample": {
+        "products": 50,
+        "variants": 58,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 74,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 94
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-30T14:06:28.868Z",
+      "ok": true
+    },
+    {
+      "domain": "frostbudying.com",
+      "store_name": "Frost Buddy United States",
+      "origin": "https://frostbudying.com",
+      "score": 80,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-30T14:06:29.301Z",
+      "ok": true
+    },
+    {
+      "domain": "freehugsfamily.com",
+      "store_name": "Free Hugs Family France",
+      "origin": "https://freehugsfamily.com",
+      "score": 31,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -279,11 +164,11 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 54,
-        "product_type_pct": 0,
-        "useful_description_pct": 52,
+        "vendor_brand_pct": 10,
+        "product_type_pct": 10,
+        "useful_description_pct": 10,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 8
+        "descriptive_title_pct": 10
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -291,7 +176,125 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-10-29T14:16:02.315Z",
+      "audited_at": "2026-10-30T14:06:30.081Z",
+      "ok": true
+    },
+    {
+      "domain": "frenchiedadclub.com",
+      "store_name": "Frenchie Dad Club United States",
+      "origin": "https://frenchiedadclub.com",
+      "score": 59,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 62,
+        "product_type_pct": 62,
+        "useful_description_pct": 62,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 60
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-30T14:06:30.641Z",
+      "ok": true
+    },
+    {
+      "domain": "fridayshoppy.com",
+      "store_name": "Friday Shoppy India",
+      "origin": "https://fridayshoppy.com",
+      "score": 36,
+      "sample": {
+        "products": 50,
+        "variants": 53,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 8
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+      ],
+      "audited_at": "2026-10-30T14:06:31.114Z",
+      "ok": true
+    },
+    {
+      "domain": "furbulouspetshop.com",
+      "store_name": "Furbulous United Kingdom",
+      "origin": "https://furbulouspetshop.com",
+      "score": 48,
+      "sample": {
+        "products": 29,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 48.3,
+        "product_type_pct": 24.1,
+        "useful_description_pct": 48.3,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 37.9
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-10-30T14:06:31.686Z",
+      "ok": true
+    },
+    {
+      "domain": "furamira.com",
+      "store_name": "Furamira United States",
+      "origin": "https://furamira.com",
+      "score": 75,
+      "sample": {
+        "products": 16,
+        "variants": 19,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 78.9,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 78.9,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-10-30T14:06:32.168Z",
       "ok": true
     }
   ]
