@@ -47,30 +47,120 @@
       "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
       "amount_usdc": 0.01,
       "source": "base_ledger"
+    },
+    {
+      "chain": "base",
+      "chain_id": 8453,
+      "chain_label": "Base",
+      "token": "USDC",
+      "token_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "tx_hash": "0xea1396287ac29a798add4213714b89c5824d9fd04e8c1bbb3f52821b390a5205",
+      "log_index": 22,
+      "block_number": 53369863,
+      "timestamp": "2026-11-01T10:31:13.000Z",
+      "from": "0x54e163e9b8edda194d83f46add921bfa5fc5f4e0",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
+    },
+    {
+      "chain": "base",
+      "chain_id": 8453,
+      "chain_label": "Base",
+      "token": "USDC",
+      "token_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "tx_hash": "0xd0047032d94aaefa4beb6e4376c8013e14139f247835a40ffefe330215983fe6",
+      "log_index": 16,
+      "block_number": 53369898,
+      "timestamp": "2026-11-01T10:32:23.000Z",
+      "from": "0x54e163e9b8edda194d83f46add921bfa5fc5f4e0",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
+    },
+    {
+      "chain": "base",
+      "chain_id": 8453,
+      "chain_label": "Base",
+      "token": "USDC",
+      "token_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "tx_hash": "0x6b5c54e1995cb78e056acf1d08c982a14c7da3d113caa9ba362b23a2180f6549",
+      "log_index": 16,
+      "block_number": 53370017,
+      "timestamp": "2026-11-01T10:36:21.000Z",
+      "from": "0x54e163e9b8edda194d83f46add921bfa5fc5f4e0",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
+    },
+    {
+      "chain": "base",
+      "chain_id": 8453,
+      "chain_label": "Base",
+      "token": "USDC",
+      "token_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "tx_hash": "0x4a3572a7b6422a31285f41cfbd42353aa63303754f24e0a7a3a7c2ddfa5211b8",
+      "log_index": 278,
+      "block_number": 53370057,
+      "timestamp": "2026-11-01T10:37:41.000Z",
+      "from": "0x54e163e9b8edda194d83f46add921bfa5fc5f4e0",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
+    },
+    {
+      "chain": "base",
+      "chain_id": 8453,
+      "chain_label": "Base",
+      "token": "USDC",
+      "token_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "tx_hash": "0xff087a01b2432aa27e2b0a745e7f1ae90454b830349f25b36af9f02cf61cf397",
+      "log_index": 216,
+      "block_number": 53370127,
+      "timestamp": "2026-11-01T10:40:01.000Z",
+      "from": "0x54e163e9b8edda194d83f46add921bfa5fc5f4e0",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
+    },
+    {
+      "chain": "base",
+      "chain_id": 8453,
+      "chain_label": "Base",
+      "token": "USDC",
+      "token_contract": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "tx_hash": "0x33f5ec294259f40bb48ff2368030e1772a134ee681ab619274ec613cced745f2",
+      "log_index": 570,
+      "block_number": 53380269,
+      "timestamp": "2026-11-01T16:18:05.000Z",
+      "from": "0xa1d1c0cf717402ff3651aa4873ccf96410b01978",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
     }
   ],
   "totals_by_chain": {
-    "base": 0.12
+    "base": 0.18
   },
-  "total_usdc": 0.12,
+  "total_usdc": 0.18,
   "checkpoints": {
     "base": {
       "source": "revenue/base-usdc-ledger.json",
-      "last_scanned_block": 53364379,
-      "source_updated_at": "2026-11-01T07:28:38.250Z",
-      "imported_at": "2026-11-01T14:20:47.509Z"
+      "last_scanned_block": 53386206,
+      "source_updated_at": "2026-11-01T19:36:11.778Z",
+      "imported_at": "2026-11-01T19:45:43.294Z"
     },
     "arbitrum": {
-      "last_scanned_block": 520298165,
-      "scanned_from_block": 520268165,
-      "updated_at": "2026-11-01T14:21:17.550Z"
+      "last_scanned_block": 520365207,
+      "scanned_from_block": 520335207,
+      "updated_at": "2026-11-01T19:46:16.830Z"
     },
     "polygon": {
-      "last_scanned_block": 96558262,
-      "scanned_from_block": 96546262,
-      "updated_at": "2026-11-01T14:21:05.937Z"
+      "last_scanned_block": 96571259,
+      "scanned_from_block": 96559259,
+      "updated_at": "2026-11-01T19:46:04.449Z"
     }
   },
-  "updated_at": "2026-11-01T14:21:17.551Z",
+  "updated_at": "2026-11-01T19:46:17.010Z",
   "scan_errors": []
 }
