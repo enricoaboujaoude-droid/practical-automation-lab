@@ -33,11 +33,61 @@
       "from": "0x7e6b6556322c4e26c567a867964ac793f5ee2b1c",
       "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
       "amount_usdc": 0.01
+    },
+    {
+      "tx_hash": "0xea1396287ac29a798add4213714b89c5824d9fd04e8c1bbb3f52821b390a5205",
+      "log_index": 22,
+      "block_number": 53369863,
+      "timestamp": "2026-11-01T10:31:13.000Z",
+      "from": "0x54e163e9b8edda194d83f46add921bfa5fc5f4e0",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
+    },
+    {
+      "tx_hash": "0xd0047032d94aaefa4beb6e4376c8013e14139f247835a40ffefe330215983fe6",
+      "log_index": 16,
+      "block_number": 53369898,
+      "timestamp": "2026-11-01T10:32:23.000Z",
+      "from": "0x54e163e9b8edda194d83f46add921bfa5fc5f4e0",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
+    },
+    {
+      "tx_hash": "0x6b5c54e1995cb78e056acf1d08c982a14c7da3d113caa9ba362b23a2180f6549",
+      "log_index": 16,
+      "block_number": 53370017,
+      "timestamp": "2026-11-01T10:36:21.000Z",
+      "from": "0x54e163e9b8edda194d83f46add921bfa5fc5f4e0",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
+    },
+    {
+      "tx_hash": "0x4a3572a7b6422a31285f41cfbd42353aa63303754f24e0a7a3a7c2ddfa5211b8",
+      "log_index": 278,
+      "block_number": 53370057,
+      "timestamp": "2026-11-01T10:37:41.000Z",
+      "from": "0x54e163e9b8edda194d83f46add921bfa5fc5f4e0",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
+    },
+    {
+      "tx_hash": "0xff087a01b2432aa27e2b0a745e7f1ae90454b830349f25b36af9f02cf61cf397",
+      "log_index": 216,
+      "block_number": 53370127,
+      "timestamp": "2026-11-01T10:40:01.000Z",
+      "from": "0x54e163e9b8edda194d83f46add921bfa5fc5f4e0",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
     }
   ],
-  "total_usdc": 0.12,
-  "last_scanned_block": 53364379,
-  "updated_at": "2026-11-01T07:28:38.250Z",
+  "total_usdc": 0.17,
+  "last_scanned_block": 53377938,
+  "updated_at": "2026-11-01T15:00:39.463Z",
   "last_scan_source": "base_rpc_logs",
   "last_scan_error": null
 }
