@@ -83,11 +83,21 @@
       "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
       "amount_usdc": 0.01,
       "source": "base_rpc_logs"
+    },
+    {
+      "tx_hash": "0x33f5ec294259f40bb48ff2368030e1772a134ee681ab619274ec613cced745f2",
+      "log_index": 570,
+      "block_number": 53380269,
+      "timestamp": "2026-11-01T16:18:05.000Z",
+      "from": "0xa1d1c0cf717402ff3651aa4873ccf96410b01978",
+      "to": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
+      "amount_usdc": 0.01,
+      "source": "base_rpc_logs"
     }
   ],
-  "total_usdc": 0.17,
-  "last_scanned_block": 53377938,
-  "updated_at": "2026-11-01T15:00:39.463Z",
+  "total_usdc": 0.18,
+  "last_scanned_block": 53386206,
+  "updated_at": "2026-11-01T19:36:11.778Z",
   "last_scan_source": "base_rpc_logs",
   "last_scan_error": null
 }
