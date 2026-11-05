@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-04T15:24:41.141Z",
-  "source_queue_created": "2026-11-04T15:24:34.679Z",
+  "generated_at": "2026-11-05T15:30:22.255Z",
+  "source_queue_created": "2026-11-05T15:30:14.198Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
@@ -8,12 +8,12 @@
   "passed": 7,
   "results": [
     {
-      "domain": "pujoma.com",
-      "store_name": "Pujoma United States",
-      "origin": "https://pujoma.com",
-      "score": 37,
+      "domain": "sablebrook.us",
+      "store_name": "Sablebrook United States",
+      "origin": "https://sablebrook.us",
+      "score": 58,
       "sample": {
-        "products": 50,
+        "products": 26,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
@@ -22,11 +22,11 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 22,
-        "product_type_pct": 20,
-        "useful_description_pct": 22,
+        "vendor_brand_pct": 73.1,
+        "product_type_pct": 0,
+        "useful_description_pct": 73.1,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 20
+        "descriptive_title_pct": 73.1
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -34,47 +34,17 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-11-04T15:24:36.689Z",
+      "audited_at": "2026-11-05T15:30:18.615Z",
       "ok": true
     },
     {
-      "domain": "purplehorseembroidery.com",
-      "store_name": "PurpleHorse Embroidery United Kingdom",
-      "origin": "https://purplehorseembroidery.com",
-      "score": 47,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 40,
-        "product_type_pct": 40,
-        "useful_description_pct": 40,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 40
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-04T15:24:37.335Z",
-      "ok": true
-    },
-    {
-      "domain": "praiseformapparel.com",
-      "store_name": "PraiseForm Apparel United States",
-      "origin": "https://praiseformapparel.com",
+      "domain": "sarily.com.au",
+      "store_name": "SARILY Australia",
+      "origin": "https://sarily.com.au",
       "score": 80,
       "sample": {
-        "products": 25,
-        "variants": 79,
+        "products": 50,
+        "variants": 62,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -91,82 +61,54 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-04T15:24:37.728Z",
+      "audited_at": "2026-11-05T15:30:19.499Z",
       "ok": true
     },
     {
-      "domain": "premiumstorefit.com",
-      "store_name": "Premium store United States",
-      "origin": "https://premiumstorefit.com",
-      "score": 57,
+      "domain": "sennamode.co",
+      "store_name": "Senna Mode Norway",
+      "origin": "https://sennamode.co",
+      "score": 9,
       "sample": {
-        "products": 34,
+        "products": 50,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 18,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 61.8,
-        "product_type_pct": 52.9,
-        "useful_description_pct": 58.8,
+        "sku_mpn_pct": 18,
+        "vendor_brand_pct": 10,
+        "product_type_pct": 4,
+        "useful_description_pct": 10,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 52.9
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-04T15:24:38.152Z",
-      "ok": true
-    },
-    {
-      "domain": "primeoray.com",
-      "store_name": "Primeoray Germany",
-      "origin": "https://primeoray.com",
-      "score": 75,
-      "sample": {
-        "products": 50,
-        "variants": 82,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 87.8,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 87.8,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 90,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 92
+        "descriptive_title_pct": 10
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-04T15:24:38.766Z",
+      "audited_at": "2026-11-05T15:30:20.350Z",
       "ok": true
     },
     {
-      "domain": "pukreno.com",
-      "store_name": "Pukreno United States",
-      "origin": "https://pukreno.com",
-      "score": 70,
+      "domain": "100easy.store",
+      "store_name": "100EASY Paraguay",
+      "origin": "https://100easy.store",
+      "score": 45,
       "sample": {
-        "products": 13,
-        "variants": 100,
+        "products": 16,
+        "variants": 16,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
+        "sku_mpn_pct": 0,
         "vendor_brand_pct": 100,
         "product_type_pct": 0,
         "useful_description_pct": 100,
@@ -174,40 +116,99 @@
         "descriptive_title_pct": 100
       },
       "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-04T15:24:40.315Z",
+      "audited_at": "2026-11-05T15:30:20.752Z",
       "ok": true
     },
     {
-      "domain": "pullhouseuk.com",
-      "store_name": "Pull house United Kingdom",
-      "origin": "https://pullhouseuk.com",
-      "score": 65,
+      "domain": "24rentals.net",
+      "store_name": "24RENTALS United States",
+      "origin": "https://24rentals.net",
+      "score": 46,
       "sample": {
-        "products": 50,
-        "variants": 100,
+        "products": 36,
+        "variants": 36,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 96,
+        "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 96,
-        "vendor_brand_pct": 76,
-        "product_type_pct": 74,
-        "useful_description_pct": 76,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 74
+        "descriptive_title_pct": 13.9
       },
       "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+      ],
+      "audited_at": "2026-11-05T15:30:21.274Z",
+      "ok": true
+    },
+    {
+      "domain": "50shadesofbeauty.shop",
+      "store_name": "50 Shades Of Beauty United States",
+      "origin": "https://50shadesofbeauty.shop",
+      "score": 42,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 92,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 90
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-05T15:30:21.765Z",
+      "ok": true
+    },
+    {
+      "domain": "9sells.store",
+      "store_name": "9Sell Pakistan",
+      "origin": "https://9sells.store",
+      "score": 40,
+      "sample": {
+        "products": 16,
+        "variants": 46,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 2.2,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 2.2,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 6.3,
+        "useful_description_pct": 68.8,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-04T15:24:41.080Z",
+      "audited_at": "2026-11-05T15:30:22.177Z",
       "ok": true
     }
   ]
