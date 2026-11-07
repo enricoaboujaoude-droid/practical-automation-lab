@@ -1,19 +1,19 @@
 {
-  "generated_at": "2026-11-06T15:00:13.185Z",
-  "source_queue_created": "2026-11-06T15:00:08.634Z",
+  "generated_at": "2026-11-07T13:59:30.677Z",
+  "source_queue_created": "2026-11-07T13:59:25.235Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 5,
-  "passed": 5,
+  "attempted": 7,
+  "passed": 7,
   "results": [
     {
-      "domain": "32customwear.store",
-      "store_name": "32CustomWear United States",
-      "origin": "https://32customwear.store",
-      "score": 2,
+      "domain": "condorluxe.com",
+      "store_name": "Condor United States",
+      "origin": "https://condorluxe.com",
+      "score": 14,
       "sample": {
-        "products": 50,
+        "products": 22,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
@@ -22,11 +22,11 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 4,
-        "product_type_pct": 4,
-        "useful_description_pct": 4,
+        "vendor_brand_pct": 27.3,
+        "product_type_pct": 18.2,
+        "useful_description_pct": 27.3,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 4
+        "descriptive_title_pct": 27.3
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -34,74 +34,17 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-06T15:00:10.291Z",
+      "audited_at": "2026-11-07T13:59:26.332Z",
       "ok": true
     },
     {
-      "domain": "80stonecoffeefr.live",
-      "store_name": "Forge Bakehouse United Kingdom",
-      "origin": "https://80stonecoffeefr.live",
-      "score": 64,
+      "domain": "comfofeetsteps.com",
+      "store_name": "ComfoFeet United States",
+      "origin": "https://comfofeetsteps.com",
+      "score": 2,
       "sample": {
-        "products": 50,
-        "variants": 73,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 50.7,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 50.7,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 94,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 66
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-11-06T15:00:11.422Z",
-      "ok": true
-    },
-    {
-      "domain": "a56family.store",
-      "store_name": "Мой магазин Germany",
-      "origin": "https://a56family.store",
-      "score": 78,
-      "sample": {
-        "products": 22,
-        "variants": 77,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 77.3
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-11-06T15:00:12.007Z",
-      "ok": true
-    },
-    {
-      "domain": "aaasportsapparel.com",
-      "store_name": "AAA SPORTS APPAREL United States",
-      "origin": "https://aaasportsapparel.com",
-      "score": 55,
-      "sample": {
-        "products": 22,
-        "variants": 22,
+        "products": 47,
+        "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -109,27 +52,29 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
+        "vendor_brand_pct": 8.5,
+        "product_type_pct": 0,
+        "useful_description_pct": 0,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
+        "descriptive_title_pct": 8.5
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-06T15:00:12.535Z",
+      "audited_at": "2026-11-07T13:59:27.197Z",
       "ok": true
     },
     {
-      "domain": "aakshrajewels.com",
-      "store_name": "Aakshra Jewels India",
-      "origin": "https://aakshrajewels.com",
-      "score": 70,
+      "domain": "coozyearth.com",
+      "store_name": "Cozy Earth United States",
+      "origin": "https://coozyearth.com",
+      "score": 61,
       "sample": {
         "products": 50,
-        "variants": 50,
+        "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -137,17 +82,139 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
+        "vendor_brand_pct": 66,
+        "product_type_pct": 66,
+        "useful_description_pct": 66,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 58
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-07T13:59:27.616Z",
+      "ok": true
+    },
+    {
+      "domain": "copperstoke.com",
+      "store_name": "icon-hamburger Australia",
+      "origin": "https://copperstoke.com",
+      "score": 39,
+      "sample": {
+        "products": 50,
+        "variants": 86,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 26.7,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 26.7,
         "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
+        "product_type_pct": 54,
+        "useful_description_pct": 8,
         "image_alt_text_pct": 0,
         "descriptive_title_pct": 100
       },
       "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-06T15:00:13.085Z",
+      "audited_at": "2026-11-07T13:59:27.910Z",
+      "ok": true
+    },
+    {
+      "domain": "covepum.com",
+      "store_name": "Covepum United States",
+      "origin": "https://covepum.com",
+      "score": 50,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 46,
+        "product_type_pct": 46,
+        "useful_description_pct": 46,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 46
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-07T13:59:28.711Z",
+      "ok": true
+    },
+    {
+      "domain": "covettstyle.com",
+      "store_name": "Covett London United Kingdom",
+      "origin": "https://covettstyle.com",
+      "score": 32,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 1,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 1,
+        "vendor_brand_pct": 72,
+        "product_type_pct": 0,
+        "useful_description_pct": 72,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 64
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-07T13:59:29.113Z",
+      "ok": true
+    },
+    {
+      "domain": "cubafep.com",
+      "store_name": "Cubafep United States",
+      "origin": "https://cubafep.com",
+      "score": 39,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 32,
+        "product_type_pct": 0,
+        "useful_description_pct": 32,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 32
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-07T13:59:30.623Z",
       "ok": true
     }
   ]
