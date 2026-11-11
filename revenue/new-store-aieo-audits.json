@@ -1,20 +1,50 @@
 {
-  "generated_at": "2026-11-10T15:34:30.418Z",
-  "source_queue_created": "2026-11-10T15:34:24.677Z",
+  "generated_at": "2026-11-11T15:10:00.299Z",
+  "source_queue_created": "2026-11-11T15:09:54.685Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 5,
-  "passed": 5,
+  "attempted": 7,
+  "passed": 7,
   "results": [
     {
-      "domain": "miatuyapadel.com",
-      "store_name": "MiaTuya Switzerland",
-      "origin": "https://miatuyapadel.com",
-      "score": 65,
+      "domain": "3kcarbon.com",
+      "store_name": "3K Carbon Australia",
+      "origin": "https://3kcarbon.com",
+      "score": 23,
       "sample": {
-        "products": 17,
+        "products": 36,
         "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 1,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 1,
+        "vendor_brand_pct": 44.4,
+        "product_type_pct": 44.4,
+        "useful_description_pct": 38.9,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 36.1
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-11T15:09:56.965Z",
+      "ok": true
+    },
+    {
+      "domain": "925kern.com",
+      "store_name": "925 kern United Kingdom",
+      "origin": "https://925kern.com",
+      "score": 70,
+      "sample": {
+        "products": 25,
+        "variants": 72,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -23,99 +53,153 @@
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
         "vendor_brand_pct": 100,
-        "product_type_pct": 17.6,
+        "product_type_pct": 0,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 35.3
+        "descriptive_title_pct": 100
       },
       "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-11T15:09:57.475Z",
+      "ok": true
+    },
+    {
+      "domain": "abottelho.com",
+      "store_name": "ABottelho Portugal",
+      "origin": "https://abottelho.com",
+      "score": 45,
+      "sample": {
+        "products": 27,
+        "variants": 27,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 96.3
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-11T15:09:58.049Z",
+      "ok": true
+    },
+    {
+      "domain": "acentoeinteriores.com",
+      "store_name": "Acento Mexico",
+      "origin": "https://acentoeinteriores.com",
+      "score": 36,
+      "sample": {
+        "products": 17,
+        "variants": 43,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 5.9
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification.",
         "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
       ],
-      "audited_at": "2026-11-10T15:34:26.701Z",
+      "audited_at": "2026-11-11T15:09:58.554Z",
       "ok": true
     },
     {
-      "domain": "mimiimpression.com",
-      "store_name": "MIMIimpression United States",
-      "origin": "https://mimiimpression.com",
+      "domain": "acollectivegatheringpotter.com",
+      "store_name": "A Collective Gathering United States",
+      "origin": "https://acollectivegatheringpotter.com",
+      "score": 80,
+      "sample": {
+        "products": 12,
+        "variants": 12,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-11-11T15:09:58.966Z",
+      "ok": true
+    },
+    {
+      "domain": "allstuffdiscountedstore.com",
+      "store_name": "All Stuff Discounted Store United States",
+      "origin": "https://allstuffdiscountedstore.com",
       "score": 45,
       "sample": {
         "products": 50,
-        "variants": 100,
+        "variants": 50,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 36,
-        "product_type_pct": 36,
-        "useful_description_pct": 36,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 36
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-10T15:34:27.155Z",
-      "ok": true
-    },
-    {
-      "domain": "mirtvako.com",
-      "store_name": "Mirtvako United States",
-      "origin": "https://mirtvako.com",
-      "score": 46,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 50,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
         "product_type_pct": 0,
-        "useful_description_pct": 42,
+        "useful_description_pct": 98,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 48
+        "descriptive_title_pct": 100
       },
       "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-10T15:34:28.709Z",
+      "audited_at": "2026-11-11T15:09:59.815Z",
       "ok": true
     },
     {
-      "domain": "mirellamode.com",
-      "store_name": "Mirella Germany",
-      "origin": "https://mirellamode.com",
-      "score": 27,
+      "domain": "almorena.com",
+      "store_name": "Almorena Germany",
+      "origin": "https://almorena.com",
+      "score": 15,
       "sample": {
-        "products": 50,
-        "variants": 100,
+        "products": 12,
+        "variants": 12,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 85,
+        "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 85,
-        "vendor_brand_pct": 10,
-        "product_type_pct": 10,
-        "useful_description_pct": 10,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 0,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 10
+        "descriptive_title_pct": 0
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -123,37 +207,7 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-10T15:34:29.568Z",
-      "ok": true
-    },
-    {
-      "domain": "misselia.com",
-      "store_name": "Misselia United States",
-      "origin": "https://misselia.com",
-      "score": 44,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 36,
-        "product_type_pct": 36,
-        "useful_description_pct": 36,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 28
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-10T15:34:30.328Z",
+      "audited_at": "2026-11-11T15:10:00.241Z",
       "ok": true
     }
   ]
