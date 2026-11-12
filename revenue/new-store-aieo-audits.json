@@ -1,32 +1,32 @@
 {
-  "generated_at": "2026-11-11T15:10:00.299Z",
-  "source_queue_created": "2026-11-11T15:09:54.685Z",
+  "generated_at": "2026-11-12T15:57:53.852Z",
+  "source_queue_created": "2026-11-12T15:57:49.023Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 7,
-  "passed": 7,
+  "attempted": 6,
+  "passed": 6,
   "results": [
     {
-      "domain": "3kcarbon.com",
-      "store_name": "3K Carbon Australia",
-      "origin": "https://3kcarbon.com",
-      "score": 23,
+      "domain": "lucy-nashville.com",
+      "store_name": "Lucy Nashville United States",
+      "origin": "https://lucy-nashville.com",
+      "score": 2,
       "sample": {
-        "products": 36,
+        "products": 50,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 1,
+        "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 1,
-        "vendor_brand_pct": 44.4,
-        "product_type_pct": 44.4,
-        "useful_description_pct": 38.9,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 4,
+        "product_type_pct": 0,
+        "useful_description_pct": 4,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 36.1
+        "descriptive_title_pct": 4
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -34,17 +34,17 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-11T15:09:56.965Z",
+      "audited_at": "2026-11-12T15:57:50.481Z",
       "ok": true
     },
     {
-      "domain": "925kern.com",
-      "store_name": "925 kern United Kingdom",
-      "origin": "https://925kern.com",
-      "score": 70,
+      "domain": "lumaadorn.com",
+      "store_name": "Luma Adorn United States",
+      "origin": "https://lumaadorn.com",
+      "score": 48,
       "sample": {
-        "products": 25,
-        "variants": 72,
+        "products": 50,
+        "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -52,86 +52,29 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
+        "vendor_brand_pct": 42,
+        "product_type_pct": 42,
+        "useful_description_pct": 42,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
+        "descriptive_title_pct": 42
       },
       "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-11T15:09:57.475Z",
-      "ok": true
-    },
-    {
-      "domain": "abottelho.com",
-      "store_name": "ABottelho Portugal",
-      "origin": "https://abottelho.com",
-      "score": 45,
-      "sample": {
-        "products": 27,
-        "variants": 27,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 96.3
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-11T15:09:58.049Z",
-      "ok": true
-    },
-    {
-      "domain": "acentoeinteriores.com",
-      "store_name": "Acento Mexico",
-      "origin": "https://acentoeinteriores.com",
-      "score": 36,
-      "sample": {
-        "products": 17,
-        "variants": 43,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 5.9
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+        "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-11-11T15:09:58.554Z",
+      "audited_at": "2026-11-12T15:57:51.238Z",
       "ok": true
     },
     {
-      "domain": "acollectivegatheringpotter.com",
-      "store_name": "A Collective Gathering United States",
-      "origin": "https://acollectivegatheringpotter.com",
+      "domain": "lumonela.com",
+      "store_name": "lumonela United States",
+      "origin": "https://lumonela.com",
       "score": 80,
       "sample": {
-        "products": 12,
-        "variants": 12,
+        "products": 14,
+        "variants": 26,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -148,46 +91,47 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-11T15:09:58.966Z",
+      "audited_at": "2026-11-12T15:57:51.849Z",
       "ok": true
     },
     {
-      "domain": "allstuffdiscountedstore.com",
-      "store_name": "All Stuff Discounted Store United States",
-      "origin": "https://allstuffdiscountedstore.com",
-      "score": 45,
+      "domain": "lunvito.com",
+      "store_name": "Lunvito United States",
+      "origin": "https://lunvito.com",
+      "score": 46,
       "sample": {
         "products": 50,
-        "variants": 50,
+        "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 0,
+        "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 50,
         "product_type_pct": 0,
-        "useful_description_pct": 98,
+        "useful_description_pct": 42,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
+        "descriptive_title_pct": 48
       },
       "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-11-11T15:09:59.815Z",
+      "audited_at": "2026-11-12T15:57:52.964Z",
       "ok": true
     },
     {
-      "domain": "almorena.com",
-      "store_name": "Almorena Germany",
-      "origin": "https://almorena.com",
-      "score": 15,
+      "domain": "lussomilanoi-il.com",
+      "store_name": "LUSSO Israel",
+      "origin": "https://lussomilanoi-il.com",
+      "score": 16,
       "sample": {
-        "products": 12,
-        "variants": 12,
+        "products": 16,
+        "variants": 16,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -197,7 +141,7 @@
         "sku_mpn_pct": 0,
         "vendor_brand_pct": 100,
         "product_type_pct": 0,
-        "useful_description_pct": 0,
+        "useful_description_pct": 6.3,
         "image_alt_text_pct": 0,
         "descriptive_title_pct": 0
       },
@@ -207,7 +151,35 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-11T15:10:00.241Z",
+      "audited_at": "2026-11-12T15:57:53.356Z",
+      "ok": true
+    },
+    {
+      "domain": "lumivorah.com",
+      "store_name": "Lumivorah United States",
+      "origin": "https://lumivorah.com",
+      "score": 55,
+      "sample": {
+        "products": 30,
+        "variants": 30,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-11-12T15:57:53.794Z",
       "ok": true
     }
   ]
