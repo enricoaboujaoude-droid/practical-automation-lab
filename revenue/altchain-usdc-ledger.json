@@ -1,8 +1,8 @@
 {
   "payout_address": "0x02d1dae81eaddded344eee43c6f31a8e166432bf",
-  "checked_at": "2026-11-13T09:54:37.491Z",
+  "checked_at": "2026-11-13T17:59:43.846Z",
   "source": "revenue/usdc-multichain-ledger.json",
-  "source_updated_at": "2026-11-13T09:41:56.138Z",
+  "source_updated_at": "2026-11-13T17:51:32.246Z",
   "chains_checked": [
     "polygon",
     "arbitrum"
