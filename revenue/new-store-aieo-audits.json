@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-14T14:08:04.957Z",
-  "source_queue_created": "2026-11-14T14:07:59.367Z",
+  "generated_at": "2026-11-15T14:44:40.764Z",
+  "source_queue_created": "2026-11-15T14:44:35.384Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
@@ -8,13 +8,128 @@
   "passed": 8,
   "results": [
     {
-      "domain": "differentbydesignatl.com",
-      "store_name": "DIFFERENT BY DESIGN ATL United States",
-      "origin": "https://differentbydesignatl.com",
-      "score": 55,
+      "domain": "happilykindmercantile.com",
+      "store_name": "Happily Kind Mercantile United States",
+      "origin": "https://happilykindmercantile.com",
+      "score": 76,
       "sample": {
-        "products": 13,
-        "variants": 63,
+        "products": 20,
+        "variants": 84,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 60,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-15T14:44:36.636Z",
+      "ok": true
+    },
+    {
+      "domain": "happyyvop.com",
+      "store_name": "HAPPI VAPE Taiwan",
+      "origin": "https://happyyvop.com",
+      "score": 29,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 10,
+        "product_type_pct": 0,
+        "useful_description_pct": 6,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 10
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-15T14:44:37.655Z",
+      "ok": true
+    },
+    {
+      "domain": "harmonyazen.com",
+      "store_name": "Harmonya France",
+      "origin": "https://harmonyazen.com",
+      "score": 80,
+      "sample": {
+        "products": 14,
+        "variants": 14,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-11-15T14:44:38.128Z",
+      "ok": true
+    },
+    {
+      "domain": "haverstonelondon.com",
+      "store_name": "Haverstone London United Kingdom",
+      "origin": "https://haverstonelondon.com",
+      "score": 22,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 68,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 68,
+        "vendor_brand_pct": 12,
+        "product_type_pct": 0,
+        "useful_description_pct": 12,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 10
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-15T14:44:38.842Z",
+      "ok": true
+    },
+    {
+      "domain": "heartofexoticplants.com",
+      "store_name": "Heart Of Exotic Plants United States",
+      "origin": "https://heartofexoticplants.com",
+      "score": 34,
+      "sample": {
+        "products": 33,
+        "variants": 33,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -23,22 +138,54 @@
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
         "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 54.5,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
+        "descriptive_title_pct": 84.8
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-14T14:08:00.189Z",
+      "audited_at": "2026-11-15T14:44:39.289Z",
       "ok": true
     },
     {
-      "domain": "discoverfunkyfox.com",
-      "store_name": "Funky Fox India",
-      "origin": "https://discoverfunkyfox.com",
+      "domain": "heavynonsense.com",
+      "store_name": "Heavy Nonsense United States",
+      "origin": "https://heavynonsense.com",
+      "score": 29,
+      "sample": {
+        "products": 21,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 9.5,
+        "product_type_pct": 0,
+        "useful_description_pct": 9.5,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 9.5
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-15T14:44:40.038Z",
+      "ok": true
+    },
+    {
+      "domain": "hhlmkj.com",
+      "store_name": "CORVIN United States",
+      "origin": "https://hhlmkj.com",
       "score": 14,
       "sample": {
         "products": 50,
@@ -50,11 +197,11 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 30,
+        "vendor_brand_pct": 54,
         "product_type_pct": 0,
-        "useful_description_pct": 30,
+        "useful_description_pct": 0,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 30
+        "descriptive_title_pct": 54
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -62,17 +209,17 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-14T14:08:00.689Z",
+      "audited_at": "2026-11-15T14:44:40.368Z",
       "ok": true
     },
     {
-      "domain": "disshanghai.com",
-      "store_name": "Disshanghai Netherlands",
-      "origin": "https://disshanghai.com",
-      "score": 80,
+      "domain": "herbalifeus.com",
+      "store_name": "Herbalife US United States",
+      "origin": "https://herbalifeus.com",
+      "score": 79,
       "sample": {
-        "products": 20,
-        "variants": 24,
+        "products": 50,
+        "variants": 50,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -84,162 +231,12 @@
         "product_type_pct": 100,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
+        "descriptive_title_pct": 92
       },
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-14T14:08:01.057Z",
-      "ok": true
-    },
-    {
-      "domain": "dishomse.com",
-      "store_name": "Dishomse France",
-      "origin": "https://dishomse.com",
-      "score": 62,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 70,
-        "product_type_pct": 70,
-        "useful_description_pct": 70,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 58
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-14T14:08:01.583Z",
-      "ok": true
-    },
-    {
-      "domain": "dolphinshellco.com",
-      "store_name": "Dolphin, Shell & Co. United States",
-      "origin": "https://dolphinshellco.com",
-      "score": 1,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 2,
-        "product_type_pct": 2,
-        "useful_description_pct": 2,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 2
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-14T14:08:02.895Z",
-      "ok": true
-    },
-    {
-      "domain": "domero-wroclaw.com",
-      "store_name": "Domero Poland",
-      "origin": "https://domero-wroclaw.com",
-      "score": 36,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 66,
-        "product_type_pct": 66,
-        "useful_description_pct": 66,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 66
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-14T14:08:03.318Z",
-      "ok": true
-    },
-    {
-      "domain": "donewithyourshirt.com",
-      "store_name": "Done with your shirt United States",
-      "origin": "https://donewithyourshirt.com",
-      "score": 28,
-      "sample": {
-        "products": 29,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 6.9,
-        "product_type_pct": 6.9,
-        "useful_description_pct": 6.9,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 0
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-14T14:08:04.102Z",
-      "ok": true
-    },
-    {
-      "domain": "dominionwatchs.com",
-      "store_name": "Dominion United States",
-      "origin": "https://dominionwatchs.com",
-      "score": 24,
-      "sample": {
-        "products": 50,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 0,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 88
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-14T14:08:04.878Z",
+      "audited_at": "2026-11-15T14:44:40.687Z",
       "ok": true
     }
   ]
