@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-11-16T16:59:13.704Z",
-  "source_queue_created": "2026-11-16T16:59:06.585Z",
+  "generated_at": "2026-11-17T16:52:42.211Z",
+  "source_queue_created": "2026-11-17T16:52:30.426Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
@@ -8,13 +8,70 @@
   "passed": 10,
   "results": [
     {
-      "domain": "cosyandkin.co.uk",
-      "store_name": "Cosy & Kin United Kingdom",
-      "origin": "https://cosyandkin.co.uk",
+      "domain": "elite-perfume-uae.com",
+      "store_name": "Elite Perfume Uae United Arab Emirates",
+      "origin": "https://elite-perfume-uae.com",
+      "score": 79,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 98,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 98,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 98,
+        "useful_description_pct": 98,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-11-17T16:52:31.640Z",
+      "ok": true
+    },
+    {
+      "domain": "ellasbutik.com",
+      "store_name": "Ellas Butik Turkey",
+      "origin": "https://ellasbutik.com",
+      "score": 17,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 30,
+        "product_type_pct": 30,
+        "useful_description_pct": 30,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 30
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-17T16:52:33.801Z",
+      "ok": true
+    },
+    {
+      "domain": "elmarvix.com",
+      "store_name": "elmarvix United States",
+      "origin": "https://elmarvix.com",
       "score": 80,
       "sample": {
-        "products": 34,
-        "variants": 34,
+        "products": 20,
+        "variants": 20,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -31,14 +88,14 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-16T16:59:07.679Z",
+      "audited_at": "2026-11-17T16:52:34.570Z",
       "ok": true
     },
     {
-      "domain": "coutureculture.co",
-      "store_name": "CoutureCulture United States",
-      "origin": "https://coutureculture.co",
-      "score": 6,
+      "domain": "elorymodas.com",
+      "store_name": "Elory Brazil",
+      "origin": "https://elorymodas.com",
+      "score": 18,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -49,11 +106,11 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 12,
-        "product_type_pct": 12,
-        "useful_description_pct": 12,
+        "vendor_brand_pct": 32,
+        "product_type_pct": 32,
+        "useful_description_pct": 32,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 8
+        "descriptive_title_pct": 32
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -61,17 +118,73 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-16T16:59:08.568Z",
+      "audited_at": "2026-11-17T16:52:35.219Z",
       "ok": true
     },
     {
-      "domain": "dailydealskart.in",
-      "store_name": "Dailydealskart India",
-      "origin": "https://dailydealskart.in",
-      "score": 62,
+      "domain": "eiaster.com",
+      "store_name": "bensve United States",
+      "origin": "https://eiaster.com",
+      "score": 66,
       "sample": {
-        "products": 25,
-        "variants": 25,
+        "products": 18,
+        "variants": 94,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 83.3,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 88.9
+      },
+      "recommendations": [
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-17T16:52:38.382Z",
+      "ok": true
+    },
+    {
+      "domain": "eilykwellness.com",
+      "store_name": "Eilyk Wellness Uganda",
+      "origin": "https://eilykwellness.com",
+      "score": 55,
+      "sample": {
+        "products": 30,
+        "variants": 35,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-11-17T16:52:38.820Z",
+      "ok": true
+    },
+    {
+      "domain": "elite4mastergaming.com",
+      "store_name": "Elite4Master Gaming United States",
+      "origin": "https://elite4mastergaming.com",
+      "score": 80,
+      "sample": {
+        "products": 50,
+        "variants": 50,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -81,142 +194,21 @@
         "sku_mpn_pct": 100,
         "vendor_brand_pct": 100,
         "product_type_pct": 100,
-        "useful_description_pct": 20,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 76
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-11-16T16:59:09.091Z",
-      "ok": true
-    },
-    {
-      "domain": "cultvibe.us",
-      "store_name": "CULTVIBE United States",
-      "origin": "https://cultvibe.us",
-      "score": 28,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 8,
-        "product_type_pct": 8,
-        "useful_description_pct": 2,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 6
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-16T16:59:09.486Z",
-      "ok": true
-    },
-    {
-      "domain": "decarshop.nl",
-      "store_name": "DeCarShop Netherlands",
-      "origin": "https://decarshop.nl",
-      "score": 53,
-      "sample": {
-        "products": 50,
-        "variants": 63,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 31.7,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 31.7,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 96
+        "descriptive_title_pct": 100
       },
       "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-16T16:59:10.174Z",
+      "audited_at": "2026-11-17T16:52:39.400Z",
       "ok": true
     },
     {
-      "domain": "desilabel.in",
-      "store_name": "Desi Label India",
-      "origin": "https://desilabel.in",
-      "score": 26,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 91,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 91,
-        "vendor_brand_pct": 8,
-        "product_type_pct": 0,
-        "useful_description_pct": 6,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 4
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-16T16:59:10.986Z",
-      "ok": true
-    },
-    {
-      "domain": "dharoharofficials.in",
-      "store_name": "Dharohar India",
-      "origin": "https://dharoharofficials.in",
-      "score": 22,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 40,
-        "product_type_pct": 40,
-        "useful_description_pct": 40,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 36
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-16T16:59:11.521Z",
-      "ok": true
-    },
-    {
-      "domain": "doortjetilburg.nl",
-      "store_name": "Doortje Tilburg Netherlands",
-      "origin": "https://doortjetilburg.nl",
-      "score": 5,
+      "domain": "elizamabelsydney.com",
+      "store_name": "Eliza & Mabel Sydney Australia",
+      "origin": "https://elizamabelsydney.com",
+      "score": 6,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -231,7 +223,7 @@
         "product_type_pct": 10,
         "useful_description_pct": 10,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 8
+        "descriptive_title_pct": 10
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -239,64 +231,67 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-16T16:59:12.567Z",
+      "audited_at": "2026-11-17T16:52:40.108Z",
       "ok": true
     },
     {
-      "domain": "dockwave.us",
-      "store_name": "Dockwave Jams United States",
-      "origin": "https://dockwave.us",
-      "score": 72,
-      "sample": {
-        "products": 36,
-        "variants": 50,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 94,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 94,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 61.1,
-        "useful_description_pct": 88.9,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-16T16:59:13.102Z",
-      "ok": true
-    },
-    {
-      "domain": "dubaiessence.us",
-      "store_name": "Dubai Essence LLC United States",
-      "origin": "https://dubaiessence.us",
-      "score": 57,
+      "domain": "elunoraparis.com",
+      "store_name": "Everly Dear France",
+      "origin": "https://elunoraparis.com",
+      "score": 11,
       "sample": {
         "products": 50,
-        "variants": 50,
+        "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 46,
+        "identifiers_pct": 16,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 46,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 58,
+        "sku_mpn_pct": 16,
+        "vendor_brand_pct": 16,
+        "product_type_pct": 2,
+        "useful_description_pct": 16,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 92
+        "descriptive_title_pct": 16
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-16T16:59:13.645Z",
+      "audited_at": "2026-11-17T16:52:40.864Z",
+      "ok": true
+    },
+    {
+      "domain": "elvmin.com",
+      "store_name": "Elvmin United States",
+      "origin": "https://elvmin.com",
+      "score": 46,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 50,
+        "product_type_pct": 0,
+        "useful_description_pct": 42,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 48
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-17T16:52:42.053Z",
       "ok": true
     }
   ]
