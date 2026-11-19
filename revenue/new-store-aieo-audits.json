@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-11-18T16:25:54.755Z",
-  "source_queue_created": "2026-11-18T16:25:48.344Z",
+  "generated_at": "2026-11-19T16:32:22.932Z",
+  "source_queue_created": "2026-11-19T16:32:20.920Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 10,
-  "passed": 10,
+  "attempted": 3,
+  "passed": 3,
   "results": [
     {
-      "domain": "althetic.site",
-      "store_name": "althetic.site Pakistan",
-      "origin": "https://althetic.site",
+      "domain": "nindys.com",
+      "store_name": "Shop & Save United Kingdom",
+      "origin": "https://nindys.com",
       "score": 45,
       "sample": {
-        "products": 40,
-        "variants": 51,
+        "products": 31,
+        "variants": 31,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -23,53 +23,51 @@
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
         "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 48.4,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 97.5
+        "descriptive_title_pct": 100
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-18T16:25:49.741Z",
+      "audited_at": "2026-11-19T16:32:21.969Z",
       "ok": true
     },
     {
-      "domain": "alvorusa.shop",
-      "store_name": "Vuori outlet shop United States",
-      "origin": "https://alvorusa.shop",
-      "score": 37,
+      "domain": "nivauxauliondefaience.com",
+      "store_name": "Nivaux au Lion de Faïence France",
+      "origin": "https://nivauxauliondefaience.com",
+      "score": 62,
       "sample": {
-        "products": 50,
-        "variants": 100,
+        "products": 15,
+        "variants": 15,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 26.7,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 26,
-        "product_type_pct": 0,
-        "useful_description_pct": 26,
+        "sku_mpn_pct": 26.7,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 26
+        "descriptive_title_pct": 100
       },
       "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-18T16:25:50.325Z",
+      "audited_at": "2026-11-19T16:32:22.495Z",
       "ok": true
     },
     {
-      "domain": "asvyna.shop",
-      "store_name": "Asvyna United States",
-      "origin": "https://asvyna.shop",
+      "domain": "norapilor.com",
+      "store_name": "Norapilor Switzerland",
+      "origin": "https://norapilor.com",
       "score": 80,
       "sample": {
         "products": 50,
@@ -90,210 +88,7 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-18T16:25:50.885Z",
-      "ok": true
-    },
-    {
-      "domain": "alterrar.store",
-      "store_name": "ALTERRA United States",
-      "origin": "https://alterrar.store",
-      "score": 48,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 52,
-        "product_type_pct": 0,
-        "useful_description_pct": 52,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 52
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-18T16:25:51.370Z",
-      "ok": true
-    },
-    {
-      "domain": "altrarunnin.shop",
-      "store_name": "Altra Running USA United States",
-      "origin": "https://altrarunnin.shop",
-      "score": 27,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 6,
-        "product_type_pct": 0,
-        "useful_description_pct": 6,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 0
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-18T16:25:52.287Z",
-      "ok": true
-    },
-    {
-      "domain": "atelier-du-salon.fr",
-      "store_name": "Atelier du Salon France",
-      "origin": "https://atelier-du-salon.fr",
-      "score": 80,
-      "sample": {
-        "products": 16,
-        "variants": 18,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-11-18T16:25:52.694Z",
-      "ok": true
-    },
-    {
-      "domain": "ateliereclat.fr",
-      "store_name": "Atelier-Eclat France",
-      "origin": "https://ateliereclat.fr",
-      "score": 70,
-      "sample": {
-        "products": 19,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 84.2,
-        "product_type_pct": 84.2,
-        "useful_description_pct": 84.2,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 68.4
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate vendor/brand consistently across the catalog.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-11-18T16:25:53.141Z",
-      "ok": true
-    },
-    {
-      "domain": "atelierone.online",
-      "store_name": "Atelier One United States",
-      "origin": "https://atelierone.online",
-      "score": 23,
-      "sample": {
-        "products": 19,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 18,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 18,
-        "vendor_brand_pct": 68.4,
-        "product_type_pct": 15.8,
-        "useful_description_pct": 15.8,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 36.8
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-18T16:25:53.628Z",
-      "ok": true
-    },
-    {
-      "domain": "aultraven.store",
-      "store_name": "AULTRAVEN United States",
-      "origin": "https://aultraven.store",
-      "score": 44,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 64,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 64,
-        "vendor_brand_pct": 50,
-        "product_type_pct": 50,
-        "useful_description_pct": 50,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 50
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-18T16:25:54.039Z",
-      "ok": true
-    },
-    {
-      "domain": "auraandcogifts.store",
-      "store_name": "Aura & Co. Gifts United States",
-      "origin": "https://auraandcogifts.store",
-      "score": 80,
-      "sample": {
-        "products": 36,
-        "variants": 59,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-11-18T16:25:54.619Z",
+      "audited_at": "2026-11-19T16:32:22.842Z",
       "ok": true
     }
   ]
