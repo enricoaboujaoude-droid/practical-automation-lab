@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-11-19T16:32:22.932Z",
-  "source_queue_created": "2026-11-19T16:32:20.920Z",
+  "generated_at": "2026-11-20T16:07:55.870Z",
+  "source_queue_created": "2026-11-20T16:07:50.002Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 3,
-  "passed": 3,
+  "attempted": 8,
+  "passed": 8,
   "results": [
     {
-      "domain": "nindys.com",
-      "store_name": "Shop & Save United Kingdom",
-      "origin": "https://nindys.com",
-      "score": 45,
+      "domain": "laboutiqueenaparthe.com",
+      "store_name": "La Boutique - En aparthé France",
+      "origin": "https://laboutiqueenaparthe.com",
+      "score": 47,
       "sample": {
-        "products": 31,
-        "variants": 31,
+        "products": 15,
+        "variants": 15,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -23,55 +23,117 @@
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
         "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 48.4,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
-      ],
-      "audited_at": "2026-11-19T16:32:21.969Z",
-      "ok": true
-    },
-    {
-      "domain": "nivauxauliondefaience.com",
-      "store_name": "Nivaux au Lion de Faïence France",
-      "origin": "https://nivauxauliondefaience.com",
-      "score": 62,
-      "sample": {
-        "products": 15,
-        "variants": 15,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 26.7,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 26.7,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
+        "product_type_pct": 20,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
         "descriptive_title_pct": 100
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-19T16:32:22.495Z",
+      "audited_at": "2026-11-20T16:07:50.886Z",
       "ok": true
     },
     {
-      "domain": "norapilor.com",
-      "store_name": "Norapilor Switzerland",
-      "origin": "https://norapilor.com",
-      "score": 80,
+      "domain": "kuzline.com",
+      "store_name": "KUZLINE United States",
+      "origin": "https://kuzline.com",
+      "score": 35,
       "sample": {
         "products": 50,
-        "variants": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 20,
+        "product_type_pct": 20,
+        "useful_description_pct": 18,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 14
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-20T16:07:51.782Z",
+      "ok": true
+    },
+    {
+      "domain": "kynreno.com",
+      "store_name": "Kynreno United States",
+      "origin": "https://kynreno.com",
+      "score": 46,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 50,
+        "product_type_pct": 0,
+        "useful_description_pct": 42,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 48
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-20T16:07:52.967Z",
+      "ok": true
+    },
+    {
+      "domain": "lady-world.com",
+      "store_name": "Lady World France",
+      "origin": "https://lady-world.com",
+      "score": 4,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 10,
+        "product_type_pct": 10,
+        "useful_description_pct": 0,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 10
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-20T16:07:53.543Z",
+      "ok": true
+    },
+    {
+      "domain": "laurivue.com",
+      "store_name": "Laurivue United States",
+      "origin": "https://laurivue.com",
+      "score": 80,
+      "sample": {
+        "products": 33,
+        "variants": 33,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -88,7 +150,96 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-19T16:32:22.842Z",
+      "audited_at": "2026-11-20T16:07:53.938Z",
+      "ok": true
+    },
+    {
+      "domain": "lavgrace.com",
+      "store_name": "Lavgrace United States",
+      "origin": "https://lavgrace.com",
+      "score": 37,
+      "sample": {
+        "products": 43,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 25.6,
+        "product_type_pct": 0,
+        "useful_description_pct": 25.6,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 25.6
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-20T16:07:54.450Z",
+      "ok": true
+    },
+    {
+      "domain": "leeloulorraines.com",
+      "store_name": "\"Leelou Lorraine&#x27;s\" United States",
+      "origin": "https://leeloulorraines.com",
+      "score": 34,
+      "sample": {
+        "products": 22,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 96,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 96,
+        "vendor_brand_pct": 31.8,
+        "product_type_pct": 13.6,
+        "useful_description_pct": 13.6,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 13.6
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-20T16:07:54.954Z",
+      "ok": true
+    },
+    {
+      "domain": "lecabinetpostal.com",
+      "store_name": "Le Cabinet Postal France",
+      "origin": "https://lecabinetpostal.com",
+      "score": 63,
+      "sample": {
+        "products": 50,
+        "variants": 50,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 66,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-20T16:07:55.761Z",
       "ok": true
     }
   ]
