@@ -1,17 +1,17 @@
 {
-  "generated_at": "2026-11-21T15:20:28.798Z",
-  "source_queue_created": "2026-11-21T15:20:23.840Z",
+  "generated_at": "2026-11-22T15:16:03.326Z",
+  "source_queue_created": "2026-11-22T15:15:57.386Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 8,
-  "passed": 8,
+  "attempted": 10,
+  "passed": 10,
   "results": [
     {
-      "domain": "thepremiumcoffee.co",
-      "store_name": "Premium Coffee United States",
-      "origin": "https://thepremiumcoffee.co",
-      "score": 44,
+      "domain": "abidecollectiveco.com",
+      "store_name": "abide United States",
+      "origin": "https://abidecollectiveco.com",
+      "score": 45,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -19,14 +19,14 @@
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 99,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 54,
-        "product_type_pct": 0,
-        "useful_description_pct": 52,
+        "sku_mpn_pct": 99,
+        "vendor_brand_pct": 36,
+        "product_type_pct": 36,
+        "useful_description_pct": 36,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 8
+        "descriptive_title_pct": 36
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -34,14 +34,14 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-11-21T15:20:25.187Z",
+      "audited_at": "2026-11-22T15:15:58.632Z",
       "ok": true
     },
     {
-      "domain": "09thridge.store",
-      "store_name": "09th Ridge United States",
-      "origin": "https://09thridge.store",
-      "score": 44,
+      "domain": "jeanarp.shop",
+      "store_name": "Jean Arp Shop United States",
+      "origin": "https://jeanarp.shop",
+      "score": 40,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -49,14 +49,14 @@
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 94,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 34,
-        "product_type_pct": 34,
-        "useful_description_pct": 34,
+        "sku_mpn_pct": 94,
+        "vendor_brand_pct": 30,
+        "product_type_pct": 30,
+        "useful_description_pct": 30,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 34
+        "descriptive_title_pct": 30
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -64,14 +64,44 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-11-21T15:20:25.739Z",
+      "audited_at": "2026-11-22T15:15:59.137Z",
       "ok": true
     },
     {
-      "domain": "41sthype.store",
-      "store_name": "41st Hype United States",
-      "origin": "https://41sthype.store",
-      "score": 51,
+      "domain": "marcelbarbeau.shop",
+      "store_name": "Marcel Barbeau Shop United States",
+      "origin": "https://marcelbarbeau.shop",
+      "score": 36,
+      "sample": {
+        "products": 45,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 98,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 98,
+        "vendor_brand_pct": 20,
+        "product_type_pct": 20,
+        "useful_description_pct": 20,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 20
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-22T15:15:59.463Z",
+      "ok": true
+    },
+    {
+      "domain": "tomthomson.shop",
+      "store_name": "Tom Thomson Shop United States",
+      "origin": "https://tomthomson.shop",
+      "score": 34,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -79,74 +109,14 @@
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 95,
+        "identifiers_pct": 88,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 95,
-        "vendor_brand_pct": 50,
-        "product_type_pct": 50,
-        "useful_description_pct": 50,
+        "sku_mpn_pct": 88,
+        "vendor_brand_pct": 22,
+        "product_type_pct": 22,
+        "useful_description_pct": 22,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 50
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-21T15:20:26.277Z",
-      "ok": true
-    },
-    {
-      "domain": "52nddrift.store",
-      "store_name": "52nd Drift United States",
-      "origin": "https://52nddrift.store",
-      "score": 44,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 34,
-        "product_type_pct": 34,
-        "useful_description_pct": 34,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 34
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-21T15:20:26.959Z",
-      "ok": true
-    },
-    {
-      "domain": "93degrees.store",
-      "store_name": "93degrees France",
-      "origin": "https://93degrees.store",
-      "score": 33,
-      "sample": {
-        "products": 21,
-        "variants": 58,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 0,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 61.9,
-        "useful_description_pct": 19,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 76.2
+        "descriptive_title_pct": 22
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -154,29 +124,29 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-21T15:20:27.295Z",
+      "audited_at": "2026-11-22T15:15:59.997Z",
       "ok": true
     },
     {
-      "domain": "activotime.com",
-      "store_name": "ACTIVO DESIGN United States",
-      "origin": "https://activotime.com",
-      "score": 67,
+      "domain": "jamesrosenquist.shop",
+      "store_name": "James Rosenquist Shop United States",
+      "origin": "https://jamesrosenquist.shop",
+      "score": 36,
       "sample": {
-        "products": 13,
+        "products": 50,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 90,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 76.9,
-        "product_type_pct": 76.9,
-        "useful_description_pct": 76.9,
+        "sku_mpn_pct": 90,
+        "vendor_brand_pct": 24,
+        "product_type_pct": 24,
+        "useful_description_pct": 24,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 76.9
+        "descriptive_title_pct": 24
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -184,44 +154,44 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-11-21T15:20:27.661Z",
+      "audited_at": "2026-11-22T15:16:00.711Z",
       "ok": true
     },
     {
-      "domain": "akaganedo.com",
-      "store_name": "AKAGANEDO Japan",
-      "origin": "https://akaganedo.com",
-      "score": 41,
+      "domain": "fernandleduc.shop",
+      "store_name": "Fernand Leduc Shop United States",
+      "origin": "https://fernandleduc.shop",
+      "score": 44,
       "sample": {
-        "products": 50,
-        "variants": 50,
+        "products": 30,
+        "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 0,
+        "identifiers_pct": 94,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 66,
-        "useful_description_pct": 98,
+        "sku_mpn_pct": 94,
+        "vendor_brand_pct": 36.7,
+        "product_type_pct": 36.7,
+        "useful_description_pct": 36.7,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 2
+        "descriptive_title_pct": 36.7
       },
       "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+        "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-11-21T15:20:28.253Z",
+      "audited_at": "2026-11-22T15:16:01.170Z",
       "ok": true
     },
     {
-      "domain": "akhigold.com",
-      "store_name": "Akhi Gold Malaysia",
-      "origin": "https://akhigold.com",
-      "score": 70,
+      "domain": "arkhypkuindzhi.shop",
+      "store_name": "Arkhyp Kuindzhi Shop United States",
+      "origin": "https://arkhypkuindzhi.shop",
+      "score": 36,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -229,21 +199,112 @@
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 100,
+        "identifiers_pct": 98,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 82,
-        "product_type_pct": 82,
-        "useful_description_pct": 82,
+        "sku_mpn_pct": 98,
+        "vendor_brand_pct": 20,
+        "product_type_pct": 20,
+        "useful_description_pct": 20,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 78
+        "descriptive_title_pct": 20
       },
       "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate vendor/brand consistently across the catalog.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-11-21T15:20:28.715Z",
+      "audited_at": "2026-11-22T15:16:01.763Z",
+      "ok": true
+    },
+    {
+      "domain": "hannahhoch.shop",
+      "store_name": "Hannah Hoch Shop United States",
+      "origin": "https://hannahhoch.shop",
+      "score": 63,
+      "sample": {
+        "products": 15,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 92,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 92,
+        "vendor_brand_pct": 73.3,
+        "product_type_pct": 73.3,
+        "useful_description_pct": 73.3,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 73.3
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-22T15:16:02.292Z",
+      "ok": true
+    },
+    {
+      "domain": "alheld.shop",
+      "store_name": "Al Held Shop United States",
+      "origin": "https://alheld.shop",
+      "score": 35,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 90,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 90,
+        "vendor_brand_pct": 22,
+        "product_type_pct": 22,
+        "useful_description_pct": 22,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 22
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-22T15:16:02.763Z",
+      "ok": true
+    },
+    {
+      "domain": "edwardcorbett.shop",
+      "store_name": "Edward Corbett Shop United States",
+      "origin": "https://edwardcorbett.shop",
+      "score": 36,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 96,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 96,
+        "vendor_brand_pct": 22,
+        "product_type_pct": 22,
+        "useful_description_pct": 22,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 22
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-22T15:16:03.270Z",
       "ok": true
     }
   ]
