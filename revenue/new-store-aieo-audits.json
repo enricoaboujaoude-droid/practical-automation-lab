@@ -1,32 +1,32 @@
 {
-  "generated_at": "2026-11-22T15:16:03.326Z",
-  "source_queue_created": "2026-11-22T15:15:57.386Z",
+  "generated_at": "2026-11-23T19:13:20.079Z",
+  "source_queue_created": "2026-11-23T19:13:15.766Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 10,
-  "passed": 10,
+  "attempted": 6,
+  "passed": 6,
   "results": [
     {
-      "domain": "abidecollectiveco.com",
-      "store_name": "abide United States",
-      "origin": "https://abidecollectiveco.com",
-      "score": 45,
+      "domain": "tiredout.shop",
+      "store_name": "Tired out United States",
+      "origin": "https://tiredout.shop",
+      "score": 52,
       "sample": {
-        "products": 50,
+        "products": 35,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 99,
+        "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 99,
-        "vendor_brand_pct": 36,
-        "product_type_pct": 36,
-        "useful_description_pct": 36,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 60,
+        "product_type_pct": 60,
+        "useful_description_pct": 60,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 36
+        "descriptive_title_pct": 0
       },
       "recommendations": [
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
@@ -34,14 +34,72 @@
         "Populate product type/category consistently to strengthen product classification.",
         "Populate vendor/brand consistently across the catalog."
       ],
-      "audited_at": "2026-11-22T15:15:58.632Z",
+      "audited_at": "2026-11-23T19:13:16.888Z",
       "ok": true
     },
     {
-      "domain": "jeanarp.shop",
-      "store_name": "Jean Arp Shop United States",
-      "origin": "https://jeanarp.shop",
-      "score": 40,
+      "domain": "squeezepop.co",
+      "store_name": "SqueezePop United States",
+      "origin": "https://squeezepop.co",
+      "score": 55,
+      "sample": {
+        "products": 50,
+        "variants": 59,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 100
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+      ],
+      "audited_at": "2026-11-23T19:13:17.513Z",
+      "ok": true
+    },
+    {
+      "domain": "adaptmusic.eu",
+      "store_name": "ADAPT United States",
+      "origin": "https://adaptmusic.eu",
+      "score": 48,
+      "sample": {
+        "products": 12,
+        "variants": 58,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 33.3,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 16.7
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
+      ],
+      "audited_at": "2026-11-23T19:13:17.997Z",
+      "ok": true
+    },
+    {
+      "domain": "all-staroutfitters.us",
+      "store_name": "All-Star Outfitters United States",
+      "origin": "https://all-staroutfitters.us",
+      "score": 6,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -49,74 +107,14 @@
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 94,
+        "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 94,
-        "vendor_brand_pct": 30,
-        "product_type_pct": 30,
-        "useful_description_pct": 30,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 12,
+        "product_type_pct": 10,
+        "useful_description_pct": 12,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 30
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-22T15:15:59.137Z",
-      "ok": true
-    },
-    {
-      "domain": "marcelbarbeau.shop",
-      "store_name": "Marcel Barbeau Shop United States",
-      "origin": "https://marcelbarbeau.shop",
-      "score": 36,
-      "sample": {
-        "products": 45,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 98,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 98,
-        "vendor_brand_pct": 20,
-        "product_type_pct": 20,
-        "useful_description_pct": 20,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 20
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-22T15:15:59.463Z",
-      "ok": true
-    },
-    {
-      "domain": "tomthomson.shop",
-      "store_name": "Tom Thomson Shop United States",
-      "origin": "https://tomthomson.shop",
-      "score": 34,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 88,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 88,
-        "vendor_brand_pct": 22,
-        "product_type_pct": 22,
-        "useful_description_pct": 22,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 22
+        "descriptive_title_pct": 12
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -124,187 +122,62 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-22T15:15:59.997Z",
+      "audited_at": "2026-11-23T19:13:18.669Z",
       "ok": true
     },
     {
-      "domain": "jamesrosenquist.shop",
-      "store_name": "James Rosenquist Shop United States",
-      "origin": "https://jamesrosenquist.shop",
-      "score": 36,
+      "domain": "amazomart.in",
+      "store_name": "AmazoMart India",
+      "origin": "https://amazomart.in",
+      "score": 80,
       "sample": {
         "products": 50,
-        "variants": 100,
+        "variants": 50,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 90,
+        "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 90,
-        "vendor_brand_pct": 24,
-        "product_type_pct": 24,
-        "useful_description_pct": 24,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 24
+        "descriptive_title_pct": 100
       },
       "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-22T15:16:00.711Z",
+      "audited_at": "2026-11-23T19:13:19.414Z",
       "ok": true
     },
     {
-      "domain": "fernandleduc.shop",
-      "store_name": "Fernand Leduc Shop United States",
-      "origin": "https://fernandleduc.shop",
-      "score": 44,
-      "sample": {
-        "products": 30,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 94,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 94,
-        "vendor_brand_pct": 36.7,
-        "product_type_pct": 36.7,
-        "useful_description_pct": 36.7,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 36.7
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-22T15:16:01.170Z",
-      "ok": true
-    },
-    {
-      "domain": "arkhypkuindzhi.shop",
-      "store_name": "Arkhyp Kuindzhi Shop United States",
-      "origin": "https://arkhypkuindzhi.shop",
-      "score": 36,
+      "domain": "ambranoir.de",
+      "store_name": "Ambranoir Germany",
+      "origin": "https://ambranoir.de",
+      "score": 55,
       "sample": {
         "products": 50,
-        "variants": 100,
+        "variants": 50,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 98,
+        "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 98,
-        "vendor_brand_pct": 20,
-        "product_type_pct": 20,
-        "useful_description_pct": 20,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 20
+        "descriptive_title_pct": 100
       },
       "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-22T15:16:01.763Z",
-      "ok": true
-    },
-    {
-      "domain": "hannahhoch.shop",
-      "store_name": "Hannah Hoch Shop United States",
-      "origin": "https://hannahhoch.shop",
-      "score": 63,
-      "sample": {
-        "products": 15,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 92,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 92,
-        "vendor_brand_pct": 73.3,
-        "product_type_pct": 73.3,
-        "useful_description_pct": 73.3,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 73.3
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-22T15:16:02.292Z",
-      "ok": true
-    },
-    {
-      "domain": "alheld.shop",
-      "store_name": "Al Held Shop United States",
-      "origin": "https://alheld.shop",
-      "score": 35,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 90,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 90,
-        "vendor_brand_pct": 22,
-        "product_type_pct": 22,
-        "useful_description_pct": 22,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 22
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-22T15:16:02.763Z",
-      "ok": true
-    },
-    {
-      "domain": "edwardcorbett.shop",
-      "store_name": "Edward Corbett Shop United States",
-      "origin": "https://edwardcorbett.shop",
-      "score": 36,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 96,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 96,
-        "vendor_brand_pct": 22,
-        "product_type_pct": 22,
-        "useful_description_pct": 22,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 22
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-22T15:16:03.270Z",
+      "audited_at": "2026-11-23T19:13:20.006Z",
       "ok": true
     }
   ]
