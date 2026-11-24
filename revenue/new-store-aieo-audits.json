@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-11-23T19:13:20.079Z",
-  "source_queue_created": "2026-11-23T19:13:15.766Z",
+  "generated_at": "2026-11-24T18:52:21.150Z",
+  "source_queue_created": "2026-11-24T18:52:17.106Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 6,
-  "passed": 6,
+  "attempted": 8,
+  "passed": 8,
   "results": [
     {
-      "domain": "tiredout.shop",
-      "store_name": "Tired out United States",
-      "origin": "https://tiredout.shop",
-      "score": 52,
+      "domain": "alfamahouse.com",
+      "store_name": "Alfama House United States",
+      "origin": "https://alfamahouse.com",
+      "score": 77,
       "sample": {
-        "products": 35,
-        "variants": 100,
+        "products": 21,
+        "variants": 23,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -22,36 +22,34 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 60,
-        "product_type_pct": 60,
-        "useful_description_pct": 60,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 0
+        "descriptive_title_pct": 66.7
       },
       "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
+        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
       ],
-      "audited_at": "2026-11-23T19:13:16.888Z",
+      "audited_at": "2026-11-24T18:52:18.091Z",
       "ok": true
     },
     {
-      "domain": "squeezepop.co",
-      "store_name": "SqueezePop United States",
-      "origin": "https://squeezepop.co",
-      "score": 55,
+      "domain": "alintio.com",
+      "store_name": "Alintio United States",
+      "origin": "https://alintio.com",
+      "score": 56,
       "sample": {
-        "products": 50,
-        "variants": 59,
+        "products": 36,
+        "variants": 36,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 0,
+        "identifiers_pct": 5.6,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 0,
+        "sku_mpn_pct": 5.6,
         "vendor_brand_pct": 100,
         "product_type_pct": 100,
         "useful_description_pct": 100,
@@ -62,44 +60,14 @@
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-23T19:13:17.513Z",
+      "audited_at": "2026-11-24T18:52:18.685Z",
       "ok": true
     },
     {
-      "domain": "adaptmusic.eu",
-      "store_name": "ADAPT United States",
-      "origin": "https://adaptmusic.eu",
-      "score": 48,
-      "sample": {
-        "products": 12,
-        "variants": 58,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 33.3,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 16.7
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Use descriptive product titles that identify the product and key variant rather than short or generic labels."
-      ],
-      "audited_at": "2026-11-23T19:13:17.997Z",
-      "ok": true
-    },
-    {
-      "domain": "all-staroutfitters.us",
-      "store_name": "All-Star Outfitters United States",
-      "origin": "https://all-staroutfitters.us",
-      "score": 6,
+      "domain": "altamiracollect.com",
+      "store_name": "ALTAMIRA COLLECTION United States",
+      "origin": "https://altamiracollect.com",
+      "score": 18,
       "sample": {
         "products": 50,
         "variants": 100,
@@ -110,11 +78,11 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 12,
-        "product_type_pct": 10,
-        "useful_description_pct": 12,
+        "vendor_brand_pct": 34,
+        "product_type_pct": 22,
+        "useful_description_pct": 34,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 12
+        "descriptive_title_pct": 34
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
@@ -122,13 +90,73 @@
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
         "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-23T19:13:18.669Z",
+      "audited_at": "2026-11-24T18:52:19.020Z",
       "ok": true
     },
     {
-      "domain": "amazomart.in",
-      "store_name": "AmazoMart India",
-      "origin": "https://amazomart.in",
+      "domain": "alloyapparela.com",
+      "store_name": "Alloyapparela United States",
+      "origin": "https://alloyapparela.com",
+      "score": 53,
+      "sample": {
+        "products": 50,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 54,
+        "product_type_pct": 54,
+        "useful_description_pct": 54,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 38
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-24T18:52:19.642Z",
+      "ok": true
+    },
+    {
+      "domain": "altaredsupply.com",
+      "store_name": "Altared Supply United States",
+      "origin": "https://altaredsupply.com",
+      "score": 34,
+      "sample": {
+        "products": 18,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 100,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 100,
+        "vendor_brand_pct": 22.2,
+        "product_type_pct": 0,
+        "useful_description_pct": 22.2,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 16.7
+      },
+      "recommendations": [
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-24T18:52:19.970Z",
+      "ok": true
+    },
+    {
+      "domain": "alltechstockroom.com",
+      "store_name": "AllTechRevival United States",
+      "origin": "https://alltechstockroom.com",
       "score": 80,
       "sample": {
         "products": 50,
@@ -149,17 +177,17 @@
       "recommendations": [
         "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-23T19:13:19.414Z",
+      "audited_at": "2026-11-24T18:52:20.276Z",
       "ok": true
     },
     {
-      "domain": "ambranoir.de",
-      "store_name": "Ambranoir Germany",
-      "origin": "https://ambranoir.de",
-      "score": 55,
+      "domain": "allvado.com",
+      "store_name": "Allvado United States",
+      "origin": "https://allvado.com",
+      "score": 17,
       "sample": {
-        "products": 50,
-        "variants": 50,
+        "products": 48,
+        "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -167,17 +195,49 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 100,
+        "vendor_brand_pct": 45.8,
+        "product_type_pct": 0,
+        "useful_description_pct": 45.8,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
+        "descriptive_title_pct": 10.4
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-23T19:13:20.006Z",
+      "audited_at": "2026-11-24T18:52:20.765Z",
+      "ok": true
+    },
+    {
+      "domain": "ambianceo.com",
+      "store_name": "Ambianceo France",
+      "origin": "https://ambianceo.com",
+      "score": 38,
+      "sample": {
+        "products": 20,
+        "variants": 100,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 85,
+        "product_type_pct": 0,
+        "useful_description_pct": 85,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 85
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification.",
+        "Populate vendor/brand consistently across the catalog."
+      ],
+      "audited_at": "2026-11-24T18:52:21.101Z",
       "ok": true
     }
   ]
