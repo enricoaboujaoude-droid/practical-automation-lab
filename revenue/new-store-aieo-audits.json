@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-11-25T17:57:31.692Z",
-  "source_queue_created": "2026-11-25T17:57:26.043Z",
+  "generated_at": "2026-11-26T17:42:32.909Z",
+  "source_queue_created": "2026-11-26T17:42:30.053Z",
   "api": "https://br-wild-truth-b2gxc5zl-palmarket.compute.c-6.eu-central-1.aws.neon.tech/api/shopify-aieo-quick-audit",
   "samples_only": true,
   "no_contact_details_embedded": true,
-  "attempted": 10,
-  "passed": 10,
+  "attempted": 5,
+  "passed": 5,
   "results": [
     {
-      "domain": "agrisola.shop",
-      "store_name": "Agrisola United Kingdom",
-      "origin": "https://agrisola.shop",
-      "score": 70,
+      "domain": "cobbleno.com",
+      "store_name": "Cobbleno United States",
+      "origin": "https://cobbleno.com",
+      "score": 80,
       "sample": {
-        "products": 50,
-        "variants": 50,
+        "products": 12,
+        "variants": 12,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -23,203 +23,24 @@
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
         "vendor_brand_pct": 100,
-        "product_type_pct": 0,
+        "product_type_pct": 100,
         "useful_description_pct": 100,
         "image_alt_text_pct": 0,
         "descriptive_title_pct": 100
       },
       "recommendations": [
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-25T17:57:27.265Z",
+      "audited_at": "2026-11-26T17:42:31.246Z",
       "ok": true
     },
     {
-      "domain": "ajadesigncph.live",
-      "store_name": "Aja Design United States",
-      "origin": "https://ajadesigncph.live",
-      "score": 64,
-      "sample": {
-        "products": 50,
-        "variants": 58,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 53.4,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 53.4,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 54,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-25T17:57:27.958Z",
-      "ok": true
-    },
-    {
-      "domain": "akinz.sbs",
-      "store_name": "Akinz United States",
-      "origin": "https://akinz.sbs",
-      "score": 33,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 30,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 30,
-        "vendor_brand_pct": 48,
-        "product_type_pct": 46,
-        "useful_description_pct": 48,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 42
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-25T17:57:28.520Z",
-      "ok": true
-    },
-    {
-      "domain": "alichicbench.shop",
-      "store_name": "Women Fashion United States",
-      "origin": "https://alichicbench.shop",
+      "domain": "collectivenetworkmerch.com",
+      "store_name": "The Collective Store United States",
+      "origin": "https://collectivenetworkmerch.com",
       "score": 32,
       "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 12,
-        "product_type_pct": 12,
-        "useful_description_pct": 12,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 12
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-25T17:57:29.071Z",
-      "ok": true
-    },
-    {
-      "domain": "alexislombre.shop",
-      "store_name": "Store United States",
-      "origin": "https://alexislombre.shop",
-      "score": 63,
-      "sample": {
-        "products": 35,
-        "variants": 46,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 71.7,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 71.7,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 0,
-        "useful_description_pct": 100,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 100
-      },
-      "recommendations": [
-        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification."
-      ],
-      "audited_at": "2026-11-25T17:57:29.352Z",
-      "ok": true
-    },
-    {
-      "domain": "allaboutapresski.sbs",
-      "store_name": "All About Après United States",
-      "origin": "https://allaboutapresski.sbs",
-      "score": 30,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 10,
-        "product_type_pct": 8,
-        "useful_description_pct": 10,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 10
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-25T17:57:29.848Z",
-      "ok": true
-    },
-    {
-      "domain": "allbirdes.shop",
-      "store_name": "Allbirds clearance United States",
-      "origin": "https://allbirdes.shop",
-      "score": 33,
-      "sample": {
-        "products": 50,
-        "variants": 100,
-        "product_limit": 50,
-        "variant_limit": 100
-      },
-      "coverage": {
-        "identifiers_pct": 100,
-        "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 100,
-        "vendor_brand_pct": 22,
-        "product_type_pct": 0,
-        "useful_description_pct": 22,
-        "image_alt_text_pct": 0,
-        "descriptive_title_pct": 0
-      },
-      "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
-      ],
-      "audited_at": "2026-11-25T17:57:30.320Z",
-      "ok": true
-    },
-    {
-      "domain": "almosth.shop",
-      "store_name": "Almost Home United States",
-      "origin": "https://almosth.shop",
-      "score": 54,
-      "sample": {
-        "products": 50,
+        "products": 26,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
@@ -228,56 +49,89 @@
         "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 0,
-        "vendor_brand_pct": 98,
-        "product_type_pct": 98,
-        "useful_description_pct": 98,
+        "vendor_brand_pct": 57.7,
+        "product_type_pct": 57.7,
+        "useful_description_pct": 57.7,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 98
+        "descriptive_title_pct": 57.7
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-25T17:57:30.781Z",
+      "audited_at": "2026-11-26T17:42:31.687Z",
       "ok": true
     },
     {
-      "domain": "amaneshop.store",
-      "store_name": "AMANE SHOP Morocco",
-      "origin": "https://amaneshop.store",
-      "score": 45,
+      "domain": "creativenailz.com",
+      "store_name": "CreativeNailz United States",
+      "origin": "https://creativenailz.com",
+      "score": 21,
       "sample": {
-        "products": 50,
+        "products": 16,
+        "variants": 16,
+        "product_limit": 50,
+        "variant_limit": 100
+      },
+      "coverage": {
+        "identifiers_pct": 0,
+        "gtin_barcode_pct": 0,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 0,
+        "useful_description_pct": 25,
+        "image_alt_text_pct": 0,
+        "descriptive_title_pct": 6.3
+      },
+      "recommendations": [
+        "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
+        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
+      ],
+      "audited_at": "2026-11-26T17:42:32.090Z",
+      "ok": true
+    },
+    {
+      "domain": "crestandcrownshop.com",
+      "store_name": "Crest & Crown United States",
+      "origin": "https://crestandcrownshop.com",
+      "score": 2,
+      "sample": {
+        "products": 14,
         "variants": 100,
         "product_limit": 50,
         "variant_limit": 100
       },
       "coverage": {
-        "identifiers_pct": 6,
+        "identifiers_pct": 0,
         "gtin_barcode_pct": 0,
-        "sku_mpn_pct": 6,
-        "vendor_brand_pct": 100,
-        "product_type_pct": 100,
-        "useful_description_pct": 52,
+        "sku_mpn_pct": 0,
+        "vendor_brand_pct": 7.1,
+        "product_type_pct": 7.1,
+        "useful_description_pct": 0,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 82
+        "descriptive_title_pct": 7.1
       },
       "recommendations": [
         "Increase GTIN or SKU/MPN coverage so shopping agents can resolve products and variants reliably.",
         "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
+        "Populate product type/category consistently to strengthen product classification."
       ],
-      "audited_at": "2026-11-25T17:57:31.197Z",
+      "audited_at": "2026-11-26T17:42:32.401Z",
       "ok": true
     },
     {
-      "domain": "allthingsfabulous.store",
-      "store_name": "All Things Fabulous United States",
-      "origin": "https://allthingsfabulous.store",
-      "score": 61,
+      "domain": "creations-macrame.com",
+      "store_name": "Creations Macrame France",
+      "origin": "https://creations-macrame.com",
+      "score": 80,
       "sample": {
-        "products": 32,
-        "variants": 100,
+        "products": 50,
+        "variants": 89,
         "product_limit": 50,
         "variant_limit": 100
       },
@@ -285,19 +139,16 @@
         "identifiers_pct": 100,
         "gtin_barcode_pct": 0,
         "sku_mpn_pct": 100,
-        "vendor_brand_pct": 71.9,
-        "product_type_pct": 50,
-        "useful_description_pct": 71.9,
+        "vendor_brand_pct": 100,
+        "product_type_pct": 100,
+        "useful_description_pct": 100,
         "image_alt_text_pct": 0,
-        "descriptive_title_pct": 59.4
+        "descriptive_title_pct": 100
       },
       "recommendations": [
-        "Expand product descriptions with concrete attributes, use cases, materials/specifications, and differentiators that AI shopping systems can extract.",
-        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context.",
-        "Populate product type/category consistently to strengthen product classification.",
-        "Populate vendor/brand consistently across the catalog."
+        "Add descriptive image alt text so multimodal/AI search systems receive explicit product context."
       ],
-      "audited_at": "2026-11-25T17:57:31.629Z",
+      "audited_at": "2026-11-26T17:42:32.845Z",
       "ok": true
     }
   ]
